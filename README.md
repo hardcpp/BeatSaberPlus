@@ -1,4 +1,4 @@
-BeatSaberPlus
+# BeatSaberPlus
 
 **Discord** https://discord.gg/K4X94Ea (Download, Support, Testing, Early releases and cool new mods comming soon)
 
@@ -27,16 +27,8 @@ Dependencies:
 - BeatSaberMarkupLanguage
 - SongCoreData
 
-Discord & Download/Update
+## **Discord & Download/Update**
 https://discord.gg/K4X94Ea
-
-![](https://puu.sh/GO6tf/81ff167aab.png)
-![](https://puu.sh/GKKJJ/7a481941c5.png)
-![](https://puu.sh/GKPcD/ecee2e5d86.png)
-![](https://puu.sh/GH9Rn/d9d4966a04.png)
-![](https://puu.sh/GH9RA/f6dc522cd1.png)
-![](https://puu.sh/GL7BX/0e5f12cfce.jpg)
-
 
 ## **Credits / Copyright**
 * [EnhancedStreamChat-v3](https://github.com/brian91292/EnhancedStreamChat-v3)
@@ -44,3 +36,12 @@ https://discord.gg/K4X94Ea
 * [Beat-Saber-Utils](https://github.com/Kylemc1413/Beat-Saber-Utils)
 * [BeatSaverDownloader](https://github.com/Kylemc1413/BeatSaverDownloader)
 * [BeatSaberMarkupLanguage](https://github.com/monkeymanboy/BeatSaberMarkupLanguage)
+
+## **Screenshots**
+![](https://puu.sh/GO6tf/81ff167aab.png)
+![](https://puu.sh/GKKJJ/7a481941c5.png)
+![](https://puu.sh/GKPcD/ecee2e5d86.png)
+![](https://puu.sh/GH9Rn/d9d4966a04.png)
+![](https://puu.sh/GH9RA/f6dc522cd1.png)
+![](https://puu.sh/GL7BX/0e5f12cfce.jpg)
+
