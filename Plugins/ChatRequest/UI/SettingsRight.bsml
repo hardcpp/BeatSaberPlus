@@ -1,0 +1,98 @@
+﻿<vertical child-control-height='false'>
+  <horizontal bg='panel-top' pad-left='15' pad-right='15' horizontal-fit='PreferredSize'>
+    <text text='Filters' align='Center' font-size='4.2'></text>
+  </horizontal>
+
+  <horizontal min-width='110'>
+    <vertical spacing='0' size-delta-x='30' min-width='30'>
+      <vertical size-delta-x='40' min-width='25' pad='0'>
+        <text text='No BeatSage'></text>
+      </vertical>
+      <vertical size-delta-x='40' min-width='25' pad='0'>
+        <text text='NPS min'></text>
+      </vertical>
+      <vertical size-delta-x='40' min-width='25' pad='0'>
+        <text text='NPS max'></text>
+      </vertical>
+      <vertical size-delta-x='40' min-width='25' pad='0'>
+        <text text='NJS min'></text>
+      </vertical>
+      <vertical size-delta-x='40' min-width='25' pad='0'>
+        <text text='NJS max'></text>
+      </vertical>
+      <vertical size-delta-x='40' min-width='25' pad='0'>
+        <text text='Duration max'></text>
+      </vertical>
+      <vertical size-delta-x='40' min-width='25' pad='0'>
+        <text text='Vote min'></text>
+      </vertical>
+      <vertical size-delta-x='40' min-width='25' pad='0'>
+        <text text='Upload date min'></text>
+      </vertical>
+      <vertical size-delta-x='40' min-width='25' pad='0'>
+        <text text='Upload date max'></text>
+      </vertical>
+    </vertical>
+
+    <vertical spacing='0' size-delta-x='15' min-width='15'>
+      <vertical size-delta-x='30' min-width='25' pad='0'>
+        <bool-setting id='nobeatsage-toggle' apply-on-change='true'></bool-setting>
+      </vertical>
+      <vertical size-delta-x='30' min-width='25' pad='0'>
+        <bool-setting id='npsmin-toggle' apply-on-change='true'></bool-setting>
+      </vertical>
+      <vertical size-delta-x='30' min-width='25' pad='0'>
+        <bool-setting id='npsmax-toggle' apply-on-change='true'></bool-setting>
+      </vertical>
+      <vertical size-delta-x='30' min-width='25' pad='0'>
+        <bool-setting id='njsmin-toggle' apply-on-change='true'></bool-setting>
+      </vertical>
+      <vertical size-delta-x='30' min-width='25' pad='0'>
+        <bool-setting id='njsmax-toggle' apply-on-change='true'></bool-setting>
+      </vertical>
+      <vertical size-delta-x='30' min-width='25' pad='0'>
+        <bool-setting id='durationmax-toggle' apply-on-change='true'></bool-setting>
+      </vertical>
+      <vertical size-delta-x='30' min-width='25' pad='0'>
+        <bool-setting id='votemin-toggle' apply-on-change='true'></bool-setting>
+      </vertical>
+      <vertical size-delta-x='30' min-width='25' pad='0'>
+        <bool-setting id='datemin-toggle' apply-on-change='true'></bool-setting>
+      </vertical>
+      <vertical size-delta-x='30' min-width='25' pad='0'>
+        <bool-setting id='datemax-toggle' apply-on-change='true'></bool-setting>
+      </vertical>
+    </vertical>
+
+    <vertical spacing='0' size-delta-x='70' min-width='70'>
+      <vertical size-delta-x='40' min-width='25' pad='0'>
+        <text text='Discard all BeatSage maps'></text>
+      </vertical>
+      <vertical size-delta-x='70' min-width='65' pad='0'>
+        <slider-setting id='npsmin-slider' min='0' max='100' increment='1' apply-on-change='true' integer-only='true'/>
+      </vertical>
+      <vertical size-delta-x='70' min-width='65' pad='0'>
+        <slider-setting id='npsmax-slider' min='0' max='100' increment='1' apply-on-change='true' integer-only='true'/>
+      </vertical>
+      <vertical size-delta-x='70' min-width='65' pad='0'>
+        <slider-setting id='njsmin-slider' min='1' max='100' increment='1' apply-on-change='true' integer-only='true'/>
+      </vertical>
+      <vertical size-delta-x='70' min-width='65' pad='0'>
+        <slider-setting id='njsmax-slider' min='1' max='100' increment='1' apply-on-change='true' integer-only='true'/>
+      </vertical>
+      <vertical size-delta-x='70' min-width='65' pad='0'>
+        <slider-setting id='durationmax-slider' min='1' max='60' increment='1' apply-on-change='true' integer-only='true'/>
+      </vertical>
+      <vertical size-delta-x='70' min-width='65' pad='0'>
+        <slider-setting id='votemin-slider' min='0' max='1' increment='0.1' apply-on-change='true'/>
+      </vertical>
+      <vertical size-delta-x='70' min-width='65' pad='0'>
+        <slider-setting id='datemin-slider' min='0' max='100' increment='1' apply-on-change='true' integer-only='true'/>
+      </vertical>
+      <vertical size-delta-x='70' min-width='65' pad='0'>
+        <slider-setting id='datemax-slider' min='0' max='100' increment='1' apply-on-change='true' integer-only='true'/>
+      </vertical>
+    </vertical>
+  </horizontal>
+
+</vertical>

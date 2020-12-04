@@ -1,0 +1,17 @@
+﻿<bg bg='round-rect-panel'>
+  <vertical>
+    <horizontal>
+      <text id='Playing' text='Playing...' align='Center' font-size='4.2' />
+    </horizontal>
+
+    <horizontal>
+      <horizontal horizontal-fit='MinSize' min-width='30' id='buttons'>
+        <icon-button on-click='prev-pressed' icon='BeatSaberPlus.Plugins.MenuMusic.Resources.PrevIcon.png'    stroke-type='Clean' pad='1'/>
+        <icon-button on-click='rand-pressed' icon='BeatSaberPlus.Plugins.MenuMusic.Resources.RefreshIcon.png' stroke-type='Clean' pad='1'/>
+        <icon-button on-click='next-pressed' icon='BeatSaberPlus.Plugins.MenuMusic.Resources.NextIcon.png'    stroke-type='Clean' pad='1'/>
+      </horizontal>
+    </horizontal>
+  </vertical>
+
+  <clickable-image id='SettingsIcon' src='BeatSaberPlus.Plugins.MenuMusic.Resources.Settings.png' on-click='settings-pressed' ignore-layout='true' anchor-min-x='0.96' anchor-max-x='0.96' anchor-min-y='0.75' anchor-max-y='0.75' size-delta-x='7' preserve-aspect='true' default-color='#FFFFFF11' highlight-color='#FFFFFFFF'></clickable-image>
+</bg>

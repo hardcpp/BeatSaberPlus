@@ -1,0 +1,30 @@
+﻿<vertical child-control-height='true'>
+  <horizontal bg='panel-top' pad-left='15' pad-right='15' horizontal-fit='PreferredSize'>
+    <text text='Description' align='Center' font-size='4.2'/>
+  </horizontal>
+
+  <horizontal bg='round-rect-panel' id='DetailBackground'>
+    <scroll-view spacing='0' pref-height='50' min-width='110' max-width='110'>
+     <horizontal min-width='92' max-width='92' horizontal-fit='MinSize'>
+        <text id='DetailText'/>
+      </horizontal>
+    </scroll-view>
+  </horizontal>
+
+  <horizontal bg='round-rect-panel' id='SubDetailBackground' pad='5' pad-top='2' pad-bottom='2'>
+    <text id='SubDetailText'></text>
+  </horizontal>
+
+  <horizontal>
+    <button on-click='click-btn-link'      text='Link song to chat'     min-width='50'></button>
+    <button on-click='click-btn-beatsaver' text='Open in beatsaver.com' min-width='50'></button>
+  </horizontal>
+
+  <modal id='MessageModal' show-event='ShowMessageModal' hide-event='CloseMessageModal,CloseAllModals' move-to-center='true' size-delta-y='25' size-delta-x='70'>
+    <vertical pad='0'>
+      <text text='' id='MessageModalText' font-size='4' align='Center'/>
+      <button text='Ok' click-event='CloseMessageModal'></button>
+    </vertical>
+  </modal>
+
+</vertical>

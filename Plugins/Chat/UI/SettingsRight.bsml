@@ -1,0 +1,49 @@
+﻿<vertical child-control-height='false'>
+  <horizontal bg='panel-top' pad-left='15' pad-right='15' horizontal-fit='PreferredSize'>
+    <text text='Other options' align='Center' font-size='4.2'/>
+  </horizontal>
+
+  <horizontal min-width='110'>
+    <vertical spacing='0' size-delta-x='50' min-width='50'>
+      <vertical size-delta-x='70' min-width='45' pad-top='2'>
+        <text text='Follow environement rotations'></text>
+        <bool-setting id='followenvironementrotations-toggle' apply-on-change='true'></bool-setting>
+      </vertical>
+      <vertical size-delta-x='70' min-width='45' >
+        <text text='Filter viewers commands'></text>
+        <bool-setting id='chat-filterviewers' apply-on-change='true'></bool-setting>
+      </vertical>
+      <vertical size-delta-x='70' min-width='45' >
+        <text text='Filter broadcaster commands'></text>
+        <bool-setting id='chat-filterbroadcaster' apply-on-change='true'></bool-setting>
+      </vertical>
+      <vertical size-delta-x='70' min-width='45' pad-bottom='2'>
+        <text text=' '></text>
+        <text text=' '></text>
+      </vertical>
+    </vertical>
+
+    <vertical spacing='0' size-delta-x='50' min-width='50'>
+      <vertical size-delta-x='70' min-width='45' pad-top='2'>
+        <text text='Show follow events'></text>
+        <bool-setting id='followevent-toggle' apply-on-change='true'></bool-setting>
+      </vertical>
+      <vertical size-delta-x='70' min-width='45' >
+        <text text='Show subscription events'></text>
+        <bool-setting id='subscriptionevents-toggle' apply-on-change='true'></bool-setting>
+      </vertical>
+      <vertical size-delta-x='70' min-width='45' >
+        <text text='Show bits cheering events'></text>
+        <bool-setting id='bitscheering-toggle' apply-on-change='true'></bool-setting>
+      </vertical>
+      <vertical size-delta-x='70' min-width='45' pad-bottom='2'>
+        <text text='Show channel points event'></text>
+        <bool-setting id='channelpoints-toggle' apply-on-change='true'></bool-setting>
+      </vertical>
+    </vertical>
+  </horizontal>
+
+  <horizontal min-height='20'>
+  </horizontal>
+
+</vertical>

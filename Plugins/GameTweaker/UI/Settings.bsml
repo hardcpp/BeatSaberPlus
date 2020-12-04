@@ -1,0 +1,113 @@
+﻿<vertical child-control-height='false'>
+  <horizontal id='TypeSegmentPanel' pad-top='2' pref-height='7' pad-left='8' pad-right='8' min-width='145'>
+  </horizontal>
+
+  <!-- =============================== -->
+
+  <vertical id='GamePlayPanel' child-align='UpperCenter' size-delta-y='70'>
+    <horizontal min-width='110'>
+      <vertical spacing='0' pad-right='5' size-delta-x='65' min-width='65'>
+        <vertical size-delta-x='60' min-width='60' pad-top='2'>
+          <text font-size='3.5' text='Remove all debris spawn (Perf)'></text>
+          <bool-setting id='removedebris-toggle'></bool-setting>
+        </vertical>
+        <vertical size-delta-x='60' min-width='60' pad-top='0' pad-bottom='0'>
+          <text font-size='3.5' text='Remove all cut effect particles (Perf)'></text>
+          <bool-setting id='removeallcutparticles-toggle'></bool-setting>
+        </vertical>
+        <vertical size-delta-x='60' min-width='60' pad-top='0' pad-bottom='0'>
+          <text font-size='3.5' text='Remove all obstacle particles (Perf)'></text>
+          <bool-setting id='removeobstacleparticles-toggle'></bool-setting>
+        </vertical>
+        <vertical size-delta-x='60' min-width='60' pad-top='0' pad-bottom='0'>
+          <text font-size='3.5' text='Remove floor burn mark particles (Perf)'></text>
+          <bool-setting id='removefloorburnmarkparticles-toggle'></bool-setting>
+        </vertical>
+        <vertical size-delta-x='60' min-width='60' pad-top='0' pad-bottom='0'>
+          <text font-size='3.5' text='Remove floor burn mark effects (Perf)'></text>
+          <bool-setting id='removefloorburnmarkeffects-toggle'></bool-setting>
+        </vertical>
+        <vertical size-delta-x='60' min-width='60' pad-bottom='2'>
+          <text font-size='3.5' text='Remove saber clash effect (Perf)'></text>
+          <bool-setting id='removesaberclasheffects-toggle'></bool-setting>
+        </vertical>
+      </vertical>
+
+      <vertical spacing='0' pad-left='5' size-delta-x='65' min-width='65'>
+        <vertical size-delta-x='60' min-width='60' pad-top='2'>
+          <text font-size='3.5' text='Remove music band logo in environment'></text>
+          <bool-setting id='removemusicbandlogo-toggle'></bool-setting>
+        </vertical>
+        <vertical size-delta-x='60' min-width='60' pad-top='0' pad-bottom='0'>
+          <text font-size='3.5' text='Remove full combo loss animation'></text>
+          <bool-setting id='removefullcombolossanimation-toggle'></bool-setting>
+        </vertical>
+        <vertical size-delta-x='60' min-width='60' pad-top='0' pad-bottom='0'>
+          <text font-size='3.5' text='Remove fake 360 HUD in standard level'></text>
+          <bool-setting id='nofake360hud-toggle'></bool-setting>
+        </vertical>
+        <vertical size-delta-x='60' min-width='60' pad-top='0' pad-bottom='0'>
+          <text font-size='3.5' text='Remove saber smoothing trail'></text>
+          <bool-setting id='removetrail-toggle'></bool-setting>
+        </vertical>
+        <vertical size-delta-x='60' min-width='60' pad-top='0' pad-bottom='0'>
+          <text font-size='3.5' text='Saber smoothing trail intensity'></text>
+          <increment-setting id='intensity-increment' min='0.1' max='1' increment='0.1'/>
+        </vertical>
+        <vertical size-delta-x='60' min-width='60' pad-bottom='2'>
+          <text font-size='3.5' text=' '></text>
+          <text font-size='3.5' text=' '></text>
+        </vertical>
+      </vertical>
+    </horizontal>
+    <!--
+    <horizontal>
+      <bool-setting id='menuconfirmation-toggle' text='Menu button confirmation'></bool-setting>
+    </horizontal>
+    <horizontal>
+      <bool-setting id='restartconfirmation-toggle' text='Restart button confirmation'></bool-setting>
+    </horizontal>
+    -->
+  </vertical>
+
+  <!-- =============================== -->
+
+  <vertical id='MenuPanel' child-align='UpperCenter' size-delta-y='70'>
+    <horizontal>
+      <bool-setting id='disablebeatmapeditorbuttononmainmenu-toggle' text='Disable BeatMap editor button on main menu'></bool-setting>
+    </horizontal>
+    <horizontal>
+      <bool-setting id='showplayerstatisticsonmainmenu-toggle' text='Show player statistics on main menu'></bool-setting>
+    </horizontal>
+    <horizontal>
+      <bool-setting id='removenewcontentpromotional-toggle' text='Remove new content promotional'></bool-setting>
+    </horizontal>
+    <horizontal>
+      <bool-setting id='reorderplayersettings-toggle' text='Better player options menu' hover-hint='Move all important options to the top'></bool-setting>
+    </horizontal>
+    <horizontal>
+      <bool-setting id='addoverridelightintensityoption-toggle' text='Add override lights intensity option'></bool-setting>
+    </horizontal>
+    <horizontal>
+      <bool-setting id='removebasegamefilterbutton-toggle' text='Remove base game filter button'></bool-setting>
+    </horizontal>
+    <horizontal>
+      <bool-setting id='deletesongbutton-toggle' text='Song delete button'></bool-setting>
+    </horizontal>
+
+    <horizontal min-height='20'>
+    </horizontal>
+  </vertical>
+
+  <!-- =============================== -->
+
+  <vertical id='DevToolsTestingPanel' child-align='UpperCenter' size-delta-y='70'>
+    <horizontal>
+      <bool-setting id='fpfcescape-toggle' text='FPFC Escape' hover-hint='Allow to press Escape key to pause a music'></bool-setting>
+    </horizontal>
+
+    <horizontal min-height='60'>
+    </horizontal>
+  </vertical>
+
+</vertical>

@@ -1,0 +1,32 @@
+﻿<vertical child-control-height='false'>
+  <horizontal bg='panel-top' pad-left='15' pad-right='15' horizontal-fit='PreferredSize'>
+    <text text='Main Settings' align='Center' font-size='4.2'/>
+  </horizontal>
+
+  <horizontal min-width='110'>
+    <vertical spacing='0' pad-right='5' size-delta-x='65' min-width='65'>
+      <vertical size-delta-x='60' min-width='60' pad-top='2'>
+        <bool-setting text='Rain in menu' id='MenuRainToggle' hover-hint='Enables EmoteRain in the menu' apply-on-change='true'></bool-setting>
+      </vertical>
+      <vertical size-delta-x='60' min-width='60' pad-top='0' pad-bottom='0'>
+        <bool-setting text='Rain in songs' id='SongRainToggle' hover-hint='Enables EmoteRain in songs' apply-on-change='true'></bool-setting>
+      </vertical>
+      <vertical size-delta-x='60' min-width='60' pad-top='0' pad-bottom='0'>
+        <slider-setting text='Emote Size in menu' min='0.1' max='5' increment='.1' id='MenuRainSizeSlider' integer-only='false' hover-hint='Size of every emote in the menu'></slider-setting>
+      </vertical>
+      <vertical size-delta-x='60' min-width='60' pad-top='0' pad-bottom='0'>
+        <slider-setting text='Emote Size in song' min='0.1' max='5' increment='.1' id='SongRainSizeSlider' integer-only='false' hover-hint='Size of every emote in songs'></slider-setting>
+      </vertical>
+      <vertical size-delta-x='60' min-width='60' pad-top='0' pad-bottom='0'>
+        <slider-setting text='Delay between same emote' min='1' max='10' increment='1' id='EmoteDelaySlider' integer-only='true' hover-hint='In physics frames'></slider-setting>
+      </vertical>
+      <vertical size-delta-x='60' min-width='60' pad-bottom='2'>
+        <slider-setting text='Emote Fallspeed' min='1.1' max='10' increment='.1' id='EmoteFallSpeedSlider' integer-only='false' hover-hint='How fast Emotes will fall'></slider-setting>
+      </vertical>
+    </vertical>
+  </horizontal>
+
+  <horizontal min-height='10'>
+  </horizontal>
+
+</vertical>

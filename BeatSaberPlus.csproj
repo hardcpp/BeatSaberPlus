@@ -1,0 +1,420 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{84972BAC-4FAF-4DA8-92ED-E3A735AF0E92}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>BeatSaberPlus</RootNamespace>
+    <AssemblyName>BeatSaberPlus</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <DebugType>portable</DebugType>
+    <BeatSaberDir>$(ProjectDir)Refs</BeatSaberDir>
+    <BeatSaberReferences>$(BeatSaberDir)</BeatSaberReferences>
+    <ReferencePath>$(SolutionDir)Refs</ReferencePath>
+    <AppOutputBase>$(MSBuildProjectDirectory)\</AppOutputBase>
+    <PathMap>$(AppOutputBase)=X:\$(AssemblyName)\</PathMap>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>
+    </DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(DefineConstants.Contains('CIBuild')) OR '$(NCrunch)' == '1'">
+    <DisableCopyToPlugins>True</DisableCopyToPlugins>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(NCrunch)' == '1'">
+    <DisableCopyToPlugins>True</DisableCopyToPlugins>
+    <DisableZipRelease>True</DisableZipRelease>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>portable</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <Optimize>true</Optimize>
+    <DebugType>portable</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="0Harmony, Version=2.0.0.7, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(BeatSaberDir)\Libs\0Harmony.dll</HintPath>
+    </Reference>
+    <Reference Include="BeatmapCore, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatmapCore.dll</HintPath>
+    </Reference>
+    <Reference Include="BeatSaberPlusChatCore, Version=1.12.2.0, Culture=neutral, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(BeatSaberDir)\Libs\BeatSaberPlusChatCore.dll</HintPath>
+    </Reference>
+    <Reference Include="BeatSaverSharp, Version=1.6.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(BeatSaberDir)\Libs\BeatSaverSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="BSML, Version=1.3.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(BeatSaberDir)\Plugins\BSML.dll</HintPath>
+    </Reference>
+    <Reference Include="BS_Utils, Version=1.5.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(BeatSaberDir)\Plugins\BS_Utils.dll</HintPath>
+    </Reference>
+    <Reference Include="Colors, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Colors.dll</HintPath>
+    </Reference>
+    <Reference Include="GameplayCore, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\GameplayCore.dll</HintPath>
+    </Reference>
+    <Reference Include="MediaLoader, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\MediaLoader.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(BeatSaberDir)\Libs\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Polyglot, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Polyglot.dll</HintPath>
+    </Reference>
+    <Reference Include="SongCore, Version=2.11.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(BeatSaberDir)\Plugins\SongCore.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.IO.Compression, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\System.IO.Compression.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.Compression.FileSystem, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\System.IO.Compression.FileSystem.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Main">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Main.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="HMLib">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\HMLib.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="HMUI">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\HMUI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="IPA.Loader">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\IPA.Loader.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Unity.TextMeshPro.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.AssetBundleModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <Private>False</Private>
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.AssetBundleModule.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="UnityEngine.AudioModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.AudioModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.ImageConversionModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ParticleSystemModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <Private>False</Private>
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.ParticleSystemModule.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="UnityEngine.TextCoreModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.TextCoreModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UIElementsModule">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UIElementsModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UIModule">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UIModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestAudioModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UnityWebRequestAudioModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UnityWebRequestModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.VRModule">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.VRModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="VRUI, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\VRUI.dll</HintPath>
+    </Reference>
+    <Reference Include="Zenject, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Zenject.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Config.cs" />
+    <Compile Include="Logger.cs" />
+    <Compile Include="Patches\BSMLColorSetting.cs" />
+    <Compile Include="Plugin.cs" />
+    <Compile Include="Plugins\ChatEmoteRain\ChatEmoteRain.cs" />
+    <Compile Include="Plugins\ChatEmoteRain\Components\TimeoutScript.cs" />
+    <Compile Include="Plugins\ChatEmoteRain\UI\Settings.cs" />
+    <Compile Include="Plugins\ChatEmoteRain\UI\SettingsLeft.cs" />
+    <Compile Include="Plugins\ChatEmoteRain\UI\SettingsRight.cs" />
+    <Compile Include="Plugins\ChatRequest\ChatRequest.cs" />
+    <Compile Include="Plugins\ChatRequest\UI\ManagerLeft.cs" />
+    <Compile Include="Plugins\ChatRequest\UI\Settings.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Plugins\ChatRequest\UI\ManagerDetail.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Plugins\ChatRequest\UI\ManagerMain.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Plugins\ChatRequest\UI\ManagerViewFlowCoordinator.cs" />
+    <Compile Include="Plugins\ChatRequest\UI\SettingsRight.cs" />
+    <Compile Include="Plugins\Chat\UI\SettingsRight.cs" />
+    <Compile Include="Plugins\GameTweaker\Components\FPFCEscape.cs" />
+    <Compile Include="Plugins\GameTweaker\Components\MusicBandLogoRemover.cs" />
+    <Compile Include="Plugins\GameTweaker\Patches\PComboUIController.cs" />
+    <Compile Include="Plugins\GameTweaker\Patches\PGameplayCoreSceneSetup.cs" />
+    <Compile Include="Plugins\GameTweaker\Patches\PLevelSearchViewController.cs" />
+    <Compile Include="Plugins\GameTweaker\Patches\PLightSwitchEventEffect.cs" />
+    <Compile Include="Plugins\GameTweaker\Patches\PMainMenuViewController.cs" />
+    <Compile Include="Plugins\GameTweaker\Patches\PObstacleSaberSparkleEffectManager.cs" />
+    <Compile Include="Plugins\GameTweaker\Patches\PPlayerStatisticsViewController.cs" />
+    <Compile Include="Plugins\GameTweaker\Patches\PPromoViewController.cs" />
+    <Compile Include="Plugins\GameTweaker\Patches\PSaberBurnMarkArea.cs" />
+    <Compile Include="Plugins\GameTweaker\Patches\PSaberBurnMarkSparkles.cs" />
+    <Compile Include="Plugins\GameTweaker\Patches\PSaberClashEffect.cs" />
+    <Compile Include="Plugins\GameTweaker\Patches\PStandardLevelDetailView.cs" />
+    <Compile Include="Plugins\GameTweaker\Patches\PNoteDebrisSpawner.cs" />
+    <Compile Include="Plugins\GameTweaker\Patches\PPauseController.cs" />
+    <Compile Include="Plugins\GameTweaker\Patches\PPlayerSettingsPanelController.cs" />
+    <Compile Include="Plugins\MenuMusic\MenuMusic.cs" />
+    <Compile Include="Plugins\MenuMusic\UI\Player.cs" />
+    <Compile Include="Plugins\MenuMusic\UI\Settings.cs" />
+    <Compile Include="Plugins\MenuMusic\UI\SettingsCredits.cs" />
+    <Compile Include="Plugins\Online\Online.cs" />
+    <Compile Include="Plugins\Online\Patches\PBeatSaverSharp_Beatmap.cs" />
+    <Compile Include="Plugins\Online\Patches\PBeatSaverSharp_BeatSaver.cs" />
+    <Compile Include="Plugins\Online\UI\Settings.cs" />
+    <Compile Include="Plugins\PluginBase.cs" />
+    <Compile Include="Plugins\GameTweaker\Patches\PNoteCutCoreEffectsSpawner.cs" />
+    <Compile Include="Plugins\GameTweaker\Patches\PSaberTrailRenderer.cs" />
+    <Compile Include="Plugins\GameTweaker\GameTweaker.cs" />
+    <Compile Include="Plugins\GameTweaker\UI\Settings.cs" />
+    <Compile Include="Plugins\Chat\Chat.cs" />
+    <Compile Include="Plugins\Chat\UI\FloatingWindow.cs" />
+    <Compile Include="Plugins\Chat\UI\Settings.cs" />
+    <Compile Include="Plugins\Chat\UI\SettingsLeft.cs" />
+    <Compile Include="Plugins\SongChartVisualizer\Components\SongChart.cs" />
+    <Compile Include="Plugins\SongChartVisualizer\SongChartVisualizer.cs" />
+    <Compile Include="Plugins\SongChartVisualizer\UI\Settings.cs" />
+    <Compile Include="Plugins\SongChartVisualizer\UI\SettingsLeft.cs" />
+    <Compile Include="Plugins\SongChartVisualizer\UI\SettingsRight.cs" />
+    <Compile Include="Utils\BeatSaver.cs" />
+    <Compile Include="Utils\ChatImageProvider.cs" />
+    <Compile Include="Plugins\Chat\Utils\ChatMessageBuilder.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Plugins\Chat\Extensions\EnhancedFontInfo.cs" />
+    <Compile Include="Utils\Config.cs" />
+    <Compile Include="Utils\CustomBeatSaverBeatmapLevel.cs" />
+    <Compile Include="Utils\EnhancedImageInfo.cs" />
+    <Compile Include="UI\InfoView.cs" />
+    <Compile Include="UI\MainView.cs" />
+    <Compile Include="UI\SettingsView.cs" />
+    <Compile Include="UI\ViewFlowCoordinator.cs" />
+    <Compile Include="Plugins\Chat\Extensions\EnhancedImage.cs" />
+    <Compile Include="Plugins\Chat\Extensions\EnhancedTextMeshProUGUI.cs" />
+    <Compile Include="Plugins\Chat\Extensions\EnhancedTextMeshProUGUIWithBackground.cs" />
+    <Compile Include="UI\Widget\SongDetail.cs" />
+    <Compile Include="Utils\ChatService.cs" />
+    <Compile Include="Utils\Game.cs" />
+    <Compile Include="Utils\GameUI.cs" />
+    <Compile Include="Utils\MainThreadInvoker.cs" />
+    <Compile Include="Utils\ObjectPool.cs" />
+    <Compile Include="Utils\SongDownloader.cs" />
+    <Compile Include="Utils\Song.cs" />
+    <Compile Include="Utils\UnityGameObject.cs" />
+    <Compile Include="Utils\UnityMaterial.cs" />
+    <Compile Include="Utils\UnityShader.cs" />
+    <Compile Include="Utils\UnityTexture.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="manifest.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="BuildTargets.targets" />
+    <None Include=".gitignore" />
+    <EmbeddedResource Include="Plugins\ChatRequest\Resources\Blacklist.png" />
+    <EmbeddedResource Include="Plugins\ChatRequest\Resources\Unblacklist.png" />
+    <EmbeddedResource Include="Plugins\ChatRequest\UI\Settings.bsml">
+      <DependentUpon>Settings.cs</DependentUpon>
+      <SubType>Code</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Plugins\ChatRequest\UI\ManagerDetail.bsml">
+      <DependentUpon>ManagerDetail.cs</DependentUpon>
+      <SubType>Code</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Plugins\ChatRequest\UI\ManagerMain.bsml">
+      <DependentUpon>ManagerMain.cs</DependentUpon>
+      <SubType>Code</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Plugins\SongChartVisualizer\UI\Settings.bsml">
+      <DependentUpon>Settings.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Plugins\SongChartVisualizer\UI\SettingsLeft.bsml">
+      <DependentUpon>SettingsLeft.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Plugins\SongChartVisualizer\UI\SettingsRight.bsml">
+      <DependentUpon>SettingsRight.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\MainView.bsml">
+      <DependentUpon>MainView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\InfoView.bsml">
+      <DependentUpon>InfoView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\SettingsView.bsml">
+      <DependentUpon>SettingsView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Plugins\GameTweaker\UI\Settings.bsml">
+      <DependentUpon>Settings.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Plugins\Chat\UI\FloatingWindow.bsml">
+      <DependentUpon>FloatingWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Plugins\Chat\UI\Settings.bsml">
+      <DependentUpon>Settings.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Plugins\Chat\UI\SettingsLeft.bsml">
+      <DependentUpon>SettingsLeft.cs</DependentUpon>
+    </EmbeddedResource>
+    <Compile Include="Plugins\ChatRequest\ChatRequest._Logic.cs" />
+    <EmbeddedResource Include="Plugins\Chat\UI\SettingsRight.bsml">
+      <DependentUpon>SettingsRight.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Plugins\MenuMusic\UI\Settings.bsml">
+      <DependentUpon>Settings.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Plugins\MenuMusic\UI\SettingsCredits.bsml">
+      <DependentUpon>SettingsCredits.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Plugins\MenuMusic\UI\Player.bsml">
+      <DependentUpon>Player.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Plugins\ChatRequest\UI\SettingsRight.bsml">
+      <DependentUpon>SettingsRight.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Plugins\ChatEmoteRain\UI\Settings.bsml">
+      <DependentUpon>Settings.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Plugins\ChatEmoteRain\UI\SettingsLeft.bsml">
+      <DependentUpon>SettingsLeft.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Plugins\ChatEmoteRain\UI\SettingsRight.bsml">
+      <DependentUpon>SettingsRight.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Plugins\ChatEmoteRain\Resources\ChatEmoteRain.bundle" />
+    <EmbeddedResource Include="Plugins\ChatRequest\UI\ManagerLeft.bsml">
+      <DependentUpon>ManagerLeft.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Plugins\Online\UI\Settings.bsml">
+      <DependentUpon>Settings.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Plugins\Chat\Resources\Settings.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Plugins\Chat\Resources\Locked.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Plugins\MenuMusic\Resources\Settings.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Plugins\MenuMusic\Resources\NextIcon.png" />
+    <EmbeddedResource Include="Plugins\MenuMusic\Resources\PrevIcon.png" />
+    <EmbeddedResource Include="Plugins\MenuMusic\Resources\RefreshIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Plugins\GameTweaker\Resources\Delete.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="UI\Resources\NJS.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="BuildTargets.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+</Project>

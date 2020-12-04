@@ -1,0 +1,6 @@
+﻿<vertical child-control-height='false'>
+  <horizontal bg='panel-top' pad-left='15' pad-right='15' horizontal-fit='PreferredSize'>
+    <text text='Preview' align='Center' font-size='4.2'/>
+  </horizontal>
+
+</vertical>

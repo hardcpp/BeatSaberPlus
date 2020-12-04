@@ -1,0 +1,26 @@
+﻿<vertical child-control-height='true'>
+  <horizontal bg='panel-top' pad-left='15' pad-right='15' horizontal-fit='PreferredSize'>
+    <text text='Tools' align='Center' font-size='4.2'/>
+  </horizontal>
+
+  <horizontal>
+    <button text='Remove all request from queue' click-event='ClearQueueMessageModal'></button>
+  </horizontal>
+
+  <horizontal min-height='50'>
+  </horizontal>
+
+  <horizontal>
+    <primary-button id='QueueButton' on-click='click-btn-queue' text='Close queue' min-height='10' min-width='70' />
+  </horizontal>
+
+  <modal show-event='ClearQueueMessageModal' hide-event='CloseClearQueueMessageModal,CloseAllModals' move-to-center='true' size-delta-y='20' size-delta-x='90'>
+    <vertical pad='0'>
+      <text text='Do you really want to reset clear the song queue?' font-size='4' align='Center'/>
+      <horizontal>
+        <button text='Yes' on-click='click-btn-clear-queue'></button>
+        <button text='No'  click-event='CloseClearQueueMessageModal'></button>
+      </horizontal>
+    </vertical>
+  </modal>
+</vertical>

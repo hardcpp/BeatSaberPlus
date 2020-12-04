@@ -1,0 +1,38 @@
+﻿<vertical child-control-height='false' spacing='0' pad='0'>
+  <horizontal id='TypeSegmentPanel' pad-top='2' pref-height='7' pad-left='8' pad-right='8' min-width='145'>
+  </horizontal>
+
+  <horizontal spacing='0' pad-top='1'>
+    <vertical pad-right='3'>
+      <page-button id='SongUpButton' direction='Up'></page-button>
+      <list id='SongList' expand-cell='true'>
+      </list>
+      <page-button id='SongDownButton' direction='Down'></page-button>
+    </vertical>
+    <vertical pad-left='3' pad-top='7' id='SongInfoPanel' spacing='0' size-delta-x='110' size-delta-y='110' min-width='80'>
+
+    </vertical>
+  </horizontal>
+
+  <modal id='LoadingModal' show-event='ShowLoadingModal' hide-event='CloseLoadingModal,CloseAllModals' move-to-center='true' size-delta-y='30' size-delta-x='48'>
+    <text text='~LoadingModalText' font-size='5.5' align='Center'/>
+  </modal>
+
+  <modal id='MessageModal' show-event='ShowMessageModal' hide-event='CloseMessageModal,CloseAllModals' move-to-center='true' size-delta-y='40' size-delta-x='100'>
+    <vertical pad='0'>
+      <text text='' id='MessageModalText' font-size='4' align='Center'/>
+      <button text='Ok' click-event='CloseMessageModal'></button>
+    </vertical>
+  </modal>
+
+  <modal show-event='BlacklistMessageModal' hide-event='CloseBlacklistMessageModal,CloseAllModals' move-to-center='true' size-delta-y='20' size-delta-x='70'>
+    <vertical pad='0'>
+      <text text='Do you really want to blacklist this song?' font-size='4' align='Center'/>
+      <horizontal>
+        <button text='Yes' on-click='click-btn-blacklist-yes'></button>
+        <button text='No'  on-click='click-btn-blacklist-no'></button>
+      </horizontal>
+    </vertical>
+  </modal>
+
+</vertical>
