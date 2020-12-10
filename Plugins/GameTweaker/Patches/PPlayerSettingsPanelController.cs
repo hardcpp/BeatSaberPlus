@@ -144,17 +144,5 @@ namespace BeatSaberPlus.Plugins.GameTweaker.Patches
                 m_AutomaticPlayerHeightToggle.transform.parent.SetAsFirstSibling();
             }
         }
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        /// <summary>
-        /// On OverrideLightIntensity setting changes
-        /// </summary>
-        /// <param name="p_Value">New value</param>
-        private static void OnOverrideLightIntensityChange(object p_Value)
-        {
-            Config.GameTweaker.OverrideLightIntensity = (float)p_Value;
-        }
     }
 }
