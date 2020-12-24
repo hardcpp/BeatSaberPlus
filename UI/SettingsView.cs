@@ -1,9 +1,8 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components.Settings;
-using BeatSaberMarkupLanguage.ViewControllers;
 using System;
+using System.Linq;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 
 namespace BeatSaberPlus.UI
@@ -11,33 +10,12 @@ namespace BeatSaberPlus.UI
     /// <summary>
     /// Settings view controller
     /// </summary>
-    internal class SettingsView : BSMLResourceViewController
+    internal class SettingsView : SDK.UI.ResourceViewController<SettingsView>
     {
         /// <summary>
-        /// BSML file name
+        /// Module setting
         /// </summary>
-        public override string ResourceName => string.Join(".", GetType().Namespace, GetType().Name);
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        /// <summary>
-        /// ToggleSetting creator
-        /// </summary>
-        private BeatSaberMarkupLanguage.Tags.ToggleSettingTag m_ToggleSettingCreator = null;
-        /// <summary>
-        /// Plugin setting
-        /// </summary>
-        private Dictionary<Plugins.PluginBase, ToggleSetting> m_PluginsSetting = new Dictionary<Plugins.PluginBase, ToggleSetting>();
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        /// <summary>
-        /// BSML parser parameters
-        /// </summary>
-        [UIParams]
-        private BeatSaberMarkupLanguage.Parser.BSMLParserParams m_ParserParams = null;
+        private Dictionary<SDK.IModuleBase, ToggleSetting> m_ModulesSetting = new Dictionary<SDK.IModuleBase, ToggleSetting>();
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -45,87 +23,33 @@ namespace BeatSaberPlus.UI
 #pragma warning disable CS0649
         [UIObject("SettingGrid")]
         private GameObject m_SettingGrid;
-        [UIComponent("MessageModalText")]
-        private TextMeshProUGUI m_MessageModalText = null;
 #pragma warning restore CS0649
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
-        /// On activation
+        /// On view creation
         /// </summary>
-        /// <param name="p_FirstActivation">Is the first activation ?</param>
-        /// <param name="p_AddedToHierarchy">Activation type</param>
-        /// <param name="p_ScreenSystemEnabling">Is screen system enabled</param>
-        protected override void DidActivate(bool p_FirstActivation, bool p_AddedToHierarchy, bool p_ScreenSystemEnabling)
+        protected override sealed void OnViewCreation()
         {
-            /// Forward event
-            base.DidActivate(p_FirstActivation, p_AddedToHierarchy, p_ScreenSystemEnabling);
-
-            /// Initial setup
-            if (p_FirstActivation)
+            foreach (var l_Module in Plugin.Instance.Modules.Where(x => x.Type == SDK.IModuleBaseType.Integrated))
             {
-                m_ToggleSettingCreator = new BeatSaberMarkupLanguage.Tags.ToggleSettingTag();
+                var l_Setting = SDK.UI.ToggleSetting.Create(m_SettingGrid.transform, l_Module.Name, l_Module.IsEnabled, (x) => {
+                    try
+                    {
+                        l_Module.SetEnabled(x);
+                        CheckChatTutorial(l_Module);
+                    }
+                    catch (Exception p_InitException)
+                    {
+                        Logger.Instance.Error($"[UI][SettingsView.OnViewCreation] Error on module \"{l_Module.Name}\" init");
+                        Logger.Instance.Error(p_InitException);
+                    }
+                }, l_Module.Description);
 
-                foreach (var l_Plugin in Plugin.Instance.Plugins)
-                {
-                    var l_Setting = AddSetting(l_Plugin.Name, l_Plugin.IsEnabled, (x) => {
-                        try
-                        {
-                            l_Plugin.SetEnabled(x);
-                            CheckChatTutorial(l_Plugin);
-                        }
-                        catch (System.Exception p_InitException) { Logger.Instance.Error("Error on plugin init " + l_Plugin.Name); Logger.Instance.Error(p_InitException); }
-                    });
-                    m_PluginsSetting.Add(l_Plugin, l_Setting);
-                }
+                m_ModulesSetting.Add(l_Module, l_Setting);
             }
-        }
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        /// <summary>
-        /// Show message modal
-        /// </summary>
-        private void ShowMessageModal(string p_Message)
-        {
-            HideMessageModal();
-
-            m_MessageModalText.text = p_Message;
-
-            m_ParserParams.EmitEvent("ShowMessageModal");
-        }
-        /// <summary>
-        /// Hide the message modal
-        /// </summary>
-        private void HideMessageModal()
-        {
-            m_ParserParams.EmitEvent("CloseMessageModal");
-        }
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        /// <summary>
-        /// Add a setting to the grid
-        /// </summary>
-        /// <param name="p_Name">Button caption</param>
-        /// <param name="p_Action">Button callback</param>
-        private ToggleSetting AddSetting(string p_Name, bool p_Enabled, Action<bool> p_Action)
-        {
-            var l_Setting = m_ToggleSettingCreator.CreateObject(m_SettingGrid.transform);
-
-            l_Setting.gameObject.SetActive(false);
-            var l_Toggle = l_Setting.GetComponent<ToggleSetting>();
-
-            l_Toggle.Text   = p_Name;
-            l_Toggle.Value  = p_Enabled;
-            l_Toggle.toggle.onValueChanged.AddListener((x) => { p_Action(x); });
-            l_Setting.gameObject.SetActive(true);
-
-            return l_Toggle;
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -135,15 +59,17 @@ namespace BeatSaberPlus.UI
         /// Check for chat tutorial
         /// </summary>
         /// <param name="p_Plugin">Plugin instance</param>
-        private void CheckChatTutorial(Plugins.PluginBase p_Plugin)
+        private void CheckChatTutorial(SDK.IModuleBase p_Plugin)
         {
-            if (!(p_Plugin is Plugins.Chat.Chat) && !(p_Plugin is Plugins.ChatRequest.ChatRequest) && !(p_Plugin is Plugins.ChatEmoteRain.ChatEmoteRain))
-                return;
-
-            if (Config.FirstChatCoreRun)
+#if DEBUG
+            if (p_Plugin.UseChatFeatures && true)
+#else
+            if (p_Plugin.UseChatFeatures && Config.FirstChatCoreRun)
+#endif
             {
-                ShowMessageModal("Hey it's seems that this is the first time you use a chat module!\nThe configuration page has been opened in your browser!");
-                Utils.ChatService.OpenWebConfigurator();
+                ShowMessageModal("Hey it's seems that this is the first time\nyou use a chat module!\n<b><color=yellow>The configuration page has been opened in your browser!</color></b>");
+
+                SDK.Chat.Service.OpenWebConfigurator();
 
                 Config.FirstChatCoreRun = false;
             }

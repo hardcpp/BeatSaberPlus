@@ -1,4 +1,0 @@
-﻿<bg bg='round-rect-panel'>
-  <clickable-image id='SettingsIcon' src='BeatSaberPlus.Plugins.Chat.Resources.Settings.png' on-click='settings-pressed' ignore-layout='true' anchor-min-x='0.96' anchor-max-x='0.96' anchor-min-y='0.96' anchor-max-y='0.96' size-delta-x='7' preserve-aspect='true' default-color='#FFFFFF11' highlight-color='#FFFFFFFF'></clickable-image>
-  <clickable-image id='LockIcon'     src='BeatSaberPlus.Plugins.Chat.Resources.Locked.png'   on-click='lock-pressed'     ignore-layout='true' anchor-min-x='0.96' anchor-max-x='0.96' anchor-min-y='0.04' anchor-max-y='0.04' size-delta-x='7' preserve-aspect='true' default-color='#FFFFFFFF' highlight-color='#FFFFFF11'></clickable-image>
-</bg>

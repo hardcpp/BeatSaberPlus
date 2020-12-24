@@ -220,93 +220,117 @@
   <ItemGroup>
     <Compile Include="Config.cs" />
     <Compile Include="Logger.cs" />
-    <Compile Include="Patches\BSMLColorSetting.cs" />
+    <Compile Include="Modules\ChatRequest\ChatRequest_Commands.cs" />
+    <Compile Include="Modules\ChatRequest\ChatRequest_Database.cs" />
+    <Compile Include="Modules\ChatRequest\UI\SettingsLeft.cs" />
+    <Compile Include="Modules\Chat\UI\FloatingWindow_Events.cs" />
+    <Compile Include="Modules\GameTweaker\UI\SettingsLeft.cs" />
+    <Compile Include="Modules\GameTweaker\UI\SettingsRight.cs" />
+    <Compile Include="SDK\Cryptography\SHA1.cs" />
+    <Compile Include="SDK\UI\Button.cs" />
+    <Compile Include="SDK\UI\ColorSetting.cs" />
+    <Compile Include="SDK\UI\DataSource\SongList.cs" />
+    <Compile Include="SDK\UI\IncrementSetting.cs" />
+    <Compile Include="SDK\UI\Internal\BSMLPrimaryButtonTag.cs" />
+    <Compile Include="SDK\UI\ListSetting.cs" />
+    <Compile Include="SDK\UI\Patches\BSMLColorSetting.cs" />
     <Compile Include="Plugin.cs" />
-    <Compile Include="Plugins\ChatEmoteRain\ChatEmoteRain.cs" />
-    <Compile Include="Plugins\ChatEmoteRain\Components\TimeoutScript.cs" />
-    <Compile Include="Plugins\ChatEmoteRain\UI\Settings.cs" />
-    <Compile Include="Plugins\ChatEmoteRain\UI\SettingsLeft.cs" />
-    <Compile Include="Plugins\ChatEmoteRain\UI\SettingsRight.cs" />
-    <Compile Include="Plugins\ChatRequest\ChatRequest.cs" />
-    <Compile Include="Plugins\ChatRequest\UI\ManagerLeft.cs" />
-    <Compile Include="Plugins\ChatRequest\UI\Settings.cs">
+    <Compile Include="Modules\ChatEmoteRain\ChatEmoteRain.cs" />
+    <Compile Include="Modules\ChatEmoteRain\Components\TimeoutScript.cs" />
+    <Compile Include="Modules\ChatEmoteRain\UI\Settings.cs" />
+    <Compile Include="Modules\ChatEmoteRain\UI\SettingsLeft.cs" />
+    <Compile Include="Modules\ChatEmoteRain\UI\SettingsRight.cs" />
+    <Compile Include="Modules\ChatRequest\ChatRequest.cs" />
+    <Compile Include="Modules\ChatRequest\UI\ManagerLeft.cs" />
+    <Compile Include="Modules\ChatRequest\UI\Settings.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Plugins\ChatRequest\UI\ManagerDetail.cs">
+    <Compile Include="Modules\ChatRequest\UI\ManagerRight.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Plugins\ChatRequest\UI\ManagerMain.cs">
+    <Compile Include="Modules\ChatRequest\UI\ManagerMain.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Plugins\ChatRequest\UI\ManagerViewFlowCoordinator.cs" />
-    <Compile Include="Plugins\ChatRequest\UI\SettingsRight.cs" />
-    <Compile Include="Plugins\Chat\UI\SettingsRight.cs" />
-    <Compile Include="Plugins\GameTweaker\Components\FPFCEscape.cs" />
-    <Compile Include="Plugins\GameTweaker\Components\MusicBandLogoRemover.cs" />
-    <Compile Include="Plugins\GameTweaker\Patches\PComboUIController.cs" />
-    <Compile Include="Plugins\GameTweaker\Patches\PGameplayCoreSceneSetup.cs" />
-    <Compile Include="Plugins\GameTweaker\Patches\PLevelSearchViewController.cs" />
-    <Compile Include="Plugins\GameTweaker\Patches\PLightSwitchEventEffect.cs" />
-    <Compile Include="Plugins\GameTweaker\Patches\PMainMenuViewController.cs" />
-    <Compile Include="Plugins\GameTweaker\Patches\PObstacleSaberSparkleEffectManager.cs" />
-    <Compile Include="Plugins\GameTweaker\Patches\PPlayerStatisticsViewController.cs" />
-    <Compile Include="Plugins\GameTweaker\Patches\PPromoViewController.cs" />
-    <Compile Include="Plugins\GameTweaker\Patches\PSaberBurnMarkArea.cs" />
-    <Compile Include="Plugins\GameTweaker\Patches\PSaberBurnMarkSparkles.cs" />
-    <Compile Include="Plugins\GameTweaker\Patches\PSaberClashEffect.cs" />
-    <Compile Include="Plugins\GameTweaker\Patches\PStandardLevelDetailView.cs" />
-    <Compile Include="Plugins\GameTweaker\Patches\PNoteDebrisSpawner.cs" />
-    <Compile Include="Plugins\GameTweaker\Patches\PPauseController.cs" />
-    <Compile Include="Plugins\GameTweaker\Patches\PPlayerSettingsPanelController.cs" />
-    <Compile Include="Plugins\MenuMusic\MenuMusic.cs" />
-    <Compile Include="Plugins\MenuMusic\UI\Player.cs" />
-    <Compile Include="Plugins\MenuMusic\UI\Settings.cs" />
-    <Compile Include="Plugins\MenuMusic\UI\SettingsCredits.cs" />
-    <Compile Include="Plugins\Online\Online.cs" />
-    <Compile Include="Plugins\Online\Patches\PBeatSaverSharp_Beatmap.cs" />
-    <Compile Include="Plugins\Online\Patches\PBeatSaverSharp_BeatSaver.cs" />
-    <Compile Include="Plugins\Online\UI\Settings.cs" />
-    <Compile Include="Plugins\PluginBase.cs" />
-    <Compile Include="Plugins\GameTweaker\Patches\PNoteCutCoreEffectsSpawner.cs" />
-    <Compile Include="Plugins\GameTweaker\Patches\PSaberTrailRenderer.cs" />
-    <Compile Include="Plugins\GameTweaker\GameTweaker.cs" />
-    <Compile Include="Plugins\GameTweaker\UI\Settings.cs" />
-    <Compile Include="Plugins\Chat\Chat.cs" />
-    <Compile Include="Plugins\Chat\UI\FloatingWindow.cs" />
-    <Compile Include="Plugins\Chat\UI\Settings.cs" />
-    <Compile Include="Plugins\Chat\UI\SettingsLeft.cs" />
-    <Compile Include="Plugins\SongChartVisualizer\Components\SongChart.cs" />
-    <Compile Include="Plugins\SongChartVisualizer\SongChartVisualizer.cs" />
-    <Compile Include="Plugins\SongChartVisualizer\UI\Settings.cs" />
-    <Compile Include="Plugins\SongChartVisualizer\UI\SettingsLeft.cs" />
-    <Compile Include="Plugins\SongChartVisualizer\UI\SettingsRight.cs" />
-    <Compile Include="Utils\BeatSaver.cs" />
-    <Compile Include="Utils\ChatImageProvider.cs" />
-    <Compile Include="Plugins\Chat\Utils\ChatMessageBuilder.cs" />
+    <Compile Include="Modules\ChatRequest\UI\ManagerViewFlowCoordinator.cs" />
+    <Compile Include="Modules\ChatRequest\UI\SettingsRight.cs" />
+    <Compile Include="Modules\Chat\UI\SettingsRight.cs" />
+    <Compile Include="Modules\GameTweaker\Components\FPFCEscape.cs" />
+    <Compile Include="Modules\GameTweaker\Components\MusicBandLogoRemover.cs" />
+    <Compile Include="Modules\GameTweaker\Patches\PComboUIController.cs" />
+    <Compile Include="Modules\GameTweaker\Patches\PGameplayCoreSceneSetup.cs" />
+    <Compile Include="Modules\GameTweaker\Patches\PLevelSearchViewController.cs" />
+    <Compile Include="Modules\GameTweaker\Patches\PLightSwitchEventEffect.cs" />
+    <Compile Include="Modules\GameTweaker\Patches\PMainMenuViewController.cs" />
+    <Compile Include="Modules\GameTweaker\Patches\PObstacleSaberSparkleEffectManager.cs" />
+    <Compile Include="Modules\GameTweaker\Patches\PPlayerStatisticsViewController.cs" />
+    <Compile Include="Modules\GameTweaker\Patches\PPromoViewController.cs" />
+    <Compile Include="Modules\GameTweaker\Patches\PSaberBurnMarkArea.cs" />
+    <Compile Include="Modules\GameTweaker\Patches\PSaberBurnMarkSparkles.cs" />
+    <Compile Include="Modules\GameTweaker\Patches\PSaberClashEffect.cs" />
+    <Compile Include="Modules\GameTweaker\Patches\PStandardLevelDetailView.cs" />
+    <Compile Include="Modules\GameTweaker\Patches\PNoteDebrisSpawner.cs" />
+    <Compile Include="Modules\GameTweaker\Patches\PPauseController.cs" />
+    <Compile Include="Modules\GameTweaker\Patches\PPlayerSettingsPanelController.cs" />
+    <Compile Include="Modules\MenuMusic\MenuMusic.cs" />
+    <Compile Include="Modules\MenuMusic\UI\Player.cs" />
+    <Compile Include="Modules\MenuMusic\UI\Settings.cs" />
+    <Compile Include="Modules\MenuMusic\UI\SettingsLeft.cs" />
+    <Compile Include="Modules\Online\Online.cs" />
+    <Compile Include="SDK\Game\Patches\PBeatSaverSharp_Beatmap.cs" />
+    <Compile Include="Modules\Online\Patches\PBeatSaverSharp_BeatSaver.cs" />
+    <Compile Include="Modules\Online\UI\Settings.cs" />
+    <Compile Include="SDK\ModuleBase.cs" />
+    <Compile Include="Modules\GameTweaker\Patches\PNoteCutCoreEffectsSpawner.cs" />
+    <Compile Include="Modules\GameTweaker\Patches\PSaberTrailRenderer.cs" />
+    <Compile Include="Modules\GameTweaker\GameTweaker.cs" />
+    <Compile Include="Modules\GameTweaker\UI\Settings.cs" />
+    <Compile Include="Modules\Chat\Chat.cs" />
+    <Compile Include="Modules\Chat\UI\FloatingWindow.cs" />
+    <Compile Include="Modules\Chat\UI\Settings.cs" />
+    <Compile Include="Modules\Chat\UI\SettingsLeft.cs" />
+    <Compile Include="Modules\SongChartVisualizer\Components\SongChart.cs" />
+    <Compile Include="Modules\SongChartVisualizer\SongChartVisualizer.cs" />
+    <Compile Include="Modules\SongChartVisualizer\UI\Settings.cs" />
+    <Compile Include="Modules\SongChartVisualizer\UI\SettingsLeft.cs" />
+    <Compile Include="Modules\SongChartVisualizer\UI\SettingsRight.cs" />
+    <Compile Include="SDK\Config\INIConfig.cs" />
+    <Compile Include="SDK\Config\INIFile.cs" />
+    <Compile Include="SDK\Game\BeatSaver.cs" />
+    <Compile Include="SDK\Game\Level.cs" />
+    <Compile Include="SDK\Game\UserPlatform.cs" />
+    <Compile Include="SDK\Misc\Time.cs" />
+    <Compile Include="SDK\UI\Backgroundable.cs" />
+    <Compile Include="SDK\UI\HorizontalIconSegmentedControl.cs" />
+    <Compile Include="SDK\UI\ModalView.cs" />
+    <Compile Include="SDK\UI\BSMLSettingFormarter.cs" />
+    <Compile Include="SDK\UI\SliderSetting.cs" />
+    <Compile Include="SDK\UI\TextSegmentedControl.cs" />
+    <Compile Include="SDK\UI\ToggleSetting.cs" />
+    <Compile Include="SDK\UI\VerticalIconSegmentedControl.cs" />
+    <Compile Include="SDK\UI\ViewController.cs" />
+    <Compile Include="SDK\UI\ViewFlowCoordinator.cs" />
+    <Compile Include="SDK\Unity\Sprite.cs" />
+    <Compile Include="SDK\Unity\Texture2D.cs" />
+    <Compile Include="SDK\Chat\ImageProvider.cs" />
+    <Compile Include="Modules\Chat\Utils\ChatMessageBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Plugins\Chat\Extensions\EnhancedFontInfo.cs" />
-    <Compile Include="Utils\Config.cs" />
-    <Compile Include="Utils\CustomBeatSaverBeatmapLevel.cs" />
-    <Compile Include="Utils\EnhancedImageInfo.cs" />
+    <Compile Include="Modules\Chat\Extensions\EnhancedFontInfo.cs" />
+    <Compile Include="SDK\Game\Internal\CustomBeatSaverBeatmapLevel.cs" />
     <Compile Include="UI\InfoView.cs" />
     <Compile Include="UI\MainView.cs" />
     <Compile Include="UI\SettingsView.cs" />
-    <Compile Include="UI\ViewFlowCoordinator.cs" />
-    <Compile Include="Plugins\Chat\Extensions\EnhancedImage.cs" />
-    <Compile Include="Plugins\Chat\Extensions\EnhancedTextMeshProUGUI.cs" />
-    <Compile Include="Plugins\Chat\Extensions\EnhancedTextMeshProUGUIWithBackground.cs" />
-    <Compile Include="UI\Widget\SongDetail.cs" />
-    <Compile Include="Utils\ChatService.cs" />
-    <Compile Include="Utils\Game.cs" />
+    <Compile Include="UI\MainViewFlowCoordinator.cs" />
+    <Compile Include="Modules\Chat\Extensions\EnhancedImage.cs" />
+    <Compile Include="Modules\Chat\Extensions\EnhancedTextMeshProUGUI.cs" />
+    <Compile Include="Modules\Chat\Extensions\EnhancedTextMeshProUGUIWithBackground.cs" />
+    <Compile Include="SDK\UI\LevelDetail.cs" />
+    <Compile Include="SDK\Chat\Service.cs" />
+    <Compile Include="SDK\Game\Logic.cs" />
     <Compile Include="Utils\GameUI.cs" />
-    <Compile Include="Utils\MainThreadInvoker.cs" />
-    <Compile Include="Utils\ObjectPool.cs" />
-    <Compile Include="Utils\SongDownloader.cs" />
-    <Compile Include="Utils\Song.cs" />
-    <Compile Include="Utils\UnityGameObject.cs" />
-    <Compile Include="Utils\UnityMaterial.cs" />
-    <Compile Include="Utils\UnityShader.cs" />
-    <Compile Include="Utils\UnityTexture.cs" />
+    <Compile Include="SDK\Unity\MainThreadInvoker.cs" />
+    <Compile Include="SDK\Misc\ObjectPool.cs" />
+    <Compile Include="SDK\Unity\Material.cs" />
+    <Compile Include="SDK\Unity\Shader.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="manifest.json" />
@@ -314,27 +338,27 @@
   <ItemGroup>
     <None Include="BuildTargets.targets" />
     <None Include=".gitignore" />
-    <EmbeddedResource Include="Plugins\ChatRequest\Resources\Blacklist.png" />
-    <EmbeddedResource Include="Plugins\ChatRequest\Resources\Unblacklist.png" />
-    <EmbeddedResource Include="Plugins\ChatRequest\UI\Settings.bsml">
+    <EmbeddedResource Include="Modules\ChatRequest\Resources\Blacklist.png" />
+    <EmbeddedResource Include="Modules\ChatRequest\Resources\Unblacklist.png" />
+    <EmbeddedResource Include="Modules\ChatRequest\UI\Settings.bsml">
       <DependentUpon>Settings.cs</DependentUpon>
       <SubType>Code</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Plugins\ChatRequest\UI\ManagerDetail.bsml">
-      <DependentUpon>ManagerDetail.cs</DependentUpon>
+    <EmbeddedResource Include="Modules\ChatRequest\UI\ManagerRight.bsml">
+      <DependentUpon>ManagerRight.cs</DependentUpon>
       <SubType>Code</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Plugins\ChatRequest\UI\ManagerMain.bsml">
+    <EmbeddedResource Include="Modules\ChatRequest\UI\ManagerMain.bsml">
       <DependentUpon>ManagerMain.cs</DependentUpon>
       <SubType>Code</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Plugins\SongChartVisualizer\UI\Settings.bsml">
+    <EmbeddedResource Include="Modules\SongChartVisualizer\UI\Settings.bsml">
       <DependentUpon>Settings.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Plugins\SongChartVisualizer\UI\SettingsLeft.bsml">
+    <EmbeddedResource Include="Modules\SongChartVisualizer\UI\SettingsLeft.bsml">
       <DependentUpon>SettingsLeft.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Plugins\SongChartVisualizer\UI\SettingsRight.bsml">
+    <EmbeddedResource Include="Modules\SongChartVisualizer\UI\SettingsRight.bsml">
       <DependentUpon>SettingsRight.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\MainView.bsml">
@@ -346,70 +370,82 @@
     <EmbeddedResource Include="UI\SettingsView.bsml">
       <DependentUpon>SettingsView.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Plugins\GameTweaker\UI\Settings.bsml">
+    <EmbeddedResource Include="Modules\GameTweaker\UI\Settings.bsml">
       <DependentUpon>Settings.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Plugins\Chat\UI\FloatingWindow.bsml">
+    <EmbeddedResource Include="Modules\Chat\UI\FloatingWindow.bsml">
       <DependentUpon>FloatingWindow.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Plugins\Chat\UI\Settings.bsml">
+    <EmbeddedResource Include="Modules\Chat\UI\Settings.bsml">
       <DependentUpon>Settings.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Plugins\Chat\UI\SettingsLeft.bsml">
+    <EmbeddedResource Include="Modules\Chat\UI\SettingsLeft.bsml">
       <DependentUpon>SettingsLeft.cs</DependentUpon>
     </EmbeddedResource>
-    <Compile Include="Plugins\ChatRequest\ChatRequest._Logic.cs" />
-    <EmbeddedResource Include="Plugins\Chat\UI\SettingsRight.bsml">
+    <Compile Include="Modules\ChatRequest\ChatRequest_Logic.cs" />
+    <EmbeddedResource Include="Modules\Chat\UI\SettingsRight.bsml">
       <DependentUpon>SettingsRight.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Plugins\MenuMusic\UI\Settings.bsml">
+    <EmbeddedResource Include="Modules\MenuMusic\UI\Settings.bsml">
       <DependentUpon>Settings.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Plugins\MenuMusic\UI\SettingsCredits.bsml">
-      <DependentUpon>SettingsCredits.cs</DependentUpon>
+    <EmbeddedResource Include="Modules\MenuMusic\UI\SettingsLeft.bsml">
+      <DependentUpon>SettingsLeft.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Plugins\MenuMusic\UI\Player.bsml">
+    <EmbeddedResource Include="Modules\MenuMusic\UI\Player.bsml">
       <DependentUpon>Player.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Plugins\ChatRequest\UI\SettingsRight.bsml">
+    <EmbeddedResource Include="Modules\ChatRequest\UI\SettingsRight.bsml">
       <DependentUpon>SettingsRight.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Plugins\ChatEmoteRain\UI\Settings.bsml">
+    <EmbeddedResource Include="Modules\ChatEmoteRain\UI\Settings.bsml">
       <DependentUpon>Settings.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Plugins\ChatEmoteRain\UI\SettingsLeft.bsml">
+    <EmbeddedResource Include="Modules\ChatEmoteRain\UI\SettingsLeft.bsml">
       <DependentUpon>SettingsLeft.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Plugins\ChatEmoteRain\UI\SettingsRight.bsml">
+    <EmbeddedResource Include="Modules\ChatEmoteRain\UI\SettingsRight.bsml">
       <DependentUpon>SettingsRight.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Plugins\ChatEmoteRain\Resources\ChatEmoteRain.bundle" />
-    <EmbeddedResource Include="Plugins\ChatRequest\UI\ManagerLeft.bsml">
+    <EmbeddedResource Include="Modules\ChatEmoteRain\Resources\ChatEmoteRain.bundle" />
+    <EmbeddedResource Include="Modules\ChatRequest\UI\ManagerLeft.bsml">
       <DependentUpon>ManagerLeft.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Plugins\Online\UI\Settings.bsml">
+    <EmbeddedResource Include="Modules\Online\UI\Settings.bsml">
       <DependentUpon>Settings.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Modules\ChatRequest\UI\SettingsLeft.bsml">
+      <DependentUpon>SettingsLeft.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Modules\GameTweaker\UI\SettingsLeft.bsml">
+      <DependentUpon>SettingsLeft.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Modules\GameTweaker\UI\SettingsRight.bsml">
+      <DependentUpon>SettingsRight.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Plugins\Chat\Resources\Settings.png" />
+    <EmbeddedResource Include="Modules\Chat\Resources\Settings.png" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Plugins\Chat\Resources\Locked.png" />
+    <EmbeddedResource Include="Modules\Chat\Resources\Locked.png" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Plugins\MenuMusic\Resources\Settings.png" />
+    <EmbeddedResource Include="Modules\MenuMusic\Resources\Settings.png" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Plugins\MenuMusic\Resources\NextIcon.png" />
-    <EmbeddedResource Include="Plugins\MenuMusic\Resources\PrevIcon.png" />
-    <EmbeddedResource Include="Plugins\MenuMusic\Resources\RefreshIcon.png" />
+    <EmbeddedResource Include="Modules\MenuMusic\Resources\NextIcon.png" />
+    <EmbeddedResource Include="Modules\MenuMusic\Resources\PrevIcon.png" />
+    <EmbeddedResource Include="Modules\MenuMusic\Resources\RefreshIcon.png" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Plugins\GameTweaker\Resources\Delete.png" />
+    <EmbeddedResource Include="Modules\GameTweaker\Resources\Delete.png" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="UI\Resources\NJS.png" />
+    <EmbeddedResource Include="SDK\UI\Resources\NJS.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SDK\UI\Resources\Offset.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="BuildTargets.targets" />

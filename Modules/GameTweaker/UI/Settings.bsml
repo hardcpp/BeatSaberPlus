@@ -1,0 +1,114 @@
+﻿<vertical child-control-height='false'>
+  <horizontal bg='panel-top' pad-left='15' pad-right='15' horizontal-fit='PreferredSize'>
+    <text text='Game Tweaker' align='Center' font-size='4.2'/>
+  </horizontal>
+
+  <!-- =============================== -->
+
+  <horizontal>
+    <text text='Particles / Effects' font-color='yellow' bold='true' align='Center' font-size='3'/>
+  </horizontal>
+  <horizontal min-width='110'>
+    <vertical spacing='0' pad-right='5' size-delta-x='36' min-width='36'>
+      <vertical size-delta-x='30' min-width='30' pad-top='0'>
+        <text font-size='3.5' text='Remove all debris spawn'></text>
+        <bool-setting id='removedebris-toggle'></bool-setting>
+      </vertical>
+      <vertical size-delta-x='30' min-width='30'>
+        <text font-size='3.5' text='Remove floor burn particles'></text>
+        <bool-setting id='removefloorburnmarkparticles-toggle'></bool-setting>
+      </vertical>
+      <vertical size-delta-x='30' min-width='30' pad-bottom='0'>
+        <text font-size='3.5' text='Remove world particles'></text>
+        <bool-setting id='removeworldparticles-toggle'></bool-setting>
+      </vertical>
+    </vertical>
+
+    <vertical spacing='0' size-delta-x='36' min-width='36'>
+      <vertical size-delta-x='30' min-width='30' pad-top='0'>
+        <text font-size='3.5' text='Remove cut particles'></text>
+        <bool-setting id='removeallcutparticles-toggle'></bool-setting>
+      </vertical>
+      <vertical size-delta-x='30' min-width='30'>
+        <text font-size='3.5' text='Remove floor burn marks'></text>
+        <bool-setting id='removefloorburnmarkeffects-toggle'></bool-setting>
+      </vertical>
+      <vertical size-delta-x='30' min-width='30' pad-bottom='0'>
+        <text font-size='3.5' text=' '></text>
+        <text text=' '></text>
+      </vertical>
+    </vertical>
+
+    <vertical spacing='0' pad-left='5' size-delta-x='36' min-width='36'>
+      <vertical size-delta-x='30' min-width='30' pad-top='0'>
+        <text font-size='3.5' text='Remove obstacle particles'></text>
+        <bool-setting id='removeobstacleparticles-toggle'></bool-setting>
+      </vertical>
+      <vertical size-delta-x='30' min-width='30'>
+        <text font-size='3.5' text='Remove saber clash effect'></text>
+        <bool-setting id='removesaberclasheffects-toggle'></bool-setting>
+      </vertical>
+      <vertical size-delta-x='30' min-width='30' pad-bottom='0'>
+        <text font-size='3.5' text=' '></text>
+        <text text=' '></text>
+      </vertical>
+    </vertical>
+  </horizontal>
+
+  <!-- =============================== -->
+
+  <horizontal>
+    <text text='Environment' font-color='yellow' bold='true' align='Center' font-size='3'/>
+  </horizontal>
+  <horizontal min-width='110'>
+    <vertical spacing='0' pad-right='5' size-delta-x='36' min-width='36'>
+      <vertical size-delta-x='30' min-width='30' pad-top='0' pad-bottom='2'>
+        <text font-size='3.5' text='Remove music band logo'></text>
+        <bool-setting id='removemusicbandlogo-toggle'></bool-setting>
+      </vertical>
+    </vertical>
+
+    <vertical spacing='0' size-delta-x='36' min-width='36'>
+      <vertical size-delta-x='30' min-width='30' pad-top='0' pad-bottom='2'>
+        <text font-size='3.5' text='Remove full combo loss animation'></text>
+        <bool-setting id='removefullcombolossanimation-toggle'></bool-setting>
+      </vertical>
+    </vertical>
+
+    <vertical spacing='0' pad-left='5' size-delta-x='36' min-width='36'>
+      <vertical size-delta-x='30' min-width='30' pad-top='0' pad-bottom='2'>
+        <text font-size='3.5' text='Remove fake 360 HUD'></text>
+        <bool-setting id='nofake360hud-toggle'></bool-setting>
+      </vertical>
+    </vertical>
+  </horizontal>
+
+  <!-- =============================== -->
+
+  <horizontal>
+    <text text='Sabers' font-color='yellow' bold='true' align='Center' font-size='3'/>
+  </horizontal>
+  <horizontal min-width='110'>
+    <vertical spacing='0' pad-right='5'  size-delta-x='36' min-width='36'>
+      <vertical size-delta-x='30' min-width='30' pad-top='0' pad-bottom='2'>
+        <text font-size='3.5' text='Remove saber smoothing trail'></text>
+        <bool-setting id='removetrail-toggle'></bool-setting>
+      </vertical>
+    </vertical>
+
+    <vertical spacing='0' size-delta-x='36' min-width='36'>
+      <vertical size-delta-x='30' min-width='30' pad-top='0' pad-bottom='2'>
+        <text font-size='3.5' text='Saber smoothing trail intensity'></text>
+        <increment-setting id='intensity-increment' min='0.1' max='1' increment='0.1'/>
+      </vertical>
+    </vertical>
+
+    <vertical spacing='0' pad-left='5' size-delta-x='36' min-width='36'>
+      <vertical size-delta-x='30' min-width='30' pad-top='0' pad-bottom='2'>
+        <text font-size='3.5' text=' '></text>
+        <text text=' '></text>
+      </vertical>
+    </vertical>
+  </horizontal>
+
+</vertical>

@@ -1,0 +1,45 @@
+﻿<vertical child-control-height='false'>
+  <horizontal bg='panel-top' pad-left='15' pad-right='15' horizontal-fit='PreferredSize'>
+    <text text='Playlist Settings' align='Center' font-size='4.2'/>
+  </horizontal>
+
+  <horizontal min-width='110'>
+    <vertical spacing='0' size-delta-x='50' min-width='50'>
+      <vertical size-delta-x='70' min-width='45' pad-top='2'>
+        <text text='Playlist type' hover-hint='~playlist-type-hint'></text>
+        <list-setting id='playlist-type-slider' value='type-choice' choices='type-options' hover-hint='~playlist-type-hint' apply-on-change='true' />
+      </vertical>
+      <vertical size-delta-x='70' min-width='45' >
+        <text text='Accuracy type' hover-hint='~accuracy-type-hint'></text>
+        <list-setting id='accuracy-type-slider' value='accuracy-choice' choices='accuracy-options' hover-hint='~accuracy-type-hint' apply-on-change='true' />
+      </vertical>
+      <vertical size-delta-x='70' min-width='45' pad-bottom='2'>
+        <text text=' ' ></text>
+        <text text=' ' ></text>
+      </vertical>
+    </vertical>
+
+    <vertical spacing='0' size-delta-x='50' min-width='50'>
+      <vertical size-delta-x='70' min-width='45' pad-top='2'>
+        <text text='Target accuracy' hover-hint='~target-accuracy-hint'></text>
+        <slider-setting id='accuracy-slider' min='70' max='100' increment='0.1' value='req-accu' hover-hint='~target-accuracy-hint' apply-on-change='true'/>
+      </vertical>
+      <vertical size-delta-x='70' min-width='45'>
+        <text text='Difficulty' hover-hint='~difficulty-hint'></text>
+        <slider-setting id='difficulty-slider' min='2' max='15' increment='0.1' value='req-diff' hover-hint='~difficulty-hint' apply-on-change='true'/>
+      </vertical>
+      <vertical size-delta-x='70' min-width='45' pad-bottom='2'>
+        <text text='Playlist size' hover-hint='~playlist-size-hint'></text>
+        <slider-setting id='playlist-size-slider' min='1' max='120' increment='1' value='playlist-size' hover-hint='~playlist-size-hint' integer-only='true' apply-on-change='true'/>
+      </vertical>
+    </vertical>
+  </horizontal>
+
+  <horizontal horizontal-fit='PreferredSize'>
+    <primary-button text='Generate'    hover-hint='~generate-button-hint' on-click='click-btn-generate'></primary-button>
+  </horizontal>
+  <horizontal horizontal-fit='PreferredSize'>
+    <button text='Rescan profile'      hover-hint='~rescan-button-hint'   on-click='click-btn-rescan'></button>
+    <button text='~reset-button-text'  hover-hint='~reset-button-hint'    on-click='click-btn-reset'></button>
+  </horizontal>
+</vertical>

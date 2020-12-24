@@ -1,0 +1,75 @@
+﻿<vertical child-control-height='false'>
+  <horizontal id='TypeSegmentPanel' pad-top='2' pref-height='7' pad-left='8' pad-right='8' min-width='110'>
+  </horizontal>
+
+  <vertical id='MenuPanel' child-align='UpperCenter' size-delta-y='70'>
+
+    <horizontal>
+      <text text='Main menu' font-color='yellow' bold='true' align='Center' font-size='3'/>
+    </horizontal>
+    <horizontal min-width='110' pad-bottom='4'>
+      <vertical spacing='0' size-delta-x='50' min-width='50'>
+        <vertical size-delta-x='70' min-width='45' pad-top='0'>
+          <text font-size='3.5' text='Disable BeatMap editor button'></text>
+          <bool-setting id='disablebeatmapeditorbuttononmainmenu-toggle'></bool-setting>
+        </vertical>
+        <vertical size-delta-x='70' min-width='45' pad-bottom='0'>
+          <text font-size='3.5' text='Show player statistics'></text>
+          <bool-setting id='showplayerstatisticsonmainmenu-toggle'></bool-setting>
+        </vertical>
+      </vertical>
+
+      <vertical spacing='0' size-delta-x='50' min-width='50'>
+        <vertical size-delta-x='70' min-width='45' pad-top='0'>
+          <text font-size='3.5' text='Remove new content promotional'></text>
+          <bool-setting id='removenewcontentpromotional-toggle'></bool-setting>
+        </vertical>
+        <vertical size-delta-x='70' min-width='45' pad-bottom='0'>
+          <text font-size='3.5' text=' '></text>
+          <text text=' '></text>
+        </vertical>
+      </vertical>
+    </horizontal>
+
+    <!-- =============================== -->
+
+    <horizontal>
+      <text text='Level selection' font-color='yellow' bold='true' align='Center' font-size='3'/>
+    </horizontal>
+    <horizontal min-width='110' pad-bottom='4'>
+      <vertical spacing='0' size-delta-x='50' min-width='50'>
+        <vertical size-delta-x='70' min-width='45' pad-top='0'>
+          <text font-size='3.5' text='Better player options menu'></text>
+          <bool-setting id='reorderplayersettings-toggle' hover-hint='Move all important options to the top'></bool-setting>
+        </vertical>
+        <vertical size-delta-x='70' min-width='45' pad-bottom='0'>
+          <text font-size='3.5' text='Remove base game filter'></text>
+          <bool-setting id='removebasegamefilterbutton-toggle' hover-hint='Remove the top right filter option from the game'></bool-setting>
+        </vertical>
+      </vertical>
+
+      <vertical spacing='0' size-delta-x='50' min-width='50'>
+        <vertical size-delta-x='70' min-width='45' pad-top='0'>
+          <text font-size='3.5' text='Add override lights intensity option'></text>
+          <bool-setting id='addoverridelightintensityoption-toggle'></bool-setting>
+        </vertical>
+        <vertical size-delta-x='70' min-width='45' pad-bottom='0'>
+          <text font-size='3.5' text='Song delete button'></text>
+          <bool-setting id='deletesongbutton-toggle'></bool-setting>
+        </vertical>
+      </vertical>
+    </horizontal>
+  </vertical>
+
+  <!-- =============================== -->
+
+  <vertical id='DevToolsTestingPanel' child-align='UpperCenter' size-delta-y='70'>
+    <horizontal>
+      <bool-setting id='fpfcescape-toggle' text='FPFC Escape' hover-hint='Allow to press Escape key to pause a music'></bool-setting>
+    </horizontal>
+
+    <horizontal min-height='60'>
+    </horizontal>
+  </vertical>
+
+</vertical>

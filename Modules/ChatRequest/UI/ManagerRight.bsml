@@ -1,0 +1,19 @@
+﻿<vertical child-control-height='true'>
+  <horizontal bg='panel-top' pad-left='15' pad-right='15' horizontal-fit='PreferredSize'>
+    <text text='Description' align='Center' font-size='4.2'/>
+  </horizontal>
+
+  <horizontal bg='round-rect-panel' id='DetailBackground' min-width='110' pref-height='45'>
+    <text-page id='DetailText' text=''></text-page>
+  </horizontal>
+
+  <horizontal bg='round-rect-panel' id='SubDetailBackground' pad='1' pad-top='1' pad-bottom='1'>
+    <text id='SubDetailText' text=' ' font-size='3'></text>
+  </horizontal>
+
+  <horizontal>
+    <primary-button on-click='click-btn-link'      text='Link song to chat'     min-width='50'></primary-button>
+    <primary-button on-click='click-btn-beatsaver' text='Open in beatsaver.com' min-width='50'></primary-button>
+  </horizontal>
+
+</vertical>

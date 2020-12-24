@@ -1,10 +1,10 @@
-﻿using BeatSaberMarkupLanguage;
-using BeatSaberMarkupLanguage.MenuButtons;
+﻿using BeatSaberMarkupLanguage.MenuButtons;
 using HarmonyLib;
 using IPA;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Linq;
 
 namespace BeatSaberPlus
 {
@@ -29,7 +29,7 @@ namespace BeatSaberPlus
         /// <summary>
         /// Plugins
         /// </summary>
-        internal List<Plugins.PluginBase> Plugins = new List<Plugins.PluginBase>();
+        internal List<SDK.IModuleBase> Modules = new List<SDK.IModuleBase>();
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -38,10 +38,6 @@ namespace BeatSaberPlus
         /// Harmony patch holder
         /// </summary>
         private static Harmony m_Harmony;
-        /// <summary>
-        /// UI Flow coordinator instance
-        /// </summary>
-        private UI.ViewFlowCoordinator m_UIFlowCoordinator;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -65,6 +61,9 @@ namespace BeatSaberPlus
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
+        /// <summary>
+        /// On BeatSaberPlus enable
+        /// </summary>
         [OnEnable]
         public void OnEnable()
         {
@@ -82,63 +81,61 @@ namespace BeatSaberPlus
                 MenuButtons.instance.RegisterButton(new MenuButton("BeatSaberPlus", "Feel good!", OnModButtonPressed, true));
 
                 Logger.Instance.Debug("Init helpers.");
-                Utils.Game.Init();
-                Utils.Songs.Init();
+                SDK.Game.Logic.Init();
 
                 Logger.Instance.Debug("Init event.");
-                Utils.Game.OnMenuSceneLoaded += OnMenuSceneLoaded;
+                SDK.Game.Logic.OnMenuSceneLoaded += OnMenuSceneLoaded;
 
-                Logger.Instance.Debug("Init sub plugins.");
-
-
+                Logger.Instance.Debug("Init modules.");
                 foreach (Assembly l_Assembly in AppDomain.CurrentDomain.GetAssemblies())
                 {
                     try
                     {
                         foreach (Type l_Type in l_Assembly.GetTypes())
                         {
-                            if (!l_Type.IsClass)
+                            if (!l_Type.IsClass || l_Type.ContainsGenericParameters)
                                 continue;
 
-                            if (l_Type.BaseType != typeof(Plugins.PluginBase))
+                            if (!typeof(SDK.IModuleBase).IsAssignableFrom(l_Type))
                                 continue;
 
-                            var l_Plugin = (Plugins.PluginBase)Activator.CreateInstance(l_Type);
+                            var l_Module = (SDK.IModuleBase)Activator.CreateInstance(l_Type);
 
-                            Logger.Instance.Debug("- " + l_Plugin.Name);
+                            Logger.Instance.Debug("- " + l_Module.Name);
 
                             /// Add plugin to the list
-                            Plugins.Add(l_Plugin);
+                            Modules.Add(l_Module);
 
-                            if (l_Plugin.IsEnabled && l_Plugin.ActivationType == BeatSaberPlus.Plugins.PluginBase.EActivationType.OnStart)
-                            {
-                                try {
-                                    l_Plugin.Enable();
-                                } catch (System.Exception p_InitException) { Logger.Instance.Error("Error on plugin init " + l_Plugin.Name); Logger.Instance.Error(p_InitException); }
-                            }
+                            try {
+                                l_Module.CheckForActivation(SDK.IModuleBaseActivationType.OnStart);
+                            } catch (System.Exception p_InitException) { Logger.Instance.Error("Error on module init " + l_Module.Name); Logger.Instance.Error(p_InitException); }
                         }
                     }
-                    catch (System.Exception)
+                    catch (System.Exception l_Exception)
                     {
-
+                        Logger.Instance?.Error("Failed to find modules");
+                        Logger.Instance?.Error(l_Exception);
                     }
                 }
 
-                Plugins.Sort((x, y) => x.Name.CompareTo(y.Name));
+                Modules.Sort((x, y) => x.Name.CompareTo(y.Name));
             }
             catch (System.Exception p_Exception)
             {
                 Logger.Instance.Critical(p_Exception);
             }
         }
+        /// <summary>
+        /// On BeatSaberPlus disable
+        /// </summary>
         [OnDisable]
         public void OnDisable()
         {
-            foreach (var l_Plugin in Plugins)
-                l_Plugin.Disable();
+            foreach (var l_Module in Modules)
+                l_Module.OnApplicationExit();
 
             /// Release all chat services
-            Utils.ChatService.Release(true);
+            SDK.Chat.Service.Release(true);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -149,27 +146,18 @@ namespace BeatSaberPlus
         /// </summary>
         private void OnModButtonPressed()
         {
-            if (m_UIFlowCoordinator == null)
-                m_UIFlowCoordinator = BeatSaberMarkupLanguage.BeatSaberUI.CreateFlowCoordinator<UI.ViewFlowCoordinator>();
-
-            BeatSaberUI.MainFlowCoordinator.PresentFlowCoordinator(m_UIFlowCoordinator as HMUI.FlowCoordinator);
+            UI.MainViewFlowCoordinator.Instance().Present(true);
         }
         /// <summary>
         /// When the menu scene is loaded
         /// </summary>
         private void OnMenuSceneLoaded()
         {
-            if (m_UIFlowCoordinator == null)
-                m_UIFlowCoordinator = BeatSaberMarkupLanguage.BeatSaberUI.CreateFlowCoordinator<UI.ViewFlowCoordinator>();
-
-            foreach (var l_Plugin in Plugins)
+            foreach (var l_Module in Modules)
             {
-                if (l_Plugin.IsEnabled && l_Plugin.ActivationType == BeatSaberPlus.Plugins.PluginBase.EActivationType.OnMenuSceneLoaded)
-                {
-                    try {
-                        l_Plugin.Enable();
-                    } catch (System.Exception p_InitException) { Logger.Instance.Error("Error on plugin init " + l_Plugin.Name); Logger.Instance.Error(p_InitException); }
-                }
+                try {
+                    l_Module.CheckForActivation(SDK.IModuleBaseActivationType.OnMenuSceneLoaded);
+                } catch (System.Exception p_InitException) { Logger.Instance.Error("Error on plugin init " + l_Module.Name); Logger.Instance.Error(p_InitException); }
             }
         }
     }

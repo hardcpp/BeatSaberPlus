@@ -10,7 +10,7 @@ namespace BeatSaberPlus
         /// <summary>
         /// Config instance
         /// </summary>
-        private static Utils.Config m_Config = null;
+        private static SDK.Config.INIConfig m_Config = null;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -225,13 +225,14 @@ namespace BeatSaberPlus
                 set {        m_Config.SetFloat(_s, "EmoteFallSpeed", value);        }
             }
 
+            internal static bool ModeratorPower {
+                get { return m_Config.GetBool(_s, "ModeratorPower", true, true);     }
+                set {        m_Config.SetBool(_s, "ModeratorPower", value);          }
+            }
+
             internal static bool SubRain {
                 get { return m_Config.GetBool(_s, "SubRain", true, true);           }
                 set {        m_Config.SetBool(_s, "SubRain", value);                }
-            }
-            internal static string SubRainEmotes {
-                get { return m_Config.GetString(_s, "SubRainEmotes", "", true);     }
-                set {        m_Config.SetString(_s, "SubRainEmotes", value);        }
             }
             internal static int SubRainEmoteCount {
                 get { return m_Config.GetInt(_s, "SubRainEmoteCount", 20, true);    }
@@ -253,6 +254,28 @@ namespace BeatSaberPlus
             internal static int ComboCount {
                 get { return m_Config.GetInt(_s, "ComboCount", 3, true);            }
                 set {        m_Config.SetInt(_s, "ComboCount", value);              }
+            }
+
+            internal static void Reset()
+            {
+                MenuRain        = true;
+                MenuRainSize    = 0.4f;
+
+                SongRain        = true;
+                SongRainSize    = 0.6f;
+
+                EmoteDelay      = 8;
+                EmoteFallSpeed  = 3f;
+
+                ModeratorPower = true;
+
+                SubRain             = true;
+                SubRainEmoteCount   = 20;
+
+                ComboMode       = false;
+                ComboModeType   = 0;
+                ComboTimer      = 5f;
+                ComboCount      = 3;
             }
         }
 
@@ -383,13 +406,41 @@ namespace BeatSaberPlus
                 get { return m_Config.GetInt(_s, "SimpleQueueFileCount", 10, true);                     }
                 set {        m_Config.SetInt(_s, "SimpleQueueFileCount", value);                        }
             }
-        }
 
-        internal class CloudSync
-        {
-            internal static bool Enabled {
-                get { return m_Config.GetBool("CloudSync", "Enabled", false, true); }
-                set {        m_Config.SetBool("CloudSync", "Enabled", value);       }
+            internal static void Reset()
+            {
+                UserMaxRequest          = 2;
+                VIPBonusRequest         = 2;
+                SubscriberBonusRequest  = 3;
+
+                HistorySize         = 50;
+                PlayPreviewMusic    = true;
+                ModeratorPower      = true;
+
+                QueueCommandShowSize = 4;
+                QueueCommandCooldown = 10;
+
+                NoBeatSage  = false;
+                NPSMin      = false;
+                NPSMax      = false;
+                NJSMin      = false;
+                NJSMax      = false;
+                DurationMax = false;
+                VoteMin     = false;
+                DateMin     = false;
+                DateMax     = false;
+
+                NPSMinV         =    0;
+                NPSMaxV         =   30;
+                NJSMinV         =    0;
+                NJSMaxV         =   30;
+                DurationMaxV    =    3;
+                VoteMinV        = 0.5f;
+                DateMinV        =    0;
+                DateMaxV        =   36;
+
+                ///SimpleQueueFileFormat = "%i - %n by %m";
+                ///SimpleQueueFileCount = 10;
             }
         }
 
@@ -426,6 +477,11 @@ namespace BeatSaberPlus
                 get { return m_Config.GetBool(_s, "RemoveSaberClashEffects", false, true);              }
                 set {        m_Config.SetBool(_s, "RemoveSaberClashEffects", value);                    }
             }
+            internal static bool RemoveWorldParticles {
+                get { return m_Config.GetBool(_s, "RemoveWorldParticles", false, true);                 }
+                set {        m_Config.SetBool(_s, "RemoveWorldParticles", value);                       }
+            }
+
             internal static bool RemoveMusicBandLogo {
                 get { return m_Config.GetBool(_s, "RemoveMusicBandLogo", false, true);                  }
                 set {        m_Config.SetBool(_s, "RemoveMusicBandLogo", value);                        }
@@ -438,17 +494,10 @@ namespace BeatSaberPlus
                 get { return m_Config.GetBool(_s, "NoFake360HUD", false, true);                         }
                 set {        m_Config.SetBool(_s, "NoFake360HUD", value);                               }
             }
-            internal static bool SongBackButtonConfirm {
-                get { return m_Config.GetBool(_s, "SongBackButtonConfirm", false, true);                }
-                set {        m_Config.SetBool(_s, "SongBackButtonConfirm", value);                      }
-            }
+
             internal static float SaberSmoothingTrailIntensity {
                 get { return m_Config.GetFloat(_s, "SaberSmoothingTrailIntensity", 0.4f, true);         }
                 set {        m_Config.SetFloat(_s, "SaberSmoothingTrailIntensity", value);              }
-            }
-            internal static bool SongRestartButtonConfirm {
-                get { return m_Config.GetBool(_s, "SongRestartButtonConfirm", false, true);             }
-                set {        m_Config.SetBool(_s, "SongRestartButtonConfirm", value);                   }
             }
             internal static bool RemoveSaberSmoothingTrail {
                 get { return m_Config.GetBool(_s, "RemoveSaberSmoothingTrail", false, true);            }
@@ -464,11 +513,12 @@ namespace BeatSaberPlus
                 set {        m_Config.SetBool(_s, "ShowPlayerStatisticsOnMainMenu", value);             }
             }
             internal static bool RemoveNewContentPromotional {
-                get { return m_Config.GetBool(_s, "RemoveNewContentPromotional", false, true);          }
+                get { return m_Config.GetBool(_s, "RemoveNewContentPromotional", true, true);           }
                 set {        m_Config.SetBool(_s, "RemoveNewContentPromotional", value);                }
             }
+
             internal static bool RemoveBaseGameFilterButton {
-                get { return m_Config.GetBool(_s, "RemoveBaseGameFilterButton", false, true);           }
+                get { return m_Config.GetBool(_s, "RemoveBaseGameFilterButton", true, true);            }
                 set {        m_Config.SetBool(_s, "RemoveBaseGameFilterButton", value);                 }
             }
             internal static bool ReorderPlayerSettings {
@@ -480,7 +530,7 @@ namespace BeatSaberPlus
                 set {        m_Config.SetBool(_s, "AddOverrideLightIntensityOption", value);            }
             }
             internal static float OverrideLightIntensity {
-                get { return m_Config.GetFloat(_s, "OverrideLightIntensity", 0.8f, true);               }
+                get { return m_Config.GetFloat(_s, "OverrideLightIntensity", 1.0f, true);               }
                 set {        m_Config.SetFloat(_s, "OverrideLightIntensity", value);                    }
             }
             internal static bool DeleteSongButton {
@@ -491,6 +541,35 @@ namespace BeatSaberPlus
             internal static bool FPFCEscape {
                 get { return m_Config.GetBool(_s, "FPFCEscape", false, true);                           }
                 set {        m_Config.SetBool(_s, "FPFCEscape", value);                                 }
+            }
+
+            internal static void Reset()
+            {
+                RemoveDebris                    = false;
+                RemoveAllCutParticles           = false;
+                RemoveObstacleParticles         = false;
+                RemoveSaberBurnMarks            = false;
+                RemoveSaberBurnMarkSparkles     = false;
+                RemoveSaberClashEffects         = false;
+                RemoveWorldParticles            = false;
+
+                RemoveMusicBandLogo             = false;
+                RemoveFullComboLossAnimation    = false;
+                NoFake360HUD                    = false;
+
+                SaberSmoothingTrailIntensity    = 0.4f;
+                RemoveSaberSmoothingTrail       = false;
+
+                DisableBeatMapEditorButtonOnMainMenu    = false;
+                ShowPlayerStatisticsOnMainMenu          = true;
+                RemoveNewContentPromotional             = true;
+
+                RemoveBaseGameFilterButton      = true;
+                ReorderPlayerSettings           = true;
+                AddOverrideLightIntensityOption = true;
+                DeleteSongButton                = true;
+
+                FPFCEscape = false;
             }
         }
 
@@ -506,6 +585,12 @@ namespace BeatSaberPlus
                 get { return m_Config.GetBool(_s, "ShowPlayer", true, true);                        }
                 set {        m_Config.SetBool(_s, "ShowPlayer", value);                             }
             }
+            internal static float BackgroundA { get { return m_Config.GetFloat(_s, "BackgroundA", 0.5f, true); } set { m_Config.SetFloat(_s, "BackgroundA", value); } }
+            internal static float BackgroundR { get { return m_Config.GetFloat(_s, "BackgroundR", 0f, true);   } set { m_Config.SetFloat(_s, "BackgroundR", value); } }
+            internal static float BackgroundG { get { return m_Config.GetFloat(_s, "BackgroundG", 0f, true);   } set { m_Config.SetFloat(_s, "BackgroundG", value); } }
+            internal static float BackgroundB { get { return m_Config.GetFloat(_s, "BackgroundB", 0f, true);   } set { m_Config.SetFloat(_s, "BackgroundB", value); } }
+            internal static Color BackgroundColor => new Color(BackgroundR, BackgroundG, BackgroundB, BackgroundA);
+
             internal static bool UseOnlyCustomMenuSongsFolder {
                 get { return m_Config.GetBool(_s, "UseOnlyCustomMenuSongsFolder", false, true);     }
                 set {        m_Config.SetBool(_s, "UseOnlyCustomMenuSongsFolder", value);           }
@@ -517,6 +602,17 @@ namespace BeatSaberPlus
             internal static float PlaybackVolume {
                 get { return m_Config.GetFloat(_s, "PlaybackVolume", 0.5f, true);                   }
                 set {        m_Config.SetFloat(_s, "PlaybackVolume", value);                        }
+            }
+
+            static internal void Reset()
+            {
+                ShowPlayer  = true;
+                BackgroundA = 0.5f;
+                BackgroundR = BackgroundG = BackgroundB = 0;
+
+                UseOnlyCustomMenuSongsFolder    = false;
+                StartSongFromBeginning          = false;
+                PlaybackVolume                  = 0.5f;
             }
         }
 
@@ -536,14 +632,6 @@ namespace BeatSaberPlus
             internal static bool UseBSPCustomMapsServerOnMoreSongs {
                 get { return m_Config.GetBool(_s, "UseBSPCustomMapsServerOnMoreSongs", false, true);    }
                 set {        m_Config.SetBool(_s, "UseBSPCustomMapsServerOnMoreSongs", value);          }
-            }
-        }
-
-        internal class PlaylistAssistant
-        {
-            internal static bool Enabled {
-                get { return m_Config.GetBool("PlaylistAssistant", "Enabled", false, true); }
-                set {        m_Config.SetBool("PlaylistAssistant", "Enabled", value);       }
             }
         }
 
@@ -673,6 +761,6 @@ namespace BeatSaberPlus
         /// <summary>
         /// Init config
         /// </summary>
-        internal static void Init() => m_Config = new Utils.Config("BeatSaberPlus");
+        internal static void Init() => m_Config = new SDK.Config.INIConfig("BeatSaberPlus");
     }
 }

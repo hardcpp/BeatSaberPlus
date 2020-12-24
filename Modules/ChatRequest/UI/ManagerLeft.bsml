@@ -1,0 +1,20 @@
+﻿<vertical child-control-height='true'>
+  <horizontal bg='panel-top' pad-left='15' pad-right='15' horizontal-fit='PreferredSize'>
+    <text text='Tools' align='Center' font-size='4.2'/>
+  </horizontal>
+
+  <horizontal>
+    <button text='Remove all request from queue' on-click='click-clear-queue-btn-pressed' min-height='10' min-width='70'></button>
+  </horizontal>
+  <horizontal>
+    <button text='Reset blacklist' on-click='click-reset-blacklist-btn-pressed' min-height='10' min-width='70'></button>
+  </horizontal>
+
+  <horizontal min-height='35'>
+  </horizontal>
+
+  <horizontal>
+    <primary-button id='QueueButton' on-click='click-btn-queue' text='Close queue' min-height='10' min-width='70' />
+  </horizontal>
+
+</vertical>
