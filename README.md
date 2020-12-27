@@ -1,6 +1,6 @@
 # BeatSaberPlus
 
-**Discord** https://discord.gg/K4X94Ea (Download, Support, Testing, Early releases and cool new mods comming soon)
+**Discord** https://discord.gg/K4X94Ea (Download, Support, Testing, Early releases and cool new mods coming soon)
 
 Version : 1.2.1
 
