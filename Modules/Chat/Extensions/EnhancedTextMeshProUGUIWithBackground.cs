@@ -186,10 +186,10 @@ namespace BeatSaberPlus.Modules.Chat.Extensions
         /// </summary>
         private void OnTextChanged()
         {
-            float l_TextHeight = Text.GetPreferredValues().y;
-            RectTranform.sizeDelta = new Vector2(RectTranform.sizeDelta.x,
-                 l_TextHeight + (SubTextEnabled ? SubText.GetPreferredValues().y : 0)
-            );
+            float l_TextHeight      = Text.GetRenderedValues().y + (2 * s_TopDownMargins);
+            float l_SubTextHeight   = SubTextEnabled ? SubText.GetRenderedValues().y + (2 * s_TopDownMargins) : 0;
+
+            RectTranform.sizeDelta = new Vector2(RectTranform.sizeDelta.x, l_TextHeight + l_SubTextHeight);
 
             SubText.rectTransform.localPosition = new Vector3(SubText.rectTransform.localPosition.x, l_TextHeight, SubText.rectTransform.localPosition.z);
             m_Accent.rectTransform.sizeDelta = new Vector2(s_LeftRightMargins / 2f, RectTranform.sizeDelta.y);

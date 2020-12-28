@@ -1,0 +1,14 @@
+﻿<vertical child-control-height='false'>
+  <horizontal bg='panel-top' pad-left='15' pad-right='15' horizontal-fit='PreferredSize'>
+    <text text='Send message' align='Center' font-size='4.2'/>
+  </horizontal>
+
+  <modal-keyboard id='MessageKeyboard'
+                  move-to-center="true"
+                  value="MessageContent"
+                  show-event="OpenMessageModal"
+                  hide-event="CloseAllModals"
+                  clear-on-open="false"
+                  on-enter="SendPressed"
+                  click-off-closes="false"></modal-keyboard>
+</vertical>

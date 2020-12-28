@@ -1,0 +1,25 @@
+﻿<vertical child-control-height='false'>
+  <horizontal bg='panel-top' pad-left='15' pad-right='15' horizontal-fit='PreferredSize'>
+    <text text='Channel Active Users (Last 40 ones)' align='Center' font-size='4.2'/>
+  </horizontal>
+
+  <horizontal spacing='0' pad='0'>
+    <vertical min-width='110' spacing='0' pad='0'>
+      <page-button id='UsersUpButton' direction='Up'></page-button>
+      <vertical id='Background' bg='round-rect-panel'  min-width='110' pref-height='55' spacing='0' pad='2' pad-top='1'>
+        <list id='UsersList'>
+
+        </list>
+      </vertical>
+      <page-button id='UsersDownButton' direction='Down'></page-button>
+    </vertical>
+  </horizontal>
+
+  <horizontal>
+    <primary-button on-click='click-timeout-btn-pressed'  min-width='35' text='TimeOut(10 min)'></primary-button>
+    <primary-button on-click='click-ban-btn-pressed'      min-width='20' text='Ban'></primary-button>
+    <primary-button on-click='click-mod-btn-pressed'      min-width='20' text='Mod'></primary-button>
+    <primary-button on-click='click-unmod-btn-pressed'    min-width='20' text='UnMod'></primary-button>
+  </horizontal>
+
+</vertical>

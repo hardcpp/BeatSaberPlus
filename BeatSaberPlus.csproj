@@ -224,11 +224,17 @@
     <Compile Include="Modules\ChatRequest\ChatRequest_Database.cs" />
     <Compile Include="Modules\ChatRequest\UI\SettingsLeft.cs" />
     <Compile Include="Modules\Chat\UI\FloatingWindow_Events.cs" />
+    <Compile Include="Modules\Chat\UI\ModerationLeft.cs" />
+    <Compile Include="Modules\Chat\UI\ModerationMain.cs" />
+    <Compile Include="Modules\Chat\UI\ModerationRight.cs" />
+    <Compile Include="Modules\Chat\UI\ModerationViewFlowCoordinator.cs" />
     <Compile Include="Modules\GameTweaker\UI\SettingsLeft.cs" />
     <Compile Include="Modules\GameTweaker\UI\SettingsRight.cs" />
     <Compile Include="SDK\Cryptography\SHA1.cs" />
+    <Compile Include="SDK\Misc\RingBuffer.cs" />
     <Compile Include="SDK\UI\Button.cs" />
     <Compile Include="SDK\UI\ColorSetting.cs" />
+    <Compile Include="SDK\UI\DataSource\SimpleTextList.cs" />
     <Compile Include="SDK\UI\DataSource\SongList.cs" />
     <Compile Include="SDK\UI\IncrementSetting.cs" />
     <Compile Include="SDK\UI\Internal\BSMLPrimaryButtonTag.cs" />
@@ -423,6 +429,15 @@
     <EmbeddedResource Include="Modules\GameTweaker\UI\SettingsRight.bsml">
       <DependentUpon>SettingsRight.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Modules\Chat\UI\ModerationMain.bsml">
+      <DependentUpon>ModerationMain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Modules\Chat\UI\ModerationLeft.bsml">
+      <DependentUpon>ModerationLeft.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Modules\Chat\UI\ModerationRight.bsml">
+      <DependentUpon>ModerationRight.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Modules\Chat\Resources\Settings.png" />
@@ -446,6 +461,11 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="SDK\UI\Resources\Offset.png" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Modules\MenuMusic\Resources\Pause.png" />
+    <EmbeddedResource Include="Modules\MenuMusic\Resources\Play.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="BuildTargets.targets" />

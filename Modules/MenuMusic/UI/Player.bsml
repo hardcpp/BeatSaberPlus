@@ -5,10 +5,11 @@
     </horizontal>
 
     <horizontal>
-      <horizontal horizontal-fit='MinSize' min-width='30' id='buttons'>
-        <icon-button on-click='prev-pressed' icon='BeatSaberPlus.Modules.MenuMusic.Resources.PrevIcon.png'    stroke-type='Clean' pad='1'/>
-        <icon-button on-click='rand-pressed' icon='BeatSaberPlus.Modules.MenuMusic.Resources.RefreshIcon.png' stroke-type='Clean' pad='1'/>
-        <icon-button on-click='next-pressed' icon='BeatSaberPlus.Modules.MenuMusic.Resources.NextIcon.png'    stroke-type='Clean' pad='1'/>
+      <horizontal horizontal-fit='MinSize' min-width='40' id='buttons'>
+        <icon-button on-click='prev-pressed'      icon='BeatSaberPlus.Modules.MenuMusic.Resources.PrevIcon.png'    stroke-type='Clean' pad='1'/>
+        <icon-button on-click='rand-pressed'      icon='BeatSaberPlus.Modules.MenuMusic.Resources.RefreshIcon.png' stroke-type='Clean' pad='1'/>
+        <icon-button on-click='playpause-pressed' icon='BeatSaberPlus.Modules.MenuMusic.Resources.Pause.png'       stroke-type='Clean' pad='1' id='PlayPauseButton'/>
+        <icon-button on-click='next-pressed'      icon='BeatSaberPlus.Modules.MenuMusic.Resources.NextIcon.png'    stroke-type='Clean' pad='1'/>
       </horizontal>
     </horizontal>
   </vertical>

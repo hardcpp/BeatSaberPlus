@@ -1,0 +1,23 @@
+﻿<vertical child-control-height='false'>
+  <horizontal bg='panel-top' pad-left='15' pad-right='15' horizontal-fit='PreferredSize'>
+    <text text='Channel Actions' align='Center' font-size='4.2'/>
+  </horizontal>
+
+  <horizontal>
+    <text id='RoomStateText' text='RoomState: Normal' />
+  </horizontal>
+
+  <horizontal>
+    <primary-button text='Toggle emote only mode' on-click='click-toggle-emote-only-mode-btn-pressed' min-height='10' min-width='70'></primary-button>
+  </horizontal>
+  <horizontal>
+    <primary-button text='Toggle follower mode' on-click='click-toggle-follower-mode-btn-pressed' min-height='10' min-width='70'></primary-button>
+  </horizontal>
+  <horizontal>
+    <primary-button text='Toggle slow mode' on-click='click-toggle-slow-mode-btn-pressed' min-height='10' min-width='70'></primary-button>
+  </horizontal>
+
+  <horizontal min-height='30'>
+  </horizontal>
+
+</vertical>

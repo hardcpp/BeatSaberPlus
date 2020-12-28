@@ -1,17 +1,17 @@
 ﻿using HMUI;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.ChatRequest.UI
+namespace BeatSaberPlus.Modules.Chat.UI
 {
     /// <summary>
-    /// Manager UI flow coordinator
+    /// Moderation UI flow coordinator
     /// </summary>
-    internal class ManagerViewFlowCoordinator : SDK.UI.ViewFlowCoordinator<ManagerViewFlowCoordinator>
+    internal class ModerationViewFlowCoordinator : SDK.UI.ViewFlowCoordinator<ModerationViewFlowCoordinator>
     {
         /// <summary>
         /// Title
         /// </summary>
-        public override string Title => "Chat Request";
+        public override string Title => "Chat Moderation";
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -19,15 +19,15 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
         /// <summary>
         /// Main view
         /// </summary>
-        private ManagerMain m_MainView;
+        private ModerationMain m_MainView;
         /// <summary>
         /// Left view
         /// </summary>
-        private ManagerLeft m_LeftView;
+        private ModerationLeft m_LeftView;
         /// <summary>
         /// Details view
         /// </summary>
-        private ManagerRight m_RightView;
+        private ModerationRight m_RightView;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -44,11 +44,11 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
         /// <summary>
         /// Constructor
         /// </summary>
-        internal ManagerViewFlowCoordinator()
+        internal ModerationViewFlowCoordinator()
         {
-            m_MainView  = CreateViewController<ManagerMain>();
-            m_LeftView  = CreateViewController<ManagerLeft>();
-            m_RightView = CreateViewController<ManagerRight>();
+            m_MainView  = CreateViewController<ModerationMain>();
+            m_LeftView  = CreateViewController<ModerationLeft>();
+            m_RightView = CreateViewController<ModerationRight>();
         }
         /// <summary>
         /// On destroy

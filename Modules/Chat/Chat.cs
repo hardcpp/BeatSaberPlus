@@ -3,10 +3,13 @@ using BeatSaberMarkupLanguage.FloatingScreen;
 using BeatSaberPlusChatCore.Interfaces;
 using HMUI;
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace BeatSaberPlus.Modules.Chat
 {
@@ -83,6 +86,26 @@ namespace BeatSaberPlus.Modules.Chat
         /// Is the action dequeue task running
         /// </summary>
         private bool m_ActionDequeueRun = true;
+        /// <summary>
+        /// Create button coroutine
+        /// </summary>
+        private Coroutine m_CreateButtonCoroutine = null;
+        /// <summary>
+        /// Moderation button
+        /// </summary>
+        private Button m_ModerationButton = null;
+        /// <summary>
+        /// Last chat users
+        /// </summary>
+        private SDK.Misc.RingBuffer<(IChatService, IChatUser)> m_LastChatUsers = null;
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Last chat users
+        /// </summary>
+        internal List<(IChatService, IChatUser)> LastChatUsers => m_LastChatUsers == null ? new List<(IChatService, IChatUser)>() : m_LastChatUsers.ToList();
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -92,8 +115,12 @@ namespace BeatSaberPlus.Modules.Chat
         /// </summary>
         protected override void OnEnable()
         {
+            /// Create ring buffer
+            m_LastChatUsers = new SDK.Misc.RingBuffer<(IChatService, IChatUser)>(40);
+
             /// Bind events
-            SDK.Game.Logic.OnSceneChange += OnSceneChange;
+            SDK.Game.Logic.OnMenuSceneLoaded += OnMenuSceneLoaded;
+            SDK.Game.Logic.OnSceneChange     += OnSceneChange;
 
             /// If we are already in menu scene, activate
             if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Menu)
@@ -114,6 +141,7 @@ namespace BeatSaberPlus.Modules.Chat
                 SDK.Chat.Service.Multiplexer.OnChannelPoints         += ChatCoreMutiplixer_OnChannelPoints;
                 SDK.Chat.Service.Multiplexer.OnChannelSubscription   += ChatCoreMutiplixer_OnChannelSubscription;
                 SDK.Chat.Service.Multiplexer.OnTextMessageReceived   += ChatCoreMutiplixer_OnTextMessageReceived;
+                SDK.Chat.Service.Multiplexer.OnRoomStateUpdated      += ChatCoreMutiplixer_OnRoomStateUpdated;
                 SDK.Chat.Service.Multiplexer.OnChatCleared           += ChatCoreMutiplixer_OnChatCleared;
                 SDK.Chat.Service.Multiplexer.OnMessageCleared        += ChatCoreMutiplixer_OnMessageCleared;
 
@@ -127,6 +155,10 @@ namespace BeatSaberPlus.Modules.Chat
                 /// Start dequeue task
                 Task.Run(ActionDequeueTask);
             }
+
+            /// Add button
+            if (m_CreateButtonCoroutine == null)
+                m_CreateButtonCoroutine = SharedCoroutineStarter.instance.StartCoroutine(CreateButtonCoroutine());
         }
         /// <summary>
         /// Disable the Module
@@ -145,6 +177,7 @@ namespace BeatSaberPlus.Modules.Chat
                 SDK.Chat.Service.Multiplexer.OnChannelPoints       -= ChatCoreMutiplixer_OnChannelPoints;
                 SDK.Chat.Service.Multiplexer.OnChannelSubscription -= ChatCoreMutiplixer_OnChannelSubscription;
                 SDK.Chat.Service.Multiplexer.OnTextMessageReceived -= ChatCoreMutiplixer_OnTextMessageReceived;
+                SDK.Chat.Service.Multiplexer.OnRoomStateUpdated    -= ChatCoreMutiplixer_OnRoomStateUpdated;
                 SDK.Chat.Service.Multiplexer.OnChatCleared         -= ChatCoreMutiplixer_OnChatCleared;
                 SDK.Chat.Service.Multiplexer.OnMessageCleared      -= ChatCoreMutiplixer_OnMessageCleared;
 
@@ -157,7 +190,22 @@ namespace BeatSaberPlus.Modules.Chat
             }
 
             /// Unbind events
-            SDK.Game.Logic.OnSceneChange -= OnSceneChange;
+            SDK.Game.Logic.OnSceneChange     -= OnSceneChange;
+            SDK.Game.Logic.OnMenuSceneLoaded -= OnMenuSceneLoaded;
+
+            /// Stop coroutine
+            if (m_CreateButtonCoroutine != null)
+            {
+                SharedCoroutineStarter.instance.StopCoroutine(m_CreateButtonCoroutine);
+                m_CreateButtonCoroutine = null;
+            }
+
+            /// Destroy moderation button
+            if (m_ModerationButton != null)
+            {
+                GameObject.Destroy(m_ModerationButton.gameObject);
+                m_ModerationButton = null;
+            }
 
             /// Destroy
             DestroyFloatingWindow();
@@ -186,11 +234,40 @@ namespace BeatSaberPlus.Modules.Chat
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
+        /// When the menu loaded
+        /// </summary>
+        private void OnMenuSceneLoaded()
+        {
+            if (m_ModerationButton == null || !m_ModerationButton )
+            {
+                /// Stop coroutine
+                if (m_CreateButtonCoroutine != null)
+                {
+                    SharedCoroutineStarter.instance.StopCoroutine(m_CreateButtonCoroutine);
+                    m_CreateButtonCoroutine = null;
+                }
+
+                /// Destroy moderation button
+                if (m_ModerationButton != null)
+                {
+                    GameObject.Destroy(m_ModerationButton.gameObject);
+                    m_ModerationButton = null;
+                }
+
+                /// Add button
+                if (m_CreateButtonCoroutine == null)
+                    m_CreateButtonCoroutine = SharedCoroutineStarter.instance.StartCoroutine(CreateButtonCoroutine());
+            }
+        }
+        /// <summary>
         /// When the active scene is changed
         /// </summary>
         /// <param name="p_SceneType"></param>
         private void OnSceneChange(SDK.Game.Logic.SceneType p_SceneType)
         {
+            if (p_SceneType == SDK.Game.Logic.SceneType.Menu)
+                UpdateButton();
+
             if (m_ChatFloatingScreen == null)
                 CreateFloatingWindow(p_SceneType);
             else
@@ -221,6 +298,48 @@ namespace BeatSaberPlus.Modules.Chat
                 Config.Chat.MenuChatRotationY = m_ChatFloatingScreen.ScreenRotation.eulerAngles.y;
                 Config.Chat.MenuChatRotationZ = m_ChatFloatingScreen.ScreenRotation.eulerAngles.z;
             }
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Create button coroutine
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerator CreateButtonCoroutine()
+        {
+            LevelSelectionNavigationController p_LevelSelectionNavigationController = null;
+
+            while (true)
+            {
+                p_LevelSelectionNavigationController = Resources.FindObjectsOfTypeAll<LevelSelectionNavigationController>().LastOrDefault();
+
+                if (p_LevelSelectionNavigationController != null && p_LevelSelectionNavigationController.gameObject.transform.childCount >= 2)
+                    break;
+
+                yield return new WaitForSeconds(0.25f);
+            }
+
+            m_ModerationButton = SDK.UI.Button.Create(p_LevelSelectionNavigationController.transform, "Chat Moderation", () => UI.ModerationViewFlowCoordinator.Instance().Present(), null);
+            m_ModerationButton.transform.localPosition      = new Vector3(32.50f, 38.50f, 2.6f);
+            m_ModerationButton.transform.localScale         = new Vector3(1.0f, 0.8f, 1.0f);
+            m_ModerationButton.transform.SetAsLastSibling();
+            m_ModerationButton.gameObject.SetActive(true);
+
+            UpdateButton();
+
+            m_CreateButtonCoroutine = null;
+        }
+        /// <summary>
+        /// Update button text
+        /// </summary>
+        internal void UpdateButton()
+        {
+            if (m_ModerationButton == null)
+                return;
+
+            m_ModerationButton.transform.localPosition = new Vector3(32.50f, 38.50f, 2.6f);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -302,7 +421,23 @@ namespace BeatSaberPlus.Modules.Chat
         /// <param name="p_Message">ID of the message</param>
         private void ChatCoreMutiplixer_OnTextMessageReceived(IChatService p_ChatService, IChatMessage p_Message)
         {
+            lock (m_LastChatUsers)
+            {
+                if (m_LastChatUsers.Count(x => x.Item1 == p_ChatService && x.Item2.UserName == p_Message.Sender.UserName) == 0)
+                    m_LastChatUsers.Add((p_ChatService, p_Message.Sender));
+            }
+
             QueueOrSendChatAction(() => m_ChatFloatingScreenController.OnTextMessageReceived(p_Message));
+        }
+        /// <summary>
+        /// On room state changed
+        /// </summary>
+        /// <param name="p_ChatService">Chat service</param>
+        /// <param name="p_Channel">Channel instance</param>
+        private void ChatCoreMutiplixer_OnRoomStateUpdated(IChatService p_ChatService, IChatChannel p_Channel)
+        {
+            if (UI.ModerationLeft.Instance != null)
+                UI.ModerationLeft.Instance.UpdateRoomState();
         }
         /// <summary>
         /// On chat user cleared

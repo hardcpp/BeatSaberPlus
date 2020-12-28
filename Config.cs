@@ -279,6 +279,16 @@ namespace BeatSaberPlus
             }
         }
 
+        internal class ChatIntegrations
+        {
+            private static string _s = "ChatIntegrations";
+
+            internal static bool Enabled {
+                get { return m_Config.GetBool(_s, "Enabled", false, true);                              }
+                set {        m_Config.SetBool(_s, "Enabled", value);                                    }
+            }
+        }
+
         internal class ChatRequest
         {
             private static string _s = "ChatRequest";
@@ -581,9 +591,14 @@ namespace BeatSaberPlus
                 get { return m_Config.GetBool(_s, "Enabled", false, true);                          }
                 set {        m_Config.SetBool(_s, "Enabled", value);                                }
             }
+
             internal static bool ShowPlayer {
                 get { return m_Config.GetBool(_s, "ShowPlayer", true, true);                        }
                 set {        m_Config.SetBool(_s, "ShowPlayer", value);                             }
+            }
+            internal static bool ShowPlayTime {
+                get { return m_Config.GetBool(_s, "ShowPlayTime", true, true);                      }
+                set {        m_Config.SetBool(_s, "ShowPlayTime", value);                           }
             }
             internal static float BackgroundA { get { return m_Config.GetFloat(_s, "BackgroundA", 0.5f, true); } set { m_Config.SetFloat(_s, "BackgroundA", value); } }
             internal static float BackgroundR { get { return m_Config.GetFloat(_s, "BackgroundR", 0f, true);   } set { m_Config.SetFloat(_s, "BackgroundR", value); } }
@@ -591,13 +606,21 @@ namespace BeatSaberPlus
             internal static float BackgroundB { get { return m_Config.GetFloat(_s, "BackgroundB", 0f, true);   } set { m_Config.SetFloat(_s, "BackgroundB", value); } }
             internal static Color BackgroundColor => new Color(BackgroundR, BackgroundG, BackgroundB, BackgroundA);
 
-            internal static bool UseOnlyCustomMenuSongsFolder {
-                get { return m_Config.GetBool(_s, "UseOnlyCustomMenuSongsFolder", false, true);     }
-                set {        m_Config.SetBool(_s, "UseOnlyCustomMenuSongsFolder", value);           }
-            }
             internal static bool StartSongFromBeginning {
                 get { return m_Config.GetBool(_s, "StartSongFromBeginning", false, true);           }
                 set {        m_Config.SetBool(_s, "StartSongFromBeginning", value);                 }
+            }
+            internal static bool StartANewMusicOnSceneChange {
+                get { return m_Config.GetBool(_s, "StartANewMusicOnSceneChange", true, true);       }
+                set {        m_Config.SetBool(_s, "StartANewMusicOnSceneChange", value);            }
+            }
+            internal static bool LoopCurrentMusic {
+                get { return m_Config.GetBool(_s, "LoopCurrentMusic", false, true);                 }
+                set {        m_Config.SetBool(_s, "LoopCurrentMusic", value);                       }
+            }
+            internal static bool UseOnlyCustomMenuSongsFolder {
+                get { return m_Config.GetBool(_s, "UseOnlyCustomMenuSongsFolder", false, true);     }
+                set {        m_Config.SetBool(_s, "UseOnlyCustomMenuSongsFolder", value);           }
             }
             internal static float PlaybackVolume {
                 get { return m_Config.GetFloat(_s, "PlaybackVolume", 0.5f, true);                   }
@@ -606,12 +629,15 @@ namespace BeatSaberPlus
 
             static internal void Reset()
             {
-                ShowPlayer  = true;
-                BackgroundA = 0.5f;
-                BackgroundR = BackgroundG = BackgroundB = 0;
+                ShowPlayer      = true;
+                ShowPlayTime    = true;
+                BackgroundA     = 0.5f;
+                BackgroundR     = BackgroundG = BackgroundB = 0;
 
-                UseOnlyCustomMenuSongsFolder    = false;
                 StartSongFromBeginning          = false;
+                StartANewMusicOnSceneChange     = true;
+                LoopCurrentMusic                = false;
+                UseOnlyCustomMenuSongsFolder    = false;
                 PlaybackVolume                  = 0.5f;
             }
         }

@@ -174,8 +174,11 @@ namespace BeatSaberPlus.Modules.Chat.UI
 
                     l_Message.Text.FontInfo                 = m_ChatFont;
                     l_Message.Text.font                     = m_ChatFont.Font;
+                    l_Message.Text.fontStyle                = FontStyles.Normal;
+                    l_Message.Text.fontSize                 = m_FontSize;
+                    l_Message.Text.fontSizeMin              = 1f;
                     l_Message.Text.fontSizeMax              = m_FontSize;
-                    l_Message.Text.fontSizeMin              = m_FontSize * 0.2f;
+                    l_Message.Text.enableAutoSizing         = false;
                     l_Message.Text.color                    = m_TextColor;
                     l_Message.Text.lineSpacing              = 1.5f;
                     l_Message.Text.enableWordWrapping       = true;
@@ -184,8 +187,11 @@ namespace BeatSaberPlus.Modules.Chat.UI
 
                     l_Message.SubText.FontInfo              = m_ChatFont;
                     l_Message.SubText.font                  = m_ChatFont.Font;
+                    l_Message.Text.fontStyle                = FontStyles.Normal;
+                    l_Message.Text.fontSize                 = m_FontSize;
+                    l_Message.SubText.fontSizeMin           = 1f;
                     l_Message.SubText.fontSizeMax           = m_FontSize;
-                    l_Message.SubText.fontSizeMin           = m_FontSize * 0.2f;
+                    l_Message.SubText.enableAutoSizing      = false;
                     l_Message.SubText.color                 = m_TextColor;
                     l_Message.SubText.lineSpacing           = 1.5f;
                     l_Message.SubText.enableWordWrapping    = true;
@@ -196,6 +202,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
 
                     l_Message.transform.SetParent(transform.GetChild(0).transform, false);
                     l_Message.transform.SetAsFirstSibling();
+                    l_Message.SetWidth(m_ChatWidth);
                     l_Message.gameObject.SetActive(false);
 
                     UpdateMessage(l_Message);

@@ -101,6 +101,30 @@ namespace BeatSaberPlus.Modules.MenuMusic
         /// Current song index
         /// </summary>
         private int m_CurrentSongIndex = 0;
+        /// <summary>
+        /// Backup time clip instance
+        /// </summary>
+        private AudioClip m_BackupTimeClip = null;
+        /// <summary>
+        /// Backup time
+        /// </summary>
+        private float m_BackupTime = 0f;
+        /// <summary>
+        /// Is music paused
+        /// </summary>
+        private bool m_IsPaused = false;
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Current play total duration
+        /// </summary>
+        internal float CurrentDuration => m_CurrentMusic?.length ?? 0;
+        /// <summary>
+        /// Current play position
+        /// </summary>
+        internal float CurrentPosition => (m_CurrentMusic == m_BackupTimeClip) ? m_BackupTime : 0;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -211,7 +235,20 @@ namespace BeatSaberPlus.Modules.MenuMusic
                 DestroyFloatingPlayer();
 
             if (m_PlayerFloatingScreen != null && m_PlayerFloatingScreen)
+            {
                 m_PlayerFloatingScreenController.UpdateBackgroundColor();
+                m_PlayerFloatingScreenController.UpdateText();
+            }
+        }
+        /// <summary>
+        /// Toggle pause status
+        /// </summary>
+        internal void TogglePause()
+        {
+            m_IsPaused = !m_IsPaused;
+
+            if (m_PlayerFloatingScreenController)
+                m_PlayerFloatingScreenController.SetIsPaused(m_IsPaused);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -271,6 +308,7 @@ namespace BeatSaberPlus.Modules.MenuMusic
                 m_PlayerFloatingScreenController = BeatSaberUI.CreateViewController<UI.Player>();
                 m_PlayerFloatingScreen.SetRootViewController(m_PlayerFloatingScreenController, HMUI.ViewController.AnimationType.None);
                 m_PlayerFloatingScreen.GetComponentInChildren<Canvas>().sortingOrder = 4;
+                m_PlayerFloatingScreenController.SetIsPaused(m_IsPaused);
 
                 /// Update song name
                 m_PlayerFloatingScreenController.SetPlayingSong(GetCurrenltyPlayingSongName());
@@ -521,15 +559,17 @@ namespace BeatSaberPlus.Modules.MenuMusic
                         m_PreviewPlayer.SetField("_defaultAudioClip",   m_CurrentMusic);
                         m_PreviewPlayer.SetField("_ambientVolumeScale", Config.MenuMusic.PlaybackVolume);
 
-                        float l_StartTime       = Config.MenuMusic.StartSongFromBeginning ? 0f : Mathf.Max(UnityEngine.Random.Range(m_CurrentMusic.length * 0.2f, m_CurrentMusic.length * 0.8f), 0.0f);
-                        float l_TimeUntilNext   = Mathf.Max(1f, (m_CurrentMusic.length - l_StartTime) - 1f);
+                        float l_StartTime = Config.MenuMusic.StartSongFromBeginning ? 0f : Mathf.Max(UnityEngine.Random.Range(m_CurrentMusic.length * 0.2f, m_CurrentMusic.length * 0.8f), 0.0f);
 
                         m_PreviewPlayer.CrossfadeTo(m_CurrentMusic, l_StartTime, -1f, Config.MenuMusic.PlaybackVolume);
 
-                        //m_WaitAndPlayNextSongCoroutine = SharedCoroutineStarter.instance.StartCoroutine(WaitAndPlayNextMusic(l_TimeUntilNext));
+                        m_BackupTimeClip    = m_CurrentMusic;
+                        m_BackupTime        = l_StartTime;
 
                         if (m_PlayerFloatingScreenController != null)
                             m_PlayerFloatingScreenController.SetPlayingSong(GetCurrenltyPlayingSongName());
+
+                        m_WaitAndPlayNextSongCoroutine = SharedCoroutineStarter.instance.StartCoroutine(WaitAndPlayNextMusic(m_CurrentMusic.length));
                     }
                     catch (Exception p_Exception)
                     {
@@ -561,19 +601,60 @@ namespace BeatSaberPlus.Modules.MenuMusic
         /// </summary>
         /// <param name="p_WaitTime">Time to wait</param>
         /// <returns></returns>
-        private IEnumerator WaitAndPlayNextMusic(float p_WaitTime)
+        private IEnumerator WaitAndPlayNextMusic(float p_EndTime)
         {
-            yield return new WaitForSeconds(p_WaitTime);
-
-            /// Skip if it's not the menu
-            if (SDK.Game.Logic.ActiveScene != SDK.Game.Logic.SceneType.Menu)
+            do
             {
-                m_WaitAndPlayNextSongCoroutine = null;
-                yield break;
-            }
+                /// Skip if it's not the menu
+                if (SDK.Game.Logic.ActiveScene != SDK.Game.Logic.SceneType.Menu || !m_PreviewPlayer)
+                {
+                    m_WaitAndPlayNextSongCoroutine = null;
+                    yield break;
+                }
 
-            StartNextMusic();
-            m_WaitAndPlayNextSongCoroutine = null;
+                var l_Channels = m_PreviewPlayer.GetField<AudioSource[], SongPreviewPlayer>("_audioSources");
+                if (l_Channels != null)
+                {
+                    foreach (var l_Channel in l_Channels)
+                    {
+                        //if (l_Channel.isPlaying && l_Channel.clip == m_CurrentMusic)
+                        //    Logger.Instance.Error(string.Format("{0}/{1}", l_Channel.time, p_EndTime));
+
+                        if (!m_IsPaused && !l_Channel.isPlaying && l_Channel.clip == m_CurrentMusic && l_Channels.IndexOf(l_Channel) == m_PreviewPlayer.GetField<int, SongPreviewPlayer>("_activeChannel"))
+                            l_Channel.UnPause();
+
+                        if (l_Channel.isPlaying && l_Channel.clip == m_CurrentMusic)
+                        {
+                            if (m_BackupTimeClip == null || m_BackupTimeClip != m_CurrentMusic)
+                            {
+                                m_BackupTimeClip = m_CurrentMusic;
+                                m_BackupTime     = l_Channel.time;
+                            }
+                            else if (Mathf.Abs(l_Channel.time - m_BackupTime) > 1f)
+                                l_Channel.time = m_BackupTime;
+                            else
+                                m_BackupTime = l_Channel.time;
+
+                            if (m_IsPaused)
+                                l_Channel.Pause();
+
+                            if (Mathf.Abs(p_EndTime - l_Channel.time) < 3f)
+                            {
+                                m_WaitAndPlayNextSongCoroutine = null;
+                                if (Config.MenuMusic.LoopCurrentMusic)
+                                    SharedCoroutineStarter.instance.StartCoroutine(LoadAudioClip(false));
+                                else
+                                    StartNextMusic();
+                                yield break;
+                            }
+                        }
+                    }
+                }
+
+                /// Update 8 time a second
+                yield return new WaitForSeconds(1f / 8f);
+
+            } while (true);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -675,7 +756,10 @@ namespace BeatSaberPlus.Modules.MenuMusic
                 CreateFloatingPlayer();
 
             /// Start a new music
-            StartNewMusic(false, true);
+            if (Config.MenuMusic.StartANewMusicOnSceneChange)
+                StartNewMusic(false, true);
+            else
+                SharedCoroutineStarter.instance.StartCoroutine(LoadAudioClip(true));
         }
     }
 }

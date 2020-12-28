@@ -10,12 +10,20 @@
         <bool-setting id='ShowPlayerInterfaceToggle'></bool-setting>
       </vertical>
       <vertical size-delta-x='60' min-width='60' pad-top='0' pad-bottom='0'>
+        <text text='Show current play time'></text>
+        <bool-setting id='ShowPlayTimeToggle'></bool-setting>
+      </vertical>
+      <vertical size-delta-x='60' min-width='60' pad-top='0' pad-bottom='0'>
         <text text='Player background opacity'></text>
         <increment-setting id='PlayerBackgroundOpacityIncrement' integer-only='false' min='0' max='1' increment='0.1'/>
       </vertical>
-      <vertical size-delta-x='60' min-width='60' pad-bottom='2'>
+      <vertical size-delta-x='60' min-width='60' pad-top='0' pad-bottom='0'>
         <text text='Player background color'></text>
         <color-setting id='PlayerBackgroundColor' apply-on-change='true'></color-setting>
+      </vertical>
+      <vertical size-delta-x='60' min-width='60' pad-bottom='2'>
+        <text text=' '></text>
+        <text text=' '></text>
       </vertical>
     </vertical>
 
@@ -23,6 +31,14 @@
       <vertical size-delta-x='60' min-width='60' pad-top='2'>
         <text text='Play songs from beginning'></text>
         <bool-setting id='PlaySongsFromBeginningToggle'></bool-setting>
+      </vertical>
+      <vertical size-delta-x='60' min-width='60' pad-top='0' pad-bottom='0'>
+        <text text='Start a new music on scene change'></text>
+        <bool-setting id='StartANewMusicOnSceneChangeToggle'></bool-setting>
+      </vertical>
+      <vertical size-delta-x='60' min-width='60' pad-top='0' pad-bottom='0'>
+        <text text='Loop current song'></text>
+        <bool-setting id='LoopCurrentMusicToggle'></bool-setting>
       </vertical>
       <vertical size-delta-x='60' min-width='60' pad-top='0' pad-bottom='0'>
         <text text='Only play music in CustomMenuSongs folder'></text>
