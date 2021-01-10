@@ -45,7 +45,7 @@
         <bool-setting id='PlayOnlyCustomMenuMusicsToggle'></bool-setting>
       </vertical>
       <vertical size-delta-x='60' min-width='60' pad-bottom='2'>
-        <text text='Plackback volume'></text>
+        <text text='Playback volume'></text>
         <increment-setting id='PlaybackVolumeIncrement' min='0' max='1' increment='0.05'/>
       </vertical>
     </vertical>
