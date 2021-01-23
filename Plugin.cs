@@ -4,7 +4,6 @@ using IPA;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Linq;
 
 namespace BeatSaberPlus
 {
@@ -17,7 +16,11 @@ namespace BeatSaberPlus
         /// <summary>
         /// Plugin instance
         /// </summary>
-        internal static Plugin Instance { get; private set; }
+        public static Plugin Instance { get; private set; }
+        /// <summary>
+        /// Plugin version
+        /// </summary>
+        internal static SemVer.Version Version => IPA.Loader.PluginManager.GetPluginFromId("BeatSaberPlus").Version;
         /// <summary>
         /// Plugin name
         /// </summary>
@@ -29,7 +32,7 @@ namespace BeatSaberPlus
         /// <summary>
         /// Plugins
         /// </summary>
-        internal List<SDK.IModuleBase> Modules = new List<SDK.IModuleBase>();
+        public List<SDK.IModuleBase> Modules = new List<SDK.IModuleBase>();
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -45,14 +48,15 @@ namespace BeatSaberPlus
         /// <summary>
         /// Called when the plugin is first loaded by IPA (either when the game starts or when the plugin is enabled if it starts disabled).
         /// </summary>
+        /// <param name="p_Logger">Logger instance</param>
         [Init]
-        public Plugin(IPA.Logging.Logger logger)
+        public Plugin(IPA.Logging.Logger p_Logger)
         {
             /// Set instance
             Instance = this;
 
             /// Setup logger
-            Logger.Instance = logger;
+            Logger.Instance = p_Logger;
 
             /// Init config
             Config.Init();

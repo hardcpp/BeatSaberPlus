@@ -217,12 +217,18 @@ namespace BeatSaberPlus.Modules.MenuMusic
         /// <summary>
         /// Update playback volume
         /// </summary>
-        internal void UpdatePlaybackVolume()
+        internal void UpdatePlaybackVolume(bool p_FromSettings)
         {
             if (m_PreviewPlayer == null || !m_PreviewPlayer)
                 return;
 
             m_PreviewPlayer.SetField("_volumeScale", Config.MenuMusic.PlaybackVolume);
+
+            if (p_FromSettings && m_PlayerFloatingScreenController != null && m_PlayerFloatingScreenController)
+                m_PlayerFloatingScreenController.UpdateVolume();
+
+            if (!p_FromSettings && m_SettingsView && UI.Settings.CanBeUpdated)
+                m_SettingsView.OnResetButton();
         }
         /// <summary>
         /// Update player

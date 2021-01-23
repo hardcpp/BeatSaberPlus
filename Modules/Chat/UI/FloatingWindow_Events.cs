@@ -121,7 +121,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
 
             if (!m_ChatFont.HasReplaceCharacter("TwitchChannelPoint_" + p_Event.Title))
             {
-                TaskCompletionSource<SDK.Chat.ImageProvider.EnhancedImageInfo> l_TaskCompletionSource = new TaskCompletionSource<SDK.Chat.ImageProvider.EnhancedImageInfo>();
+                TaskCompletionSource<SDK.Unity.EnhancedImage> l_TaskCompletionSource = new TaskCompletionSource<SDK.Unity.EnhancedImage>();
 
                 SDK.Chat.ImageProvider.TryCacheSingleImage("TwitchChannelPoint_" + p_Event.Title, p_Event.Image, false, (l_Info) =>
                 {
@@ -129,7 +129,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
                         Logger.Instance.Warn($"Failed to register emote \"{"TwitchChannelPoint_" + p_Event.Title}\" in font {m_ChatFont.Font.name}.");
 
                     l_TaskCompletionSource.SetResult(l_Info);
-                }, p_ForcedHeight: 110);
+                });
 
                 Task.WaitAll(new Task[] { l_TaskCompletionSource.Task }, 15000);
             }

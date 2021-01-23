@@ -11,6 +11,8 @@ namespace BeatSaberPlus.Modules.Chat.UI
 #pragma warning disable CS0649
         [UIComponent("followenvironementrotations-toggle")]
         public ToggleSetting m_FollowEnvironementRotations;
+        [UIComponent("chat-viewercount")]
+        private ToggleSetting m_ChatViewerCount;
         [UIComponent("chat-filterviewers")]
         private ToggleSetting m_ChatFitlerViewers;
         [UIComponent("chat-filterbroadcaster")]
@@ -49,6 +51,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
 
             /// Prepare
             SDK.UI.ToggleSetting.Setup(m_FollowEnvironementRotations,   l_Event, Config.Chat.FollowEnvironementRotation,    true);
+            SDK.UI.ToggleSetting.Setup(m_ChatViewerCount,               l_Event, Config.Chat.ShowViewerCount,               true);
             SDK.UI.ToggleSetting.Setup(m_ChatFitlerViewers,             l_Event, Config.Chat.FilterViewersCommands,         true);
             SDK.UI.ToggleSetting.Setup(m_ChatFilterBroadcaster,         l_Event, Config.Chat.FilterBroadcasterCommands,     true);
 
@@ -73,6 +76,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
 
             /// Update config
             Config.Chat.FollowEnvironementRotation  = m_FollowEnvironementRotations.Value;
+            Config.Chat.ShowViewerCount             = m_ChatViewerCount.Value;
             Config.Chat.FilterViewersCommands       = m_ChatFitlerViewers.Value;
             Config.Chat.FilterBroadcasterCommands   = m_ChatFilterBroadcaster.Value;
 
@@ -98,6 +102,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
 
             /// Set values
             m_FollowEnvironementRotations.Value = Config.Chat.FollowEnvironementRotation;
+            m_ChatViewerCount.Value             = Config.Chat.ShowViewerCount;
             m_ChatFitlerViewers.Value           = Config.Chat.FilterViewersCommands;
             m_ChatFilterBroadcaster.Value       = Config.Chat.FilterBroadcasterCommands;
 

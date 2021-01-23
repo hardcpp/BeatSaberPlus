@@ -176,7 +176,7 @@ namespace BeatSaberPlus.SDK.Chat
                 {
                     if (l_Current.Value.IsAnimated)
                     {
-                        ImageProvider.PrecacheAnimatedImage(l_Current.Value.Uri, l_Current.Key, 110);
+                        ImageProvider.PrecacheAnimatedImage(l_Current.Value.Uri, l_Current.Key);
                         l_Count++;
                     }
                 }

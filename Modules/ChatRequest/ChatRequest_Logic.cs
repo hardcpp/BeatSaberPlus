@@ -59,42 +59,14 @@ namespace BeatSaberPlus.Modules.ChatRequest
         /// Link command cache
         /// </summary>
         private string m_LastPlayingLevelResponse = "";
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
         /// <summary>
-        /// When the provider for beat saver changed
+        /// Total queue length
         /// </summary>
-        internal void OnBeatSaverProviderChanged()
-        {
-            SDK.Game.BeatSaver.UseAlternativeServer(m_BeatSaver, (Config.Online.Enabled && Config.Online.UseBSPCustomMapsServer) ? SDK.Game.BeatSaver.Server.BeatSaberPlus : SDK.Game.BeatSaver.Server.BeatSaver);
+        private int m_TotalQueueLength = 0;
 
-            lock (SongQueue)
-            {
-                SongQueue.ForEach(x =>
-                {
-                    x.BeatMap = new BeatSaverSharp.Beatmap(m_BeatSaver, x.BeatMap.Key);
-                    x.BeatMap.Populate().ContinueWith(xx => OnBeatmapPopulated(xx, x));
-                });
-            }
-            lock (SongHistory)
-            {
-                SongHistory.ForEach(y =>
-                {
-                    y.BeatMap = new BeatSaverSharp.Beatmap(m_BeatSaver, y.BeatMap.Key);
-                    y.BeatMap.Populate().ContinueWith(yy => OnBeatmapPopulated(yy, y));
-                });
-            }
-            lock (SongBlackList)
-            {
-                SongBlackList.ForEach(z =>
-                {
-                    z.BeatMap = new BeatSaverSharp.Beatmap(m_BeatSaver, z.BeatMap.Key);
-                    z.BeatMap.Populate().ContinueWith(zz => OnBeatmapPopulated(zz, z));
-                });
-            }
-        }
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
         /// <summary>
         /// When the queue is changed
         /// </summary>
@@ -103,6 +75,27 @@ namespace BeatSaberPlus.Modules.ChatRequest
             /// Update simple queue file
             if (p_UpdateSimpleQueueFile)
                 UpdateSimpleQueueFile();
+
+            m_TotalQueueLength = 0;
+            try
+            {
+                lock (SongQueue)
+                {
+                    SongQueue.ForEach(x =>
+                    {
+                        if (!x.BeatMap.Partial)
+                        {
+                            var l_Diff = x.BeatMap.Metadata.Characteristics.FirstOrDefault().Difficulties.FirstOrDefault(y => y.Value.HasValue).Value;
+                            if (l_Diff.HasValue)
+                                m_TotalQueueLength += (int)l_Diff.Value.Length;
+                        }
+                    });
+                }
+            }
+            catch
+            {
+
+            }
 
             /// Avoid saving during play
             if (SDK.Game.Logic.ActiveScene != SDK.Game.Logic.SceneType.Playing)

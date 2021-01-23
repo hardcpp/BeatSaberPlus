@@ -29,7 +29,7 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer.Components
         /// <summary>
         /// Graph canvas
         /// </summary>
-        private RectTransform m_GraphCanvas;
+        private RectTransform m_GraphCanvas = null;
         /// <summary>
         /// Graph points
         /// </summary>
@@ -37,7 +37,7 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer.Components
         /// <summary>
         /// Pointer cursor
         /// </summary>
-        private GameObject m_Pointer;
+        private GameObject m_Pointer = null;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -48,6 +48,14 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer.Components
         private void Start()
         {
             m_AudioTimeSyncController = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().FirstOrDefault();
+
+            bool l_NoUI = BS_Utils.Plugin.LevelData?.GameplayCoreSceneSetupData?.playerSpecificSettings?.noTextsAndHuds ?? false;
+
+            if (l_NoUI)
+            {
+                SongChartVisualizer.Instance.DestroyPreview();
+                return;
+            }
 
             var l_DifficultyBeatmap = BS_Utils.Plugin.LevelData?.GameplayCoreSceneSetupData?.difficultyBeatmap;
             if ((l_DifficultyBeatmap != null && l_DifficultyBeatmap.beatmapData != null) || SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Menu)
@@ -240,22 +248,22 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer.Components
                         m_GraphCanvas.gameObject.transform.localScale       = Vector3.one * 0.1f;
 
                         BuildGraph();
+
+                        m_Pointer = new GameObject("");
+                        m_Pointer.transform.SetParent(m_GraphCanvas, false);
+
+                        var l_Image = m_Pointer.AddComponent<Image>();
+                        l_Image.useSpriteMesh   = true;
+                        l_Image.color           = Config.SongChartVisualizer.CursorColor;
+
+                        m_CurrentGraphDataIndex = SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Menu ? (m_GraphData.Length / 2) : 0;
+
+                        var l_RectTransform = m_Pointer.GetComponent<RectTransform>();
+                        l_RectTransform.sizeDelta = Vector2.one * 10f;
+                        (m_Pointer.transform as RectTransform).anchorMin         = Vector2.zero;
+                        (m_Pointer.transform as RectTransform).anchorMax         = Vector2.zero;
+                        (m_Pointer.transform as RectTransform).anchoredPosition  = m_Points.Count > 0 ? m_Points[m_CurrentGraphDataIndex] : Vector2.zero;
                     }
-
-                    m_CurrentGraphDataIndex = SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Menu ? (m_GraphData.Length / 2) : 0;
-
-                    m_Pointer = new GameObject("");
-                    m_Pointer.transform.SetParent(m_GraphCanvas, false);
-
-                    var l_Image = m_Pointer.AddComponent<Image>();
-                    l_Image.useSpriteMesh   = true;
-                    l_Image.color           = Config.SongChartVisualizer.CursorColor;
-
-                    var l_RectTransform = m_Pointer.GetComponent<RectTransform>();
-                    l_RectTransform.sizeDelta = Vector2.one * 10f;
-                    (m_Pointer.transform as RectTransform).anchorMin         = Vector2.zero;
-                    (m_Pointer.transform as RectTransform).anchorMax         = Vector2.zero;
-                    (m_Pointer.transform as RectTransform).anchoredPosition  = m_Points[m_CurrentGraphDataIndex];
                 }
             }
         }
@@ -274,7 +282,7 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer.Components
             if (m_FlyingGameHUDRotation != null && m_FlyingGameHUDRotation && Config.SongChartVisualizer.FollowEnvironementRotation)
                 transform.parent.rotation = m_FlyingGameHUDRotation.transform.rotation;
 
-            if (m_AudioTimeSyncController == null)
+            if (m_AudioTimeSyncController == null || m_GraphCanvas == null || m_Pointer == null)
                 return;
 
             float l_CurrentSongPosition = m_AudioTimeSyncController.songTime;

@@ -74,11 +74,7 @@ namespace BeatSaberPlus.Modules.Chat.Extensions
         internal bool SubTextEnabled
         {
             get => SubText.enabled;
-            set
-            {
-                SubText.enabled = value;
-                SubText.rectTransform.SetParent(value ? gameObject.transform : null, false);
-            }
+            set => SubText.enabled = value;
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -148,6 +144,7 @@ namespace BeatSaberPlus.Modules.Chat.Extensions
             (m_Accent.gameObject.transform as RectTransform).pivot      = new Vector2(0, 0.5f);
 
             Text.rectTransform.SetParent(gameObject.transform, false);
+            SubText.rectTransform.SetParent(gameObject.transform, false);
         }
         /// <summary>
         /// When the GameObject is destroyed
@@ -186,12 +183,15 @@ namespace BeatSaberPlus.Modules.Chat.Extensions
         /// </summary>
         private void OnTextChanged()
         {
-            float l_TextHeight      = Text.GetRenderedValues().y + (2 * s_TopDownMargins);
-            float l_SubTextHeight   = SubTextEnabled ? SubText.GetRenderedValues().y + (2 * s_TopDownMargins) : 0;
+            float l_TextHeight      = Mathf.Max(0, Text.GetRenderedValues().y + (2 * s_TopDownMargins));
+            float l_SubTextHeight   = SubTextEnabled ? Mathf.Max(0, SubText.GetRenderedValues().y + (2 * s_TopDownMargins)) : 0;
+
+            if (l_TextHeight == 0)
+                l_TextHeight = Text.GetPreferredValues(" ").y;
 
             RectTranform.sizeDelta = new Vector2(RectTranform.sizeDelta.x, l_TextHeight + l_SubTextHeight);
 
-            SubText.rectTransform.localPosition = new Vector3(SubText.rectTransform.localPosition.x, l_TextHeight, SubText.rectTransform.localPosition.z);
+            SubText.rectTransform.localPosition = new Vector3(SubText.rectTransform.localPosition.x, l_SubTextHeight, SubText.rectTransform.localPosition.z);
             m_Accent.rectTransform.sizeDelta = new Vector2(s_LeftRightMargins / 2f, RectTranform.sizeDelta.y);
         }
     }

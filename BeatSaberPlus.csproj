@@ -107,6 +107,11 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Polyglot.dll</HintPath>
     </Reference>
+    <Reference Include="SemVer, Version=1.2.2.0, Culture=neutral, PublicKeyToken=a89bb7dc6f7a145c, processorArchitecture=MSIL">
+      <Private>False</Private>
+      <HintPath>$(BeatSaberDir)\Libs\SemVer.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
     <Reference Include="SongCore, Version=2.11.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(BeatSaberDir)\Plugins\SongCore.dll</HintPath>
@@ -232,10 +237,14 @@
     <Compile Include="Modules\GameTweaker\UI\SettingsRight.cs" />
     <Compile Include="SDK\Cryptography\SHA1.cs" />
     <Compile Include="SDK\Misc\RingBuffer.cs" />
+    <Compile Include="SDK\Network\APIClient.cs" />
+    <Compile Include="SDK\Network\APIResponse.cs" />
     <Compile Include="SDK\UI\Button.cs" />
     <Compile Include="SDK\UI\ColorSetting.cs" />
+    <Compile Include="SDK\UI\DataSource\CoverFlowList.cs" />
     <Compile Include="SDK\UI\DataSource\SimpleTextList.cs" />
     <Compile Include="SDK\UI\DataSource\SongList.cs" />
+    <Compile Include="SDK\UI\DropDownListSetting.cs" />
     <Compile Include="SDK\UI\IncrementSetting.cs" />
     <Compile Include="SDK\UI\Internal\BSMLPrimaryButtonTag.cs" />
     <Compile Include="SDK\UI\ListSetting.cs" />
@@ -268,7 +277,6 @@
     <Compile Include="Modules\GameTweaker\Patches\PLightSwitchEventEffect.cs" />
     <Compile Include="Modules\GameTweaker\Patches\PMainMenuViewController.cs" />
     <Compile Include="Modules\GameTweaker\Patches\PObstacleSaberSparkleEffectManager.cs" />
-    <Compile Include="Modules\GameTweaker\Patches\PPlayerStatisticsViewController.cs" />
     <Compile Include="Modules\GameTweaker\Patches\PPromoViewController.cs" />
     <Compile Include="Modules\GameTweaker\Patches\PSaberBurnMarkArea.cs" />
     <Compile Include="Modules\GameTweaker\Patches\PSaberBurnMarkSparkles.cs" />
@@ -281,10 +289,6 @@
     <Compile Include="Modules\MenuMusic\UI\Player.cs" />
     <Compile Include="Modules\MenuMusic\UI\Settings.cs" />
     <Compile Include="Modules\MenuMusic\UI\SettingsLeft.cs" />
-    <Compile Include="Modules\Online\Online.cs" />
-    <Compile Include="SDK\Game\Patches\PBeatSaverSharp_Beatmap.cs" />
-    <Compile Include="Modules\Online\Patches\PBeatSaverSharp_BeatSaver.cs" />
-    <Compile Include="Modules\Online\UI\Settings.cs" />
     <Compile Include="SDK\ModuleBase.cs" />
     <Compile Include="Modules\GameTweaker\Patches\PNoteCutCoreEffectsSpawner.cs" />
     <Compile Include="Modules\GameTweaker\Patches\PSaberTrailRenderer.cs" />
@@ -309,12 +313,14 @@
     <Compile Include="SDK\UI\HorizontalIconSegmentedControl.cs" />
     <Compile Include="SDK\UI\ModalView.cs" />
     <Compile Include="SDK\UI\BSMLSettingFormarter.cs" />
+    <Compile Include="SDK\UI\Patches\PSimpleTextDropdown.cs" />
     <Compile Include="SDK\UI\SliderSetting.cs" />
     <Compile Include="SDK\UI\TextSegmentedControl.cs" />
     <Compile Include="SDK\UI\ToggleSetting.cs" />
     <Compile Include="SDK\UI\VerticalIconSegmentedControl.cs" />
     <Compile Include="SDK\UI\ViewController.cs" />
     <Compile Include="SDK\UI\ViewFlowCoordinator.cs" />
+    <Compile Include="SDK\Unity\EnhancedImage.cs" />
     <Compile Include="SDK\Unity\Sprite.cs" />
     <Compile Include="SDK\Unity\Texture2D.cs" />
     <Compile Include="SDK\Chat\ImageProvider.cs" />
@@ -348,15 +354,12 @@
     <EmbeddedResource Include="Modules\ChatRequest\Resources\Unblacklist.png" />
     <EmbeddedResource Include="Modules\ChatRequest\UI\Settings.bsml">
       <DependentUpon>Settings.cs</DependentUpon>
-      <SubType>Code</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Modules\ChatRequest\UI\ManagerRight.bsml">
       <DependentUpon>ManagerRight.cs</DependentUpon>
-      <SubType>Code</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Modules\ChatRequest\UI\ManagerMain.bsml">
       <DependentUpon>ManagerMain.cs</DependentUpon>
-      <SubType>Code</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Modules\SongChartVisualizer\UI\Settings.bsml">
       <DependentUpon>Settings.cs</DependentUpon>
@@ -416,9 +419,6 @@
     <EmbeddedResource Include="Modules\ChatEmoteRain\Resources\ChatEmoteRain.bundle" />
     <EmbeddedResource Include="Modules\ChatRequest\UI\ManagerLeft.bsml">
       <DependentUpon>ManagerLeft.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Modules\Online\UI\Settings.bsml">
-      <DependentUpon>Settings.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Modules\ChatRequest\UI\SettingsLeft.bsml">
       <DependentUpon>SettingsLeft.cs</DependentUpon>

@@ -32,7 +32,6 @@ namespace BeatSaberPlus
                 get { return m_Config.GetBool(_s, "Enabled", false, true);                      }
                 set {        m_Config.SetBool(_s, "Enabled", value);                            }
             }
-
             internal static int ChatWidth {
                 get { return m_Config.GetInt(_s, "ChatWidth", 120, true);                       }
                 set {        m_Config.SetInt(_s, "ChatWidth", value);                           }
@@ -41,17 +40,14 @@ namespace BeatSaberPlus
                 get { return m_Config.GetInt(_s, "ChatHeight", 140, true);                      }
                 set {        m_Config.SetInt(_s, "ChatHeight", value);                          }
             }
-
             internal static bool ReverseChatOrder {
                 get { return m_Config.GetBool(_s, "ReverseChatOrder", false, true);             }
                 set {        m_Config.SetBool(_s, "ReverseChatOrder", value);                   }
             }
-
             internal static string SystemFontName {
                 get { return m_Config.GetString(_s, "SystemFontName", "Segoe UI", true);        }
                 set {        m_Config.SetString(_s, "SystemFontName", value);                   }
             }
-
             internal static float FontSize {
                 get { return m_Config.GetFloat(_s, "FontSize", 3.4f, true);                     }
                 set {        m_Config.SetFloat(_s, "FontSize", value);                          }
@@ -60,6 +56,10 @@ namespace BeatSaberPlus
             internal static bool FollowEnvironementRotation {
                 get { return m_Config.GetBool(_s, "FollowEnvironementRotation", true, true);    }
                 set {        m_Config.SetBool(_s, "FollowEnvironementRotation", value);         }
+            }
+            internal static bool ShowViewerCount {
+                get { return m_Config.GetBool(_s, "ShowViewerCount", true, true);               }
+                set {        m_Config.SetBool(_s, "ShowViewerCount", value);                    }
             }
             internal static bool ShowFollowEvents {
                 get { return m_Config.GetBool(_s, "ShowFollowEvents", true, true);              }
@@ -139,6 +139,7 @@ namespace BeatSaberPlus
                 FontSize                = 3.4f;
 
                 FollowEnvironementRotation  = true;
+                ShowViewerCount             = true;
                 ShowFollowEvents            = true;
                 ShowSubscriptionEvents      = true;
                 ShowBitsCheeringEvents      = true;
@@ -514,19 +515,21 @@ namespace BeatSaberPlus
                 set {        m_Config.SetBool(_s, "RemoveSaberSmoothingTrail", value);                  }
             }
 
+            ////////////////////////////////////////////////////////////////////////////
+            /// Menu
+            ////////////////////////////////////////////////////////////////////////////
+
+            /// Main menu
             internal static bool DisableBeatMapEditorButtonOnMainMenu {
                 get { return m_Config.GetBool(_s, "DisableBeatMapEditorButtonOnMainMenu", false, true); }
                 set {        m_Config.SetBool(_s, "DisableBeatMapEditorButtonOnMainMenu", value);       }
-            }
-            internal static bool ShowPlayerStatisticsOnMainMenu {
-                get { return m_Config.GetBool(_s, "ShowPlayerStatisticsOnMainMenu", true, true);        }
-                set {        m_Config.SetBool(_s, "ShowPlayerStatisticsOnMainMenu", value);             }
             }
             internal static bool RemoveNewContentPromotional {
                 get { return m_Config.GetBool(_s, "RemoveNewContentPromotional", true, true);           }
                 set {        m_Config.SetBool(_s, "RemoveNewContentPromotional", value);                }
             }
 
+            /// Level selection
             internal static bool RemoveBaseGameFilterButton {
                 get { return m_Config.GetBool(_s, "RemoveBaseGameFilterButton", true, true);            }
                 set {        m_Config.SetBool(_s, "RemoveBaseGameFilterButton", value);                 }
@@ -548,6 +551,21 @@ namespace BeatSaberPlus
                 set {        m_Config.SetBool(_s, "DeleteSongButton", value);                           }
             }
 
+            ////////////////////////////////////////////////////////////////////////////
+            /// Dev / Testing
+            ////////////////////////////////////////////////////////////////////////////
+
+            /// Logs
+            internal static bool RemoveOldLogs {
+                get { return m_Config.GetBool(_s, "RemoveOldLogs", true, true);                         }
+                set {        m_Config.SetBool(_s, "RemoveOldLogs", value);                              }
+            }
+            internal static int LogEntriesToKeep {
+                get { return m_Config.GetInt(_s, "LogEntriesToKeep", 8, true);                          }
+                set {        m_Config.SetInt(_s, "LogEntriesToKeep", value);                            }
+            }
+
+            /// FPFC escape
             internal static bool FPFCEscape {
                 get { return m_Config.GetBool(_s, "FPFCEscape", false, true);                           }
                 set {        m_Config.SetBool(_s, "FPFCEscape", value);                                 }
@@ -570,15 +588,21 @@ namespace BeatSaberPlus
                 SaberSmoothingTrailIntensity    = 0.4f;
                 RemoveSaberSmoothingTrail       = false;
 
-                DisableBeatMapEditorButtonOnMainMenu    = false;
-                ShowPlayerStatisticsOnMainMenu          = true;
-                RemoveNewContentPromotional             = true;
+                /// Main menu
+                DisableBeatMapEditorButtonOnMainMenu = false;
+                RemoveNewContentPromotional          = true;
 
+                /// Level selection
                 RemoveBaseGameFilterButton      = true;
                 ReorderPlayerSettings           = true;
                 AddOverrideLightIntensityOption = true;
                 DeleteSongButton                = true;
 
+                /// Logs
+                RemoveOldLogs                   = true;
+                LogEntriesToKeep                = 8;
+
+                /// FPFC escape
                 FPFCEscape = false;
             }
         }
@@ -639,25 +663,6 @@ namespace BeatSaberPlus
                 LoopCurrentMusic                = false;
                 UseOnlyCustomMenuSongsFolder    = false;
                 PlaybackVolume                  = 0.5f;
-            }
-        }
-
-        internal class Online
-        {
-            private static string _s = "Online";
-
-            internal static bool Enabled {
-                get { return m_Config.GetBool(_s, "Enabled", false, true);                              }
-                set {        m_Config.SetBool(_s, "Enabled", value);                                    }
-            }
-
-            internal static bool UseBSPCustomMapsServer {
-                get { return m_Config.GetBool(_s, "UseBSPCustomMapsServer", m_Config.GetBool(_s, "UseBeatSaberPlusCustomMapsService", false, false), true); }
-                set {        m_Config.SetBool(_s, "UseBSPCustomMapsServer", value);          }
-            }
-            internal static bool UseBSPCustomMapsServerOnMoreSongs {
-                get { return m_Config.GetBool(_s, "UseBSPCustomMapsServerOnMoreSongs", false, true);    }
-                set {        m_Config.SetBool(_s, "UseBSPCustomMapsServerOnMoreSongs", value);          }
             }
         }
 

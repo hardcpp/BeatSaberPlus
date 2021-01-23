@@ -67,6 +67,15 @@ namespace BeatSaberPlus.Modules.MenuMusic.UI
             SDK.UI.ToggleSetting.Setup(m_PlayOnlyCustomMenuMusics,      l_Event,                                            Config.MenuMusic.UseOnlyCustomMenuSongsFolder,  true);
             SDK.UI.IncrementSetting.Setup(m_PlaybackVolume,             l_Event, SDK.UI.BSMLSettingFormarter.Percentage,    Config.MenuMusic.PlaybackVolume,                true);
         }
+        /// <summary>
+        /// On view activation
+        /// </summary>
+        protected override void OnViewActivation()
+        {
+            m_PreventChanges = true;
+            m_PlaybackVolume.Value = Config.MenuMusic.PlaybackVolume;
+            m_PreventChanges = false;
+        }
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -96,7 +105,7 @@ namespace BeatSaberPlus.Modules.MenuMusic.UI
             Config.MenuMusic.PlaybackVolume                 = m_PlaybackVolume.Value;
 
             /// Update playback volume & player
-            MenuMusic.Instance.UpdatePlaybackVolume();
+            MenuMusic.Instance.UpdatePlaybackVolume(true);
             MenuMusic.Instance.UpdatePlayer();
         }
 
@@ -126,7 +135,7 @@ namespace BeatSaberPlus.Modules.MenuMusic.UI
             m_PreventChanges = false;
 
             /// Update playback volume & player
-            MenuMusic.Instance.UpdatePlaybackVolume();
+            MenuMusic.Instance.UpdatePlaybackVolume(true);
             MenuMusic.Instance.UpdatePlayer();
         }
     }

@@ -187,8 +187,8 @@ namespace BeatSaberPlus.Modules.Chat.UI
 
                     l_Message.SubText.FontInfo              = m_ChatFont;
                     l_Message.SubText.font                  = m_ChatFont.Font;
-                    l_Message.Text.fontStyle                = FontStyles.Normal;
-                    l_Message.Text.fontSize                 = m_FontSize;
+                    l_Message.SubText.fontStyle             = FontStyles.Normal;
+                    l_Message.SubText.fontSize              = m_FontSize;
                     l_Message.SubText.fontSizeMin           = 1f;
                     l_Message.SubText.fontSizeMax           = m_FontSize;
                     l_Message.SubText.enableAutoSizing      = false;

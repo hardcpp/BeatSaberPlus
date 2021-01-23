@@ -51,7 +51,7 @@ namespace BeatSaberPlus.Modules.Chat.Extensions
         /// <summary>
         /// Image info lookup table
         /// </summary>
-        private ConcurrentDictionary<uint, SDK.Chat.ImageProvider.EnhancedImageInfo> m_ImageInfos = new ConcurrentDictionary<uint, SDK.Chat.ImageProvider.EnhancedImageInfo>();
+        private ConcurrentDictionary<uint, SDK.Unity.EnhancedImage> m_ImageInfos = new ConcurrentDictionary<uint, SDK.Unity.EnhancedImage>();
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -105,7 +105,7 @@ namespace BeatSaberPlus.Modules.Chat.Extensions
         /// <param name="p_ImageID">ID of the image</param>
         /// <param name="p_ImageInfo">Result image info</param>
         /// <returns></returns>
-        internal bool TryGetImageInfo(uint p_ReplaceCharacter, out SDK.Chat.ImageProvider.EnhancedImageInfo p_ImageInfo)
+        internal bool TryGetImageInfo(uint p_ReplaceCharacter, out SDK.Unity.EnhancedImage p_ImageInfo)
             => m_ImageInfos.TryGetValue(p_ReplaceCharacter, out p_ImageInfo);
 
         ////////////////////////////////////////////////////////////////////////////
@@ -117,7 +117,7 @@ namespace BeatSaberPlus.Modules.Chat.Extensions
         /// <param name="p_ImageInfo">Image info to register</param>
         /// <param name="p_ReplaceCharacter">Out replace character</param>
         /// <returns></returns>
-        internal bool TryRegisterImageInfo(SDK.Chat.ImageProvider.EnhancedImageInfo p_ImageInfo, out uint p_ReplaceCharacter)
+        internal bool TryRegisterImageInfo(SDK.Unity.EnhancedImage p_ImageInfo, out uint p_ReplaceCharacter)
         {
             p_ReplaceCharacter = 0;
 

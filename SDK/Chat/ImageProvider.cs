@@ -42,13 +42,21 @@ namespace BeatSaberPlus.SDK.Chat
     public class ImageProvider
     {
         /// <summary>
+        /// Forced emote height
+        /// </summary>
+        private static int m_ForcedHeight = 110;
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
         /// Cache folder
         /// </summary>
         private static string m_CacheFolder = "UserData/BeatSaberPlus/Cache/Chat/";
         /// <summary>
         /// Cached image info
         /// </summary>
-        private static ConcurrentDictionary<string, EnhancedImageInfo> m_CachedImageInfo = new ConcurrentDictionary<string, EnhancedImageInfo>();
+        private static ConcurrentDictionary<string, Unity.EnhancedImage> m_CachedImageInfo = new ConcurrentDictionary<string, Unity.EnhancedImage>();
         /// <summary>
         /// Download queue
         /// </summary>
@@ -60,7 +68,7 @@ namespace BeatSaberPlus.SDK.Chat
         /// <summary>
         /// Cached images info
         /// </summary>
-        private static ReadOnlyDictionary<string, EnhancedImageInfo> m_CachedImageInfoProxy = null;
+        private static ReadOnlyDictionary<string, Unity.EnhancedImage> m_CachedImageInfoProxy = null;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -68,42 +76,12 @@ namespace BeatSaberPlus.SDK.Chat
         /// <summary>
         /// Cached images info
         /// </summary>
-        public static ReadOnlyDictionary<string, EnhancedImageInfo> CachedImageInfo { get {
+        public static ReadOnlyDictionary<string, Unity.EnhancedImage> CachedImageInfo { get {
             if (m_CachedImageInfoProxy == null)
-                m_CachedImageInfoProxy = new ReadOnlyDictionary<string, EnhancedImageInfo>(m_CachedImageInfo);
+                m_CachedImageInfoProxy = new ReadOnlyDictionary<string, Unity.EnhancedImage>(m_CachedImageInfo);
 
             return m_CachedImageInfoProxy;
         } }
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        /// <summary>
-        /// Enhanced image info
-        /// </summary>
-        public class EnhancedImageInfo
-        {
-            /// <summary>
-            /// ID of the image
-            /// </summary>
-            public string ImageID { get; set; }
-            /// <summary>
-            /// Sprite instance
-            /// </summary>
-            public Sprite Sprite { get; set; }
-            /// <summary>
-            /// Width
-            /// </summary>
-            public int Width { get; set; }
-            /// <summary>
-            /// Height
-            /// </summary>
-            public int Height { get; set; }
-            /// <summary>
-            /// Animation controller data
-            /// </summary>
-            public AnimationControllerData AnimControllerData { get; set; }
-        }
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -130,11 +108,10 @@ namespace BeatSaberPlus.SDK.Chat
         /// </summary>
         /// <param name="p_URI">URI of the image</param>
         /// <param name="p_ID">ID of the image</param>
-        /// <param name="p_ForcedHeight">Force height</param>
         /// <returns></returns>
-        public static void PrecacheAnimatedImage(string p_URI, string p_ID, int p_ForcedHeight = -1)
+        public static void PrecacheAnimatedImage(string p_URI, string p_ID)//, int p_ForcedHeight = -1)
         {
-            TryCacheSingleImage(p_ID, p_URI, true);
+            TryCacheSingleImage(p_ID, p_URI, true, null);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -147,9 +124,8 @@ namespace BeatSaberPlus.SDK.Chat
         /// <param name="p_URI">The resource location</param>
         /// <param name="p_IsAnimated">Is and animation image</param>
         /// <param name="p_Finally">A callback that occurs after the resource is retrieved. This will always occur even if the resource is already cached.</param>
-        /// <param name="p_ForcedHeight">Forced height</param>
         /// <returns></returns>
-        public static void TryCacheSingleImage(string p_ID, string p_URI, bool p_IsAnimated, Action<EnhancedImageInfo> p_Finally = null, int p_ForcedHeight = -1)
+        public static void TryCacheSingleImage(string p_ID, string p_URI, bool p_IsAnimated, Action<Unity.EnhancedImage> p_Finally = null)
         {
             if (m_CachedImageInfo.TryGetValue(p_ID, out var p_Info))
             {
@@ -161,8 +137,7 @@ namespace BeatSaberPlus.SDK.Chat
             {
                 SharedCoroutineStarter.instance.StartCoroutine(DownloadContent(p_URI, (p_Bytes) =>
                 {
-                    //Logger.Instance.Info($"Finished download content for emote {p_ID}!");
-                    SharedCoroutineStarter.instance.StartCoroutine(OnSingleImageCached(p_ID, p_Bytes, p_IsAnimated, p_Finally, p_ForcedHeight));
+                    OnSingleImageCached(p_ID, p_Bytes, p_IsAnimated, p_Finally, m_ForcedHeight);
                 }));
             });
         }
@@ -173,13 +148,12 @@ namespace BeatSaberPlus.SDK.Chat
         /// <param name="p_URI">The resource location</param>
         /// <param name="p_Rect">Sheet rect</param>
         /// <param name="p_Finally">A callback that occurs after the resource is retrieved. This will always occur even if the resource is already cached.</param>
-        /// <param name="p_ForcedHeight">Forced height</param>
         /// <returns></returns>
-        public static void TryCacheSpriteSheetImage(string p_ID, string p_URI, ImageRect p_Rect, Action<EnhancedImageInfo> p_Finally = null, int p_ForcedHeight = -1)
+        public static void TryCacheSpriteSheetImage(string p_ID, string p_URI, ImageRect p_Rect, Action<Unity.EnhancedImage> p_Finally = null)
         {
-            if (m_CachedImageInfo.TryGetValue(p_ID, out var info))
+            if (m_CachedImageInfo.TryGetValue(p_ID, out var l_Info))
             {
-                p_Finally?.Invoke(info);
+                p_Finally?.Invoke(l_Info);
                 return;
             }
 
@@ -187,7 +161,7 @@ namespace BeatSaberPlus.SDK.Chat
             {
                 SDK.Unity.MainThreadInvoker.Enqueue(() =>
                 {
-                    CacheSpriteSheetImage(p_ID, l_Texture, p_Rect, p_Finally, p_ForcedHeight);
+                    CacheSpriteSheetImage(p_ID, l_Texture, p_Rect, p_Finally, m_ForcedHeight);
                 });
             }
             else
@@ -200,7 +174,7 @@ namespace BeatSaberPlus.SDK.Chat
                         l_Texture = SDK.Unity.Texture2D.CreateFromRaw(p_Bytes);
                         m_CachedSpriteSheets[p_URI] = l_Texture;
 
-                        CacheSpriteSheetImage(p_ID, l_Texture, p_Rect, p_Finally, p_ForcedHeight);
+                        CacheSpriteSheetImage(p_ID, l_Texture, p_Rect, p_Finally, m_ForcedHeight);
                     }));
                 });
             }
@@ -299,62 +273,26 @@ namespace BeatSaberPlus.SDK.Chat
         /// <param name="p_Finally">A callback that occurs after the resource is retrieved. This will always occur even if the resource is already cached.</param>
         /// <param name="p_ForcedHeight">Forced height</param>
         /// <returns></returns>
-        private static IEnumerator OnSingleImageCached(string p_ID, byte[] p_Bytes, bool p_IsAnimated,Action<EnhancedImageInfo> p_Finally = null, int p_ForcedHeight = -1)
+        private static void OnSingleImageCached(string p_ID, byte[] p_Bytes, bool p_IsAnimated, Action<Unity.EnhancedImage> p_Finally = null, int p_ForcedHeight = -1)
         {
-            int l_SpriteWidth = 0;
-            int l_SpriteHeight = 0;
-
-            Sprite l_Sprite = null;
-
-            AnimationControllerData l_AnimControllerData = null;
-
             if (p_IsAnimated)
             {
-                AnimationLoader.Process(AnimationType.GIF, p_Bytes, (p_Texture, p_Atlas, p_Delays, p_Width, p_Height) =>
+                SDK.Unity.EnhancedImage.FromRawAnimated(p_ID, AnimationType.GIF, p_Bytes, (p_Result) =>
                 {
-                    l_AnimControllerData    = AnimationController.instance.Register(p_ID, p_Texture, p_Atlas, p_Delays);
-                    l_Sprite                = l_AnimControllerData.sprite;
-                    l_SpriteWidth           = p_Width;
-                    l_SpriteHeight          = p_Height;
-                });
+                    if (p_Result != null)
+                        m_CachedImageInfo[p_ID] = p_Result;
 
-                yield return new WaitUntil(() => l_AnimControllerData != null);
+                    p_Finally?.Invoke(p_Result);
+                }, p_ForcedHeight);
             }
             else
             {
-                try
-                {
-                    l_Sprite        = SDK.Unity.Sprite.CreateFromRaw(p_Bytes);
-                    l_SpriteWidth   = l_Sprite.texture.width;
-                    l_SpriteHeight  = l_Sprite.texture.height;
-                }
-                catch (Exception p_Exception)
-                {
-                    Logger.Instance.Error("[SDK.Chat][ImageProvider.DownloadContent] Error in OnSingleImageCached");
-                    Logger.Instance.Error(p_Exception);
-                    l_Sprite = null;
-                }
+                var l_Result = SDK.Unity.EnhancedImage.FromRawStatic(p_ID, p_Bytes, p_ForcedHeight);
+                if (l_Result != null)
+                    m_CachedImageInfo[p_ID] = l_Result;
+
+                p_Finally?.Invoke(l_Result);
             }
-
-            EnhancedImageInfo l_Result = null;
-            if (l_Sprite != null)
-            {
-                if (p_ForcedHeight != -1)
-                    ComputeImageSizeForHeight(ref l_SpriteWidth, ref l_SpriteHeight, p_ForcedHeight);
-
-                l_Result = new EnhancedImageInfo()
-                {
-                    ImageID             = p_ID,
-                    Sprite              = l_Sprite,
-                    Width               = l_SpriteWidth,
-                    Height              = l_SpriteHeight,
-                    AnimControllerData  = l_AnimControllerData
-                };
-
-                m_CachedImageInfo[p_ID] = l_Result;
-            }
-
-            p_Finally?.Invoke(l_Result);
         }
         /// <summary>
         /// On sprite sheet cached
@@ -364,53 +302,14 @@ namespace BeatSaberPlus.SDK.Chat
         /// <param name="p_Rect">Sheet rect</param>
         /// <param name="p_Finally">A callback that occurs after the resource is retrieved. This will always occur even if the resource is already cached.</param>
         /// <param name="p_ForcedHeight">Forced height</param>
-        private static void CacheSpriteSheetImage(string p_ID, Texture2D p_Texture, ImageRect p_Rect, Action<EnhancedImageInfo> p_Finally = null, int p_ForcedHeight = -1)
+        private static void CacheSpriteSheetImage(string p_ID, Texture2D p_Texture, ImageRect p_Rect, Action<Unity.EnhancedImage> p_Finally = null, int p_ForcedHeight = -1)
         {
-            int l_SpriteWidth = p_Rect.width;
-            int l_SpriteHeight = p_Rect.height;
+            var l_Result = Unity.EnhancedImage.FromSpriteSheetImage(p_ID, p_Texture, new Rect(p_Rect.x, p_Rect.y, p_Rect.width, p_Rect.height), p_ForcedHeight);
 
-            Sprite l_Sprite = Sprite.Create(p_Texture, new Rect(p_Rect.x, p_Texture.height - p_Rect.y - l_SpriteHeight, l_SpriteWidth, l_SpriteHeight), new Vector2(0, 0));
-            l_Sprite.texture.wrapMode = TextureWrapMode.Clamp;
-
-            EnhancedImageInfo l_Result = null;
-            if (l_Sprite != null)
-            {
-                if (p_ForcedHeight != -1)
-                    ComputeImageSizeForHeight(ref l_SpriteWidth, ref l_SpriteHeight, p_ForcedHeight);
-
-                l_Result = new EnhancedImageInfo()
-                {
-                    ImageID             = p_ID,
-                    Sprite              = l_Sprite,
-                    Width               = l_SpriteWidth,
-                    Height              = l_SpriteHeight,
-                    AnimControllerData  = null
-                };
-
+            if (l_Result != null)
                 m_CachedImageInfo[p_ID] = l_Result;
-            }
 
             p_Finally?.Invoke(l_Result);
-        }
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        /// <summary>
-        /// Compute image size for specific height
-        /// </summary>
-        /// <param name="p_SpriteHeight">Base height</param>
-        /// <param name="p_SpriteWidth">Base width</param>
-        /// <param name="p_Height">Desired height</param>
-        private static void ComputeImageSizeForHeight(ref int p_SpriteHeight, ref int p_SpriteWidth, int p_Height)
-        {
-            float l_Scale = 1.0f;
-
-            if (p_SpriteHeight != (float)p_Height)
-                l_Scale = (float)p_Height / p_SpriteHeight;
-
-            p_SpriteWidth   = (int)(l_Scale * p_SpriteWidth);
-            p_SpriteHeight  = (int)(l_Scale * p_SpriteHeight);
         }
     }
 }

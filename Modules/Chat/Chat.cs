@@ -8,6 +8,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -98,6 +99,26 @@ namespace BeatSaberPlus.Modules.Chat
         /// Last chat users
         /// </summary>
         private SDK.Misc.RingBuffer<(IChatService, IChatUser)> m_LastChatUsers = null;
+        /// <summary>
+        /// View count owner
+        /// </summary>
+        private GameObject m_ViewerCountOwner = null;
+        /// <summary>
+        /// Viewer count floating screen
+        /// </summary>
+        private FloatingScreen m_ViewerCountFloatingScreen = null;
+        /// <summary>
+        /// Viewer count image
+        /// </summary>
+        private Image m_ViewerCountImage = null;
+        /// <summary>
+        /// Viewer count text
+        /// </summary>
+        private TextMeshProUGUI m_ViewerCountText = null;
+        /// <summary>
+        /// Video playback status
+        /// </summary>
+        private ConcurrentDictionary<string, (bool, int)> m_ChannelsVideoPlaybackStatus = new ConcurrentDictionary<string, (bool, int)>();
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -118,6 +139,9 @@ namespace BeatSaberPlus.Modules.Chat
             /// Create ring buffer
             m_LastChatUsers = new SDK.Misc.RingBuffer<(IChatService, IChatUser)>(40);
 
+            /// Clear video playback status
+            m_ChannelsVideoPlaybackStatus.Clear();
+
             /// Bind events
             SDK.Game.Logic.OnMenuSceneLoaded += OnMenuSceneLoaded;
             SDK.Game.Logic.OnSceneChange     += OnSceneChange;
@@ -133,17 +157,18 @@ namespace BeatSaberPlus.Modules.Chat
                 SDK.Chat.Service.Acquire();
 
                 /// Run all services
-                SDK.Chat.Service.Multiplexer.OnLogin                 += ChatCoreMutiplixer_OnLogin;
-                SDK.Chat.Service.Multiplexer.OnJoinChannel           += ChatCoreMutiplixer_OnJoinChannel;
-                SDK.Chat.Service.Multiplexer.OnLeaveChannel          += ChatCoreMutiplixer_OnLeaveChannel;
-                SDK.Chat.Service.Multiplexer.OnChannelFollow         += ChatCoreMutiplixer_OnChannelFollow;
-                SDK.Chat.Service.Multiplexer.OnChannelBits           += ChatCoreMutiplixer_OnChannelBits;
-                SDK.Chat.Service.Multiplexer.OnChannelPoints         += ChatCoreMutiplixer_OnChannelPoints;
-                SDK.Chat.Service.Multiplexer.OnChannelSubscription   += ChatCoreMutiplixer_OnChannelSubscription;
-                SDK.Chat.Service.Multiplexer.OnTextMessageReceived   += ChatCoreMutiplixer_OnTextMessageReceived;
-                SDK.Chat.Service.Multiplexer.OnRoomStateUpdated      += ChatCoreMutiplixer_OnRoomStateUpdated;
-                SDK.Chat.Service.Multiplexer.OnChatCleared           += ChatCoreMutiplixer_OnChatCleared;
-                SDK.Chat.Service.Multiplexer.OnMessageCleared        += ChatCoreMutiplixer_OnMessageCleared;
+                SDK.Chat.Service.Multiplexer.OnLogin                    += ChatCoreMutiplixer_OnLogin;
+                SDK.Chat.Service.Multiplexer.OnJoinChannel              += ChatCoreMutiplixer_OnJoinChannel;
+                SDK.Chat.Service.Multiplexer.OnLeaveChannel             += ChatCoreMutiplixer_OnLeaveChannel;
+                SDK.Chat.Service.Multiplexer.OnChannelFollow            += ChatCoreMutiplixer_OnChannelFollow;
+                SDK.Chat.Service.Multiplexer.OnChannelBits              += ChatCoreMutiplixer_OnChannelBits;
+                SDK.Chat.Service.Multiplexer.OnChannelPoints            += ChatCoreMutiplixer_OnChannelPoints;
+                SDK.Chat.Service.Multiplexer.OnChannelSubscription      += ChatCoreMutiplixer_OnChannelSubscription;
+                SDK.Chat.Service.Multiplexer.OnTextMessageReceived      += ChatCoreMutiplixer_OnTextMessageReceived;
+                SDK.Chat.Service.Multiplexer.OnRoomStateUpdated         += ChatCoreMutiplixer_OnRoomStateUpdated;
+                SDK.Chat.Service.Multiplexer.OnRoomVideoPlaybackUpdated += ChatCoreMutiplixer_OnRoomVideoPlaybackUpdated;
+                SDK.Chat.Service.Multiplexer.OnChatCleared              += ChatCoreMutiplixer_OnChatCleared;
+                SDK.Chat.Service.Multiplexer.OnMessageCleared           += ChatCoreMutiplixer_OnMessageCleared;
 
                 /// Get back channels
                 foreach (var l_Channel in SDK.Chat.Service.Multiplexer.Channels)
@@ -169,17 +194,18 @@ namespace BeatSaberPlus.Modules.Chat
             if (m_ChatCoreAcquired)
             {
                 /// Unbind services
-                SDK.Chat.Service.Multiplexer.OnLogin               -= ChatCoreMutiplixer_OnLogin;
-                SDK.Chat.Service.Multiplexer.OnJoinChannel         -= ChatCoreMutiplixer_OnJoinChannel;
-                SDK.Chat.Service.Multiplexer.OnLeaveChannel        -= ChatCoreMutiplixer_OnLeaveChannel;
-                SDK.Chat.Service.Multiplexer.OnChannelFollow       -= ChatCoreMutiplixer_OnChannelFollow;
-                SDK.Chat.Service.Multiplexer.OnChannelBits         -= ChatCoreMutiplixer_OnChannelBits;
-                SDK.Chat.Service.Multiplexer.OnChannelPoints       -= ChatCoreMutiplixer_OnChannelPoints;
-                SDK.Chat.Service.Multiplexer.OnChannelSubscription -= ChatCoreMutiplixer_OnChannelSubscription;
-                SDK.Chat.Service.Multiplexer.OnTextMessageReceived -= ChatCoreMutiplixer_OnTextMessageReceived;
-                SDK.Chat.Service.Multiplexer.OnRoomStateUpdated    -= ChatCoreMutiplixer_OnRoomStateUpdated;
-                SDK.Chat.Service.Multiplexer.OnChatCleared         -= ChatCoreMutiplixer_OnChatCleared;
-                SDK.Chat.Service.Multiplexer.OnMessageCleared      -= ChatCoreMutiplixer_OnMessageCleared;
+                SDK.Chat.Service.Multiplexer.OnLogin                    -= ChatCoreMutiplixer_OnLogin;
+                SDK.Chat.Service.Multiplexer.OnJoinChannel              -= ChatCoreMutiplixer_OnJoinChannel;
+                SDK.Chat.Service.Multiplexer.OnLeaveChannel             -= ChatCoreMutiplixer_OnLeaveChannel;
+                SDK.Chat.Service.Multiplexer.OnChannelFollow            -= ChatCoreMutiplixer_OnChannelFollow;
+                SDK.Chat.Service.Multiplexer.OnChannelBits              -= ChatCoreMutiplixer_OnChannelBits;
+                SDK.Chat.Service.Multiplexer.OnChannelPoints            -= ChatCoreMutiplixer_OnChannelPoints;
+                SDK.Chat.Service.Multiplexer.OnChannelSubscription      -= ChatCoreMutiplixer_OnChannelSubscription;
+                SDK.Chat.Service.Multiplexer.OnTextMessageReceived      -= ChatCoreMutiplixer_OnTextMessageReceived;
+                SDK.Chat.Service.Multiplexer.OnRoomStateUpdated         -= ChatCoreMutiplixer_OnRoomStateUpdated;
+                SDK.Chat.Service.Multiplexer.OnRoomVideoPlaybackUpdated -= ChatCoreMutiplixer_OnRoomVideoPlaybackUpdated;
+                SDK.Chat.Service.Multiplexer.OnChatCleared              -= ChatCoreMutiplixer_OnChatCleared;
+                SDK.Chat.Service.Multiplexer.OnMessageCleared           -= ChatCoreMutiplixer_OnMessageCleared;
 
                 /// Stop all chat services
                 SDK.Chat.Service.Release();
@@ -282,22 +308,25 @@ namespace BeatSaberPlus.Modules.Chat
         {
             if (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Playing)
             {
-                Config.Chat.PlayingChatPositionX = m_ChatFloatingScreen.transform.position.x;
-                Config.Chat.PlayingChatPositionY = m_ChatFloatingScreen.transform.position.y;
-                Config.Chat.PlayingChatPositionZ = m_ChatFloatingScreen.transform.position.z;
-                Config.Chat.PlayingChatRotationX = m_ChatFloatingScreen.ScreenRotation.eulerAngles.x;
-                Config.Chat.PlayingChatRotationY = m_ChatFloatingScreen.ScreenRotation.eulerAngles.y;
-                Config.Chat.PlayingChatRotationZ = m_ChatFloatingScreen.ScreenRotation.eulerAngles.z;
+                Config.Chat.PlayingChatPositionX = m_ChatFloatingScreen.transform.localPosition.x;
+                Config.Chat.PlayingChatPositionY = m_ChatFloatingScreen.transform.localPosition.y;
+                Config.Chat.PlayingChatPositionZ = m_ChatFloatingScreen.transform.localPosition.z;
+                Config.Chat.PlayingChatRotationX = m_ChatFloatingScreen.transform.localEulerAngles.x;
+                Config.Chat.PlayingChatRotationY = m_ChatFloatingScreen.transform.localEulerAngles.y;
+                Config.Chat.PlayingChatRotationZ = m_ChatFloatingScreen.transform.localEulerAngles.z;
             }
             else
             {
-                Config.Chat.MenuChatPositionX = m_ChatFloatingScreen.transform.position.x;
-                Config.Chat.MenuChatPositionY = m_ChatFloatingScreen.transform.position.y;
-                Config.Chat.MenuChatPositionZ = m_ChatFloatingScreen.transform.position.z;
-                Config.Chat.MenuChatRotationX = m_ChatFloatingScreen.ScreenRotation.eulerAngles.x;
-                Config.Chat.MenuChatRotationY = m_ChatFloatingScreen.ScreenRotation.eulerAngles.y;
-                Config.Chat.MenuChatRotationZ = m_ChatFloatingScreen.ScreenRotation.eulerAngles.z;
+                Config.Chat.MenuChatPositionX = m_ChatFloatingScreen.transform.localPosition.x;
+                Config.Chat.MenuChatPositionY = m_ChatFloatingScreen.transform.localPosition.y;
+                Config.Chat.MenuChatPositionZ = m_ChatFloatingScreen.transform.localPosition.z;
+                Config.Chat.MenuChatRotationX = m_ChatFloatingScreen.transform.localEulerAngles.x;
+                Config.Chat.MenuChatRotationY = m_ChatFloatingScreen.transform.localEulerAngles.y;
+                Config.Chat.MenuChatRotationZ = m_ChatFloatingScreen.transform.localEulerAngles.z;
             }
+
+            m_ViewerCountOwner.transform.localPosition = m_ChatFloatingScreen.transform.localPosition;
+            m_ViewerCountOwner.transform.localRotation = m_ChatFloatingScreen.transform.localRotation;
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -438,6 +467,25 @@ namespace BeatSaberPlus.Modules.Chat
         {
             if (UI.ModerationLeft.Instance != null)
                 UI.ModerationLeft.Instance.UpdateRoomState();
+
+        }
+        /// <summary>
+        /// On room video playback updated
+        /// </summary>
+        /// <param name="p_ChatService">Chat service</param>
+        /// <param name="p_Channel">Channel instance</param>
+        /// <param name="p_StreamUP">Is the stream up</param>
+        /// <param name="p_ViewerCount">Viewer count</param>
+        private void ChatCoreMutiplixer_OnRoomVideoPlaybackUpdated(IChatService p_ChatService, IChatChannel p_Channel, bool p_StreamUP, int p_ViewerCount)
+        {
+            string l_Key = "[" + p_ChatService.DisplayName + "]_" + p_Channel.Name.ToLower();
+
+            if (!m_ChannelsVideoPlaybackStatus.ContainsKey(l_Key))
+                m_ChannelsVideoPlaybackStatus.TryAdd(l_Key, (p_StreamUP, p_ViewerCount));
+            else
+                m_ChannelsVideoPlaybackStatus[l_Key] = (p_StreamUP, p_ViewerCount);
+
+            SDK.Unity.MainThreadInvoker.Enqueue(() => UpdateViewerCount());
         }
         /// <summary>
         /// On chat user cleared
@@ -528,7 +576,7 @@ namespace BeatSaberPlus.Modules.Chat
                 }
 
                 /// Create floating screen
-                m_ChatFloatingScreen = FloatingScreen.CreateFloatingScreen(l_ChatSize, true, l_ChatPosition, Quaternion.identity);
+                m_ChatFloatingScreen = FloatingScreen.CreateFloatingScreen(l_ChatSize, true, Vector3.zero, Quaternion.identity);
                 m_ChatFloatingScreen.GetComponent<Canvas>().sortingOrder = 3;
                 m_ChatFloatingScreen.GetComponent<CurvedCanvasSettings>().SetRadius(0);
 
@@ -546,11 +594,48 @@ namespace BeatSaberPlus.Modules.Chat
                 /// Bind floating window to the root game object
                 m_ChatFloatingScreen.transform.SetParent(m_RootGameObject.transform);
 
-                /// Set rotation
-                m_ChatFloatingScreen.ScreenRotation = Quaternion.Euler(l_ChatRotation);
+                /// Set position & rotation
+                m_ChatFloatingScreen.transform.localPosition = l_ChatPosition;
+                m_ChatFloatingScreen.transform.localRotation = Quaternion.Euler(l_ChatRotation);
 
                 /// Bind event
                 m_ChatFloatingScreen.HandleReleased += OnFloatingWindowMoved;
+
+                /// Create viewer count owner
+                m_ViewerCountOwner = new GameObject();
+                m_ViewerCountOwner.transform.localPosition = l_ChatPosition;
+                m_ViewerCountOwner.transform.localRotation = Quaternion.Euler(l_ChatRotation);
+                m_ViewerCountOwner.transform.SetParent(m_RootGameObject.transform);
+
+                /// Viewer count window
+                m_ViewerCountFloatingScreen = FloatingScreen.CreateFloatingScreen(new Vector2(25, 8), false, Vector2.zero, Quaternion.identity, 0, false);
+                m_ViewerCountFloatingScreen.transform.localPosition = new Vector3(  ((((float)Config.Chat.ChatWidth) / 2f) * 0.02f) + 0.2f, (((-(float)Config.Chat.ChatHeight) / 2f) * 0.02f) + 0.1f, 0f);
+                m_ViewerCountFloatingScreen.transform.localRotation = Quaternion.identity;
+
+                /// Horizontal layout
+                var l_HorizontalTag = new BeatSaberMarkupLanguage.Tags.HorizontalLayoutTag();
+                var l_Layout = l_HorizontalTag.CreateObject(m_ViewerCountFloatingScreen.transform);
+
+                /// Viewer icon
+                var l_ImageTag = new BeatSaberMarkupLanguage.Tags.ImageTag();
+                var l_Image    = l_ImageTag.CreateObject(l_Layout.transform);
+                l_Image.transform.localScale = Vector3.one * 0.5f;
+                m_ViewerCountImage = l_Image.GetComponent<Image>();
+                BeatSaberUI.SetImage(m_ViewerCountImage, "#PlayerIcon");
+
+                /// Viewer text
+                var l_TextTag = new BeatSaberMarkupLanguage.Tags.TextTag();
+                var l_Text    = l_TextTag.CreateObject(l_Layout.transform);
+                l_Text.GetComponent<TextMeshProUGUI>().margin   = new Vector4(-3, 3, 0, 0);
+                l_Text.GetComponent<TextMeshProUGUI>().fontSize = 5;
+                l_Text.GetComponent<TextMeshProUGUI>().text     = "0";
+
+                m_ViewerCountText = l_Text.GetComponent<TextMeshProUGUI>();
+
+                /// Bind floating window to the root game object
+                m_ViewerCountFloatingScreen.transform.SetParent(m_ViewerCountOwner.transform, false);
+
+                UpdateViewerCount();
 
                 UpdateFloatingWindow(p_SceneType, true);
             }
@@ -577,12 +662,15 @@ namespace BeatSaberPlus.Modules.Chat
                 GameObject.Destroy(m_ChatFloatingScreenController);
                 GameObject.Destroy(m_ChatFloatingScreen);
                 GameObject.Destroy(m_ChatFloatingScreenHandleMaterial);
+                GameObject.Destroy(m_ViewerCountFloatingScreen);
                 GameObject.Destroy(m_RootGameObject);
 
                 /// Reset variables
                 m_ChatFloatingScreenController      = null;
                 m_ChatFloatingScreen                = null;
                 m_ChatFloatingScreenHandleMaterial  = null;
+                m_ViewerCountFloatingScreen         = null;
+                m_ViewerCountText                   = null;
                 m_RootGameObject                    = null;
             }
             catch (System.Exception l_Exception)
@@ -623,17 +711,46 @@ namespace BeatSaberPlus.Modules.Chat
                 m_ChatFloatingScreen.handle.transform.localRotation = Quaternion.identity;
                 m_ChatFloatingScreenController.UpdateUI(p_SceneType, p_OnSceneChange, l_Is360Level, l_FlyingGameHUDRotation);
 
-                /// Update chat position
-                m_ChatFloatingScreen.transform.position = l_ChatPosition;
+                /// Update position & rotation
+                m_ChatFloatingScreen.transform.localPosition = l_ChatPosition;
+                m_ChatFloatingScreen.transform.localRotation = Quaternion.Euler(l_ChatRotation);
 
-                /// Update rotation
-                m_ChatFloatingScreen.ScreenRotation = Quaternion.Euler(l_ChatRotation);
+                /// Update viewer count
+                m_ViewerCountFloatingScreen.transform.localPosition = new Vector3(((((float)Config.Chat.ChatWidth) / 2f) * 0.02f) + 0.2f, (((-(float)Config.Chat.ChatHeight) / 2f) * 0.02f) + 0.1f, 0f);
+                m_ViewerCountOwner.transform.localPosition = m_ChatFloatingScreen.transform.localPosition;
+                m_ViewerCountOwner.transform.localRotation = m_ChatFloatingScreen.transform.localRotation;
+
+                /// Update visibility
+                m_ViewerCountImage.enabled  = Config.Chat.ShowViewerCount;
+                m_ViewerCountText.enabled   = Config.Chat.ShowViewerCount;
             }
             catch (System.Exception l_Exception)
             {
                 Logger.Instance.Error("[Chat] Failed to UpdateFloatingWindow");
                 Logger.Instance.Error(l_Exception);
             }
+        }
+        /// <summary>
+        /// Update viewer count
+        /// </summary>
+        private void UpdateViewerCount()
+        {
+            bool l_ShowUp = false;
+            int l_SumViewers = 0;
+
+            foreach (var l_KVP in m_ChannelsVideoPlaybackStatus)
+            {
+                if (!l_KVP.Value.Item1)
+                    continue;
+
+                l_ShowUp        = true;
+                l_SumViewers   += l_KVP.Value.Item2;
+            }
+
+            if (l_ShowUp)
+                m_ViewerCountText.text = l_SumViewers.ToString();
+            else
+                m_ViewerCountText.text = "<color=red>Offline";
         }
     }
 }

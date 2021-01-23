@@ -56,10 +56,6 @@ namespace BeatSaberPlus.Modules.Chat.Extensions
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
-        /// Mutex
-        /// </summary>
-        private static object m_Lock = new object();
-        /// <summary>
         /// Current images
         /// </summary>
         private List<EnhancedImage> m_CurrentImages = new List<EnhancedImage>();
@@ -124,11 +120,12 @@ namespace BeatSaberPlus.Modules.Chat.Extensions
         {
             if (p_UpdateType == CanvasUpdate.LatePreRender)
             {
-                SDK.Unity.MainThreadInvoker.Enqueue(() => ClearImages());
+                if (m_CurrentImages.Count != 0)
+                    SDK.Unity.MainThreadInvoker.Enqueue(() => ClearImages());
 
                 if (!string.IsNullOrEmpty(text))
                 {
-                    var l_ImagesToAdd = new List<(Vector3, SDK.Chat.ImageProvider.EnhancedImageInfo)>();
+                    var l_ImagesToAdd = new List<(Vector3, SDK.Unity.EnhancedImage)>();
 
                     for (int l_I = 0; l_I < textInfo.characterCount; l_I++)
                     {
@@ -149,39 +146,42 @@ namespace BeatSaberPlus.Modules.Chat.Extensions
                         l_ImagesToAdd.Add((l_CharacterInfo.topLeft, l_ImageInfo));
                     }
 
-                    SDK.Unity.MainThreadInvoker.Enqueue(() =>
+                    if (l_ImagesToAdd.Count != 0)
                     {
-                        foreach (var l_Pair in l_ImagesToAdd)
+                        SDK.Unity.MainThreadInvoker.Enqueue(() =>
                         {
-                            var l_Image = m_ImagePool.Alloc();
-                            try
+                            foreach (var l_Pair in l_ImagesToAdd)
                             {
-                                if (l_Pair.Item2.AnimControllerData != null)
+                                var l_Image = m_ImagePool.Alloc();
+                                try
                                 {
-                                    l_Image.AnimStateUpdater.controllerData = l_Pair.Item2.AnimControllerData;
-                                    l_Image.sprite                          = l_Pair.Item2.AnimControllerData.sprites[l_Pair.Item2.AnimControllerData.uvIndex];
+                                    if (l_Pair.Item2.AnimControllerData != null)
+                                    {
+                                        l_Image.AnimStateUpdater.controllerData = l_Pair.Item2.AnimControllerData;
+                                        l_Image.sprite                          = l_Pair.Item2.AnimControllerData.sprites[l_Pair.Item2.AnimControllerData.uvIndex];
+                                    }
+                                    else
+                                        l_Image.sprite = l_Pair.Item2.Sprite;
+
+                                    l_Image.material                    = SDK.Unity.Material.UINoGlowMaterial;
+                                    l_Image.rectTransform.localScale    = new Vector3(fontScale * 1.08f, fontScale * 1.08f, fontScale * 1.08f);
+                                    l_Image.rectTransform.sizeDelta     = new Vector2(l_Pair.Item2.Width, l_Pair.Item2.Height);
+                                    l_Image.rectTransform.SetParent(rectTransform, false);
+                                    l_Image.rectTransform.localPosition = l_Pair.Item1 - new Vector3(0, l_Pair.Item2.Height * fontScale * 0.558f / 2);
+                                    l_Image.rectTransform.localRotation = Quaternion.identity;
+                                    l_Image.gameObject.SetActive(true);
+                                    m_CurrentImages.Add(l_Image);
                                 }
-                                else
-                                    l_Image.sprite = l_Pair.Item2.Sprite;
+                                catch (Exception p_Exception)
+                                {
+                                    Logger.Instance?.Error("Exception while trying to overlay sprite");
+                                    Logger.Instance?.Error(p_Exception);
 
-                                l_Image.material                    = SDK.Unity.Material.UINoGlowMaterial;
-                                l_Image.rectTransform.localScale    = new Vector3(fontScale * 1.08f, fontScale * 1.08f, fontScale * 1.08f);
-                                l_Image.rectTransform.sizeDelta     = new Vector2(l_Pair.Item2.Width, l_Pair.Item2.Height);
-                                l_Image.rectTransform.SetParent(rectTransform, false);
-                                l_Image.rectTransform.localPosition = l_Pair.Item1 - new Vector3(0, l_Pair.Item2.Height * fontScale * 0.558f / 2);
-                                l_Image.rectTransform.localRotation = Quaternion.identity;
-                                l_Image.gameObject.SetActive(true);
-                                m_CurrentImages.Add(l_Image);
+                                    m_ImagePool.Free(l_Image);
+                                }
                             }
-                            catch (Exception p_Exception)
-                            {
-                                Logger.Instance?.Error("Exception while trying to overlay sprite");
-                                Logger.Instance?.Error(p_Exception);
-
-                                m_ImagePool.Free(l_Image);
-                            }
-                        }
-                    });
+                        });
+                    }
                 }
             }
 

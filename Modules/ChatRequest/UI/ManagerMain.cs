@@ -29,8 +29,6 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
 #pragma warning disable CS0649
         [UIObject("TypeSegmentPanel")]
         private GameObject m_TypeSegmentPanel;
-        [UIValue("Title")]
-        internal string m_Title = "Requests";
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////

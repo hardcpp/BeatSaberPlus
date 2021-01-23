@@ -342,14 +342,14 @@ namespace BeatSaberPlus.SDK.Game
             if (p_NoteCount < 14)
             {
                 if (p_NoteCount == 1)
-                    return 115;
+                    return (int)((float)115 * p_ScoreMultiplier);
                 else if (p_NoteCount < 5)
-                    return (p_NoteCount - 1) * 230 + 115;
+                    return (int)((float)((p_NoteCount - 1) * 230 + 115) * p_ScoreMultiplier);
                 else
-                    return (p_NoteCount - 5) * 460 + 1035;
+                    return (int)((float)((p_NoteCount - 5) * 460 + 1035) * p_ScoreMultiplier);
             }
 
-            return (p_NoteCount - 13) * 920 + 4715;
+            return (int)((float)((p_NoteCount - 13) * 920 + 4715) * p_ScoreMultiplier);
         }
         /// <summary>
         /// Get song max score

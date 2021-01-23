@@ -1,5 +1,6 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
+using BeatSaberMarkupLanguage.Components.Settings;
 using HMUI;
 using System.Collections;
 using TMPro;
@@ -16,10 +17,20 @@ namespace BeatSaberPlus.Modules.MenuMusic.UI
 #pragma warning disable CS0649
         [UIComponent("Playing")]
         private TextMeshProUGUI m_PlayingText = null;
-        [UIObject("buttons")]
-        private GameObject m_Buttons = null;
+
+        [UIObject("ButtonsFrame")]
+        private GameObject m_ButtonsFrame = null;
+
+        [UIComponent("PrevButton")]
+        private Button m_PrevButton = null;
+        [UIComponent("RandButton")]
+        private Button m_RandButton = null;
+        [UIComponent("PlaybackVolumeIncrement")]
+        private IncrementSetting m_PlaybackVolume;
         [UIComponent("PlayPauseButton")]
         private Button m_PlayPauseButton = null;
+        [UIComponent("NextButton")]
+        private Button m_NextButton = null;
 #pragma warning restore CS0414
 
         ////////////////////////////////////////////////////////////////////////////
@@ -46,6 +57,14 @@ namespace BeatSaberPlus.Modules.MenuMusic.UI
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
+        /// Should prevent changes
+        /// </summary>
+        private bool m_PreventChanges = false;
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
         /// On view creation
         /// </summary>
         protected override sealed void OnViewCreation()
@@ -58,6 +77,14 @@ namespace BeatSaberPlus.Modules.MenuMusic.UI
             if (m_PauseSprite == null)
                 m_PauseSprite = BeatSaberMarkupLanguage.Utilities.FindSpriteInAssembly("BeatSaberPlus.Modules.MenuMusic.Resources.Pause.png");
 
+            var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic));
+
+            m_PrevButton.transform.localScale = Vector3.one * 0.75f;
+            m_RandButton.transform.localScale = Vector3.one * 0.75f;
+            SDK.UI.IncrementSetting.Setup(m_PlaybackVolume, l_Event, SDK.UI.BSMLSettingFormarter.Percentage, Config.MenuMusic.PlaybackVolume, true);
+            m_PlayPauseButton.transform.localScale = Vector3.one * 0.75f;
+            m_NextButton.transform.localScale = Vector3.one * 0.75f;
+
             m_UpdateCoroutine = StartCoroutine(UpdateCoroutine());
         }
         /// <summary>
@@ -66,8 +93,10 @@ namespace BeatSaberPlus.Modules.MenuMusic.UI
         protected override sealed void OnViewActivation()
         {
             /// Fix buttons disappearing when a multi player level is done
-            foreach (Transform l_Transform in m_Buttons.transform)
+            foreach (Transform l_Transform in m_ButtonsFrame.transform)
                 l_Transform.gameObject.SetActive(true);
+
+            UpdateVolume();
         }
         /// <summary>
         /// On view deactivation
@@ -130,8 +159,8 @@ namespace BeatSaberPlus.Modules.MenuMusic.UI
 
             if (Config.MenuMusic.ShowPlayTime)
             {
-                var l_Text = "<size=80%>" + m_CurrentSongName;
-                l_Text += "\n<size=70%><#7F7F7F>";
+                var l_Text = "<size=90%>" + m_CurrentSongName;
+                l_Text += "\n<size=80%><#7F7F7F>";
 
                 int l_TotalMinutes = (int)(MenuMusic.Instance.CurrentDuration / 60);
                 int l_TotalSeconds = (int)MenuMusic.Instance.CurrentDuration - (l_TotalMinutes * 60);
@@ -145,6 +174,18 @@ namespace BeatSaberPlus.Modules.MenuMusic.UI
             }
             else
                 m_PlayingText.text = m_CurrentSongName;
+        }
+        /// <summary>
+        /// Update volume
+        /// </summary>
+        internal void UpdateVolume()
+        {
+            if (!UICreated)
+                return;
+
+            m_PreventChanges = true;
+            m_PlaybackVolume.Value = Config.MenuMusic.PlaybackVolume;
+            m_PreventChanges = false;
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -190,6 +231,24 @@ namespace BeatSaberPlus.Modules.MenuMusic.UI
         internal void OnNextPressed()
         {
             MenuMusic.Instance.StartNextMusic();
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// When settings are changed
+        /// </summary>
+        /// <param name="p_Value"></param>
+        private void OnSettingChanged(object p_Value)
+        {
+            if (m_PreventChanges)
+                return;
+
+            Config.MenuMusic.PlaybackVolume = m_PlaybackVolume.Value;
+
+            /// Update playback volume & player
+            MenuMusic.Instance.UpdatePlaybackVolume(false);
         }
 
         ////////////////////////////////////////////////////////////////////////////

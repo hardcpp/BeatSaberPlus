@@ -86,8 +86,11 @@ namespace BeatSaberPlus.Modules.ChatRequest
         protected override void OnEnable()
         {
             /// Create BeatSaver instance
-            m_BeatSaver = new BeatSaverSharp.BeatSaver();
-            SDK.Game.BeatSaver.UseAlternativeServer(m_BeatSaver, (Config.Online.Enabled && Config.Online.UseBSPCustomMapsServer) ? SDK.Game.BeatSaver.Server.BeatSaberPlus : SDK.Game.BeatSaver.Server.BeatSaver);
+            m_BeatSaver = new BeatSaverSharp.BeatSaver(new BeatSaverSharp.HttpOptions()
+            {
+                ApplicationName = "bsp_chat_request",
+                Version         = new System.Version(Plugin.Version.Major, Plugin.Version.Minor, Plugin.Version.Patch)
+            });
 
             /// Try to load DB
             LoadDatabase();
@@ -171,7 +174,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
             SongQueue.Clear();
             SongHistory.Clear();
             SongBlackList.Clear();
-            m_RequestedThisSession.Clear();
+            m_RequestedThisSession = new System.Collections.Concurrent.ConcurrentBag<string>();
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -243,8 +246,8 @@ namespace BeatSaberPlus.Modules.ChatRequest
                 try
                 {
                     if (BS_Utils.Plugin.LevelData != null
-                        || BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData != null
-                        || BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap != null)
+                        && BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData != null
+                        && BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap != null)
                     {
                         var l_CurrentMap = BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap;
 

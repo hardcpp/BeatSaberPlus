@@ -19,6 +19,14 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain
     internal class ChatEmoteRain : SDK.ModuleBase<ChatEmoteRain>
     {
         /// <summary>
+        /// No emote SUBRAIN default ID
+        /// </summary>
+        private static string s_SUBRAIN_NO_EMOTE = "_BSPSubRain_$DEFAULT$_";
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
         /// Module type
         /// </summary>
         public override SDK.IModuleBaseType Type => SDK.IModuleBaseType.Integrated;
@@ -81,7 +89,7 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain
         /// <summary>
         /// SubRain emotes
         /// </summary>
-        private Dictionary<string, Texture2D> m_SubRainTextures = new Dictionary<string, Texture2D>();
+        private Dictionary<string, SDK.Unity.EnhancedImage> m_SubRainTextures = new Dictionary<string, SDK.Unity.EnhancedImage>();
         /// <summary>
         /// Temp disable
         /// </summary>
@@ -194,6 +202,34 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
+        /// On settings changed
+        /// </summary>
+        internal void OnSettingsChanged()
+        {
+            foreach (var l_KVP in m_ParticleSystems)
+            {
+                if (l_KVP.Key != SDK.Game.Logic.ActiveScene)
+                    continue;
+
+                foreach (var l_System in l_KVP.Value.Item1.Values)
+                {
+                    var l_ParticleSystem = l_System.PS.main;
+
+                    if (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Menu)
+                        l_ParticleSystem.startSize = Config.ChatEmoteRain.MenuRainSize;
+                    if (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Playing)
+                        l_ParticleSystem.startSize = Config.ChatEmoteRain.SongRainSize;
+
+                    l_ParticleSystem.startSpeed     = Config.ChatEmoteRain.EmoteFallSpeed;
+                    l_ParticleSystem.startLifetime  = (8 / (Config.ChatEmoteRain.EmoteFallSpeed - 1)) + 1;
+                }
+            }
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
         /// Load assets
         /// </summary>
         private void LoadAssets()
@@ -232,21 +268,70 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain
         {
             m_SubRainTextures.Clear();
 
-            foreach (string l_CurrentFile in Directory.GetFiles("CustomSubRain", "*.png"))
+            var l_Files = Directory.GetFiles("CustomSubRain",   "*.png")
+                   .Union(Directory.GetFiles("CustomSubRain",   "*.gif"))
+                   .Union(Directory.GetFiles("CustomSubRain",   "*.apng")).ToArray();
+
+            foreach (string l_CurrentFile in l_Files)
             {
-                if (!l_CurrentFile.ToLower().EndsWith(".png"))
-                    continue;
+                string l_EmoteName = Path.GetFileNameWithoutExtension(l_CurrentFile);
+                l_EmoteName = "_BSPSubRain_" + l_EmoteName.Substring(l_EmoteName.LastIndexOf('\\') + 1);
 
-                Texture2D l_Texture = new Texture2D(2, 2);
-                if (!ImageConversion.LoadImage(l_Texture, File.ReadAllBytes(l_CurrentFile)))
+                LoadExternalEmote(l_CurrentFile, l_EmoteName, (p_Result) =>
                 {
-                    Logger.Instance.Warn("Failed to load image " + l_CurrentFile);
-                    continue;
-                }
-                l_Texture.wrapMode = TextureWrapMode.Mirror;
+                    if (p_Result != null)
+                        m_SubRainTextures.Add(l_EmoteName, p_Result);
+                });
+            }
+        }
 
-                string l_EmoteName = l_CurrentFile.Substring(l_CurrentFile.LastIndexOf('\\') + 1);
-                m_SubRainTextures.Add(l_EmoteName.Remove(l_EmoteName.Length - 4), l_Texture);
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Load external emote
+        /// </summary>
+        /// <param name="p_FileName">File name</param>
+        /// <param name="p_ID">New emote id</param>
+        /// <param name="p_Callback">Load callback</param>
+        internal void LoadExternalEmote(string p_FileName, string p_ID, Action<SDK.Unity.EnhancedImage> p_Callback)
+        {
+            if (p_FileName.ToLower().EndsWith(".png"))
+            {
+                var l_Result = SDK.Unity.EnhancedImage.FromRawStatic(p_ID, File.ReadAllBytes(p_FileName));
+                if (l_Result != null)
+                {
+                    l_Result.Sprite.texture.wrapMode = TextureWrapMode.Mirror;
+                    p_Callback?.Invoke(l_Result);
+                }
+                else
+                    Logger.Instance.Warn("Failed to load image " + p_FileName);
+            }
+            else if (p_FileName.ToLower().EndsWith(".gif"))
+            {
+                SDK.Unity.EnhancedImage.FromRawAnimated(
+                    p_ID,
+                    BeatSaberMarkupLanguage.Animations.AnimationType.GIF,
+                    File.ReadAllBytes(p_FileName), (p_Result) =>
+                    {
+                        if (p_Result != null)
+                            p_Callback?.Invoke(p_Result);
+                        else
+                            Logger.Instance.Warn("Failed to load image " + p_FileName);
+                    });
+            }
+            else if (p_FileName.ToLower().EndsWith(".apng"))
+            {
+                SDK.Unity.EnhancedImage.FromRawAnimated(
+                    p_ID,
+                    BeatSaberMarkupLanguage.Animations.AnimationType.APNG,
+                    File.ReadAllBytes(p_FileName), (p_Result) =>
+                    {
+                        if (p_Result != null)
+                            p_Callback?.Invoke(p_Result);
+                        else
+                            Logger.Instance.Warn("Failed to load image " + p_FileName);
+                    });
             }
         }
 
@@ -264,16 +349,14 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain
             if (   (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Menu    && Config.ChatEmoteRain.MenuRain)
                 || (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Playing && Config.ChatEmoteRain.SongRain))
             {
-                string[] l_EmoteIDs  = m_SubRainTextures.Keys.ToArray();
-                byte     l_EmitCount = (byte)Config.ChatEmoteRain.SubRainEmoteCount;
-
-                if(l_EmoteIDs.Length == 0)
+                var l_EmitCount = (uint)Config.ChatEmoteRain.SubRainEmoteCount;
+                if (m_SubRainTextures.Count == 0)
+                    SharedCoroutineStarter.instance.StartCoroutine(StartParticleSystem(s_SUBRAIN_NO_EMOTE, null, l_EmitCount));
+                else
                 {
-                    l_EmoteIDs = new string[] { "" };
+                    foreach (var l_KVP in m_SubRainTextures)
+                        SharedCoroutineStarter.instance.StartCoroutine(StartParticleSystem(l_KVP.Key, l_KVP.Value, l_EmitCount));
                 }
-
-                foreach (string l_CurrentEmote in l_EmoteIDs)
-                    SharedCoroutineStarter.instance.StartCoroutine(StartParticleSystem("SubRainSprite_" + l_CurrentEmote, false, l_EmitCount));
             }
         }
         /// <summary>
@@ -297,7 +380,7 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain
         /// <param name="p_Message">ID of the message</param>
         private void ChatCoreMutiplixer_OnTextMessageReceived(IChatService p_Service, IChatMessage p_Message)
         {
-            if (p_Message.Message[0] == '!')
+            if (!string.IsNullOrEmpty(p_Message.Message) && p_Message.Message.Length > 2 && p_Message.Message[0] == '!')
             {
                 string l_LMessage = p_Message.Message.ToLower();
 
@@ -360,7 +443,7 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain
                      select new { emote = emoteGrouping.First(), count = (byte)emoteGrouping.Count() }
                     ).ToList().ForEach(x => EnqueueEmote(x.emote, x.count));
                 });
-            }
+                }
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -372,35 +455,36 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain
         /// <param name="p_Emote">Emote to enqueue</param>
         /// <param name="p_Count">Display count</param>
         /// <returns></returns>
-        private void EnqueueEmote(IChatEmote p_Emote, byte p_Count)
+        private void EnqueueEmote(IChatEmote p_Emote, uint p_Count)
         {
             if (   (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Menu    && Config.ChatEmoteRain.MenuRain)
                 || (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Playing && Config.ChatEmoteRain.SongRain))
             {
-                SharedCoroutineStarter.instance.StartCoroutine(StartParticleSystem(p_Emote.Id, p_Emote.IsAnimated, p_Count));
+                SharedCoroutineStarter.instance.StartCoroutine(StartParticleSystem(p_Emote.Id, null, p_Count));
             }
         }
         /// <summary>
         /// Start particle system or update existing one for an Emote
         /// </summary>
         /// <param name="p_EmoteID">ID of the emote</param>
-        /// <param name="p_EmoteIsAnimated">Is an animated emote ?</param>
         /// <param name="p_Count">Display count</param>
         /// <returns></returns>
-        private IEnumerator StartParticleSystem(string p_EmoteID, bool p_EmoteIsAnimated, byte p_Count)
+        private IEnumerator StartParticleSystem(string p_EmoteID, SDK.Unity.EnhancedImage p_Raw, uint p_Count)
         {
-            bool                                        l_IsManagedEmote    = !p_EmoteID.StartsWith("SubRainSprite_");
-            SDK.Chat.ImageProvider.EnhancedImageInfo    l_EnhancedImageInfo = default;
-
-            if (l_IsManagedEmote)
-                yield return new WaitUntil(() => SDK.Chat.ImageProvider.CachedImageInfo.TryGetValue(p_EmoteID, out l_EnhancedImageInfo) && SDK.Game.Logic.ActiveScene != SDK.Game.Logic.SceneType.None);
-
-            Components.TimeoutScript l_TimeoutScript;
             PrefabPair l_PrefabPair = m_ParticleSystems[SDK.Game.Logic.ActiveScene];
 
             if (!l_PrefabPair.Item1.ContainsKey(p_EmoteID) || !l_PrefabPair.Item1[p_EmoteID])
             {
-                l_TimeoutScript         = GameObject.Instantiate(l_PrefabPair.Item2).GetComponent<Components.TimeoutScript>();
+                SDK.Unity.EnhancedImage l_EnhancedImageInfo = p_Raw;
+
+                if (p_Raw == null)
+                    yield return new WaitUntil(() => SDK.Chat.ImageProvider.CachedImageInfo.TryGetValue(p_EmoteID, out l_EnhancedImageInfo) && SDK.Game.Logic.ActiveScene != SDK.Game.Logic.SceneType.None);
+
+                /// If not enhanced info, we skip
+                if (l_EnhancedImageInfo == null && p_EmoteID != s_SUBRAIN_NO_EMOTE)
+                    yield break;
+
+                var l_TimeoutScript     = GameObject.Instantiate(l_PrefabPair.Item2).GetComponent<Components.TimeoutScript>();
                 l_TimeoutScript.key     = p_EmoteID;
                 l_TimeoutScript.mode    = SDK.Game.Logic.ActiveScene;
 
@@ -420,7 +504,7 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain
                     l_PrefabPair.Item1[p_EmoteID] = l_TimeoutScript;
 
                 /// Sorta working animated emotes
-                if (p_EmoteIsAnimated && l_IsManagedEmote)
+                if (p_EmoteID != s_SUBRAIN_NO_EMOTE && l_EnhancedImageInfo.AnimControllerData != null)
                 {
                     var l_TextureSheetAnimation = l_TimeoutScript.PS.textureSheetAnimation;
                     l_TextureSheetAnimation.enabled     = true;
@@ -454,19 +538,19 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain
                         l_CurrentFramePercentage    += l_SingleFramePercentage;
                     }
 
-                    l_TextureSheetAnimation.frameOverTime   = new ParticleSystem.MinMaxCurve(1.0f, l_AnimationCurve);
-                    l_TextureSheetAnimation.cycleCount      = (int)(l_TimeoutScript.PS.main.startLifetime.constant * 1000 / l_TimeForEmote);
+                    float l_CycleCount = l_TimeoutScript.PS.main.startLifetime.constant * 1000 / l_TimeForEmote;
+
+                    l_TextureSheetAnimation.frameOverTime   = new ParticleSystem.MinMaxCurve(l_CycleCount >= 1f ? 1.0f : l_CycleCount, l_AnimationCurve);
+                    l_TextureSheetAnimation.cycleCount      = Math.Max(1, (int)l_CycleCount);
                 }
 
-                if (l_IsManagedEmote)
+                if (l_EnhancedImageInfo != null)
                     l_TimeoutScript.PSR.material.mainTexture = l_EnhancedImageInfo.Sprite.texture;
-                else if(p_EmoteID != "SubRainSprite_")
-                    l_TimeoutScript.PSR.material.mainTexture = ChatEmoteRain.Instance.m_SubRainTextures[p_EmoteID.Substring("SubRainSprite_".Length)];
+
+                l_TimeoutScript.Emit(p_Count);
             }
             else
-                l_TimeoutScript = l_PrefabPair.Item1[p_EmoteID];
-
-            l_TimeoutScript.Emit(p_Count);
+                l_PrefabPair.Item1[p_EmoteID].Emit(p_Count);
 
             yield return null;
         }

@@ -85,6 +85,8 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain.UI
             Config.ChatEmoteRain.EmoteDelay     = (int)m_EmoteDelay.slider.value;
             Config.ChatEmoteRain.EmoteFallSpeed = m_Fallspeed.slider.value;
             Config.ChatEmoteRain.ModeratorPower = m_ModeratorPowerToggle.Value;
+
+            ChatEmoteRain.Instance.OnSettingsChanged();
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -109,6 +111,8 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain.UI
             m_ModeratorPowerToggle.Value = Config.ChatEmoteRain.ModeratorPower;
 
             m_PreventChanges = false;
+
+            ChatEmoteRain.Instance.OnSettingsChanged();
         }
     }
 }

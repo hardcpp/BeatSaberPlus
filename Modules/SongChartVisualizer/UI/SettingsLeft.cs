@@ -13,7 +13,7 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer.UI
         [UIObject("Background")]
         private GameObject m_Background = null;
         [UIValue("Line1")]
-        private readonly string m_Line1 = "<u><b>Thanks to <b>Shoko84</b> for original idea</b></u>";
+        private readonly string m_Line1 = "<u><b>Thanks to <b>Shoko84 & Opzon</b> for original idea</b></u>";
         [UIValue("Line2")]
         private readonly string m_Line2 = " ";
         [UIValue("Line3")]

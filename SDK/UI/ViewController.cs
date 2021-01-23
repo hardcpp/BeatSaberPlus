@@ -101,19 +101,19 @@ namespace BeatSaberPlus.SDK.UI
         /// <summary>
         /// Singleton
         /// </summary>
-        internal static T Instance = null;
+        public static T Instance = null;
         /// <summary>
         /// Can UI be updated
         /// </summary>
-        internal static bool CanBeUpdated => Instance != null && Instance && Instance.isInViewControllerHierarchy && Instance.isActiveAndEnabled && Instance.UICreated;
+        public static bool CanBeUpdated => Instance != null && Instance && Instance.isInViewControllerHierarchy && Instance.isActiveAndEnabled && Instance.UICreated;
         /// <summary>
         /// Was UI created
         /// </summary>
-        internal bool UICreated { get; private set; } = false;
+        public bool UICreated { get; private set; } = false;
         /// <summary>
         /// Has pending message
         /// </summary>
-        internal bool HasPendingMessage => m_PendingMessage != null;
+        public bool HasPendingMessage => m_PendingMessage != null;
         /// <summary>
         /// Property changed event
         /// </summary>

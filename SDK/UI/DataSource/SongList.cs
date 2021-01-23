@@ -168,7 +168,7 @@ namespace BeatSaberPlus.SDK.UI.DataSource
         /// <summary>
         /// Init
         /// </summary>
-        internal void Init()
+        public void Init()
         {
             /// Find preview player
             m_SongPreviewPlayer = UnityEngine.Resources.FindObjectsOfTypeAll<SongPreviewPlayer>().FirstOrDefault();
@@ -228,13 +228,24 @@ namespace BeatSaberPlus.SDK.UI.DataSource
                 }
                 else
                 {
-                    var l_FirstDiff = l_SongEntry.BeatSaver_Map.Metadata.Characteristics.First().Difficulties.Where(x => x.Value.HasValue).LastOrDefault();
+                    l_Duration = -1;
+                    if (l_SongEntry.BeatSaver_Map.Metadata.Characteristics.Count > 0)
+                    {
+                        var l_FirstChara = l_SongEntry.BeatSaver_Map.Metadata.Characteristics.FirstOrDefault();
+                        var l_DiffCount = l_FirstChara.Difficulties.Count(x => x.Value.HasValue);
+
+                        if (l_DiffCount > 0)
+                        {
+                            var l_FirstDiff = l_FirstChara.Difficulties.Where(x => x.Value.HasValue).LastOrDefault();
+                            l_Duration = l_FirstDiff.Value.Value.Length;
+                        }
+
+                    }
 
                     l_MapName       = l_SongEntry.BeatSaver_Map.Name;
                     l_MapAuthor     = l_SongEntry.BeatSaver_Map.Metadata.LevelAuthorName;
                     l_MapSongAuthor = l_SongEntry.BeatSaver_Map.Metadata.SongAuthorName;
                     l_BPM           = l_SongEntry.BeatSaver_Map.Metadata.BPM;
-                    l_Duration      = l_FirstDiff.Value.Value.Length;
                 }
 
                 string l_Title      = l_SongEntry.TitlePrefix + (l_SongEntry.TitlePrefix.Length != 0 ? " " : "") + (l_HaveSong ? "<#7F7F7F>" : "") + l_MapName;

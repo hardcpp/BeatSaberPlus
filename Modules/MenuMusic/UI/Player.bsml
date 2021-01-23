@@ -1,15 +1,16 @@
 ﻿<bg bg='round-rect-panel'>
   <vertical>
-    <horizontal>
+    <horizontal pad-top='1'>
       <text id='Playing' text='Playing...' align='Center' font-size='4.2' />
     </horizontal>
 
     <horizontal>
-      <horizontal horizontal-fit='MinSize' min-width='40' id='buttons'>
-        <icon-button on-click='prev-pressed'      icon='BeatSaberPlus.Modules.MenuMusic.Resources.PrevIcon.png'    stroke-type='Clean' pad='1'/>
-        <icon-button on-click='rand-pressed'      icon='BeatSaberPlus.Modules.MenuMusic.Resources.RefreshIcon.png' stroke-type='Clean' pad='1'/>
+      <horizontal horizontal-fit='MinSize' min-width='45' id='ButtonsFrame'>
+        <icon-button on-click='prev-pressed'      icon='BeatSaberPlus.Modules.MenuMusic.Resources.PrevIcon.png'    stroke-type='Clean' pad='1' id='PrevButton'/>
+        <icon-button on-click='rand-pressed'      icon='BeatSaberPlus.Modules.MenuMusic.Resources.RefreshIcon.png' stroke-type='Clean' pad='1' id='RandButton'/>
+        <increment-setting id='PlaybackVolumeIncrement' min-width='20' min='0' max='1' increment='0.05'/>
         <icon-button on-click='playpause-pressed' icon='BeatSaberPlus.Modules.MenuMusic.Resources.Pause.png'       stroke-type='Clean' pad='1' id='PlayPauseButton'/>
-        <icon-button on-click='next-pressed'      icon='BeatSaberPlus.Modules.MenuMusic.Resources.NextIcon.png'    stroke-type='Clean' pad='1'/>
+        <icon-button on-click='next-pressed'      icon='BeatSaberPlus.Modules.MenuMusic.Resources.NextIcon.png'    stroke-type='Clean' pad='1' id='NextButton'/>
       </horizontal>
     </horizontal>
   </vertical>

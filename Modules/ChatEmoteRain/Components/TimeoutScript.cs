@@ -9,7 +9,7 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain.Components
         private float timeLimit = 15.0f;
         internal string key;
         internal SDK.Game.Logic.SceneType mode;
-        private byte queue;
+        private uint queue;
         private bool timingOut;
         private Coroutine coroutine;
         internal ParticleSystem PS
@@ -42,7 +42,7 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain.Components
             if (l_System)
                 l_System.Emit(1);
         }
-        internal void Emit(byte amount)
+        internal void Emit(uint amount)
         {
             if (amount > 0)
             {

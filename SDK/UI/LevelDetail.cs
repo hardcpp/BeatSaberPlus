@@ -75,23 +75,16 @@ namespace BeatSaberPlus.SDK.UI
 
         public string Name {
             get => m_SongNameText.text;
-            set {
-                m_SongNameText.text = value;
-            }
+            set => m_SongNameText.text = value;
         }
         public string AuthorNameText
         {
             get => m_AuthorNameText.text;
-            set
-            {
-                m_AuthorNameText.text = value;
-            }
+            set => m_AuthorNameText.text = value;
         }
         public UnityEngine.Sprite Cover {
             get => m_SongCoverImage.sprite as UnityEngine.Sprite;
-            set {
-                m_SongCoverImage.sprite = value;
-            }
+            set => m_SongCoverImage.sprite = value;
         }
         public double Time {
             get => m_Time;
@@ -132,21 +125,21 @@ namespace BeatSaberPlus.SDK.UI
             get => m_Notes;
             set {
                 m_Notes = value;
-                m_SongNotesText.text = value.ToString();
+                m_SongNotesText.text = value >= 0 ? value.ToString() : "--";
             }
         }
         public int Obstacles {
             get => m_Obstacles;
             set {
                 m_Obstacles = value;
-                m_SongObstaclesText.text = value.ToString();
+                m_SongObstaclesText.text = value >= 0 ? value.ToString() : "--";
             }
         }
         public int Bombs {
             get => m_Bombs;
             set {
                 m_Bombs = value;
-                m_SongBombsText.text = value.ToString();
+                m_SongBombsText.text = value >= 0 ? value.ToString() : "--";
             }
         }
         public HMUI.IconSegmentedControl.DataItem Characteristic {
@@ -158,8 +151,7 @@ namespace BeatSaberPlus.SDK.UI
                 }.ToArray());
             }
         }
-        public string Difficulty
-        {
+        public string Difficulty {
             get => m_Difficulty;
             set
             {
@@ -743,8 +735,17 @@ namespace BeatSaberPlus.SDK.UI
                 return;
 
             var l_Difficulties = GetBeatMapDifficultiesPerCharacteristicInOrder(m_BeatMap.Metadata.Characteristics[l_CharacIndex]);
-            if (p_Index >= l_Difficulties.Count)
+            if (p_Index < 0 || p_Index >= l_Difficulties.Count)
+            {
+                Time        = -1f;
+                NPS         = -1f;
+                NJS         =  -1;
+                Offset      = float.NaN;
+                Notes       =  -1;
+                Obstacles   =  -1;
+                Bombs       =  -1;
                 return;
+            }
 
             SelectedBeatmapCharacteristicDifficulty = l_Difficulties.ElementAt(p_Index).Value;
             SelecteBeatmapDifficulty                = l_Difficulties.ElementAt(p_Index).Key;

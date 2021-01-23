@@ -15,16 +15,14 @@ namespace BeatSaberPlus.Modules.GameTweaker.UI
         private GameObject m_TypeSegmentPanel;
         [UIObject("MenuPanel")]
         private GameObject m_MenuPanel;
-        [UIObject("DevToolsTestingPanel")]
-        private GameObject m_DevToolsTestingPanel;
+        [UIObject("ToolsDevPanel")]
+        private GameObject m_ToolsDevPanel;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
         [UIComponent("disablebeatmapeditorbuttononmainmenu-toggle")]
         private ToggleSetting m_DisableBeatMapEditorButtonInMainMenu;
-        [UIComponent("showplayerstatisticsonmainmenu-toggle")]
-        private ToggleSetting m_ShowPlayerStatisticsInMainMenu;
         [UIComponent("removenewcontentpromotional-toggle")]
         private ToggleSetting m_RemoveNewContentPromotional;
 
@@ -39,6 +37,11 @@ namespace BeatSaberPlus.Modules.GameTweaker.UI
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
+
+        [UIComponent("RemoveOldLogsToggle")]
+        private ToggleSetting m_RemoveOldLogsToggle;
+        [UIComponent("LogEntriesToKeepIncrement")]
+        private IncrementSetting m_LogEntriesToKeepIncrement;
 
         [UIComponent("fpfcescape-toggle")]
         private ToggleSetting m_FPFCEscape;
@@ -68,7 +71,7 @@ namespace BeatSaberPlus.Modules.GameTweaker.UI
 
             /// Create type selector
             m_TypeSegmentControl = SDK.UI.TextSegmentedControl.Create(m_TypeSegmentPanel.transform as RectTransform, false);
-            m_TypeSegmentControl.SetTexts(new string[] { "Menu", "Dev / Testing" });
+            m_TypeSegmentControl.SetTexts(new string[] { "Menu", "Tools / Dev" });
             m_TypeSegmentControl.ReloadData();
             m_TypeSegmentControl.didSelectCellEvent += OnTypeChanged;
 
@@ -78,7 +81,6 @@ namespace BeatSaberPlus.Modules.GameTweaker.UI
 
             /// Main menu
             SDK.UI.ToggleSetting.Setup(m_DisableBeatMapEditorButtonInMainMenu,  l_Event, Config.GameTweaker.DisableBeatMapEditorButtonOnMainMenu,   true);
-            SDK.UI.ToggleSetting.Setup(m_ShowPlayerStatisticsInMainMenu,        l_Event, Config.GameTweaker.ShowPlayerStatisticsOnMainMenu,         true);
             SDK.UI.ToggleSetting.Setup(m_RemoveNewContentPromotional,           l_Event, Config.GameTweaker.RemoveNewContentPromotional,            true);
 
             /// Level selection
@@ -91,8 +93,12 @@ namespace BeatSaberPlus.Modules.GameTweaker.UI
             /// Dev / Testing
             ////////////////////////////////////////////////////////////////////////////
 
-            /// Prepare sliders
-            SDK.UI.ToggleSetting.Setup(m_FPFCEscape, l_Event, Config.GameTweaker.FPFCEscape, false);
+            /// Logs
+            SDK.UI.ToggleSetting.Setup(m_RemoveOldLogsToggle,           l_Event,         Config.GameTweaker.RemoveOldLogs,                          true);
+            SDK.UI.IncrementSetting.Setup(m_LogEntriesToKeepIncrement,  l_Event, null,   Config.GameTweaker.LogEntriesToKeep,                       true);
+
+            /// FPFC escape
+            SDK.UI.ToggleSetting.Setup(m_FPFCEscape,                    l_Event,         Config.GameTweaker.FPFCEscape,                             false);
 
             ////////////////////////////////////////////////////////////////////////////
             ////////////////////////////////////////////////////////////////////////////
@@ -112,7 +118,7 @@ namespace BeatSaberPlus.Modules.GameTweaker.UI
         private void OnTypeChanged(SegmentedControl p_Sender, int p_Index)
         {
             m_MenuPanel.SetActive(p_Index == 0);
-            m_DevToolsTestingPanel.SetActive(p_Index == 1);
+            m_ToolsDevPanel.SetActive(p_Index == 1);
         }
         /// <summary>
         /// On setting changed
@@ -129,7 +135,6 @@ namespace BeatSaberPlus.Modules.GameTweaker.UI
 
             /// Main menu
             Config.GameTweaker.DisableBeatMapEditorButtonOnMainMenu = m_DisableBeatMapEditorButtonInMainMenu.Value;
-            Config.GameTweaker.ShowPlayerStatisticsOnMainMenu       = m_ShowPlayerStatisticsInMainMenu.Value;
             Config.GameTweaker.RemoveNewContentPromotional          = m_RemoveNewContentPromotional.Value;
 
             /// Level selection
@@ -142,8 +147,15 @@ namespace BeatSaberPlus.Modules.GameTweaker.UI
             /// Dev / Testing
             ////////////////////////////////////////////////////////////////////////////
 
-            /// Update config
-            Config.GameTweaker.FPFCEscape = m_FPFCEscape.Value;
+            /// Logs
+            Config.GameTweaker.RemoveOldLogs                        = m_RemoveOldLogsToggle.Value;
+            Config.GameTweaker.LogEntriesToKeep                     = (int)m_LogEntriesToKeepIncrement.Value;
+
+            /// FPFC escape
+            Config.GameTweaker.FPFCEscape                           = m_FPFCEscape.Value;
+
+            ////////////////////////////////////////////////////////////////////////////
+            ////////////////////////////////////////////////////////////////////////////
 
             /// Update patches
             GameTweaker.Instance.UpdatePatches(false);
@@ -165,7 +177,6 @@ namespace BeatSaberPlus.Modules.GameTweaker.UI
 
             /// Main menu
             m_DisableBeatMapEditorButtonInMainMenu.Value    = Config.GameTweaker.DisableBeatMapEditorButtonOnMainMenu;
-            m_ShowPlayerStatisticsInMainMenu.Value          = Config.GameTweaker.ShowPlayerStatisticsOnMainMenu;
             m_RemoveNewContentPromotional.Value             = Config.GameTweaker.RemoveNewContentPromotional;
 
             /// Level selection
@@ -175,9 +186,18 @@ namespace BeatSaberPlus.Modules.GameTweaker.UI
             m_DeleteSongButton.Value                        = Config.GameTweaker.DeleteSongButton;
 
             ////////////////////////////////////////////////////////////////////////////
-            /// Dev / Testing
+            /// Tools / Dev
             ////////////////////////////////////////////////////////////////////////////
+
+            /// Logs
+            m_RemoveOldLogsToggle.Value                     = Config.GameTweaker.RemoveOldLogs;
+            m_LogEntriesToKeepIncrement.Value               = Config.GameTweaker.LogEntriesToKeep;
+
+            /// FPFC escape
             m_FPFCEscape.Value                              = Config.GameTweaker.FPFCEscape;
+
+            ////////////////////////////////////////////////////////////////////////////
+            ////////////////////////////////////////////////////////////////////////////
 
             m_PreventChanges = false;
 

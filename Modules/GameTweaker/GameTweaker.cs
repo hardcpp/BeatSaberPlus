@@ -1,4 +1,7 @@
 ﻿using BeatSaberMarkupLanguage;
+using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 
@@ -150,7 +153,6 @@ namespace BeatSaberPlus.Modules.GameTweaker
 
             /// Apply show player statistics in main menu
             try {
-                Patches.PMainMenuViewController.SetShowPlayerStatistics(!p_ForceDisable && Config.GameTweaker.ShowPlayerStatisticsOnMainMenu);
                 Patches.PMainMenuViewController.SetBeatMapEditorButtonDisabled(!p_ForceDisable && Config.GameTweaker.DisableBeatMapEditorButtonOnMainMenu);
             } catch (System.Exception p_PatchException) { Logger.Instance.Error("[GameTweaker] Error on updating PMainMenuViewController"); Logger.Instance.Error(p_PatchException); }
             /// Apply new content promotional settings
@@ -171,8 +173,11 @@ namespace BeatSaberPlus.Modules.GameTweaker
             } catch (System.Exception p_PatchException) { Logger.Instance.Error("[GameTweaker] Error on updating PStandardLevelDetailView"); Logger.Instance.Error(p_PatchException); }
 
             ////////////////////////////////////////////////////////////////////////////
-            /// Dev / Testing
+            /// Tools / Dev
             ////////////////////////////////////////////////////////////////////////////
+
+            /// Clean logs
+            CleanLogs(Config.GameTweaker.RemoveOldLogs, Config.GameTweaker.LogEntriesToKeep);
 
             try {
                 UpdateFPFCEscape(p_ForceDisable);
@@ -204,6 +209,53 @@ namespace BeatSaberPlus.Modules.GameTweaker
             var l_Objects = Resources.FindObjectsOfTypeAll<GameObject>().Where(x => x.name == "DustPS");
             foreach (var l_Current in l_Objects)
                 l_Current.SetActive(p_ForceDisable ? true : !Config.GameTweaker.RemoveWorldParticles);
+        }
+        /// <summary>
+        /// Clean logs
+        /// </summary>
+        /// <param name="p_ShouldClean">Should clean logs</param>
+        /// <param name="p_EntriesToKeep">Number of old entry to keep</param>
+        internal void CleanLogs(bool p_ShouldClean, int p_EntriesToKeep)
+        {
+            if (!p_ShouldClean)
+                return;
+
+            var l_DeleteCount = CleanLogsInFolder("Logs", p_EntriesToKeep);
+            Logger.Instance.Warn("[GameTweaker] CleanLogs, " + l_DeleteCount + " old logs entry deleted!");
+        }
+        /// <summary>
+        /// Clean logs in folder
+        /// </summary>
+        /// <param name="p_Directory">Directory to clean</param>
+        /// <param name="p_EntriesToKeep">Number of old entry to keep</param>
+        /// <returns>Deleted log count</returns>
+        private int CleanLogsInFolder(string p_Directory, int p_EntriesToKeep)
+        {
+            int l_Deleted = 0;
+            List<string> l_Files = new List<String>();
+
+            try
+            {
+                l_Files.AddRange(Directory.GetFiles(p_Directory, "*.log.gz", SearchOption.TopDirectoryOnly)) ;
+                l_Files.Sort();
+                l_Files.Reverse();
+
+                if (l_Files.Count > p_EntriesToKeep)
+                {
+                    for (int l_I = p_EntriesToKeep; l_I < l_Files.Count; ++l_I, ++l_Deleted)
+                        File.Delete(l_Files[l_I]);
+                }
+
+                foreach (string l_Directory in Directory.GetDirectories(p_Directory))
+                    l_Deleted += CleanLogsInFolder(l_Directory, p_EntriesToKeep);
+            }
+            catch (Exception p_Exception)
+            {
+                Logger.Instance.Error("[GameTweaker] CleanLogsInFolder");
+                Logger.Instance.Error(p_Exception);
+            }
+
+            return l_Deleted;
         }
 
         ////////////////////////////////////////////////////////////////////////////

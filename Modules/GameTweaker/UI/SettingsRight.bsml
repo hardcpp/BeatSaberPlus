@@ -9,24 +9,16 @@
     </horizontal>
     <horizontal min-width='110' pad-bottom='4'>
       <vertical spacing='0' size-delta-x='50' min-width='50'>
-        <vertical size-delta-x='70' min-width='45' pad-top='0'>
+        <vertical size-delta-x='70' min-width='45' pad-top='0' pad-bottom='0'>
           <text font-size='3.5' text='Disable BeatMap editor button'></text>
           <bool-setting id='disablebeatmapeditorbuttononmainmenu-toggle'></bool-setting>
-        </vertical>
-        <vertical size-delta-x='70' min-width='45' pad-bottom='0'>
-          <text font-size='3.5' text='Show player statistics'></text>
-          <bool-setting id='showplayerstatisticsonmainmenu-toggle'></bool-setting>
         </vertical>
       </vertical>
 
       <vertical spacing='0' size-delta-x='50' min-width='50'>
-        <vertical size-delta-x='70' min-width='45' pad-top='0'>
+        <vertical size-delta-x='70' min-width='45' pad-top='0' pad-bottom='0'>
           <text font-size='3.5' text='Remove new content promotional'></text>
           <bool-setting id='removenewcontentpromotional-toggle'></bool-setting>
-        </vertical>
-        <vertical size-delta-x='70' min-width='45' pad-bottom='0'>
-          <text font-size='3.5' text=' '></text>
-          <text text=' '></text>
         </vertical>
       </vertical>
     </horizontal>
@@ -63,12 +55,32 @@
 
   <!-- =============================== -->
 
-  <vertical id='DevToolsTestingPanel' child-align='UpperCenter' size-delta-y='70'>
+  <vertical id='ToolsDevPanel' child-align='UpperCenter' size-delta-y='70'>
+
+    <horizontal>
+      <text text='Logs' font-color='yellow' bold='true' align='Center' font-size='3'/>
+    </horizontal>
+    <horizontal min-width='110' pad-bottom='4'>
+      <vertical spacing='0' size-delta-x='50' min-width='50'>
+        <vertical size-delta-x='70' min-width='45' pad-top='0' pad-bottom='0'>
+          <text font-size='3.5' text='Remove old logs'></text>
+          <bool-setting id='RemoveOldLogsToggle' hover-hint='Should delete old logs entries?'></bool-setting>
+        </vertical>
+      </vertical>
+
+      <vertical spacing='0' size-delta-x='50' min-width='50'>
+        <vertical size-delta-x='70' min-width='45' pad-top='0' pad-bottom='0'>
+          <text font-size='3.5' text='Amount of logs to keep'></text>
+          <increment-setting id='LogEntriesToKeepIncrement' min='4' max='20' integer-only='true' increment='1'/>
+        </vertical>
+      </vertical>
+    </horizontal>
+
     <horizontal>
       <bool-setting id='fpfcescape-toggle' text='FPFC Escape' hover-hint='Allow to press Escape key to pause a music'></bool-setting>
     </horizontal>
 
-    <horizontal min-height='60'>
+    <horizontal min-height='30'>
     </horizontal>
   </vertical>
 

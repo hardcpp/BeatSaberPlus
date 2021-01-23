@@ -10,16 +10,16 @@
         <bool-setting id='followenvironementrotations-toggle' apply-on-change='true'></bool-setting>
       </vertical>
       <vertical size-delta-x='70' min-width='45' >
+        <text text='Show viewer count'></text>
+        <bool-setting id='chat-viewercount' apply-on-change='true'></bool-setting>
+      </vertical>
+      <vertical size-delta-x='70' min-width='45' >
         <text text='Filter viewers commands'></text>
         <bool-setting id='chat-filterviewers' apply-on-change='true'></bool-setting>
       </vertical>
-      <vertical size-delta-x='70' min-width='45' >
+      <vertical size-delta-x='70' min-width='45' pad-bottom='2'>
         <text text='Filter broadcaster commands'></text>
         <bool-setting id='chat-filterbroadcaster' apply-on-change='true'></bool-setting>
-      </vertical>
-      <vertical size-delta-x='70' min-width='45' pad-bottom='2'>
-        <text text=' '></text>
-        <text text=' '></text>
       </vertical>
     </vertical>
 

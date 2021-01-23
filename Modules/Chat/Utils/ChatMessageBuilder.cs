@@ -47,7 +47,7 @@ namespace BeatSaberPlus.Modules.Chat.Utils
         /// <param name="p_Font">The font to register these images to</param>
         public static bool PrepareImages(IChatMessage p_Message, Extensions.EnhancedFontInfo p_Font)
         {
-            var l_Tasks                 = new List<Task<SDK.Chat.ImageProvider.EnhancedImageInfo>>();
+            var l_Tasks                 = new List<Task<SDK.Unity.EnhancedImage>>();
             var l_PendingEmoteDownloads = new HashSet<string>();
 
             foreach (var l_Emote in p_Message.Emotes)
@@ -59,7 +59,7 @@ namespace BeatSaberPlus.Modules.Chat.Utils
                 {
                     l_PendingEmoteDownloads.Add(l_Emote.Id);
 
-                    TaskCompletionSource<SDK.Chat.ImageProvider.EnhancedImageInfo> l_TaskCompletionSource = new TaskCompletionSource<SDK.Chat.ImageProvider.EnhancedImageInfo>();
+                    var l_TaskCompletionSource = new TaskCompletionSource<SDK.Unity.EnhancedImage>();
 
                     switch (l_Emote.Type)
                     {
@@ -69,7 +69,7 @@ namespace BeatSaberPlus.Modules.Chat.Utils
                                     Logger.Instance.Warn($"Failed to register emote \"{l_Emote.Id}\" in font {p_Font.Font.name}.");
 
                                 l_TaskCompletionSource.SetResult(l_Info);
-                            }, 110);
+                            });
                             break;
 
                         case EmoteType.SpriteSheet:
@@ -79,7 +79,7 @@ namespace BeatSaberPlus.Modules.Chat.Utils
                                     Logger.Instance.Warn($"Failed to register emote \"{l_Emote.Id}\" in font {p_Font.Font.name}.");
 
                                 l_TaskCompletionSource.SetResult(l_Info);
-                            },  110);
+                            });
                             break;
 
                         default:
@@ -99,14 +99,14 @@ namespace BeatSaberPlus.Modules.Chat.Utils
                 if (!p_Font.HasReplaceCharacter(l_Badge.Id))
                 {
                     l_PendingEmoteDownloads.Add(l_Badge.Id);
-                    TaskCompletionSource<SDK.Chat.ImageProvider.EnhancedImageInfo> l_TaskCompletionSource = new TaskCompletionSource<SDK.Chat.ImageProvider.EnhancedImageInfo>();
+                    var l_TaskCompletionSource = new TaskCompletionSource<SDK.Unity.EnhancedImage>();
 
                     SDK.Chat.ImageProvider.TryCacheSingleImage(l_Badge.Id, l_Badge.Uri, false, (p_Info) => {
                         if (p_Info != null && !p_Font.TryRegisterImageInfo(p_Info, out var l_Character))
                             Logger.Instance.Warn($"Failed to register badge \"{l_Badge.Id}\" in font {p_Font.Font.name}.");
 
                         l_TaskCompletionSource.SetResult(p_Info);
-                    }, 100);
+                    });
 
                     l_Tasks.Add(l_TaskCompletionSource.Task);
                 }
@@ -130,7 +130,7 @@ namespace BeatSaberPlus.Modules.Chat.Utils
                 if (!PrepareImages(p_Message, p_Font))
                     Logger.Instance.Warn($"Failed to prepare some/all images for msg \"{p_Message.Message}\"!");
 
-                ConcurrentStack<SDK.Chat.ImageProvider.EnhancedImageInfo> l_Badges = new ConcurrentStack<SDK.Chat.ImageProvider.EnhancedImageInfo>();
+                ConcurrentStack<SDK.Unity.EnhancedImage> l_Badges = new ConcurrentStack<SDK.Unity.EnhancedImage>();
                 foreach (var l_Badge in p_Message.Sender.Badges)
                 {
                     if (!SDK.Chat.ImageProvider.CachedImageInfo.TryGetValue(l_Badge.Id, out var l_BadgeInfo))
