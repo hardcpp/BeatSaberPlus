@@ -28,9 +28,9 @@ IMPORTANT When you enable Chat module, it will open a page in your browser for c
 	 - Advanced configuration options.
  - **ChatRequest:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki#chat-request))
 	 - New chat request system that allow your viewers to make requests with [https://beatsaver.com/](https://beatsaver.com/) website.
-	 - Display informations abouts all difficulties for a song including NPS/Offset.
+	 - Display information about all difficulties for a song including NPS/Offset.
 	 - Display song description, votes, upload date when you select a song.
-	 - Buttons to send informations about current selected song to your chat or open it in beatsaver.com.
+	 - Buttons to send information about current selected song to your chat or open it in beatsaver.com.
 	 - History & blacklist tab that let you see your request history and manage your blacklist.
 	 **- An intelligent "!link" command that show current played song or last one and provide a link to beatsaver.com if the map is public, the command also works outside of request and in multiplayer!**
  - **GameTweaker:**  ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki#game-tweaker))
@@ -42,17 +42,17 @@ IMPORTANT When you enable Chat module, it will open a page in your browser for c
 	 - Can disable Editor button on the main menu.
 	 - Can remove any promotional content from the menu.
 	 - Can re-order player options menu for better accessibility.
-	 - **Add a override light intensity option that let you boost/dim lights from 0% to 2000% (also work in static lights).**
-	 - Can automaticly clean all old logs entry from your game folder to keep it clean.
+	 - **Add an override light intensity option that let you boost/dim lights from 0% to 2000% (also work in static lights).**
+	 - Can automatically clean all old logs entry from your game folder to keep it clean.
 	 - Can add keyboard bindings to pause/continue/restart/exit a song in FPFC mode.
  - **MenuMusic:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki#menu-music))
 	 - Replace menu ambient sounds with music!
-	 - Play any songs from your custom level or you own selection of music!
+	 - Play any songs from your custom levels or you own selection of music!
 	 - Player interface shows in the menu on left with Prev/Random/Play/Pause/Next buttons and with a volume selector.
-	 - Support **EGG/OGG** files.
+	 - Supports **EGG/OGG** files.
  - **SongChartVisualizer:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki#song-chart-visualizer))
 	 - Preview map difficulty with a nice and beautiful graph in game that illustrate NPS (Notes per second).
-	 - Support for 90 & 360 level.
+	 - Support for 90 & 360 levels.
 	 - Lot of customization options (Colors, Legend, Dash lines...).
 
 ## Dependencies:
@@ -66,6 +66,7 @@ IMPORTANT When you enable Chat module, it will open a page in your browser for c
 - **Brase#6969** For documentation
 - **Crafang#8040** For documentation & translation
 - **Lucy#9197** For documentation
+- **redegg89#9290** For Documentation syntax/grammar
 
 ## **Discord & Download/Update**
 https://discord.gg/K4X94Ea
