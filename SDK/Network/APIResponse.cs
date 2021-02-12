@@ -47,9 +47,9 @@ namespace BeatSaberPlus.SDK.Network
 
             ///foreach (var l_Header in p_Reply.RequestMessage.Headers)
             ///{
-            ///    Logger.log.Debug(l_Header.Key);
+            ///    Logger.Instance.Debug(l_Header.Key);
             ///    foreach (var l_Value in l_Header.Value)
-            ///        Logger.log.Debug("    " + l_Value);
+            ///        Logger.Instance.Debug("    " + l_Value);
             ///}
 
             p_Reply.Dispose();

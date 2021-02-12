@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -17,10 +18,10 @@ namespace BeatSaberPlus.SDK.Config
         /// <summary>
         /// Cache
         /// </summary>
-        private Dictionary<(string, string), string> m_StringCache = new Dictionary<(string, string), string>();
-        private Dictionary<(string, string), int> m_IntCache = new Dictionary<(string, string), int>();
-        private Dictionary<(string, string), float> m_FloatCache = new Dictionary<(string, string), float>();
-        private Dictionary<(string, string), bool> m_BoolCache = new Dictionary<(string, string), bool>();
+        private ConcurrentDictionary<(string, string), string>  m_StringCache   = new ConcurrentDictionary<(string, string), string>();
+        private ConcurrentDictionary<(string, string), int>     m_IntCache      = new ConcurrentDictionary<(string, string), int>();
+        private ConcurrentDictionary<(string, string), float>   m_FloatCache    = new ConcurrentDictionary<(string, string), float>();
+        private ConcurrentDictionary<(string, string), bool>    m_BoolCache     = new ConcurrentDictionary<(string, string), bool>();
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -52,7 +53,10 @@ namespace BeatSaberPlus.SDK.Config
 
             string l_Value = m_Instance.GetSetting(p_Section, p_Name);
             if (l_Value != null)
+            {
+                m_StringCache.TryAdd((p_Section, p_Name), l_Value);
                 return l_Value;
+            }
             else if (p_AutoSave)
                 SetString(p_Section, p_Name, p_DefaultValue);
 
@@ -71,7 +75,7 @@ namespace BeatSaberPlus.SDK.Config
             if (m_StringCache.ContainsKey((p_Section, p_Name)))
                 m_StringCache[(p_Section, p_Name)] = p_Value;
             else
-                m_StringCache.Add((p_Section, p_Name), p_Value);
+                m_StringCache.TryAdd((p_Section, p_Name), p_Value);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -92,7 +96,10 @@ namespace BeatSaberPlus.SDK.Config
 
             var l_RawValue = m_Instance.GetSetting(p_Section, p_Name);
             if (l_RawValue != null && int.TryParse(l_RawValue, NumberStyles.Integer, NumberFormatInfo.InvariantInfo, out int l_Value))
+            {
+                m_IntCache.TryAdd((p_Section, p_Name), l_Value);
                 return l_Value;
+            }
             else if (p_AutoSave)
                 SetInt(p_Section, p_Name, p_DefaultValue);
 
@@ -111,7 +118,7 @@ namespace BeatSaberPlus.SDK.Config
             if (m_IntCache.ContainsKey((p_Section, p_Name)))
                 m_IntCache[(p_Section, p_Name)] = p_Value;
             else
-                m_IntCache.Add((p_Section, p_Name), p_Value);
+                m_IntCache.TryAdd((p_Section, p_Name), p_Value);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -132,7 +139,10 @@ namespace BeatSaberPlus.SDK.Config
 
             var l_RawValue = m_Instance.GetSetting(p_Section, p_Name);
             if (l_RawValue != null && float.TryParse(l_RawValue, NumberStyles.Float, NumberFormatInfo.InvariantInfo, out float l_Value))
+            {
+                m_FloatCache.TryAdd((p_Section, p_Name), l_Value);
                 return l_Value;
+            }
             else if (p_AutoSave)
                 SetFloat(p_Section, p_Name, p_DefaultValue);
 
@@ -151,7 +161,7 @@ namespace BeatSaberPlus.SDK.Config
             if (m_FloatCache.ContainsKey((p_Section, p_Name)))
                 m_FloatCache[(p_Section, p_Name)] = p_Value;
             else
-                m_FloatCache.Add((p_Section, p_Name), p_Value);
+                m_FloatCache.TryAdd((p_Section, p_Name), p_Value);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -176,9 +186,15 @@ namespace BeatSaberPlus.SDK.Config
                 try
                 {
                     if (CultureInfo.CurrentCulture.TextInfo.ToTitleCase(l_StringVal) == "True")
+                    {
+                        m_BoolCache.TryAdd((p_Section, p_Name), true);
                         return true;
+                    }
                     else if (CultureInfo.CurrentCulture.TextInfo.ToTitleCase(l_StringVal) == "False")
+                    {
+                        m_BoolCache.TryAdd((p_Section, p_Name), false);
                         return false;
+                    }
                     else if (p_AutoSave)
                         SetBool(p_Section, p_Name, p_DefaultValue);
                 }
@@ -206,7 +222,7 @@ namespace BeatSaberPlus.SDK.Config
             if (m_BoolCache.ContainsKey((p_Section, p_Name)))
                 m_BoolCache[(p_Section, p_Name)] = p_Value;
             else
-                m_BoolCache.Add((p_Section, p_Name), p_Value);
+                m_BoolCache.TryAdd((p_Section, p_Name), p_Value);
         }
     }
 }

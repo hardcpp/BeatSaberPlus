@@ -737,6 +737,33 @@ namespace BeatSaberPlus.Modules.MenuMusic
 
             return l_Result;
         }
+        /// <summary>
+        /// Get currently played CustomPreviewBeatmapLevel
+        /// </summary>
+        /// <returns></returns>
+        internal CustomPreviewBeatmapLevel GetCurrentlyPlayingSongPreviewBeatmap()
+        {
+            try
+            {
+                if (m_CurrentMusic != null && m_CurrentMusic.name.StartsWith("Beat Saber_Data\\CustomLevels\\"))
+                {
+                    var l_Folder = m_CurrentMusic.name.Substring("Beat Saber_Data\\CustomLevels\\".Length);
+
+                    if (l_Folder.ToLower().Contains("\\"))
+                        l_Folder = l_Folder.Substring(0, l_Folder.LastIndexOf("\\"));
+
+                    var l_CustomSong = SongCore.Loader.CustomLevels.Where(x => x.Value.customLevelPath.Contains(l_Folder)).Select(x => x.Value).FirstOrDefault();
+
+                    return l_CustomSong;
+                }
+            }
+            catch (System.Exception)
+            {
+
+            }
+
+            return null;
+        }
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////

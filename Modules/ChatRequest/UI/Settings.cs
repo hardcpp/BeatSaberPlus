@@ -59,7 +59,7 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
             SDK.UI.ToggleSetting.Setup(m_PlayPreviewMusic,          l_Event,                                        Config.ChatRequest.PlayPreviewMusic,        true);
             SDK.UI.ToggleSetting.Setup(m_ModeratorPower,            l_Event,                                        Config.ChatRequest.ModeratorPower,          true);
             SDK.UI.IncrementSetting.Setup(m_QueueSize,              l_Event, null,                                  Config.ChatRequest.QueueCommandShowSize,    true);
-            SDK.UI.IncrementSetting.Setup(m_QueueCooldown,          l_Event, SDK.UI.BSMLSettingFormarter.Seconds,   Config.ChatRequest.QueueCommandCooldown,    true);
+            SDK.UI.IncrementSetting.Setup(m_QueueCooldown,          l_Event, SDK.UI.BSMLSettingFormartter.Seconds,   Config.ChatRequest.QueueCommandCooldown,    true);
         }
 
         ////////////////////////////////////////////////////////////////////////////

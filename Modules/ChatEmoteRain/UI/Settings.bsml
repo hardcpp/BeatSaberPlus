@@ -34,7 +34,7 @@
       </vertical>
       <vertical size-delta-x='60' min-width='60' pad-top='0' pad-bottom='0'>
         <text text='Give moderators power'></text>
-        <bool-setting id='ModeratorPowerToggle' value='enabled' apply-on-change='true'></bool-setting>
+        <bool-setting id='ModeratorPowerToggle' />
       </vertical>
       <vertical size-delta-x='60' min-width='60' pad-bottom='2'>
         <text text=' '></text>

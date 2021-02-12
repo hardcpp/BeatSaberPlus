@@ -24,7 +24,6 @@ namespace BeatSaberPlus.Modules.GameTweaker.Components
                     m_IPauseMenuManager = Resources.FindObjectsOfTypeAll<PauseMenuManager>().FirstOrDefault();
                 return m_IPauseMenuManager;
             }
-            set { m_IPauseMenuManager = value; }
         }
         /// <summary>
         /// Pause controller instance
@@ -38,7 +37,6 @@ namespace BeatSaberPlus.Modules.GameTweaker.Components
                     m_IPauseController = Resources.FindObjectsOfTypeAll<PauseController>().FirstOrDefault();
                 return m_IPauseController;
             }
-            set { m_IPauseController = value; }
         }
         /// <summary>
         /// Is an FPFC pause requested

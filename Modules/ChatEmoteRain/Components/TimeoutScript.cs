@@ -12,6 +12,9 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain.Components
         private uint queue;
         private bool timingOut;
         private Coroutine coroutine;
+
+        internal float TimeLimit => timeLimit;
+
         internal ParticleSystem PS
         {
             get

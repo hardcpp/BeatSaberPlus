@@ -81,19 +81,15 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
             SDK.UI.ToggleSetting.Setup(m_DateMinToggle,         l_Event,                                                    Config.ChatRequest.DateMin,         true);
             SDK.UI.ToggleSetting.Setup(m_DateMaxToggle,         l_Event,                                                    Config.ChatRequest.DateMax,         true);
 
-            /// Change value type
-            if (Config.ChatRequest.VoteMinV > 1)
-                Config.ChatRequest.VoteMinV /= 100f;
-
             /// Right
             SDK.UI.SliderSetting.Setup(m_NPSMin,                l_Event, null,                                              Config.ChatRequest.NPSMinV,         true, true, l_NewRectMin, l_NewRectMax);
             SDK.UI.SliderSetting.Setup(m_NPSMax,                l_Event, null,                                              Config.ChatRequest.NPSMaxV,         true, true, l_NewRectMin, l_NewRectMax);
             SDK.UI.SliderSetting.Setup(m_NJSMin,                l_Event, null,                                              Config.ChatRequest.NJSMinV,         true, true, l_NewRectMin, l_NewRectMax);
             SDK.UI.SliderSetting.Setup(m_NJSMax,                l_Event, null,                                              Config.ChatRequest.NJSMaxV,         true, true, l_NewRectMin, l_NewRectMax);
-            SDK.UI.SliderSetting.Setup(m_DurationMax,           l_Event, SDK.UI.BSMLSettingFormarter.Minutes,               Config.ChatRequest.DurationMaxV,    true, true, l_NewRectMin, l_NewRectMax);
-            SDK.UI.SliderSetting.Setup(m_VoteMin,               l_Event, SDK.UI.BSMLSettingFormarter.Percentage,            Config.ChatRequest.VoteMinV,        true, true, l_NewRectMin, l_NewRectMax);
-            SDK.UI.SliderSetting.Setup(m_DateMin,               l_Event, SDK.UI.BSMLSettingFormarter.DateMonthFrom2018,     Config.ChatRequest.DateMinV,        true, true, l_NewRectMin, l_NewRectMax);
-            SDK.UI.SliderSetting.Setup(m_DateMax,               l_Event, SDK.UI.BSMLSettingFormarter.DateMonthFrom2018,     Config.ChatRequest.DateMaxV,        true, true, l_NewRectMin, l_NewRectMax);
+            SDK.UI.SliderSetting.Setup(m_DurationMax,           l_Event, SDK.UI.BSMLSettingFormartter.Minutes,              Config.ChatRequest.DurationMaxV,    true, true, l_NewRectMin, l_NewRectMax);
+            SDK.UI.SliderSetting.Setup(m_VoteMin,               l_Event, SDK.UI.BSMLSettingFormartter.Percentage,           Config.ChatRequest.VoteMinV,        true, true, l_NewRectMin, l_NewRectMax);
+            SDK.UI.SliderSetting.Setup(m_DateMin,               l_Event, SDK.UI.BSMLSettingFormartter.DateMonthFrom2018,    Config.ChatRequest.DateMinV,        true, true, l_NewRectMin, l_NewRectMax);
+            SDK.UI.SliderSetting.Setup(m_DateMax,               l_Event, SDK.UI.BSMLSettingFormartter.DateMonthFrom2018,    Config.ChatRequest.DateMaxV,        true, true, l_NewRectMin, l_NewRectMax);
 
             /// Update interactable
             SDK.UI.SliderSetting.SetInteractable(m_NPSMin,        m_NPSMinToggle.Value);

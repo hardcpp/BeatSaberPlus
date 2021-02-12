@@ -117,7 +117,7 @@ namespace BeatSaberPlus
                     }
                     catch (System.Exception l_Exception)
                     {
-                        Logger.Instance?.Error("Failed to find modules");
+                        Logger.Instance?.Error("Failed to find modules in " + l_Assembly.FullName);
                         Logger.Instance?.Error(l_Exception);
                     }
                 }

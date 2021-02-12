@@ -15,7 +15,7 @@ namespace BeatSaberPlus.UI
         [UIValue("Line1")]
         private readonly string m_Line1 = "<u><b>Welcome to BeatSaberPlus by HardCPP#1985</b></u>";
         [UIValue("Line2")]
-        private readonly string m_Line2 = "Version 2.0.17";
+        private readonly string m_Line2 = "Version 2.0.33-Preview";
         [UIValue("Line3")]
         private readonly string m_Line3 = " ";
         [UIValue("Line4")]

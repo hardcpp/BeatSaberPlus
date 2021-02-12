@@ -57,7 +57,7 @@ namespace BeatSaberPlus.Modules.MenuMusic.UI
             /// Left
             SDK.UI.ToggleSetting.Setup(m_ShowPlayerInterface,           l_Event,                                            Config.MenuMusic.ShowPlayer,                    true);
             SDK.UI.ToggleSetting.Setup(m_ShowPlayTime,                  l_Event,                                            Config.MenuMusic.ShowPlayTime,                  true);
-            SDK.UI.IncrementSetting.Setup(m_PlayerBackgroundOpacity,    l_Event, SDK.UI.BSMLSettingFormarter.Percentage,    Config.MenuMusic.BackgroundA,                   true);
+            SDK.UI.IncrementSetting.Setup(m_PlayerBackgroundOpacity,    l_Event, SDK.UI.BSMLSettingFormartter.Percentage,    Config.MenuMusic.BackgroundA,                   true);
             SDK.UI.ColorSetting.Setup(m_PlayerBackground,               l_Event,                                            Config.MenuMusic.BackgroundColor,               true);
 
             /// Right
@@ -65,7 +65,7 @@ namespace BeatSaberPlus.Modules.MenuMusic.UI
             SDK.UI.ToggleSetting.Setup(m_StartANewMusicOnSceneChange,   l_Event,                                            Config.MenuMusic.StartANewMusicOnSceneChange,   true);
             SDK.UI.ToggleSetting.Setup(m_LoopCurrentMusic,              l_Event,                                            Config.MenuMusic.LoopCurrentMusic,              true);
             SDK.UI.ToggleSetting.Setup(m_PlayOnlyCustomMenuMusics,      l_Event,                                            Config.MenuMusic.UseOnlyCustomMenuSongsFolder,  true);
-            SDK.UI.IncrementSetting.Setup(m_PlaybackVolume,             l_Event, SDK.UI.BSMLSettingFormarter.Percentage,    Config.MenuMusic.PlaybackVolume,                true);
+            SDK.UI.IncrementSetting.Setup(m_PlaybackVolume,             l_Event, SDK.UI.BSMLSettingFormartter.Percentage,    Config.MenuMusic.PlaybackVolume,                true);
         }
         /// <summary>
         /// On view activation

@@ -15,5 +15,7 @@
     </horizontal>
   </vertical>
 
-  <clickable-image id='SettingsIcon' src='BeatSaberPlus.Modules.MenuMusic.Resources.Settings.png' on-click='settings-pressed' ignore-layout='true' anchor-min-x='0.96' anchor-max-x='0.96' anchor-min-y='0.75' anchor-max-y='0.75' size-delta-x='7' preserve-aspect='true' default-color='#FFFFFF11' highlight-color='#FFFFFFFF'></clickable-image>
+  <clickable-image id='SettingsIcon' src='BeatSaberPlus.Modules.MenuMusic.Resources.Settings.png' on-click='settings-pressed' ignore-layout='true' anchor-min-x='0.96' anchor-max-x='0.96' anchor-min-y='0.75' anchor-max-y='0.75' size-delta-x='7' preserve-aspect='true' default-color='#FFFFFF11' highlight-color='#FFFFFFFF' />
+  <button text='Play it!' id='PlayItButton' on-click='play-it-pressed' ignore-layout='true' anchor-min-x='0.92' anchor-max-x='0.92' anchor-min-y='0.22' anchor-max-y='0.22'/>
+
 </bg>

@@ -31,6 +31,9 @@ namespace BeatSaberPlus.Modules.MenuMusic.UI
         private Button m_PlayPauseButton = null;
         [UIComponent("NextButton")]
         private Button m_NextButton = null;
+
+        [UIObject("PlayItButton")]
+        private GameObject m_PlayItButton = null;
 #pragma warning restore CS0414
 
         ////////////////////////////////////////////////////////////////////////////
@@ -79,11 +82,11 @@ namespace BeatSaberPlus.Modules.MenuMusic.UI
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic));
 
-            m_PrevButton.transform.localScale = Vector3.one * 0.75f;
-            m_RandButton.transform.localScale = Vector3.one * 0.75f;
-            SDK.UI.IncrementSetting.Setup(m_PlaybackVolume, l_Event, SDK.UI.BSMLSettingFormarter.Percentage, Config.MenuMusic.PlaybackVolume, true);
-            m_PlayPauseButton.transform.localScale = Vector3.one * 0.75f;
-            m_NextButton.transform.localScale = Vector3.one * 0.75f;
+            m_PrevButton.transform.localScale       = Vector3.one * 0.75f;
+            m_RandButton.transform.localScale       = Vector3.one * 0.75f;
+            SDK.UI.IncrementSetting.Setup(m_PlaybackVolume, l_Event, SDK.UI.BSMLSettingFormartter.Percentage, Config.MenuMusic.PlaybackVolume, true);
+            m_PlayPauseButton.transform.localScale  = Vector3.one * 0.75f;
+            m_NextButton.transform.localScale       = Vector3.one * 0.75f;
 
             m_UpdateCoroutine = StartCoroutine(UpdateCoroutine());
         }
@@ -95,6 +98,9 @@ namespace BeatSaberPlus.Modules.MenuMusic.UI
             /// Fix buttons disappearing when a multi player level is done
             foreach (Transform l_Transform in m_ButtonsFrame.transform)
                 l_Transform.gameObject.SetActive(true);
+
+            m_PlayItButton.SetActive(true);
+            m_PlayItButton.transform.localPosition = new Vector3(50.40f, -5.60f, 0f);
 
             UpdateVolume();
         }
@@ -215,6 +221,18 @@ namespace BeatSaberPlus.Modules.MenuMusic.UI
         internal void OnRandPressed()
         {
             MenuMusic.Instance.StartNewMusic(true);
+        }
+        /// <summary>
+        /// On play the map pressed
+        /// </summary>
+        [UIAction("play-it-pressed")]
+        internal void OnPlayItPressed()
+        {
+            var l_Map = MenuMusic.Instance.GetCurrentlyPlayingSongPreviewBeatmap();
+            if (l_Map != null)
+                SDK.Game.LevelSelection.FilterToSpecificSong(l_Map);
+            else
+                ShowMessageModal("Map not found!");
         }
         /// <summary>
         /// When the random button is pressed

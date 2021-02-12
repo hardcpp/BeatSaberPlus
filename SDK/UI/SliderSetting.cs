@@ -94,8 +94,7 @@ namespace BeatSaberPlus.SDK.UI
                         p_Setting.slider.value -= p_Setting.increments;
                         l_DecButton.interactable = p_Setting.slider.value > p_Setting.slider.minValue;
                         l_IncButton.interactable = p_Setting.slider.value < p_Setting.slider.maxValue;
-                        p_Setting.ApplyValue();
-                        p_Setting.ReceiveValue();
+                        p_Setting.slider.HandleNormalizedValueDidChange(p_Setting.slider, p_Setting.slider.normalizedValue);
                     });
                     l_IncButton.onClick.RemoveAllListeners();
                     l_IncButton.onClick.AddListener(() =>
@@ -103,8 +102,7 @@ namespace BeatSaberPlus.SDK.UI
                         p_Setting.slider.value += p_Setting.increments;
                         l_DecButton.interactable = p_Setting.slider.value > p_Setting.slider.minValue;
                         l_IncButton.interactable = p_Setting.slider.value < p_Setting.slider.maxValue;
-                        p_Setting.ApplyValue();
-                        p_Setting.ReceiveValue();
+                        p_Setting.slider.HandleNormalizedValueDidChange(p_Setting.slider, p_Setting.slider.normalizedValue);
                     });
                 }
             }

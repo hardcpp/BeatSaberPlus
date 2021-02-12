@@ -58,7 +58,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
             SDK.UI.IncrementSetting.Setup(m_ChatWidth,         l_Event, null,                                   Config.Chat.ChatWidth,          true);
             SDK.UI.IncrementSetting.Setup(m_ChatHeight,        l_Event, null,                                   Config.Chat.ChatHeight,         true);
             SDK.UI.ToggleSetting.Setup(m_ChatReverse,          l_Event,                                         Config.Chat.ReverseChatOrder,   true);
-            SDK.UI.IncrementSetting.Setup(m_ChatOpacity,       l_Event, SDK.UI.BSMLSettingFormarter.Percentage, Config.Chat.BackgroundA,        true);
+            SDK.UI.IncrementSetting.Setup(m_ChatOpacity,       l_Event, SDK.UI.BSMLSettingFormartter.Percentage, Config.Chat.BackgroundA,        true);
             SDK.UI.IncrementSetting.Setup(m_ChatFontSize,      l_Event, null,                                   Config.Chat.FontSize,           true);
 
             /// Right

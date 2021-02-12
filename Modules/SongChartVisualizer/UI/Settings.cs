@@ -60,11 +60,11 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer.UI
 
             /// Left
             SDK.UI.ToggleSetting.Setup(m_FollowEnvironementRotations, l_Event,                                         Config.SongChartVisualizer.FollowEnvironementRotation,   true);
-            SDK.UI.IncrementSetting.Setup(m_BackgroundOpacity,        l_Event, SDK.UI.BSMLSettingFormarter.Percentage, Config.SongChartVisualizer.BackgroundA,                  true);
-            SDK.UI.IncrementSetting.Setup(m_CursorOpacity,            l_Event, SDK.UI.BSMLSettingFormarter.Percentage, Config.SongChartVisualizer.CursorA,                      true);
-            SDK.UI.IncrementSetting.Setup(m_LineOpacity,              l_Event, SDK.UI.BSMLSettingFormarter.Percentage, Config.SongChartVisualizer.LineA,                        true);
-            SDK.UI.IncrementSetting.Setup(m_LegendOpacity,            l_Event, SDK.UI.BSMLSettingFormarter.Percentage, Config.SongChartVisualizer.LegendA,                      true);
-            SDK.UI.IncrementSetting.Setup(m_DashOpacity,              l_Event, SDK.UI.BSMLSettingFormarter.Percentage, Config.SongChartVisualizer.DashLineA,                    true);
+            SDK.UI.IncrementSetting.Setup(m_BackgroundOpacity,        l_Event, SDK.UI.BSMLSettingFormartter.Percentage, Config.SongChartVisualizer.BackgroundA,                  true);
+            SDK.UI.IncrementSetting.Setup(m_CursorOpacity,            l_Event, SDK.UI.BSMLSettingFormartter.Percentage, Config.SongChartVisualizer.CursorA,                      true);
+            SDK.UI.IncrementSetting.Setup(m_LineOpacity,              l_Event, SDK.UI.BSMLSettingFormartter.Percentage, Config.SongChartVisualizer.LineA,                        true);
+            SDK.UI.IncrementSetting.Setup(m_LegendOpacity,            l_Event, SDK.UI.BSMLSettingFormartter.Percentage, Config.SongChartVisualizer.LegendA,                      true);
+            SDK.UI.IncrementSetting.Setup(m_DashOpacity,              l_Event, SDK.UI.BSMLSettingFormartter.Percentage, Config.SongChartVisualizer.DashLineA,                    true);
 
             /// Right
             SDK.UI.ToggleSetting.Setup(m_ShowNPSLegend,  l_Event, Config.SongChartVisualizer.ShowNPSLegend,      true);

@@ -37,9 +37,9 @@ namespace BeatSaberPlus.SDK.Game.Internal
                     continue;
 
                 var l_Difficulties = new List<BeatmapDifficulty>();
-                foreach (var l_CurrentDiff in l_Current.Difficulties.Where(x => x.Value.HasValue).ToList())
+                foreach (var l_CurrentDiff in l_Current.Difficulties.Where(x => x.Value != null).ToList())
                 {
-                    if (!l_CurrentDiff.Value.HasValue)
+                    if (l_CurrentDiff.Value == null)
                         continue;
 
                     l_Difficulties.Add(SDK.Game.Level.SerializedToDifficulty(l_CurrentDiff.Key));
@@ -89,10 +89,10 @@ namespace BeatSaberPlus.SDK.Game.Internal
             List<IDifficultyBeatmap> l_Difficulties = new List<IDifficultyBeatmap>();
             foreach (var l_Current in p_Characteristic.Difficulties)
             {
-                if (!l_Current.Value.HasValue)
+                if (l_Current.Value == null)
                     continue;
 
-                l_Difficulties.Add(new BeatSaver_DifficultyBeatmap(this, p_BSBeatmapLevel, p_CharacteristicSO, SDK.Game.Level.SerializedToDifficulty(l_Current.Key), l_Current.Value.Value));
+                l_Difficulties.Add(new BeatSaver_DifficultyBeatmap(this, p_BSBeatmapLevel, p_CharacteristicSO, SDK.Game.Level.SerializedToDifficulty(l_Current.Key), l_Current.Value));
             }
 
             difficultyBeatmaps = l_Difficulties.ToArray();

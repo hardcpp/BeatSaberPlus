@@ -267,8 +267,14 @@ namespace BeatSaberPlus.Modules.GameTweaker
         /// <param name="p_Scene">New scene</param>
         private void Game_OnSceneChange(SDK.Game.Logic.SceneType p_Scene)
         {
-            if (Config.GameTweaker.RemoveMusicBandLogo && p_Scene == SDK.Game.Logic.SceneType.Playing)
-                new GameObject("BeatSaberPlus_MusicBandLogoRemover").AddComponent<Components.MusicBandLogoRemover>();
+            if (p_Scene == SDK.Game.Logic.SceneType.Playing)
+            {
+                Patches.PLightSwitchEventEffect.SetFromConfig();
+                Patches.PNoteDebrisSpawner.SetFromConfig();
+
+                if (Config.GameTweaker.RemoveMusicBandLogo)
+                    new GameObject("BeatSaberPlus_MusicBandLogoRemover").AddComponent<Components.MusicBandLogoRemover>();
+            }
 
             UpdateWorldParticles();
         }

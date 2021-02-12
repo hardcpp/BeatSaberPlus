@@ -28,6 +28,10 @@ namespace BeatSaberPlus.SDK.UI.DataSource
         /// Data (text, hover hint)
         /// </summary>
         public List<(string, string)> Data = new List<(string, string)>();
+        /// <summary>
+        /// Cell size
+        /// </summary>
+        public float CellSizeValue = 5.2f;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -77,7 +81,7 @@ namespace BeatSaberPlus.SDK.UI.DataSource
         /// <returns></returns>
         public float CellSize()
         {
-            return 5.2f;
+            return CellSizeValue;
         }
         /// <summary>
         /// Get number of cell

@@ -86,11 +86,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
         protected override void OnEnable()
         {
             /// Create BeatSaver instance
-            m_BeatSaver = new BeatSaverSharp.BeatSaver(new BeatSaverSharp.HttpOptions()
-            {
-                ApplicationName = "bsp_chat_request",
-                Version         = new System.Version(Plugin.Version.Major, Plugin.Version.Minor, Plugin.Version.Patch)
-            });
+            m_BeatSaver = new BeatSaverSharp.BeatSaver("bsp_chat_request", Plugin.Version.Major + "." + Plugin.Version.Minor + "." + Plugin.Version.Patch);
 
             /// Try to load DB
             LoadDatabase();

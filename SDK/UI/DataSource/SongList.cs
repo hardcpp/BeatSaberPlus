@@ -232,12 +232,12 @@ namespace BeatSaberPlus.SDK.UI.DataSource
                     if (l_SongEntry.BeatSaver_Map.Metadata.Characteristics.Count > 0)
                     {
                         var l_FirstChara = l_SongEntry.BeatSaver_Map.Metadata.Characteristics.FirstOrDefault();
-                        var l_DiffCount = l_FirstChara.Difficulties.Count(x => x.Value.HasValue);
+                        var l_DiffCount = l_FirstChara.Difficulties.Count(x => x.Value != null);
 
                         if (l_DiffCount > 0)
                         {
-                            var l_FirstDiff = l_FirstChara.Difficulties.Where(x => x.Value.HasValue).LastOrDefault();
-                            l_Duration = l_FirstDiff.Value.Value.Length;
+                            var l_FirstDiff = l_FirstChara.Difficulties.Where(x => x.Value != null).LastOrDefault();
+                            l_Duration = l_FirstDiff.Value.Length;
                         }
 
                     }
@@ -312,7 +312,7 @@ namespace BeatSaberPlus.SDK.UI.DataSource
                     else if (l_SongEntry.BeatSaver_Map != null)
                     {
                         /// Fetch cover
-                        var l_CoverTask = l_SongEntry.BeatSaver_Map.FetchCoverImage();
+                        var l_CoverTask = l_SongEntry.BeatSaver_Map.CoverImageBytes();
                         _ = l_CoverTask.ContinueWith(p_CoverTaskResult =>
                         {
                             if (l_Cell.idx >= Data.Count || l_SongEntry != Data[l_Cell.idx])

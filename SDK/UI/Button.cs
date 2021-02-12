@@ -17,7 +17,7 @@ namespace BeatSaberPlus.SDK.UI
         /// <summary>
         /// Button creator
         /// </summary>
-        private static Internal.BSMLPrimaryButtonTag m_PrimaryButtonCreator = null;
+        private static BeatSaberMarkupLanguage.Tags.PrimaryButtonTag m_PrimaryButtonCreator = null;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -72,7 +72,7 @@ namespace BeatSaberPlus.SDK.UI
         public static UnityEngine.UI.Button CreatePrimary(UnityEngine.Transform p_Parent, string p_Text, Action p_Action, string p_HoverHint = null, float? p_PreferedWidth = null, float? p_PreferedHeight = null)
         {
             if (m_PrimaryButtonCreator == null)
-                m_PrimaryButtonCreator = new Internal.BSMLPrimaryButtonTag();
+                m_PrimaryButtonCreator = new BeatSaberMarkupLanguage.Tags.PrimaryButtonTag();
 
             var l_ButtonObject = m_PrimaryButtonCreator.CreateObject(p_Parent);
             l_ButtonObject.SetActive(false);

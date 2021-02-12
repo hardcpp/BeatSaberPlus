@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace BeatSaberPlus.Modules.ChatRequest
 {
@@ -39,6 +40,10 @@ namespace BeatSaberPlus.Modules.ChatRequest
         /// Is the queue open
         /// </summary>
         internal bool QueueOpen = false;
+        /// <summary>
+        /// Total queue duration
+        /// </summary>
+        internal int QueueDuration { get; private set; } = 0;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -59,10 +64,6 @@ namespace BeatSaberPlus.Modules.ChatRequest
         /// Link command cache
         /// </summary>
         private string m_LastPlayingLevelResponse = "";
-        /// <summary>
-        /// Total queue length
-        /// </summary>
-        private int m_TotalQueueLength = 0;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -76,7 +77,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
             if (p_UpdateSimpleQueueFile)
                 UpdateSimpleQueueFile();
 
-            m_TotalQueueLength = 0;
+            QueueDuration = 0;
             try
             {
                 lock (SongQueue)
@@ -85,9 +86,9 @@ namespace BeatSaberPlus.Modules.ChatRequest
                     {
                         if (!x.BeatMap.Partial)
                         {
-                            var l_Diff = x.BeatMap.Metadata.Characteristics.FirstOrDefault().Difficulties.FirstOrDefault(y => y.Value.HasValue).Value;
-                            if (l_Diff.HasValue)
-                                m_TotalQueueLength += (int)l_Diff.Value.Length;
+                            var l_Diff = x.BeatMap.Metadata.Characteristics.FirstOrDefault().Difficulties.FirstOrDefault(y => y.Value != null).Value;
+                            if (l_Diff != null)
+                                QueueDuration += (int)l_Diff.Length;
                         }
                     });
                 }
@@ -340,7 +341,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
 
                 List<BeatSaverSharp.BeatmapCharacteristicDifficulty> l_Diffs = new List<BeatSaverSharp.BeatmapCharacteristicDifficulty>();
                 foreach (var l_Chara in p_BeatMap.Metadata.Characteristics)
-                    l_Diffs.AddRange(l_Chara.Difficulties.Where(x => x.Value.HasValue).Select(x => x.Value.Value));
+                    l_Diffs.AddRange(l_Chara.Difficulties.Where(x => x.Value != null).Select(x => x.Value));
 
                 if (l_FilterNPSMin && !l_FilterNPSMax && l_Diffs.Count(x => ((float)x.Notes / (float)x.Length) >= l_NPSMin) == 0)
                 {
@@ -365,7 +366,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
 
                 List<BeatSaverSharp.BeatmapCharacteristicDifficulty> l_Diffs = new List<BeatSaverSharp.BeatmapCharacteristicDifficulty>();
                 foreach (var l_Chara in p_BeatMap.Metadata.Characteristics)
-                    l_Diffs.AddRange(l_Chara.Difficulties.Where(x => x.Value.HasValue).Select(x => x.Value.Value));
+                    l_Diffs.AddRange(l_Chara.Difficulties.Where(x => x.Value != null).Select(x => x.Value));
 
                 if (l_FilterNJSMin && !l_FilterNJSMax && l_Diffs.Count(x => x.NoteJumpSpeed >= l_NJSMin) == 0)
                 {
@@ -388,9 +389,9 @@ namespace BeatSaberPlus.Modules.ChatRequest
                 p_Reply = $"@{p_SenderName} this song is too long ({Config.ChatRequest.DurationMaxV} minute(s) maximum)!";
                 return false;
             }
-            if (Config.ChatRequest.VoteMin && l_Vote < Config.ChatRequest.VoteMinV)
+            if (Config.ChatRequest.VoteMin && l_Vote < (float)Math.Round((double)Config.ChatRequest.VoteMinV * 100f, 0))
             {
-                p_Reply = $"@{p_SenderName} this song rating is too low ({Config.ChatRequest.VoteMinV}% minimum)!";
+                p_Reply = $"@{p_SenderName} this song rating is too low ({(float)Math.Round((double)Config.ChatRequest.VoteMinV * 100f, 0)}% minimum)!";
                 return false;
             }
             DateTime l_MinUploadDate = new DateTime(2018, 1, 1).AddMonths(Config.ChatRequest.DateMinV);

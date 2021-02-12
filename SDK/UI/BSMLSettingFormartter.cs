@@ -5,7 +5,7 @@ namespace BeatSaberPlus.SDK.UI
     /// <summary>
     /// BSML Setting formatter
     /// </summary>
-    public class BSMLSettingFormarter
+    public class BSMLSettingFormartter
     {
         private static BSMLAction m_DateMonthFrom2018;
         private static BSMLAction m_Time;
@@ -27,7 +27,7 @@ namespace BeatSaberPlus.SDK.UI
 
         private static BSMLAction BuildAction(string p_Name)
         {
-            return new BSMLAction(null, typeof(BSMLSettingFormarter).GetMethod(p_Name, System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic));
+            return new BSMLAction(null, typeof(BSMLSettingFormartter).GetMethod(p_Name, System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic));
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -52,12 +52,14 @@ namespace BeatSaberPlus.SDK.UI
         /// <returns></returns>
         private static string FNTime(int p_Value)
         {
-            int l_Seconds = p_Value / 60;
-            int l_Minutes = (p_Value > 60) ? (p_Value - l_Seconds) / 60 : 0;
+            int l_Minutes = p_Value / 60;
+            int l_Seconds = p_Value - (l_Minutes * 60);
 
             string l_Result = (l_Minutes != 0 ? l_Minutes : l_Seconds).ToString();
             if (l_Minutes != 0)
                 l_Result += "m " + l_Seconds + "s";
+            else
+                l_Result += "s";
 
             return l_Result;
         }

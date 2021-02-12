@@ -285,7 +285,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
         /// </summary>
         private void Update()
         {
-            if (m_Is360Level && Config.SongChartVisualizer.FollowEnvironementRotation && m_FlyingGameHUDRotation != null && m_FlyingGameHUDRotation)
+            if (m_Is360Level && Config.Chat.FollowEnvironementRotation && m_FlyingGameHUDRotation != null && m_FlyingGameHUDRotation)
                 transform.parent.parent.rotation = m_FlyingGameHUDRotation.transform.rotation;
         }
 

@@ -15,7 +15,7 @@
       </vertical>
       <vertical size-delta-x='60' min-width='60' pad-top='2' pad-bottom='2'>
         <text text='Subscriber bonus request'></text>
-        <increment-setting id='sub-request'  integer-only='true' min='0' max='20' increment='1'/>
+        <increment-setting id='sub-request' integer-only='true' min='0' max='20' increment='1'/>
       </vertical>
       <vertical size-delta-x='60' min-width='60' pad-bottom='2'>
         <text text='History size'></text>
@@ -26,11 +26,11 @@
     <vertical spacing='0' pad-left='5' size-delta-x='65' min-width='65'>
       <vertical size-delta-x='60' min-width='60' pad-top='2'>
         <text text='Play preview music if downloaded'></text>
-        <bool-setting id='pre-toggle' value='enabled' apply-on-change='true'></bool-setting>
+        <bool-setting id='pre-toggle' apply-on-change='true'></bool-setting>
       </vertical>
       <vertical size-delta-x='60' min-width='60' pad-top='2' pad-bottom='2'>
         <text text='Give moderators power to manage queue'></text>
-        <bool-setting id='mod-toggle' value='enabled' apply-on-change='true'></bool-setting>
+        <bool-setting id='mod-toggle' apply-on-change='true'></bool-setting>
       </vertical>
       <vertical size-delta-x='60' min-width='60' pad-top='2' pad-bottom='2'>
         <text text='Queue command show count'></text>

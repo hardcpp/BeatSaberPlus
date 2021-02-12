@@ -81,7 +81,7 @@ namespace BeatSaberPlus.Modules.GameTweaker.UI
 
             /// Sabers
             SDK.UI.ToggleSetting.Setup(m_RemoveTrail,                   l_Event,                                           Config.GameTweaker.RemoveSaberSmoothingTrail,    true);
-            SDK.UI.IncrementSetting.Setup(m_Intensity,                  l_Event, SDK.UI.BSMLSettingFormarter.Percentage,   Config.GameTweaker.SaberSmoothingTrailIntensity, true);
+            SDK.UI.IncrementSetting.Setup(m_Intensity,                  l_Event, SDK.UI.BSMLSettingFormartter.Percentage,   Config.GameTweaker.SaberSmoothingTrailIntensity, true);
             m_Intensity.gameObject.SetActive(false);
             m_Intensity.interactable = !Config.GameTweaker.RemoveSaberSmoothingTrail;
             m_Intensity.gameObject.SetActive(true);

@@ -244,7 +244,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
             if (m_FilterViewersCommands || m_FilterBroadcasterCommands)
             {
                 bool l_IsBroadcaster = false;
-                if (Config.ChatRequest.ModeratorPower && p_Message.Sender is BeatSaberPlusChatCore.Models.Twitch.TwitchUser)
+                if (p_Message.Sender is BeatSaberPlusChatCore.Models.Twitch.TwitchUser)
                     l_IsBroadcaster = (p_Message.Sender as BeatSaberPlusChatCore.Models.Twitch.TwitchUser).IsBroadcaster;
 
                 if (m_FilterViewersCommands && !l_IsBroadcaster && p_Message.Message.StartsWith("!"))

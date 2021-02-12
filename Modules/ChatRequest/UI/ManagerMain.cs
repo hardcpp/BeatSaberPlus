@@ -77,14 +77,6 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
-        /// Pending filter song
-        /// </summary>
-        static CustomPreviewBeatmapLevel m_PendingFilterSong = null;
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        /// <summary>
         /// On view creation
         /// </summary>
         protected override sealed void OnViewCreation()
@@ -380,19 +372,8 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
                 if (l_LocalSong != null && SongCore.Loader.CustomLevels.ContainsKey(l_LocalSong.customLevelPath))
                 {
                     ChatRequest.Instance.DequeueSong(m_SelectedSong, true);
-                    m_PendingFilterSong = l_LocalSong;
 
-                    try
-                    {
-                        var l_LevelFilteringNavigationController = Resources.FindObjectsOfTypeAll<LevelSelectionNavigationController>().FirstOrDefault();
-
-                        if (l_LevelFilteringNavigationController != null)
-                            l_LevelFilteringNavigationController.didActivateEvent += LevelSelectionNavigationController_didActivateEvent;
-                    }
-                    catch (System.Exception p_Exception)
-                    {
-                        Logger.Instance?.Critical(p_Exception);
-                    }
+                    SDK.Game.LevelSelection.FilterToSpecificSong(l_LocalSong);
 
                     ManagerViewFlowCoordinator.Instance().Dismiss();
                     UnselectSong();
@@ -455,155 +436,6 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
                     /// Blacklist the song
                     ChatRequest.Instance.BlacklistSong(m_SelectedSong);
                 });
-            }
-        }
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        /// <summary>
-        /// Change current song view to all songs view
-        /// </summary>
-        /// <param name="p_FirstActivation"></param>
-        /// <param name="p_AddedToHierarchy"></param>
-        /// <param name="p_ScreenSystemEnabling"></param>
-        private static void LevelSelectionNavigationController_didActivateEvent(bool p_FirstActivation, bool p_AddedToHierarchy, bool p_ScreenSystemEnabling)
-        {
-            var l_LevelSelectionNavigationController = Resources.FindObjectsOfTypeAll<LevelSelectionNavigationController>().FirstOrDefault();
-            if (l_LevelSelectionNavigationController == null)
-                return;
-
-            l_LevelSelectionNavigationController.didActivateEvent -= LevelSelectionNavigationController_didActivateEvent;
-
-            SharedCoroutineStarter.instance.StartCoroutine(LevelSelection_SelectLevelCategory(l_LevelSelectionNavigationController));
-        }
-        /// <summary>
-        /// Level selection, select level category
-        /// </summary>
-        /// <param name="p_LevelSelectionNavigationController">LevelSelectionNavigationController instance</param>
-        /// <returns></returns>
-        private static IEnumerator LevelSelection_SelectLevelCategory(LevelSelectionNavigationController p_LevelSelectionNavigationController)
-        {
-            yield return new WaitUntil(() => !p_LevelSelectionNavigationController || !p_LevelSelectionNavigationController.isInTransition);
-
-            if (SDK.Game.Logic.ActiveScene != SDK.Game.Logic.SceneType.Menu)
-                yield break;
-
-            if (!p_LevelSelectionNavigationController || !p_LevelSelectionNavigationController.isInViewControllerHierarchy || !p_LevelSelectionNavigationController.isActiveAndEnabled)
-                yield break;
-
-            var l_LevelFilteringNavigationController = p_LevelSelectionNavigationController.GetField<LevelFilteringNavigationController, LevelSelectionNavigationController>("_levelFilteringNavigationController");
-            if (!l_LevelFilteringNavigationController)
-                yield break;
-
-            if (l_LevelFilteringNavigationController.selectedLevelCategory != SelectLevelCategoryViewController.LevelCategory.All)
-            {
-                var l_Selector = l_LevelFilteringNavigationController.GetField<SelectLevelCategoryViewController, LevelFilteringNavigationController>("_selectLevelCategoryViewController");
-                if (l_Selector != null && l_Selector)
-                {
-                    var l_SegmentControl    = l_Selector.GetField<IconSegmentedControl, SelectLevelCategoryViewController>("_levelFilterCategoryIconSegmentedControl");
-                    var l_Tags              = l_Selector.GetField<SelectLevelCategoryViewController.LevelCategoryInfo[], SelectLevelCategoryViewController>("_levelCategoryInfos");
-                    var l_IndexToSelect     = l_Tags.Select((x => x.levelCategory)).ToList().IndexOf(SelectLevelCategoryViewController.LevelCategory.All);
-
-                    /// Multiplayer : missing extension
-                    if (l_IndexToSelect == -1)
-                        yield break;
-
-                    l_SegmentControl.SelectCellWithNumber(l_IndexToSelect);
-                    l_Selector.LevelFilterCategoryIconSegmentedControlDidSelectCell(l_SegmentControl, l_IndexToSelect);
-
-                    SharedCoroutineStarter.instance.StartCoroutine(LevelSelection_FilterLevel(
-                        l_LevelFilteringNavigationController.GetField<LevelSearchViewController, LevelFilteringNavigationController>("_levelSearchViewController"),
-                        true
-                    ));
-                }
-            }
-            else
-            {
-                SharedCoroutineStarter.instance.StartCoroutine(LevelSelection_FilterLevel(
-                    l_LevelFilteringNavigationController.GetField<LevelSearchViewController, LevelFilteringNavigationController>("_levelSearchViewController"),
-                    false
-                ));
-            }
-        }
-        /// <summary>
-        /// Level selection, filter
-        /// </summary>
-        /// <param name="p_LevelSearchViewController">LevelSearchViewController instance</param>
-        /// <param name="p_Wait">Should wait for any transition</param>
-        /// <returns></returns>
-        private static IEnumerator LevelSelection_FilterLevel(LevelSearchViewController p_LevelSearchViewController, bool p_Wait)
-        {
-            if (SDK.Game.Logic.ActiveScene != SDK.Game.Logic.SceneType.Menu)
-                yield break;
-
-            if (p_LevelSearchViewController == null || !p_LevelSearchViewController || m_PendingFilterSong == null)
-                yield break;
-
-            if (p_Wait)
-            {
-                yield return new WaitUntil(() => !p_LevelSearchViewController || !p_LevelSearchViewController.isInTransition);
-
-                if (!p_LevelSearchViewController || !p_LevelSearchViewController.isInViewControllerHierarchy || !p_LevelSearchViewController.isActiveAndEnabled)
-                    yield break;
-
-                if (SDK.Game.Logic.ActiveScene != SDK.Game.Logic.SceneType.Menu)
-                    yield break;
-            }
-
-            try
-            {
-                p_LevelSearchViewController.didStartLoadingEvent -= LevelSearchViewController_didStartLoadingEvent;
-                p_LevelSearchViewController.ResetCurrentFilterParams();
-                var l_InputFieldView = p_LevelSearchViewController.GetField<InputFieldView, LevelSearchViewController>("_searchTextInputFieldView");
-                if (l_InputFieldView != null && l_InputFieldView)
-                {
-                    l_InputFieldView.SetText(m_PendingFilterSong.songName);
-                    l_InputFieldView.UpdateClearButton();
-                    l_InputFieldView.UpdatePlaceholder();
-                }
-
-                p_LevelSearchViewController.UpdateSearchLevelFilterParams(LevelFilterParams.ByBeatmapLevelIds(new HashSet<string>() { m_PendingFilterSong.levelID }));
-                p_LevelSearchViewController.didStartLoadingEvent += LevelSearchViewController_didStartLoadingEvent;
-            }
-            catch (System.Exception p_Exception)
-            {
-                Logger.Instance.Error("[ChatRequest] LevelSelection_FilterLevel coroutine failed : ");
-                Logger.Instance.Error(p_Exception);
-
-                LevelSearchViewController_didStartLoadingEvent(p_LevelSearchViewController);
-            }
-        }
-        /// <summary>
-        /// LevelSearchViewController didStartLoadingEvent
-        /// </summary>
-        /// <param name="p_LevelSearchViewController">LevelSearchViewController instance</param>
-        private static void LevelSearchViewController_didStartLoadingEvent(LevelSearchViewController p_LevelSearchViewController)
-        {
-            if (!p_LevelSearchViewController)
-                return;
-
-            p_LevelSearchViewController.didStartLoadingEvent -= LevelSearchViewController_didStartLoadingEvent;
-
-            try
-            {
-                var l_Filter = p_LevelSearchViewController.GetField<LevelFilterParams, LevelSearchViewController>("_currentFilterParams");
-                if (l_Filter != null && l_Filter.filterByLevelIds)
-                {
-                    p_LevelSearchViewController.ResetCurrentFilterParams();
-
-                    var l_InputFieldView = p_LevelSearchViewController.GetField<InputFieldView, LevelSearchViewController>("_searchTextInputFieldView");
-                    if (l_InputFieldView != null && l_InputFieldView)
-                    {
-                        l_InputFieldView.UpdateClearButton();
-                        l_InputFieldView.UpdatePlaceholder();
-                    }
-                }
-            }
-            catch (System.Exception p_Exception)
-            {
-                Logger.Instance.Error("[ChatRequest] LevelSearchViewController_didStartLoadingEvent failed : ");
-                Logger.Instance.Error(p_Exception);
             }
         }
 

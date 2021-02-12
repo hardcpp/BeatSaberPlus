@@ -106,7 +106,7 @@ namespace BeatSaberPlus.SDK.Game
                 if (!Directory.Exists(l_CustomSongsPath))
                     Directory.CreateDirectory(l_CustomSongsPath);
 
-                var l_ZIPBytes = await p_Song.DownloadZip(p_Direct, p_Token, p_Progress).ConfigureAwait(false);
+                var l_ZIPBytes = await p_Song.ZipBytes(p_Direct, new StandardRequestOptions() { Token = p_Token, Progress = p_Progress }).ConfigureAwait(false);
 
                 Logger.Instance?.Info("[SDK.Game][BeatSaver] Downloaded zip!");
 

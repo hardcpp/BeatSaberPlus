@@ -78,7 +78,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
 
             if (!OnlyHexInString(l_Key))
             {
-                _ = m_BeatSaver.Search(l_Key).ContinueWith((p_SearchTaskResult) =>
+                _ = m_BeatSaver.Search(new BeatSaverSharp.SearchRequestOptions(l_Key)).ContinueWith((p_SearchTaskResult) =>
                 {
                     if (p_SearchTaskResult.Result == null || p_SearchTaskResult.Result.Docs.Count == 0)
                     {
@@ -400,8 +400,8 @@ namespace BeatSaberPlus.Modules.ChatRequest
             {
                 if (SongQueue.Count != 0)
                 {
-                    var l_Minutes = m_TotalQueueLength / 60;
-                    var l_Seconds = (m_TotalQueueLength - (l_Minutes * 60));
+                    var l_Minutes = QueueDuration / 60;
+                    var l_Seconds = (QueueDuration - (l_Minutes * 60));
 
                     l_Reply = $"Song queue ({SongQueue.Count} songs {l_Minutes}m{l_Seconds}s), next : ";
 
@@ -435,8 +435,8 @@ namespace BeatSaberPlus.Modules.ChatRequest
             {
                 if (SongQueue.Count != 0)
                 {
-                    var l_Minutes = m_TotalQueueLength / 60;
-                    var l_Seconds = (m_TotalQueueLength - (l_Minutes * 60));
+                    var l_Minutes = QueueDuration / 60;
+                    var l_Seconds = (QueueDuration - (l_Minutes * 60));
                     l_Reply = $"@{p_Message.Sender.UserName} Song queue is " + (QueueOpen ? "open" : "closed") + $" ({SongQueue.Count} songs {l_Minutes}m{l_Seconds}s)";
                 }
                 else

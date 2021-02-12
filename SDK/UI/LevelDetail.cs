@@ -457,12 +457,12 @@ namespace BeatSaberPlus.SDK.UI
             BeatmapCharacteristicDifficulty l_SelectedDifficulty = default;
             bool l_DifficultyFound = false;
 
-            foreach (var l_Current in l_SelectedCharacteristic.Difficulties.Where(x => l_SelectedCharacteristic.Difficulties[x.Key].HasValue).ToList())
+            foreach (var l_Current in l_SelectedCharacteristic.Difficulties.Where(x => l_SelectedCharacteristic.Difficulties[x.Key] != null).ToList())
             {
-                if (!l_Current.Value.HasValue || l_Current.Key.ToLower() != p_DifficultyRaw.ToLower())
+                if (l_Current.Value == null || l_Current.Key.ToLower() != p_DifficultyRaw.ToLower())
                     continue;
 
-                l_SelectedDifficulty    = l_Current.Value.Value;
+                l_SelectedDifficulty    = l_Current.Value;
                 l_DifficultyFound       = true;
                 break;
             }
@@ -774,12 +774,12 @@ namespace BeatSaberPlus.SDK.UI
         private Dictionary<BeatmapDifficulty, BeatmapCharacteristicDifficulty> GetBeatMapDifficultiesPerCharacteristicInOrder(BeatmapCharacteristic p_Chara)
         {
             var l_Difficulties = new Dictionary<BeatmapDifficulty, BeatmapCharacteristicDifficulty>();
-            foreach (var l_Current in p_Chara.Difficulties.Where(x => x.Value.HasValue).ToList())
+            foreach (var l_Current in p_Chara.Difficulties.Where(x => x.Value != null).ToList())
             {
-                if (!l_Current.Value.HasValue)
+                if (l_Current.Value == null)
                     continue;
 
-                l_Difficulties.Add(Game.Level.SerializedToDifficulty(l_Current.Key), l_Current.Value.Value);
+                l_Difficulties.Add(Game.Level.SerializedToDifficulty(l_Current.Key), l_Current.Value);
             }
 
             return l_Difficulties.OrderBy(x => x.Key).ToDictionary(x => x.Key, y => y.Value);

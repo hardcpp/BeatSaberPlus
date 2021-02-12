@@ -108,7 +108,7 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches
                 m_OverrideLightsIntensityToggle.increments  = 0.1f;
 
                 var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(null, typeof(PPlayerSettingsPanelController).GetMethod(nameof(OnOverrideLightIntensityChange), System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic));
-                SDK.UI.IncrementSetting.Setup(m_OverrideLightsIntensityToggle, l_Event, SDK.UI.BSMLSettingFormarter.Percentage, Config.GameTweaker.OverrideLightIntensity, false);
+                SDK.UI.IncrementSetting.Setup(m_OverrideLightsIntensityToggle, l_Event, SDK.UI.BSMLSettingFormartter.Percentage, Config.GameTweaker.OverrideLightIntensity, false);
             }
             else if (!p_AddOverrideLightsIntensityOption && m_OverrideLightsIntensityToggle != null && m_OverrideLightsIntensityToggle)
             {
