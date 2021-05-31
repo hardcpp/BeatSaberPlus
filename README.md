@@ -19,6 +19,7 @@ IMPORTANT When you enable Chat module, it will open a page in your browser for c
 	 - See subscriptions, follow, raid, bits events.
 	 - See channel point reward reedeming.
 	 - See next to chat if you are online or not and the actual viewer count.
+	 - See online/offline status with the viewer count
 	 - Lot of customization options (Color, Size, Filter TTS messages, hide specific events...).
  - **ChatEmoteRain:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki#chat-emote-rain))
 	 - See emotes used in chat raining in game!
