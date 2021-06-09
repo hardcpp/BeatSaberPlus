@@ -6,7 +6,7 @@
 **Discord** https://discord.gg/K4X94Ea (**Download, Support, Testing, Early releases** and cool new mods coming soon)
 **Patreon** [https://www.patreon.com/BeatSaberPlus](https://www.patreon.com/BeatSaberPlus) **if you want to support this project development!**
 
-Current version : 2.0.20
+Current version : 3.0.6
 
 IMPORTANT All modules are disabled by default, you can enable then in BeatSaberPlus -> Settings
 IMPORTANT When you enable Chat module, it will open a page in your browser for configuring it.
@@ -19,6 +19,7 @@ IMPORTANT When you enable Chat module, it will open a page in your browser for c
 	 - See subscriptions, follow, raid, bits events.
 	 - See channel point reward reedeming.
 	 - See next to chat if you are online or not and the actual viewer count.
+	 - See online/offline status with the viewer count
 	 - Lot of customization options (Color, Size, Filter TTS messages, hide specific events...).
  - **ChatEmoteRain:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki#chat-emote-rain))
 	 - See emotes used in chat raining in game!
@@ -30,6 +31,8 @@ IMPORTANT When you enable Chat module, it will open a page in your browser for c
 	 - New chat request system that allow your viewers to make requests with [https://beatsaver.com/](https://beatsaver.com/) website.
 	 - Display information about all difficulties for a song including NPS/Offset.
 	 - Display song description, votes, upload date when you select a song.
+	 - Display scores on song when you over one.
+	 - User, Mapper, Song ban system
 	 - Buttons to send information about current selected song to your chat or open it in beatsaver.com.
 	 - History & blacklist tab that let you see your request history and manage your blacklist.
 	 **- An intelligent "!link" command that show current played song or last one and provide a link to beatsaver.com if the map is public, the command also works outside of request and in multiplayer!**
@@ -50,6 +53,7 @@ IMPORTANT When you enable Chat module, it will open a page in your browser for c
 	 - Play any songs from your custom levels or you own selection of music!
 	 - Player interface shows in the menu on left with Prev/Random/Play/Pause/Next buttons and with a volume selector.
 	 - Supports **EGG/OGG** files.
+	 - A play button to play the current song level.
  - **SongChartVisualizer:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki#song-chart-visualizer))
 	 - Preview map difficulty with a nice and beautiful graph in game that illustrate NPS (Notes per second).
 	 - Support for 90 & 360 levels.
