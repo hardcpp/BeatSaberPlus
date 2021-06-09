@@ -141,7 +141,7 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
             Config.ChatRequest.NJSMinV       = (int)m_NJSMin.slider.value;
             Config.ChatRequest.NJSMaxV       = (int)m_NJSMax.slider.value;
             Config.ChatRequest.DurationMaxV  = (int)m_DurationMax.slider.value;
-            Config.ChatRequest.VoteMinV      = (int)m_VoteMin.slider.value;
+            Config.ChatRequest.VoteMinV      = m_VoteMin.slider.value;
             Config.ChatRequest.DateMinV      = (int)m_DateMin.slider.value;
             Config.ChatRequest.DateMaxV      = (int)m_DateMax.slider.value;
         }

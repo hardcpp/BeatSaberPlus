@@ -1,0 +1,10 @@
+﻿<vertical min-height='50'>
+
+  <vertical id='InfoBackground' bg='round-rect-panel' size-delta-x='80' min-width='80' pad-top='2' pad-bottom='2' pad-left='2' pad-right='2'>
+    <text text='Dummy event that can get triggered by other events!' align='Center'/>
+  </vertical>
+
+  <horizontal min-height='40'>
+  </horizontal>
+
+</vertical>

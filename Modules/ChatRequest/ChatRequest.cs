@@ -86,7 +86,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
         protected override void OnEnable()
         {
             /// Create BeatSaver instance
-            m_BeatSaver = new BeatSaverSharp.BeatSaver("bsp_chat_request", Plugin.Version.Major + "." + Plugin.Version.Minor + "." + Plugin.Version.Patch);
+            m_BeatSaver = new BeatSaverSharp.BeatSaver(new BeatSaverSharp.HttpOptions("bsp_chat_request", Plugin.Version.Major + "." + Plugin.Version.Minor + "." + Plugin.Version.Patch, handleRateLimits: true));
 
             /// Try to load DB
             LoadDatabase();
@@ -170,6 +170,10 @@ namespace BeatSaberPlus.Modules.ChatRequest
             SongQueue.Clear();
             SongHistory.Clear();
             SongBlackList.Clear();
+            BannedUsers.Clear();
+            BannedMappers.Clear();
+            Remaps.Clear();
+            AllowList.Clear();
             m_RequestedThisSession = new System.Collections.Concurrent.ConcurrentBag<string>();
         }
 
@@ -241,11 +245,11 @@ namespace BeatSaberPlus.Modules.ChatRequest
             {
                 try
                 {
-                    if (BS_Utils.Plugin.LevelData != null
-                        && BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData != null
-                        && BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap != null)
+                    if (SDK.Game.Logic.LevelData != null
+                        && SDK.Game.Logic.LevelData?.Data != null
+                        && SDK.Game.Logic.LevelData?.Data.difficultyBeatmap != null)
                     {
-                        var l_CurrentMap = BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData.difficultyBeatmap;
+                        var l_CurrentMap = SDK.Game.Logic.LevelData?.Data.difficultyBeatmap;
 
                         if (m_LastPlayingLevel != l_CurrentMap.level)
                         {
@@ -261,7 +265,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
                                     SongEntry l_CachedEntry = null;
 
                                     lock (SongHistory)
-                                        l_CachedEntry = SongHistory.Where(x => x.BeatMap != null && x.BeatMap.Hash.ToLower() == l_Hash).FirstOrDefault();
+                                        l_CachedEntry = SongHistory.Where(x => x.BeatMap != null && x.BeatMap.Hash != null && x.BeatMap.Hash.ToLower() == l_Hash).FirstOrDefault();
 
                                     if (l_CachedEntry == null)
                                     {
@@ -269,7 +273,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
                                         {
                                             if (   x.Status != TaskStatus.RanToCompletion
                                                 || x.Result == null
-                                                || l_CurrentMap.level != (BS_Utils.Plugin.LevelData?.GameplayCoreSceneSetupData?.difficultyBeatmap?.level ?? null))
+                                                || l_CurrentMap.level != (SDK.Game.Logic.LevelData?.Data?.difficultyBeatmap?.level ?? null))
                                                 return;
 
                                             m_LastPlayingLevelResponse += " https://beatsaver.com/beatmap/" + x.Result.Key;

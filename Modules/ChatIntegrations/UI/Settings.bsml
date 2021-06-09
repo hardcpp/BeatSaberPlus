@@ -1,0 +1,138 @@
+﻿<vertical child-control-height='false' spacing='0' pad='0'>
+  <horizontal bg='panel-top' pad-left='15' pad-right='15' horizontal-fit='PreferredSize'>
+    <text text='Chat Integrations' align='Center' font-size='4.2'/>
+  </horizontal>
+
+  <!-- =========================================== -->
+
+  <horizontal id='MessageFrame' spacing='0' pad-top='-1'>
+    <horizontal>
+      <text text=' ' font-size='5.5' align='Center'/>
+    </horizontal>
+    <horizontal id='MessageFrame_Background' bg='round-rect-panel' pad='8'>
+      <text text='Please select an event to edit on right screen' font-size='4.5' align='Center'/>
+    </horizontal>
+    <horizontal>
+      <text text=' ' font-size='5.5' align='Center'/>
+    </horizontal>
+  </horizontal>
+
+  <!-- =========================================== -->
+
+  <horizontal id='EventFrame' spacing='0' pad-top='0' min-width='145'>
+    <vertical spacing='0' pad-top='0' >
+      <horizontal id='EventFrame_TabSelector' pad-top='2' pref-height='7' pad-left='8' pad-right='8' min-width='145'>
+      </horizontal>
+
+      <horizontal min-height='2'></horizontal>
+
+      <!-- =========================================== -->
+
+      <horizontal id='EventFrame_TriggerTab' bg='round-rect-panel' min-height='65' spacing='0' pad='0'>
+        <vertical>
+          <horizontal><text id='EventFrame_TriggerTab_Title' align='Top' font-size='4.5'/></horizontal>
+          <horizontal id='EventFrame_TriggerTab_EventContent' min-width='145' spacing='0' pad='0'>
+
+          </horizontal>
+        </vertical>
+      </horizontal>
+
+      <!-- =========================================== -->
+
+      <horizontal id='EventFrame_ConditionsTab' bg='round-rect-panel' min-height='65' spacing='0' pad='0'>
+        <vertical spacing='0' pad='0'>
+          <page-button id='EventFrame_ConditionsTab_UpButton' direction='Up'></page-button>
+          <list id='EventFrame_ConditionsTab_List' expand-cell='false'>
+          </list>
+          <page-button id='EventFrame_ConditionsTab_DownButton' direction='Down'></page-button>
+          <horizontal spacing='0'>
+            <button on-click='click-condition-movedown-btn-pressed'    min-width='20' text='▼' hover-hint='Move condition down in the list' />
+            <button on-click='click-condition-moveup-btn-pressed'      min-width='20' text='▲' hover-hint='Move condition up in the list' />
+          </horizontal>
+          <horizontal>
+            <primary-button on-click='click-condition-new-btn-pressed' min-width='10' text='+'></primary-button>
+            <button on-click='click-condition-toggle-btn-pressed'      min-width='20' text='Toggle'></button>
+            <button on-click='click-condition-delete-btn-pressed'      min-width='10' text='-'></button>
+          </horizontal>
+        </vertical>
+        <vertical id='EventFrame_ConditionsTab_ConditionContent' bg='round-rect-panel' pad='0' spacing='0' size-delta-x='100' size-delta-y='55' min-width='100'>
+
+        </vertical>
+      </horizontal>
+
+      <!-- =========================================== -->
+
+      <horizontal id='EventFrame_ActionsTab' bg='round-rect-panel' min-height='65' spacing='0' pad='0'>
+        <vertical spacing='0' pad='0'>
+          <page-button id='EventFrame_ActionsTab_UpButton' direction='Up'></page-button>
+          <list id='EventFrame_ActionsTab_List' expand-cell='false'>
+          </list>
+          <page-button id='EventFrame_ActionsTab_DownButton' direction='Down'></page-button>
+          <horizontal spacing='0'>
+            <button on-click='click-action-movedown-btn-pressed'    min-width='20' text='▼' hover-hint='Move action down in the list' />
+            <button on-click='click-action-moveup-btn-pressed'      min-width='20' text='▲' hover-hint='Move action up in the list' />
+          </horizontal>
+          <horizontal spacing='0'>
+            <primary-button on-click='click-action-new-btn-pressed' min-width='10' text='+'></primary-button>
+            <button on-click='click-action-toggle-btn-pressed'      min-width='20' text='Toggle'></button>
+            <button on-click='click-action-delete-btn-pressed'      min-width='10' text='-'></button>
+          </horizontal>
+        </vertical>
+        <vertical id='EventFrame_ActionsTab_ActionContent' bg='round-rect-panel' pad='0' spacing='0' size-delta-x='100' size-delta-y='55' min-width='100'>
+
+        </vertical>
+      </horizontal>
+
+    </vertical>
+  </horizontal>
+
+  <!-- =========================================== -->
+
+  <horizontal id='AddConditionFrame' spacing='0' pad-top='-1'>
+    <horizontal>
+      <text text=' ' font-size='5.5' align='Center'/>
+    </horizontal>
+    <vertical id='AddConditionFrame_Background' bg='round-rect-panel' pad='8'>
+      <text text='Please select the kind of condition to add' font-size='4.5' align='Center'/>
+      <dropdown-list-setting id='AddConditionFrame_DropDown' choices='AddConditionFrame_DropDownOptions' apply-on-change='true' />
+      <horizontal>
+        <button on-click='click-cancel-add-condition-btn-pressed' min-width='50' text='Cancel'></button>
+        <primary-button on-click='click-add-condition-btn-pressed' min-width='50' text='Add'></primary-button>
+      </horizontal>
+    </vertical>
+    <horizontal>
+      <text text=' ' font-size='5.5' align='Center'/>
+    </horizontal>
+  </horizontal>
+
+  <!-- =========================================== -->
+
+  <horizontal id='AddActionFrame' spacing='0' pad-top='-1'>
+    <horizontal>
+      <text text=' ' font-size='5.5' align='Center'/>
+    </horizontal>
+    <vertical id='AddActionFrame_Background' bg='round-rect-panel' pad='8'>
+      <text text='Please select the kind of action to add' font-size='4.5' align='Center'/>
+      <dropdown-list-setting id='AddActionFrame_DropDown' choices='AddActionFrame_DropDownOptions' apply-on-change='true' />
+      <horizontal>
+        <button on-click='click-cancel-add-action-btn-pressed' min-width='50' text='Cancel'></button>
+        <primary-button on-click='click-add-action-btn-pressed' min-width='50' text='Add'></primary-button>
+      </horizontal>
+    </vertical>
+    <horizontal>
+      <text text=' ' font-size='5.5' align='Center'/>
+    </horizontal>
+  </horizontal>
+
+  <!-- =========================================== -->
+
+  <modal-keyboard id='InputKeyboard'
+                move-to-center="true"
+                value="InputKeyboardValue"
+                show-event="OpenInputKeyboardModal"
+                hide-event="CloseAllModals"
+                clear-on-open="false"
+                on-enter="InputKeyboardEnterPressed"
+                click-off-closes="true"></modal-keyboard>
+
+</vertical>

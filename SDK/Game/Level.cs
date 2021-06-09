@@ -1,5 +1,6 @@
 ﻿using SongCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -178,6 +179,7 @@ namespace BeatSaberPlus.SDK.Game
                 l_MenuSceneSetupData.StartStandardLevel(
                     p_Characteristic.name,
                     l_DifficultyBeatmap,
+                    p_Level,
                     p_OverrideEnvironmentSettings,
                     p_ColorScheme,
                     p_GameplayModifiers ?? new GameplayModifiers(),
@@ -367,6 +369,57 @@ namespace BeatSaberPlus.SDK.Game
         public static float GetScorePercentage(int p_MaxScore, int p_Score)
         {
             return (float)Math.Round(1.0 / (double)p_MaxScore * (double)p_Score, 4);
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Get scores from local cache for a song
+        /// </summary>
+        /// <param name="p_SongHash">Level ID</param>
+        /// <param name="p_HaveAnyScore"></param>
+        /// <param name="p_HaveAllScores"></param>
+        /// <returns></returns>
+        public static Dictionary<BeatmapCharacteristicSO, List<(BeatmapDifficulty, int)>> GetScoresByHash(string p_SongHash, out bool p_HaveAnyScore, out bool p_HaveAllScores)
+        {
+            var l_PlayerDataModel   = Resources.FindObjectsOfTypeAll<PlayerDataModel>().FirstOrDefault();
+            var l_CustomLevelID     = "custom_level_" + p_SongHash.ToUpper();
+            var l_Level             = Loader.CustomLevelsCollection.beatmapLevels.Where(x => x.levelID == l_CustomLevelID).FirstOrDefault();
+            var l_Results           = new Dictionary<BeatmapCharacteristicSO, List<(BeatmapDifficulty, int)>>();
+
+            p_HaveAnyScore = false;
+            p_HaveAllScores = true;
+
+            if (l_Level == null)
+            {
+                p_HaveAllScores = false;
+                return l_Results;
+            }
+
+            foreach (var l_DifficultySet in l_Level.previewDifficultyBeatmapSets)
+            {
+                if (!l_Results.ContainsKey(l_DifficultySet.beatmapCharacteristic))
+                    l_Results.Add(l_DifficultySet.beatmapCharacteristic, new List<(BeatmapDifficulty, int)>());
+
+                foreach (var l_Difficulty in l_DifficultySet.beatmapDifficulties)
+                {
+                    var l_ScoreSO = l_PlayerDataModel.playerData.GetPlayerLevelStatsData(l_CustomLevelID, l_Difficulty, l_DifficultySet.beatmapCharacteristic);
+
+                    if (l_ScoreSO.validScore)
+                    {
+                        p_HaveAnyScore = true;
+                        l_Results[l_DifficultySet.beatmapCharacteristic].Add((l_Difficulty, l_ScoreSO.highScore));
+                    }
+                    else
+                    {
+                        p_HaveAllScores = false;
+                        l_Results[l_DifficultySet.beatmapCharacteristic].Add((l_Difficulty, -1));
+                    }
+                }
+            }
+
+            return l_Results;
         }
     }
 }

@@ -7,6 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -164,12 +165,16 @@ namespace BeatSaberPlus.Modules.MenuMusic
             /// Enable at start if in menu
             if (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Menu)
                 Game_OnSceneChange(SDK.Game.Logic.SceneType.Menu);
+
+            SDK.Chat.Service.Discrete_OnTextMessageReceived += ChatService_Discrete_OnTextMessageReceived;
         }
         /// <summary>
         /// Disable the Module
         /// </summary>
         protected override void OnDisable()
         {
+            SDK.Chat.Service.Discrete_OnTextMessageReceived -= ChatService_Discrete_OnTextMessageReceived;
+
             /// Unbind event
             SDK.Game.Logic.OnSceneChange -= Game_OnSceneChange;
 
@@ -209,6 +214,55 @@ namespace BeatSaberPlus.Modules.MenuMusic
 
             /// Change main view
             return (m_SettingsView, m_SettingsLeftView, null);
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// When the active scene change
+        /// </summary>
+        /// <param name="p_Scene">Scene type</param>
+        private void Game_OnSceneChange(SDK.Game.Logic.SceneType p_Scene)
+        {
+            /// Skip if it's not the menu
+            if (p_Scene != SDK.Game.Logic.SceneType.Menu)
+            {
+                if (m_PreviewPlayer != null && m_PreviewPlayer && m_OriginalMenuMusic != null)
+                {
+                    m_PreviewPlayer.SetField("_defaultAudioClip",   m_OriginalMenuMusic);
+                }
+
+                DestroyFloatingPlayer();
+                return;
+            }
+
+            /// Create player window
+            if (Config.MenuMusic.ShowPlayer)
+                CreateFloatingPlayer();
+
+            m_PreviewPlayer.SetField("_ambientVolumeScale", 0f);
+            m_PreviewPlayer.SetField("_volumeScale",        0f);
+
+            /// Start a new music
+            if (Config.MenuMusic.StartANewMusicOnSceneChange)
+                StartNewMusic(false, true);
+            else
+                SharedCoroutineStarter.instance.StartCoroutine(LoadAudioClip(true));
+        }
+        /// <summary>
+        /// On text message received
+        /// </summary>
+        /// <param name="p_Service">Chat service</param>
+        /// <param name="p_Message">Chat message</param>
+        private void ChatService_Discrete_OnTextMessageReceived(BeatSaberPlus.SDK.Chat.Interfaces.IChatService p_Service, BeatSaberPlus.SDK.Chat.Interfaces.IChatMessage p_Message)
+        {
+            if (p_Message.Message.Length < 2 || p_Message.Message[0] != '!')
+                return;
+
+            string l_LMessage = p_Message.Message.ToLower();
+            if (l_LMessage.StartsWith("!menumusic"))
+                p_Service.SendTextMessage(p_Message.Channel, $"!: @{p_Message.Sender.DisplayName} current song: {GetCurrenltyPlayingSongName()}");
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -265,7 +319,7 @@ namespace BeatSaberPlus.Modules.MenuMusic
         /// </summary>
         private void CreateFloatingPlayer()
         {
-            if (m_PlayerFloatingScreen != null || m_CreateFloatingPlayerCoroutine != null)
+            if ((m_PlayerFloatingScreen != null && m_PlayerFloatingScreen) || m_CreateFloatingPlayerCoroutine != null)
                 return;
 
             m_CreateFloatingPlayerCoroutine = SharedCoroutineStarter.instance.StartCoroutine(CreateFloatingPlayer_Coroutine());
@@ -276,7 +330,10 @@ namespace BeatSaberPlus.Modules.MenuMusic
         private IEnumerator CreateFloatingPlayer_Coroutine()
         {
             if (m_PlayerFloatingScreen != null)
+            {
+                m_CreateFloatingPlayerCoroutine = null;
                 yield break;
+            }
 
             GameObject l_ScreenContainer = null;
 
@@ -318,14 +375,14 @@ namespace BeatSaberPlus.Modules.MenuMusic
 
                 /// Update song name
                 m_PlayerFloatingScreenController.SetPlayingSong(GetCurrenltyPlayingSongName());
-
-                m_CreateFloatingPlayerCoroutine = null;
             }
             catch (System.Exception l_Exception)
             {
-                Logger.Instance.Error("[MenuMusic] Failed to DestroyFloatingPlayer");
+                Logger.Instance.Error("[MenuMusic] Failed to CreateFloatingPlayer");
                 Logger.Instance.Error(l_Exception);
             }
+
+            m_CreateFloatingPlayerCoroutine = null;
         }
         /// <summary>
         /// Destroy floating player window
@@ -486,7 +543,7 @@ namespace BeatSaberPlus.Modules.MenuMusic
             if (p_OnSceneTransition)
             {
                 if (m_PreviewPlayer)
-                    m_PreviewPlayer.FadeOut();
+                    m_PreviewPlayer.FadeOut(m_PreviewPlayer.GetField<float, SongPreviewPlayer>("_crossFadeToDefaultSpeed"));
 
                 yield return new WaitForSeconds(2f);
             }
@@ -563,11 +620,13 @@ namespace BeatSaberPlus.Modules.MenuMusic
                         }
 
                         m_PreviewPlayer.SetField("_defaultAudioClip",   m_CurrentMusic);
+
                         m_PreviewPlayer.SetField("_ambientVolumeScale", Config.MenuMusic.PlaybackVolume);
+                        m_PreviewPlayer.SetField("_volumeScale",        Config.MenuMusic.PlaybackVolume);
 
-                        float l_StartTime = Config.MenuMusic.StartSongFromBeginning ? 0f : Mathf.Max(UnityEngine.Random.Range(m_CurrentMusic.length * 0.2f, m_CurrentMusic.length * 0.8f), 0.0f);
+                        float l_StartTime = (Config.MenuMusic.StartSongFromBeginning || m_CurrentMusic.length < 60) ? 0f : Mathf.Max(UnityEngine.Random.Range(m_CurrentMusic.length * 0.2f, m_CurrentMusic.length * 0.8f), 0.0f);
 
-                        m_PreviewPlayer.CrossfadeTo(m_CurrentMusic, l_StartTime, -1f, Config.MenuMusic.PlaybackVolume);
+                        m_PreviewPlayer.CrossfadeTo(m_CurrentMusic, l_StartTime, -1f, true);
 
                         m_BackupTimeClip    = m_CurrentMusic;
                         m_BackupTime        = l_StartTime;
@@ -609,6 +668,9 @@ namespace BeatSaberPlus.Modules.MenuMusic
         /// <returns></returns>
         private IEnumerator WaitAndPlayNextMusic(float p_EndTime)
         {
+            var l_Field = typeof(SongPreviewPlayer).GetField("_audioSourceControllers", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            var l_AudioSourceField = null as FieldInfo;
+
             do
             {
                 /// Skip if it's not the menu
@@ -618,15 +680,20 @@ namespace BeatSaberPlus.Modules.MenuMusic
                     yield break;
                 }
 
-                var l_Channels = m_PreviewPlayer.GetField<AudioSource[], SongPreviewPlayer>("_audioSources");
-                if (l_Channels != null)
+                var l_ChannelsController = l_Field.GetValue(m_PreviewPlayer) as object[];
+                if (l_ChannelsController != null)
                 {
-                    foreach (var l_Channel in l_Channels)
+                    foreach (var l_ChannelController in l_ChannelsController)
                     {
+                        if (l_AudioSourceField == null)
+                            l_AudioSourceField = l_ChannelController.GetType().GetField("audioSource", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
+
+                        var l_Channel = (AudioSource)l_AudioSourceField.GetValue(l_ChannelController);
+
                         //if (l_Channel.isPlaying && l_Channel.clip == m_CurrentMusic)
                         //    Logger.Instance.Error(string.Format("{0}/{1}", l_Channel.time, p_EndTime));
 
-                        if (!m_IsPaused && !l_Channel.isPlaying && l_Channel.clip == m_CurrentMusic && l_Channels.IndexOf(l_Channel) == m_PreviewPlayer.GetField<int, SongPreviewPlayer>("_activeChannel"))
+                        if (!m_IsPaused && !l_Channel.isPlaying && l_Channel.clip == m_CurrentMusic && l_ChannelsController.IndexOf(l_ChannelController) == m_PreviewPlayer.GetField<int, SongPreviewPlayer>("_activeChannel"))
                             l_Channel.UnPause();
 
                         if (l_Channel.isPlaying && l_Channel.clip == m_CurrentMusic)
@@ -657,8 +724,8 @@ namespace BeatSaberPlus.Modules.MenuMusic
                     }
                 }
 
-                /// Update 8 time a second
-                yield return new WaitForSeconds(1f / 8f);
+                /// Update 4 time a second
+                yield return new WaitForSeconds(1f / 4f);
 
             } while (true);
         }
@@ -763,36 +830,6 @@ namespace BeatSaberPlus.Modules.MenuMusic
             }
 
             return null;
-        }
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        /// <summary>
-        /// When the active scene change
-        /// </summary>
-        /// <param name="p_Scene">Scene type</param>
-        private void Game_OnSceneChange(SDK.Game.Logic.SceneType p_Scene)
-        {
-            /// Skip if it's not the menu
-            if (p_Scene != SDK.Game.Logic.SceneType.Menu)
-            {
-                if (m_PreviewPlayer != null && m_PreviewPlayer && m_OriginalMenuMusic != null)
-                    m_PreviewPlayer.SetField("_defaultAudioClip", m_OriginalMenuMusic);
-
-                DestroyFloatingPlayer();
-                return;
-            }
-
-            /// Create player window
-            if (Config.MenuMusic.ShowPlayer)
-                CreateFloatingPlayer();
-
-            /// Start a new music
-            if (Config.MenuMusic.StartANewMusicOnSceneChange)
-                StartNewMusic(false, true);
-            else
-                SharedCoroutineStarter.instance.StartCoroutine(LoadAudioClip(true));
         }
     }
 }

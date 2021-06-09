@@ -1,0 +1,11 @@
+﻿<vertical min-height='55' child-align='UpperCenter'>
+  <text text='Valid types:' align='Center' />
+
+  <bool-setting id='QuitToggle' text='On quit'></bool-setting>
+  <bool-setting id='RestartToggle' text='On restart'></bool-setting>
+  <bool-setting id='PassToggle' text='On pass'></bool-setting>
+  <bool-setting id='FailToggle' text='On fail'></bool-setting>
+
+  <horizontal min-height='30'></horizontal>
+
+</vertical>

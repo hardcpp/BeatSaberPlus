@@ -8,7 +8,7 @@
         /// <summary>
         /// Title
         /// </summary>
-        public override string Title => "Beat Saber Plus v2.0.33-Preview";
+        public override string Title => "Beat Saber Plus v3.0.9-Preview";
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////

@@ -101,15 +101,10 @@ namespace BeatSaberPlus.SDK.UI
         /// <param name="p_TopViewController">Controller instance</param>
         protected override sealed void BackButtonWasPressed(HMUI.ViewController p_TopViewController)
         {
-            /// Look for existing flow coordinator
-            if (m_BackupFlowCoordinator != null)
-            {
-                Dismiss();
+            if (OnBackButtonPressed(p_TopViewController))
                 return;
-            }
 
-            if (!OnBackButtonPressed(p_TopViewController))
-                Dismiss();
+            Dismiss();
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -168,6 +163,9 @@ namespace BeatSaberPlus.SDK.UI
         {
             m_SwitchQueue.Clear();
             m_IsDequeueEngaged = false;
+
+            SetLeftScreenViewController(null, HMUI.ViewController.AnimationType.None);
+            SetRightScreenViewController(null, HMUI.ViewController.AnimationType.None);
 
             /// Restore original flow coordinator
             if (m_BackupFlowCoordinator != null)
@@ -248,13 +246,15 @@ namespace BeatSaberPlus.SDK.UI
             var l_Current = m_SwitchQueue.Dequeue();
 
             m_IsDequeueEngaged = true;
+
+            SetLeftScreenViewController(l_Current.Item2,    HMUI.ViewController.AnimationType.None);
+            SetRightScreenViewController(l_Current.Item3,   HMUI.ViewController.AnimationType.None);
+
             ReplaceTopViewController(l_Current.Item1, () =>
             {
                 if (IsFlowCoordinatorInHierarchy(this) && isActivated)
                     DequeueViewController();
             });
-            SetLeftScreenViewController(l_Current.Item2,    HMUI.ViewController.AnimationType.None);
-            SetRightScreenViewController(l_Current.Item3,   HMUI.ViewController.AnimationType.None);
         }
         /// <summary>
         /// Dequeue a controller change but wait for old one to finish transition

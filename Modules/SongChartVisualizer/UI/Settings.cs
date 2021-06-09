@@ -10,6 +10,14 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer.UI
     internal class Settings : SDK.UI.ResourceViewController<Settings>
     {
 #pragma warning disable CS0649
+        [UIComponent("alignwithfloor-toggle")]
+        public ToggleSetting m_AlignWithFloor;
+        [UIComponent("showlockicon-toggle")]
+        public ToggleSetting m_ShowLockIcon;
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
         [UIComponent("followenvironementrotations-toggle")]
         private ToggleSetting m_FollowEnvironementRotations;
         [UIComponent("backgroundopacity-increment")]
@@ -59,7 +67,11 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer.UI
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic));
 
             /// Left
-            SDK.UI.ToggleSetting.Setup(m_FollowEnvironementRotations, l_Event,                                         Config.SongChartVisualizer.FollowEnvironementRotation,   true);
+            SDK.UI.ToggleSetting.Setup(m_AlignWithFloor,              l_Event,                                          Config.SongChartVisualizer.AlignWithFloor,               true);
+            SDK.UI.ToggleSetting.Setup(m_ShowLockIcon,                l_Event,                                          Config.SongChartVisualizer.ShowLockIcon,                 true);
+
+            /// Center
+            SDK.UI.ToggleSetting.Setup(m_FollowEnvironementRotations, l_Event,                                          Config.SongChartVisualizer.FollowEnvironementRotation,   true);
             SDK.UI.IncrementSetting.Setup(m_BackgroundOpacity,        l_Event, SDK.UI.BSMLSettingFormartter.Percentage, Config.SongChartVisualizer.BackgroundA,                  true);
             SDK.UI.IncrementSetting.Setup(m_CursorOpacity,            l_Event, SDK.UI.BSMLSettingFormartter.Percentage, Config.SongChartVisualizer.CursorA,                      true);
             SDK.UI.IncrementSetting.Setup(m_LineOpacity,              l_Event, SDK.UI.BSMLSettingFormartter.Percentage, Config.SongChartVisualizer.LineA,                        true);
@@ -86,7 +98,7 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer.UI
         /// </summary>
         protected override sealed void OnViewDeactivation()
         {
-            SongChartVisualizer.Instance.DestroyPreview();
+            SongChartVisualizer.Instance.DestroyChart();
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -102,6 +114,8 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer.UI
                 return;
 
             /// Update config
+            Config.SongChartVisualizer.AlignWithFloor               = m_AlignWithFloor.Value;
+            Config.SongChartVisualizer.ShowLockIcon                 = m_ShowLockIcon.Value;
             Config.SongChartVisualizer.FollowEnvironementRotation   = m_FollowEnvironementRotations.Value;
             Config.SongChartVisualizer.ShowNPSLegend                = m_ShowNPSLegend.Value;
             Config.SongChartVisualizer.BackgroundA                  = m_BackgroundOpacity.Value;
@@ -138,6 +152,10 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer.UI
         internal void OnResetButton()
         {
             m_PreventChanges = true;
+
+            /// Set values
+            m_AlignWithFloor.Value              = Config.SongChartVisualizer.AlignWithFloor;
+            m_ShowLockIcon.Value                = Config.SongChartVisualizer.ShowLockIcon;
 
             /// Set values
             m_FollowEnvironementRotations.Value = Config.SongChartVisualizer.FollowEnvironementRotation;

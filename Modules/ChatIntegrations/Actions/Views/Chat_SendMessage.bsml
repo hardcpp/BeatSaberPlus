@@ -1,0 +1,21 @@
+﻿<vertical min-height='55'>
+
+  <text text='Message to send' align='Center'/>
+  <horizontal min-height='45' spacing='0' pad='0'>
+    <text-page id='CurrentMessageText' text=''></text-page>
+  </horizontal>
+  <bool-setting id='AddTTSPrefixToggle' text='Add TTS ignore prefix'></bool-setting>
+
+  <horizontal>
+    <primary-button on-click='click-set-game-btn-pressed' text='Set from game' min-width='40'></primary-button>
+    <primary-button on-click='click-set-chat-btn-pressed' text='Set from chat' min-width='40'></primary-button>
+  </horizontal>
+
+  <modal id='ChatInputModal' show-event='ShowChatInputModal' hide-event='CloseChatInputModal,CloseAllModals' move-to-center='true' size-delta-y='40' size-delta-x='95'>
+    <vertical pad='0'>
+      <text id='ChatInputModal_Text' text='' align='Center'/>
+      <primary-button text='Cancel' on-click='click-cancel-set-chat-btn-pressed'></primary-button>
+    </vertical>
+  </modal>
+
+</vertical>

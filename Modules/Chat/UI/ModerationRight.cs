@@ -1,6 +1,6 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
-using BeatSaberPlusChatCore.Interfaces;
+using BeatSaberPlus.SDK.Chat.Interfaces;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -215,7 +215,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
             ShowConfirmationModal($"Do you really want to <b>TimeOut</b> user\n{m_Users[m_SelectedIndex].Item2.DisplayName}?", () => {
                 foreach (var l_Current in SDK.Chat.Service.Multiplexer.Channels)
                 {
-                    if (l_Current.Item1 is BeatSaberPlusChatCore.Services.Twitch.TwitchService)
+                    if (l_Current.Item1 is SDK.Chat.Services.Twitch.TwitchService)
                         l_Current.Item1.SendTextMessage(l_Current.Item2, $"/timeout {m_Users[m_SelectedIndex].Item2.UserName}");
                 }
             });
@@ -235,7 +235,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
             ShowConfirmationModal($"Do you really want to <b>Ban</b> user\n{m_Users[m_SelectedIndex].Item2.DisplayName}?", () => {
                 foreach (var l_Current in SDK.Chat.Service.Multiplexer.Channels)
                 {
-                    if (l_Current.Item1 is BeatSaberPlusChatCore.Services.Twitch.TwitchService)
+                    if (l_Current.Item1 is SDK.Chat.Services.Twitch.TwitchService)
                         l_Current.Item1.SendTextMessage(l_Current.Item2, $"/ban {m_Users[m_SelectedIndex].Item2.UserName}");
                 }
             });
@@ -255,7 +255,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
             ShowConfirmationModal($"Do you really want to <b>Mod</b> user\n{m_Users[m_SelectedIndex].Item2.DisplayName}?", () => {
                 foreach (var l_Current in SDK.Chat.Service.Multiplexer.Channels)
                 {
-                    if (l_Current.Item1 is BeatSaberPlusChatCore.Services.Twitch.TwitchService)
+                    if (l_Current.Item1 is SDK.Chat.Services.Twitch.TwitchService)
                         l_Current.Item1.SendTextMessage(l_Current.Item2, $"/mod {m_Users[m_SelectedIndex].Item2.UserName}");
                 }
             });
@@ -275,7 +275,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
             ShowConfirmationModal($"Do you really want to <b>UnMod</b> user\n{m_Users[m_SelectedIndex].Item2.DisplayName}?", () => {
                 foreach (var l_Current in SDK.Chat.Service.Multiplexer.Channels)
                 {
-                    if (l_Current.Item1 is BeatSaberPlusChatCore.Services.Twitch.TwitchService)
+                    if (l_Current.Item1 is SDK.Chat.Services.Twitch.TwitchService)
                         l_Current.Item1.SendTextMessage(l_Current.Item2, $"/unmod {m_Users[m_SelectedIndex].Item2.UserName}");
                 }
             });
@@ -295,7 +295,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
             string l_Text = "<align=\"left\">[" + p_Item.Item1.DisplayName + "] ";
 
             /// Handle request limits
-            if (p_Item.Item2 is BeatSaberPlusChatCore.Models.Twitch.TwitchUser l_TwitchUser)
+            if (p_Item.Item2 is SDK.Chat.Models.Twitch.TwitchUser l_TwitchUser)
             {
                 if (l_TwitchUser.IsModerator || l_TwitchUser.IsBroadcaster)
                     l_Text += "🗡 <color=yellow>";

@@ -30,9 +30,10 @@ namespace BeatSaberPlus.SDK.Config
         /// Constructor
         /// </summary>
         /// <param name="p_ConfigName"></param>
-        public INIConfig(string p_ConfigName)
+        /// <param name="p_AbsolutePath">Should use an absolute path</param>
+        public INIConfig(string p_ConfigName, bool p_AbsolutePath = false)
         {
-            m_Instance = new INIFile(Path.Combine(Environment.CurrentDirectory, $"UserData/{p_ConfigName}.ini"));
+            m_Instance = new INIFile(p_AbsolutePath ? p_ConfigName : Path.Combine(Environment.CurrentDirectory, $"UserData/{p_ConfigName}.ini"));
         }
 
         ////////////////////////////////////////////////////////////////////////////

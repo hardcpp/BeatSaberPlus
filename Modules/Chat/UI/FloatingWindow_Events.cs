@@ -1,4 +1,4 @@
-﻿using BeatSaberPlusChatCore.Interfaces;
+﻿using BeatSaberPlus.SDK.Chat.Interfaces;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -15,10 +15,12 @@ namespace BeatSaberPlus.Modules.Chat.UI
         /// <param name="p_Service">Chat service</param>
         internal void OnLogin(IChatService p_Service)
         {
+            var l_MessageStr = $"<color=#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] Success connecting to <b>{p_Service.DisplayName}</b></color>";
+
             SDK.Unity.MainThreadInvoker.Enqueue(() =>
             {
                 var l_NewMessage = m_MessagePool.Alloc();
-                l_NewMessage.Text.text          = $"<color=#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] Success connecting to <b>{p_Service.DisplayName}</b></color>";
+                l_NewMessage.Text.text          = l_MessageStr;
                 l_NewMessage.HighlightEnabled   = true;
                 l_NewMessage.HighlightColor     = Color.gray.ColorWithAlpha(0.18f);
 
@@ -33,10 +35,12 @@ namespace BeatSaberPlus.Modules.Chat.UI
         /// <param name="p_Channel">Channel service</param>
         internal void OnJoinChannel(IChatService p_Service, IChatChannel p_Channel)
         {
+            var l_MessageStr = $"<color=#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] Success joining <b>{p_Channel.Name}</b></color>";
+
             SDK.Unity.MainThreadInvoker.Enqueue(() =>
             {
                 var l_NewMessage = m_MessagePool.Alloc();
-                l_NewMessage.Text.text          = $"<color=#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] Success joining <b>{p_Channel.Name}</b></color>";
+                l_NewMessage.Text.text          = l_MessageStr;
                 l_NewMessage.HighlightEnabled   = true;
                 l_NewMessage.HighlightColor     = Color.gray.ColorWithAlpha(0.18f);
 
@@ -51,10 +55,12 @@ namespace BeatSaberPlus.Modules.Chat.UI
         /// <param name="p_Channel">Channel service</param>
         internal void OnLeaveChannel(IChatService p_Service, IChatChannel p_Channel)
         {
+            var l_MessageStr = $"<color=#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] Success leaving <b>{p_Channel.Name}</b></color>";
+
             SDK.Unity.MainThreadInvoker.Enqueue(() =>
             {
                 var l_NewMessage = m_MessagePool.Alloc();
-                l_NewMessage.Text.text          = $"<color=#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] Success leaving <b>{p_Channel.Name}</b></color>";
+                l_NewMessage.Text.text          = l_MessageStr;
                 l_NewMessage.HighlightEnabled   = true;
                 l_NewMessage.HighlightColor     = Color.gray.ColorWithAlpha(0.18f);
 
@@ -73,10 +79,12 @@ namespace BeatSaberPlus.Modules.Chat.UI
             if (!Config.Chat.ShowFollowEvents)
                 return;
 
+            var l_MessageStr = $"<color=#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] <b><color={p_User.Color}>@{p_User.DisplayName}</color></b> is now following <b><color={p_User.Color}>{p_Channel.Name}</color></b></color>";
+
             SDK.Unity.MainThreadInvoker.Enqueue(() =>
             {
                 var l_NewMessage = m_MessagePool.Alloc();
-                l_NewMessage.Text.text          = $"<color=#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] <b><color={p_User.Color}>@{p_User.DisplayName}</color></b> is now following <b><color={p_User.Color}>{p_Channel.Name}</color></b></color>";
+                l_NewMessage.Text.text          = l_MessageStr;
                 l_NewMessage.HighlightEnabled   = true;
                 l_NewMessage.HighlightColor     = Color.blue.ColorWithAlpha(0.24f);
 
@@ -96,10 +104,12 @@ namespace BeatSaberPlus.Modules.Chat.UI
             if (!Config.Chat.ShowBitsCheeringEvents)
                 return;
 
+            var l_MessageStr = $"<color=#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] <b><color={p_User.Color}>@{p_User.DisplayName}</color></b> cheered <b>{p_BitsUsed}</b> bits!</color>";
+
             SDK.Unity.MainThreadInvoker.Enqueue(() =>
             {
                 var l_NewMessage = m_MessagePool.Alloc();
-                l_NewMessage.Text.text          = $"<color=#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] <b><color={p_User.Color}>@{p_User.DisplayName}</color></b> cheered <b>{p_BitsUsed}</b> bits!</color>";
+                l_NewMessage.Text.text          = l_MessageStr;
                 l_NewMessage.HighlightEnabled   = true;
                 l_NewMessage.HighlightColor     = Color.green.ColorWithAlpha(0.24f);
 
@@ -134,15 +144,17 @@ namespace BeatSaberPlus.Modules.Chat.UI
                 Task.WaitAll(new Task[] { l_TaskCompletionSource.Task }, 15000);
             }
 
+            var l_ImagePart = "for";
+
+            if (m_ChatFont.TryGetReplaceCharacter("TwitchChannelPoint_" + p_Event.Title, out uint p_Character))
+                l_ImagePart = char.ConvertFromUtf32((int)p_Character);
+
+            var l_MessageStr = $"<color=#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] <color={p_User.Color}><b>@{p_User.DisplayName}</b></color> redeemed <color={p_User.Color}><b>{p_Event.Title}</b></color> {l_ImagePart} <color={p_User.Color}><b>{p_Event.Cost}</b></color>!</color>";
+
             SDK.Unity.MainThreadInvoker.Enqueue(() =>
             {
-                var l_ImagePart = "for";
-
-                if (m_ChatFont.TryGetReplaceCharacter("TwitchChannelPoint_" + p_Event.Title, out uint p_Character))
-                    l_ImagePart = char.ConvertFromUtf32((int)p_Character);
-
                 var l_NewMessage = m_MessagePool.Alloc();
-                l_NewMessage.Text.text          = $"<color=#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] <color={p_User.Color}><b>@{p_User.DisplayName}</b></color> redeemed <color={p_User.Color}><b>{p_Event.Title}</b></color> {l_ImagePart} <color={p_User.Color}><b>{p_Event.Cost}</b></color>!</color>";
+                l_NewMessage.Text.text          = l_MessageStr;
                 l_NewMessage.HighlightEnabled   = true;
 
                 if (ColorUtility.TryParseHtmlString(p_Event.BackgroundColor + "FF", out var l_Color))
@@ -175,14 +187,14 @@ namespace BeatSaberPlus.Modules.Chat.UI
             if (!Config.Chat.ShowSubscriptionEvents)
                 return;
 
+            var l_MessageStr = $"<color=#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] <color={p_User.Color}><b>@{p_User.DisplayName}</b></color> ";
+            if (p_Event.IsGift)
+                l_MessageStr += $"gifted <color={p_User.Color}><b>{p_Event.PurchasedMonthCount}</b></color> month of <color={p_User.Color}><b>{p_Event.SubPlan}</b></color> to <color={p_User.Color}><b>@{p_Event.RecipientDisplayName}</b></color>!";
+            else
+                l_MessageStr += $"did get a <color={p_User.Color}><b>{p_Event.PurchasedMonthCount}</b></color> month of <color={p_User.Color}><b>{p_Event.SubPlan}</b></color>!";
+
             SDK.Unity.MainThreadInvoker.Enqueue(() =>
             {
-                var l_MessageStr = $"<color=#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] <color={p_User.Color}><b>@{p_User.DisplayName}</b></color> ";
-                if (p_Event.IsGift)
-                    l_MessageStr += $"gifted <color={p_User.Color}><b>{p_Event.PurchasedMonthCount}</b></color> month of <color={p_User.Color}><b>{p_Event.SubPlan}</b></color> to <color={p_User.Color}><b>@{p_Event.RecipientDisplayName}</b></color>!";
-                else
-                    l_MessageStr += $"did get a <color={p_User.Color}><b>{p_Event.PurchasedMonthCount}</b></color> month of <color={p_User.Color}><b>{p_Event.SubPlan}</b></color>!";
-
                 var l_NewMessage = m_MessagePool.Alloc();
                 l_NewMessage.Text.text          = l_MessageStr;
                 l_NewMessage.HighlightEnabled   = true;
@@ -244,8 +256,8 @@ namespace BeatSaberPlus.Modules.Chat.UI
             if (m_FilterViewersCommands || m_FilterBroadcasterCommands)
             {
                 bool l_IsBroadcaster = false;
-                if (p_Message.Sender is BeatSaberPlusChatCore.Models.Twitch.TwitchUser)
-                    l_IsBroadcaster = (p_Message.Sender as BeatSaberPlusChatCore.Models.Twitch.TwitchUser).IsBroadcaster;
+                if (p_Message.Sender is SDK.Chat.Models.Twitch.TwitchUser)
+                    l_IsBroadcaster = (p_Message.Sender as SDK.Chat.Models.Twitch.TwitchUser).IsBroadcaster;
 
                 if (m_FilterViewersCommands && !l_IsBroadcaster && p_Message.Message.StartsWith("!"))
                     return;

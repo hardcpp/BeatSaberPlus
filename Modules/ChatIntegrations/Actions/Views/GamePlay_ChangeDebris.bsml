@@ -1,0 +1,7 @@
+﻿<vertical min-height='55' child-align='UpperCenter'>
+
+  <bool-setting id='DebrisToggle' text='Enable debris :'></bool-setting>
+
+  <horizontal min-height='50'></horizontal>
+
+</vertical>

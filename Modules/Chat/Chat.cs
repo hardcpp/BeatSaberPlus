@@ -1,6 +1,6 @@
 ﻿using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.FloatingScreen;
-using BeatSaberPlusChatCore.Interfaces;
+using BeatSaberPlus.SDK.Chat.Interfaces;
 using HMUI;
 using System;
 using System.Collections;
@@ -306,6 +306,10 @@ namespace BeatSaberPlus.Modules.Chat
         /// <param name="p_Event">Event data</param>
         private void OnFloatingWindowMoved(object p_Sender, FloatingScreenHandleEventArgs p_Event)
         {
+            /// Always parallel to the floor
+            if (Config.Chat.AlignWithFloor)
+                m_ChatFloatingScreen.transform.localEulerAngles = new Vector3(m_ChatFloatingScreen.transform.localEulerAngles.x, m_ChatFloatingScreen.transform.localEulerAngles.y, 0);
+
             if (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Playing)
             {
                 Config.Chat.PlayingChatPositionX = m_ChatFloatingScreen.transform.localPosition.x;
@@ -635,6 +639,8 @@ namespace BeatSaberPlus.Modules.Chat
                 /// Bind floating window to the root game object
                 m_ViewerCountFloatingScreen.transform.SetParent(m_ViewerCountOwner.transform, false);
 
+                SDK.Unity.GameObject.ChangerLayerRecursive(m_ViewerCountFloatingScreen.gameObject, LayerMask.NameToLayer("UI"));
+
                 UpdateViewerCount();
 
                 UpdateFloatingWindow(p_SceneType, true);
@@ -701,7 +707,7 @@ namespace BeatSaberPlus.Modules.Chat
                 }
 
                 /// Prepare data for level with rotations
-                var l_Is360Level            = BS_Utils.Plugin.LevelData?.GameplayCoreSceneSetupData?.difficultyBeatmap?.beatmapData?.spawnRotationEventsCount > 0;
+                var l_Is360Level            = SDK.Game.Logic.LevelData?.Data?.difficultyBeatmap?.beatmapData?.spawnRotationEventsCount > 0;
                 var l_FlyingGameHUDRotation = l_Is360Level ? Resources.FindObjectsOfTypeAll<FlyingGameHUDRotation>().FirstOrDefault()?.gameObject : null as GameObject;
 
                 /// Update chat messages display

@@ -6,20 +6,24 @@
   <horizontal min-width='110'>
     <vertical spacing='0' size-delta-x='50' min-width='50'>
       <vertical size-delta-x='70' min-width='45' pad-top='2'>
+        <text text='Align with floor on move'></text>
+        <bool-setting id='alignwithfloor-toggle' apply-on-change='true'></bool-setting>
+      </vertical>
+      <vertical size-delta-x='70' min-width='45'>
+        <text font-size='3.5' text='Show lock icon for movement'></text>
+        <bool-setting id='showlockicon-toggle' apply-on-change='true'></bool-setting>
+      </vertical>
+      <vertical size-delta-x='70' min-width='45'>
         <text text='Follow environement rotations'></text>
         <bool-setting id='followenvironementrotations-toggle' apply-on-change='true'></bool-setting>
       </vertical>
-      <vertical size-delta-x='70' min-width='45' >
+      <vertical size-delta-x='70' min-width='45'>
         <text text='Show viewer count'></text>
         <bool-setting id='chat-viewercount' apply-on-change='true'></bool-setting>
       </vertical>
-      <vertical size-delta-x='70' min-width='45' >
+      <vertical size-delta-x='70' min-width='45'  pad-bottom='2'>
         <text text='Filter viewers commands'></text>
         <bool-setting id='chat-filterviewers' apply-on-change='true'></bool-setting>
-      </vertical>
-      <vertical size-delta-x='70' min-width='45' pad-bottom='2'>
-        <text text='Filter broadcaster commands'></text>
-        <bool-setting id='chat-filterbroadcaster' apply-on-change='true'></bool-setting>
       </vertical>
     </vertical>
 
@@ -36,14 +40,15 @@
         <text text='Show bits cheering events'></text>
         <bool-setting id='bitscheering-toggle' apply-on-change='true'></bool-setting>
       </vertical>
-      <vertical size-delta-x='70' min-width='45' pad-bottom='2'>
+      <vertical size-delta-x='70' min-width='45'>
         <text text='Show channel points event'></text>
         <bool-setting id='channelpoints-toggle' apply-on-change='true'></bool-setting>
       </vertical>
+      <vertical size-delta-x='70' min-width='45' pad-bottom='2'>
+        <text text='Filter broadcaster commands'></text>
+        <bool-setting id='chat-filterbroadcaster' apply-on-change='true'></bool-setting>
+      </vertical>
     </vertical>
-  </horizontal>
-
-  <horizontal min-height='20'>
   </horizontal>
 
 </vertical>

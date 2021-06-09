@@ -11,6 +11,11 @@ using UnityEngine.UI;
 
 namespace BeatSaberPlus.Modules.GameTweaker.Patches
 {
+    internal class SongBrowserDeleteAlias : MonoBehaviour
+    {
+
+    }
+
     /// <summary>
     /// StandardLevelDetailView patcher
     /// </summary>
@@ -41,6 +46,34 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches
             /// Apply
             if (Config.GameTweaker.Enabled && Config.GameTweaker.DeleteSongButton)
                 SetDeleteSongButtonEnabled(Config.GameTweaker.DeleteSongButton);
+
+            Transform l_SongBrowserButton = null;
+
+            var l_ActionButtons = m_StandardLevelDetailView.transform.Find("ActionButtons");
+            if (l_ActionButtons)
+            {
+                l_SongBrowserButton = l_ActionButtons.Find("DeleteLevelButton_hoverHintText");
+
+                if (l_SongBrowserButton && !l_SongBrowserButton.gameObject.GetComponent<SongBrowserDeleteAlias>())
+                    l_SongBrowserButton.gameObject.AddComponent<SongBrowserDeleteAlias>();
+                else
+                    l_SongBrowserButton = Resources.FindObjectsOfTypeAll<SongBrowserDeleteAlias>().FirstOrDefault()?.transform;
+            }
+
+            if (l_SongBrowserButton)
+            {
+                if (Config.GameTweaker.Enabled && Config.GameTweaker.DeleteSongBrowserTrashcan)
+                {
+                    l_SongBrowserButton.transform.localScale = Vector3.zero;
+                    l_SongBrowserButton.transform.SetParent(null);
+                }
+                else
+                {
+                    l_SongBrowserButton.transform.localScale = Vector3.one;
+                    l_SongBrowserButton.transform.SetParent(l_ActionButtons.transform);
+                    l_SongBrowserButton.transform.SetAsFirstSibling();
+                }
+            }
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -132,14 +165,38 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches
                     m_DeleteButton.transform.SetParent(l_ActionButtons, false);
                     m_DeleteButton.gameObject.SetActive(true);
                 }
+
+                var l_LevelCollectionViewController = Resources.FindObjectsOfTypeAll<LevelCollectionViewController>().FirstOrDefault();
+                if (l_LevelCollectionViewController != null)
+                    l_LevelCollectionViewController.didSelectLevelEvent += LevelCollectionViewController_didSelectLevelEvent;
             }
             /// <summary>
             /// When the game object is destroyed
             /// </summary>
             void OnDestroy()
             {
+                var l_LevelCollectionViewController = Resources.FindObjectsOfTypeAll<LevelCollectionViewController>().FirstOrDefault();
+                if (l_LevelCollectionViewController != null)
+                    l_LevelCollectionViewController.didSelectLevelEvent -= LevelCollectionViewController_didSelectLevelEvent;
+
                 if (m_DeleteButton != null)
                     m_DeleteButton.transform.SetParent(this.transform, true);
+            }
+
+            ////////////////////////////////////////////////////////////////////////////
+            ////////////////////////////////////////////////////////////////////////////
+
+            /// <summary>
+            /// On level selected
+            /// </summary>
+            /// <param name="p_Sender">Event sender</param>
+            /// <param name="p_Level">Selected level</param>
+            private void LevelCollectionViewController_didSelectLevelEvent(LevelCollectionViewController p_Sender, IPreviewBeatmapLevel p_Level)
+            {
+                if (p_Level is CustomPreviewBeatmapLevel l_CustomPreviewBeatmapLevel)
+                    m_DeleteButton.gameObject.SetActive(!l_CustomPreviewBeatmapLevel.customLevelPath.Contains("CustomWIPLevels"));
+                else
+                    m_DeleteButton.gameObject.SetActive(false);
             }
 
             ////////////////////////////////////////////////////////////////////////////
@@ -154,7 +211,7 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches
                 IBeatmapLevel l_LevelToDelete = standardLevelDetailView.GetField<IBeatmapLevel, StandardLevelDetailView>("_level");
                 if (l_LevelToDelete != null && l_LevelToDelete is CustomBeatmapLevel customLevel)
                 {
-                    m_DeleteConfirmationText.text = $"Are you sure you would like to delete '<color=#FFFFCC>{Utils.GameUI.EscapeTextMeshProTags(customLevel.songName)}</color>' by {Utils.GameUI.EscapeTextMeshProTags(customLevel.levelAuthorName)}?";
+                    m_DeleteConfirmationText.text = $"Are you sure you would like to delete '<color=#FFFFCC>{SDK.Unity.TextMeshPro.EscapeString(customLevel.songName)}</color>' by {SDK.Unity.TextMeshPro.EscapeString(customLevel.levelAuthorName)}?";
                     m_ParserParams.EmitEvent("show-delete-confirmation-modal");
                 }
             }
@@ -180,7 +237,7 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches
 
                     /// Scroll back to where we were
                     if (l_TableView != null)
-                        l_TableView.ScrollToCellWithIdx(l_IndexOfTopCell, TableViewScroller.ScrollPositionType.Beginning, false);
+                        l_TableView.ScrollToCellWithIdx(l_IndexOfTopCell, TableView.ScrollPositionType.Beginning, false);
                 }
 
                 m_ParserParams.EmitEvent("hide-delete-confirmation-modal");

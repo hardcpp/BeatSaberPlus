@@ -50,6 +50,7 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain.Components
             if (amount > 0)
             {
                 queue += amount;
+
                 if (coroutine == null)
                     coroutine = StartCoroutine(Init());
                 else if (timingOut)
@@ -88,7 +89,10 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain.Components
             timingOut = true;
             yield return new WaitForSeconds(timeLimit);
             coroutine = null;
-            ChatEmoteRain.Instance.UnregisterParticleSystem(key, mode);
+
+            if (ChatEmoteRain.Instance != null)
+                ChatEmoteRain.Instance.UnregisterParticleSystem(key, mode);
+
             yield break;
         }
     }

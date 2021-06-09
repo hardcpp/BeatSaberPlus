@@ -36,89 +36,123 @@ namespace BeatSaberPlus.Modules.ChatRequest
                 }
 
                 var l_JSON = JObject.Parse(System.IO.File.ReadAllText(l_FilePath, UTF8Encoding.UTF8));
-                if (l_JSON["queue"] != null)
+                if (l_JSON["queue"] != null && l_JSON["queue"].Type == JTokenType.Array)
                 {
-                    JArray l_JSONSongs = (JArray)l_JSON["queue"];
-                    for (int l_SongIt = 0; l_SongIt < l_JSONSongs.Count; l_SongIt++)
+                    foreach (JObject l_Current in (JArray)l_JSON["queue"])
                     {
-                        SongEntry l_Entry = new SongEntry();
-                        if ((l_JSONSongs[l_SongIt] as JObject).ContainsKey("key"))
-                            l_Entry.BeatMap = new BeatSaverSharp.Beatmap(m_BeatSaver, (string)l_JSONSongs[l_SongIt]["key"]);
-                        else
+                        var l_Key       = l_Current["key"]?.Value<string>()     ?? null;
+                        var l_Hash      = l_Current["hash"]?.Value<string>()    ?? null;
+                        var l_Time      = l_Current["rqt"]?.Value<long>()       ?? SDK.Misc.Time.UnixTimeNow();
+                        var l_Requester = l_Current["rqn"]?.Value<string>()     ?? "";
+                        var l_Prefix    = l_Current["npr"]?.Value<string>()     ?? "";
+                        var l_Message   = l_Current["msg"]?.Value<string>()     ?? "";
+
+                        if (l_Key == null)
+                            continue;
+
+                        SongEntry l_Entry = new SongEntry()
                         {
-                            l_Entry.BeatMap = new BeatSaverSharp.Beatmap(m_BeatSaver, "", "", "");
-                            JsonConvert.PopulateObject((string)l_JSONSongs[l_SongIt]["btm"], l_Entry.BeatMap);
-                        }
-
-                        if ((l_JSONSongs[l_SongIt] as JObject).ContainsKey("rqt"))
-                            l_Entry.RequestTime = SDK.Misc.Time.FromUnixTime(l_JSONSongs[l_SongIt]["rqt"].Value<long>());
-
-                        l_Entry.RequesterName   = (string)l_JSONSongs[l_SongIt]["rqn"];
-
-                        if ((l_JSONSongs[l_SongIt] as JObject).ContainsKey("npr"))
-                            l_Entry.NamePrefix = (string)l_JSONSongs[l_SongIt]["npr"];
+                            BeatMap         = SDK.Game.BeatSaver.GetBeatmapFromCacheByKey(m_BeatSaver, l_Key) ?? new BeatSaverSharp.Beatmap(m_BeatSaver, l_Key, l_Hash),
+                            RequestTime     = SDK.Misc.Time.FromUnixTime(l_Time),
+                            RequesterName   = l_Requester,
+                            NamePrefix      = l_Prefix,
+                            Message         = l_Message
+                        };
 
                         SongQueue.Add(l_Entry);
 
                         /// Start populate
-                        l_Entry.BeatMap.Populate().ContinueWith(x => OnBeatmapPopulated(x, l_Entry));
+                        if (l_Entry.BeatMap.Partial)
+                            l_Entry.BeatMap.Populate().ContinueWith(x => OnBeatmapPopulated(x, l_Entry));
                     }
                 }
-                if (l_JSON["history"] != null)
+                if (l_JSON["history"] != null && l_JSON["history"].Type == JTokenType.Array)
                 {
-                    JArray l_JSONSongs = (JArray)l_JSON["history"];
-                    for (int l_SongIt = 0; l_SongIt < l_JSONSongs.Count; l_SongIt++)
+                    foreach (JObject l_Current in (JArray)l_JSON["history"])
                     {
-                        SongEntry l_Entry = new SongEntry();
-                        if ((l_JSONSongs[l_SongIt] as JObject).ContainsKey("key"))
-                            l_Entry.BeatMap = new BeatSaverSharp.Beatmap(m_BeatSaver, (string)l_JSONSongs[l_SongIt]["key"]);
-                        else
+                        var l_Key       = l_Current["key"]?.Value<string>()     ?? null;
+                        var l_Hash      = l_Current["hash"]?.Value<string>()    ?? null;
+                        var l_Time      = l_Current["rqt"]?.Value<long>()       ?? SDK.Misc.Time.UnixTimeNow();
+                        var l_Requester = l_Current["rqn"]?.Value<string>()     ?? "";
+                        var l_Prefix    = l_Current["npr"]?.Value<string>()     ?? "";
+                        var l_Message   = l_Current["msg"]?.Value<string>()     ?? "";
+
+                        if (l_Key == null)
+                            continue;
+
+                        SongEntry l_Entry = new SongEntry()
                         {
-                            l_Entry.BeatMap = new BeatSaverSharp.Beatmap(m_BeatSaver, "", "", "");
-                            JsonConvert.PopulateObject((string)l_JSONSongs[l_SongIt]["btm"], l_Entry.BeatMap);
-                        }
-
-                        if ((l_JSONSongs[l_SongIt] as JObject).ContainsKey("rqt"))
-                            l_Entry.RequestTime = SDK.Misc.Time.FromUnixTime(l_JSONSongs[l_SongIt]["rqt"].Value<long>());
-
-                        l_Entry.RequesterName   = (string)l_JSONSongs[l_SongIt]["rqn"];
-
-                        if ((l_JSONSongs[l_SongIt] as JObject).ContainsKey("npr"))
-                            l_Entry.NamePrefix = (string)l_JSONSongs[l_SongIt]["npr"];
+                            BeatMap         = SDK.Game.BeatSaver.GetBeatmapFromCacheByKey(m_BeatSaver, l_Key) ?? new BeatSaverSharp.Beatmap(m_BeatSaver, l_Key, l_Hash),
+                            RequestTime     = SDK.Misc.Time.FromUnixTime(l_Time),
+                            RequesterName   = l_Requester,
+                            NamePrefix      = l_Prefix,
+                            Message         = l_Message
+                        };
 
                         SongHistory.Add(l_Entry);
 
                         /// Start populate
-                        l_Entry.BeatMap.Populate().ContinueWith(x => OnBeatmapPopulated(x, l_Entry));
+                        if (l_Entry.BeatMap.Partial)
+                            l_Entry.BeatMap.Populate().ContinueWith(x => OnBeatmapPopulated(x, l_Entry));
                     }
                 }
-                if (l_JSON["blacklist"] != null)
+                if (l_JSON["blacklist"] != null && l_JSON["blacklist"].Type == JTokenType.Array)
                 {
-                    JArray l_JSONSongs = (JArray)l_JSON["blacklist"];
-                    for (int l_SongIt = 0; l_SongIt < l_JSONSongs.Count; l_SongIt++)
+                    foreach (JObject l_Current in (JArray)l_JSON["blacklist"])
                     {
-                        SongEntry l_Entry = new SongEntry();
-                        if ((l_JSONSongs[l_SongIt] as JObject).ContainsKey("key"))
-                            l_Entry.BeatMap = new BeatSaverSharp.Beatmap(m_BeatSaver, (string)l_JSONSongs[l_SongIt]["key"]);
-                        else
+                        var l_Key       = l_Current["key"]?.Value<string>()     ?? null;
+                        var l_Hash      = l_Current["hash"]?.Value<string>()    ?? null;
+                        var l_Time      = l_Current["rqt"]?.Value<long>()       ?? SDK.Misc.Time.UnixTimeNow();
+                        var l_Requester = l_Current["rqn"]?.Value<string>()     ?? "";
+                        var l_Prefix    = l_Current["npr"]?.Value<string>()     ?? "";
+                        var l_Message   = l_Current["msg"]?.Value<string>()     ?? "";
+
+                        if (l_Key == null)
+                            continue;
+
+                        SongEntry l_Entry = new SongEntry()
                         {
-                            l_Entry.BeatMap = new BeatSaverSharp.Beatmap(m_BeatSaver, "", "", "");
-                            JsonConvert.PopulateObject((string)l_JSONSongs[l_SongIt]["btm"], l_Entry.BeatMap);
-                        }
-
-                        if ((l_JSONSongs[l_SongIt] as JObject).ContainsKey("rqt"))
-                            l_Entry.RequestTime = SDK.Misc.Time.FromUnixTime(l_JSONSongs[l_SongIt]["rqt"].Value<long>());
-
-                        l_Entry.RequesterName   = (string)l_JSONSongs[l_SongIt]["rqn"];
-
-                        if ((l_JSONSongs[l_SongIt] as JObject).ContainsKey("npr"))
-                            l_Entry.NamePrefix = (string)l_JSONSongs[l_SongIt]["npr"];
+                            BeatMap         = SDK.Game.BeatSaver.GetBeatmapFromCacheByKey(m_BeatSaver, l_Key) ?? new BeatSaverSharp.Beatmap(m_BeatSaver, l_Key, l_Hash),
+                            RequestTime     = SDK.Misc.Time.FromUnixTime(l_Time),
+                            RequesterName   = l_Requester,
+                            NamePrefix      = l_Prefix,
+                            Message         = l_Message
+                        };
 
                         SongBlackList.Add(l_Entry);
 
                         /// Start populate
-                        l_Entry.BeatMap.Populate().ContinueWith(x => OnBeatmapPopulated(x, l_Entry));
+                        if (l_Entry.BeatMap.Partial)
+                            l_Entry.BeatMap.Populate().ContinueWith(x => OnBeatmapPopulated(x, l_Entry));
                     }
+                }
+                if (l_JSON["bannedusers"] != null && l_JSON["bannedusers"].Type == JTokenType.Array)
+                {
+                    foreach (var l_Current in (JArray)l_JSON["bannedusers"])
+                        BannedUsers.Add(l_Current.Value<string>() ?? "");
+                }
+                if (l_JSON["bannedmappers"] != null && l_JSON["bannedmappers"].Type == JTokenType.Array)
+                {
+                    foreach (var l_Current in (JArray)l_JSON["bannedmappers"])
+                        BannedMappers.Add(l_Current.Value<string>() ?? "");
+                }
+                if (l_JSON["remaps"] != null && l_JSON["remaps"].Type == JTokenType.Array)
+                {
+                    foreach (JObject l_Current in (JArray)l_JSON["remaps"])
+                    {
+                        var l_Left  = (l_Current["l"]?.Value<string>() ?? "").ToLower();
+                        var l_Right = (l_Current["r"]?.Value<string>() ?? "").ToLower();
+
+                        if (string.IsNullOrEmpty(l_Left) || string.IsNullOrEmpty(l_Right) || Remaps.ContainsKey(l_Left))
+                            continue;
+
+                        Remaps.Add(l_Left, l_Right);
+                    }
+                }
+                if (l_JSON["allowlist"] != null && l_JSON["allowlist"].Type == JTokenType.Array)
+                {
+                    foreach (var l_Current in (JArray)l_JSON["allowlist"])
+                        AllowList.Add(l_Current.Value<string>() ?? "");
                 }
             }
             catch (System.Exception p_Exception)
@@ -132,47 +166,78 @@ namespace BeatSaberPlus.Modules.ChatRequest
         /// </summary>
         private void SaveDatabase()
         {
-            lock (SongQueue) { lock (SongHistory) { lock (SongBlackList) {
+            lock (SongQueue) { lock (SongHistory) { lock (SongBlackList) { lock (BannedUsers) { lock (Remaps) { lock (AllowList) {
                 if (SongQueue.Count == 0 && SongHistory.Count == 0 && SongBlackList.Count == 0)
                     return;
 
                 try
                 {
-                    var l_JSON      = new JObject();
-                    var l_Requests  = new JArray();
-                    var l_History   = new JArray();
-                    var l_BlackList = new JArray();
+                    var l_Requests = new JArray();
                     foreach (var l_Current in SongQueue)
                     {
                         var l_Object = new JObject();
                         l_Object["key"] = l_Current.BeatMap.Key;
+
+                        if (l_Current.BeatMap.Hash != null)
+                            l_Object["hash"] = l_Current.BeatMap.Hash;
+
                         l_Object["rqt"] = l_Current.RequestTime.HasValue ? SDK.Misc.Time.ToUnixTime(l_Current.RequestTime.Value) : SDK.Misc.Time.UnixTimeNow();
                         l_Object["rqn"] = l_Current.RequesterName;
                         l_Object["npr"] = l_Current.NamePrefix;
+                        l_Object["msg"] = l_Current.Message;
                         l_Requests.Add(l_Object);
                     }
+
+                    var l_History = new JArray();
                     foreach (var l_Current in SongHistory)
                     {
                         var l_Object = new JObject();
                         l_Object["key"] = l_Current.BeatMap.Key;
+
+                        if (l_Current.BeatMap.Hash != null)
+                            l_Object["hash"] = l_Current.BeatMap.Hash;
+
                         l_Object["rqt"] = l_Current.RequestTime.HasValue ? SDK.Misc.Time.ToUnixTime(l_Current.RequestTime.Value) : SDK.Misc.Time.UnixTimeNow();
                         l_Object["rqn"] = l_Current.RequesterName;
                         l_Object["npr"] = l_Current.NamePrefix;
+                        l_Object["msg"] = l_Current.Message;
                         l_History.Add(l_Object);
                     }
+
+                    var l_BlackList = new JArray();
                     foreach (var l_Current in SongBlackList)
                     {
                         var l_Object = new JObject();
                         l_Object["key"] = l_Current.BeatMap.Key;
+
+                        if (l_Current.BeatMap.Hash != null)
+                            l_Object["hash"] = l_Current.BeatMap.Hash;
+
                         l_Object["rqt"] = l_Current.RequestTime.HasValue ? SDK.Misc.Time.ToUnixTime(l_Current.RequestTime.Value) : SDK.Misc.Time.UnixTimeNow();
                         l_Object["rqn"] = l_Current.RequesterName;
                         l_Object["npr"] = l_Current.NamePrefix;
+                        l_Object["msg"] = l_Current.Message;
                         l_BlackList.Add(l_Object);
                     }
 
-                    l_JSON.Add("queue", l_Requests);
-                    l_JSON.Add("history", l_History);
-                    l_JSON.Add("blacklist", l_BlackList);
+                    var l_Remaps = new JArray();
+                    foreach (var l_KVP in Remaps)
+                    {
+                        l_Remaps.Add(new JObject()
+                        {
+                            ["l"] = l_KVP.Key,
+                            ["r"] = l_KVP.Value
+                        });
+                    }
+
+                    var l_JSON      = new JObject();
+                    l_JSON.Add("queue",         l_Requests);
+                    l_JSON.Add("history",       l_History);
+                    l_JSON.Add("blacklist",     l_BlackList);
+                    l_JSON.Add("bannedusers",   new JArray(BannedUsers.ToArray()));
+                    l_JSON.Add("bannedmappers", new JArray(BannedMappers.ToArray()));
+                    l_JSON.Add("remaps",        l_Remaps);
+                    l_JSON.Add("allowlist",     new JArray(AllowList.ToArray()));
 
                     string l_ResultJSON = l_JSON.ToString();
                     System.IO.File.WriteAllText(m_DBFilePath, l_ResultJSON, UTF8Encoding.UTF8);
@@ -182,7 +247,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
                     Logger.Instance.Critical("SaveDatabase");
                     Logger.Instance.Critical(p_Exception);
                 }
-            } } }
+            } } } } } }
         }
 
         ////////////////////////////////////////////////////////////////////////////

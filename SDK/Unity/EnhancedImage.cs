@@ -1,9 +1,4 @@
-﻿using BeatSaberMarkupLanguage.Animations;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 
 namespace BeatSaberPlus.SDK.Unity
 {
@@ -31,7 +26,7 @@ namespace BeatSaberPlus.SDK.Unity
         /// <summary>
         /// Animation controller data
         /// </summary>
-        public AnimationControllerData AnimControllerData { get; set; }
+        public SDK.Animation.AnimationControllerData AnimControllerData { get; set; }
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -52,7 +47,7 @@ namespace BeatSaberPlus.SDK.Unity
             if (Height > p_ForcedHeight)
                 Height = p_ForcedHeight;
 
-            if (Width > (3 * p_ForcedHeight))
+            if (Width > (6 * p_ForcedHeight))
             {
                 Width = p_ForcedHeight;
                 Logger.Instance.Error($"[SDK.Unity][EnhancedImageInfo.EnsureValidForHeight] Too wide emote ImageID {ImageID} Width {Width} height {Height}");
@@ -69,46 +64,40 @@ namespace BeatSaberPlus.SDK.Unity
         /// <param name="p_Bytes">Result bytes</param>
         /// <param name="p_ForcedHeight">Forced height</param>
         /// <returns></returns>
-        public static EnhancedImage FromRawStatic(string p_ID, byte[] p_Bytes, int p_ForcedHeight = -1)
+        public static void FromRawStatic(string p_ID, byte[] p_Bytes, Action<EnhancedImage> p_Callback, int p_ForcedHeight = -1)
         {
-            int l_SpriteWidth = 0;
-            int l_SpriteHeight = 0;
-
-            UnityEngine.Sprite l_Sprite = null;
-
-            try
+            SDK.Unity.Sprite.CreateFromRawEx(p_Bytes, (p_Sprite) =>
             {
-                l_Sprite        = SDK.Unity.Sprite.CreateFromRaw(p_Bytes);
-                l_SpriteWidth   = l_Sprite.texture.width;
-                l_SpriteHeight  = l_Sprite.texture.height;
-            }
-            catch (Exception p_Exception)
-            {
-                Logger.Instance.Error("[SDK.Unity][EnhancedImageInfo.FromRaw] Error in FromRaw");
-                Logger.Instance.Error(p_Exception);
-                l_Sprite = null;
-            }
+                int l_SpriteWidth = 0;
+                int l_SpriteHeight = 0;
 
-            Unity.EnhancedImage l_Result = null;
-            if (l_Sprite != null)
-            {
-                if (p_ForcedHeight != -1)
-                    ComputeImageSizeForHeight(ref l_SpriteWidth, ref l_SpriteHeight, p_ForcedHeight);
-
-                l_Result = new Unity.EnhancedImage()
+                if (p_Sprite != null)
                 {
-                    ImageID             = p_ID,
-                    Sprite              = l_Sprite,
-                    Width               = l_SpriteWidth,
-                    Height              = l_SpriteHeight,
-                    AnimControllerData  = null
-                };
+                    l_SpriteWidth   = p_Sprite.texture.width;
+                    l_SpriteHeight  = p_Sprite.texture.height;
+                }
 
-                if (p_ForcedHeight != -1)
-                    l_Result.EnsureValidForHeight(p_ForcedHeight);
-            }
+                Unity.EnhancedImage l_Result = null;
+                if (p_Sprite != null)
+                {
+                    if (p_ForcedHeight != -1)
+                        ComputeImageSizeForHeight(ref l_SpriteWidth, ref l_SpriteHeight, p_ForcedHeight);
 
-            return l_Result;
+                    l_Result = new Unity.EnhancedImage()
+                    {
+                        ImageID             = p_ID,
+                        Sprite              = p_Sprite,
+                        Width               = l_SpriteWidth,
+                        Height              = l_SpriteHeight,
+                        AnimControllerData  = null
+                    };
+
+                    if (p_ForcedHeight != -1)
+                        l_Result.EnsureValidForHeight(p_ForcedHeight);
+                }
+
+                p_Callback?.Invoke(l_Result);
+            });
         }
         /// <summary>
         /// From raw animated
@@ -119,11 +108,11 @@ namespace BeatSaberPlus.SDK.Unity
         /// <param name="p_Callback">A callback that occurs after the resource is retrieved. This will always occur even if the resource is already cached.</param>
         /// <param name="p_ForcedHeight">Forced height</param>
         /// <returns></returns>
-        public static void FromRawAnimated(string p_ID, AnimationType p_Type, byte[] p_Bytes, Action<EnhancedImage> p_Callback, int p_ForcedHeight = -1)
+        public static void FromRawAnimated(string p_ID, SDK.Animation.AnimationType p_Type, byte[] p_Bytes, Action<EnhancedImage> p_Callback, int p_ForcedHeight = -1)
         {
-            AnimationLoader.Process(p_Type, p_Bytes, (p_Texture, p_Atlas, p_Delays, p_Width, p_Height) =>
+            SDK.Animation.AnimationLoader.Process(p_Type, p_Bytes, (p_Texture, p_Atlas, p_Delays, p_Width, p_Height) =>
             {
-                var l_AnimControllerData = AnimationController.instance.Register(p_ID, p_Texture, p_Atlas, p_Delays);
+                var l_AnimControllerData = SDK.Animation.AnimationController.instance.Register(p_ID, p_Texture, p_Atlas, p_Delays);
 
                 Unity.EnhancedImage l_AnimResult = null;
                 if (l_AnimControllerData.sprite != null)
@@ -161,7 +150,10 @@ namespace BeatSaberPlus.SDK.Unity
 
             var l_Sprite = UnityEngine.Sprite.Create(p_Texture,
                                                      new UnityEngine.Rect(p_Rect.x, p_Texture.height - p_Rect.y - l_SpriteHeight, l_SpriteWidth, l_SpriteHeight),
-                                                     new UnityEngine.Vector2(0, 0));
+                                                     new UnityEngine.Vector2(0, 0),
+                                                     100f,
+                                                     0,
+                                                     UnityEngine.SpriteMeshType.FullRect);
             l_Sprite.texture.wrapMode = UnityEngine.TextureWrapMode.Clamp;
 
             EnhancedImage l_Result = null;

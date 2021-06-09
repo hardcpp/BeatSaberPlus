@@ -20,9 +20,8 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches
         /// <summary>
         /// Prefix
         /// </summary>
-        /// <param name="__instance">NoteCutCoreEffectsSpawner instance</param>
         /// <param name="____noteCutParticlesEffect">NoteCutParticlesEffect instance</param>
-        internal static void Postfix(ref NoteCutCoreEffectsSpawner __instance, ref NoteCutParticlesEffect ____noteCutParticlesEffect)
+        internal static void Postfix(ref NoteCutParticlesEffect ____noteCutParticlesEffect)
         {
             /// Cache effect instance
             m_NoteCutParticlesEffect = ____noteCutParticlesEffect;

@@ -6,7 +6,7 @@ namespace BeatSaberPlus.Modules.GameTweaker.Components
     /// <summary>
     /// Music band logo remover
     /// </summary>
-    internal class MusicBandLogoRemover : MonoBehaviour
+    public class MusicBandLogoRemover : MonoBehaviour
     {
         /// <summary>
         /// Audio time sync controller
@@ -30,7 +30,7 @@ namespace BeatSaberPlus.Modules.GameTweaker.Components
         /// <summary>
         /// Called every frames
         /// </summary>
-        private void Update()
+        public void Update()
         {
             if (m_AudioTimeSyncController == null || !m_AudioTimeSyncController)
                 m_AudioTimeSyncController = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().FirstOrDefault();

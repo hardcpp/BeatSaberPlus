@@ -1,0 +1,18 @@
+﻿<vertical child-control-height='false'>
+  <horizontal bg='panel-top' pad-left='15' pad-right='15' horizontal-fit='PreferredSize'>
+    <text text='Informations' align='Center' font-size='4.2'/>
+  </horizontal>
+
+  <horizontal bg='round-rect-panel' id='Background' min-width='110' min-height='55' spacing='0' pad='0'>
+    <text-page id='Informations' text=''></text-page>
+  </horizontal>
+
+  <horizontal>
+    <primary-button on-click='click-open-web-configuration-btn-pressed'       min-width='110' text='Web Configuration'></primary-button>
+  </horizontal>
+
+  <horizontal>
+    <primary-button on-click='click-documentation-btn-pressed'                min-width='110' text='Documentation' ></primary-button>
+  </horizontal>
+
+</vertical>

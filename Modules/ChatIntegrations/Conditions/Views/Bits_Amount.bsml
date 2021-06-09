@@ -1,0 +1,10 @@
+﻿<vertical min-height='55' child-align='UpperCenter'>
+  <text text='Amount:' align='Center' />
+
+  <list-setting id='CheckTypeList' value='CheckTypeList_Value' choices='CheckTypeList_Choices' apply-on-change='true' text='Check type' />
+  <text text='Bits count' align='Center' />
+  <slider-setting min='1' max='200' increment='1' id='CountSlider' integer-only='true' apply-on-change='true' />
+
+  <horizontal min-height='30'></horizontal>
+
+</vertical>

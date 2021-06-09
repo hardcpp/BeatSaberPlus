@@ -25,7 +25,7 @@ namespace BeatSaberPlus.SDK.Unity
             get
             {
                 if (m_TMPNoGlowFontShader == null)
-                    m_TMPNoGlowFontShader = Resources.FindObjectsOfTypeAll<TMP_FontAsset>().Last(x => x.name == "Teko-Medium SDF No Glow")?.material?.shader;
+                    m_TMPNoGlowFontShader = Resources.FindObjectsOfTypeAll<TMP_FontAsset>().Last(x => x.name == "Teko-Medium SDF")?.material?.shader;
 
                 return m_TMPNoGlowFontShader;
             }

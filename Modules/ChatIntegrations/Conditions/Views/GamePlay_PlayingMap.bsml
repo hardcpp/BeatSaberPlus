@@ -1,0 +1,11 @@
+﻿<vertical min-height='55' child-align='UpperCenter'>
+  <text text='Valid types:' align='Center' />
+
+  <bool-setting id='SoloToggle' text='Solo'></bool-setting>
+  <bool-setting id='MultiToggle' text='Multiplayer'></bool-setting>
+  <bool-setting id='ReplayToggle' text='Is in replay'></bool-setting>
+  <list-setting id='TypeList' value='TypeList_Value' choices='TypeList_Choices' apply-on-change='true' text='BeatMap type' />
+
+  <horizontal min-height='30'></horizontal>
+
+</vertical>

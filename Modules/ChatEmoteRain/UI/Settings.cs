@@ -13,22 +13,30 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain.UI
 #pragma warning disable CS0649
         [UIComponent("MenuRainToggle")]
         public ToggleSetting m_MenuRain;
-        [UIComponent("SongRainToggle")]
-        public ToggleSetting m_SongRain;
         [UIComponent("MenuRainSizeSlider")]
         public SliderSetting m_MenuRainSizeSlider;
+        [UIComponent("MenuFallSpeedSlider")]
+        public SliderSetting m_MenuFallSpeedSlider;
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        [UIComponent("SongRainToggle")]
+        public ToggleSetting m_SongRain;
         [UIComponent("SongRainSizeSlider")]
         public SliderSetting m_SongRainSizeSlider;
+        [UIComponent("SongFallSpeedSlider")]
+        public SliderSetting m_SongFallSpeedSlider;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        [UIComponent("EmoteDelaySlider")]
-        public SliderSetting m_EmoteDelay;
-        [UIComponent("EmoteFallSpeedSlider")]
-        public SliderSetting m_Fallspeed;
         [UIComponent("ModeratorPowerToggle")]
         public ToggleSetting m_ModeratorPowerToggle;
+        [UIComponent("VIPPowerToggle")]
+        public ToggleSetting m_VIPPowerToggle;
+        [UIComponent("SubscriberPowerToggle")]
+        public ToggleSetting m_SubscriberPowerToggle;
 #pragma warning restore CS0649
 
         ////////////////////////////////////////////////////////////////////////////
@@ -48,19 +56,23 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain.UI
         protected override sealed void OnViewCreation()
         {
             var l_Event = new BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic));
-            var l_AnchorMin = new Vector2(0.77f, -0.05f);
-            var l_AnchorMax = new Vector2(0.91f, 1.05f);
+            var l_AnchorMin = new Vector2(1.15f, -0.05f);
+            var l_AnchorMax = new Vector2(0.85f, 1.05f);
 
-            /// Left
+            /// First row
             SDK.UI.ToggleSetting.Setup(m_MenuRain,              l_Event,        Config.ChatEmoteRain.MenuRain,          true);
-            SDK.UI.ToggleSetting.Setup(m_SongRain,              l_Event,        Config.ChatEmoteRain.SongRain,          true);
             SDK.UI.SliderSetting.Setup(m_MenuRainSizeSlider,    l_Event, null,  Config.ChatEmoteRain.MenuRainSize,      true, true, l_AnchorMin, l_AnchorMax);
-            SDK.UI.SliderSetting.Setup(m_SongRainSizeSlider,    l_Event, null,  Config.ChatEmoteRain.SongRainSize,      true, true, l_AnchorMin, l_AnchorMax);
+            SDK.UI.SliderSetting.Setup(m_MenuFallSpeedSlider,   l_Event, null,  Config.ChatEmoteRain.MenuFallSpeed,     true, true, l_AnchorMin, l_AnchorMax);
 
-            /// Right
-            SDK.UI.SliderSetting.Setup(m_EmoteDelay,            l_Event, null,  Config.ChatEmoteRain.EmoteDelay,        true, true, l_AnchorMin, l_AnchorMax);
-            SDK.UI.SliderSetting.Setup(m_Fallspeed,             l_Event, null,  Config.ChatEmoteRain.EmoteFallSpeed,    true, true, l_AnchorMin, l_AnchorMax);
+            /// Second row
+            SDK.UI.ToggleSetting.Setup(m_SongRain,              l_Event,        Config.ChatEmoteRain.SongRain,          true);
+            SDK.UI.SliderSetting.Setup(m_SongRainSizeSlider,    l_Event, null,  Config.ChatEmoteRain.SongRainSize,      true, true, l_AnchorMin, l_AnchorMax);
+            SDK.UI.SliderSetting.Setup(m_SongFallSpeedSlider,   l_Event, null,  Config.ChatEmoteRain.SongFallSpeed,     true, true, l_AnchorMin, l_AnchorMax);
+
+            /// Third row
             SDK.UI.ToggleSetting.Setup(m_ModeratorPowerToggle,  l_Event,        Config.ChatEmoteRain.ModeratorPower,    true);
+            SDK.UI.ToggleSetting.Setup(m_VIPPowerToggle,        l_Event,        Config.ChatEmoteRain.VIPPower,          true);
+            SDK.UI.ToggleSetting.Setup(m_SubscriberPowerToggle, l_Event,        Config.ChatEmoteRain.SubscriberPower,   true);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -75,16 +87,20 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain.UI
             if (m_PreventChanges)
                 return;
 
-            /// Left
-            Config.ChatEmoteRain.MenuRain       = m_MenuRain.Value;
-            Config.ChatEmoteRain.SongRain       = m_SongRain.Value;
-            Config.ChatEmoteRain.MenuRainSize   = m_MenuRainSizeSlider.slider.value;
-            Config.ChatEmoteRain.SongRainSize   = m_SongRainSizeSlider.slider.value;
+            /// First row
+            Config.ChatEmoteRain.MenuRain           = m_MenuRain.Value;
+            Config.ChatEmoteRain.MenuRainSize       = m_MenuRainSizeSlider.slider.value;
+            Config.ChatEmoteRain.MenuFallSpeed      = m_MenuFallSpeedSlider.slider.value;
 
-            /// Right
-            Config.ChatEmoteRain.EmoteDelay     = (int)m_EmoteDelay.slider.value;
-            Config.ChatEmoteRain.EmoteFallSpeed = m_Fallspeed.slider.value;
-            Config.ChatEmoteRain.ModeratorPower = m_ModeratorPowerToggle.Value;
+            /// Second row
+            Config.ChatEmoteRain.SongRain           = m_SongRain.Value;
+            Config.ChatEmoteRain.SongRainSize       = m_SongRainSizeSlider.slider.value;
+            Config.ChatEmoteRain.SongFallSpeed      = m_SongFallSpeedSlider.slider.value;
+
+            /// Third row
+            Config.ChatEmoteRain.ModeratorPower     = m_ModeratorPowerToggle.Value;
+            Config.ChatEmoteRain.VIPPower           = m_VIPPowerToggle.Value;
+            Config.ChatEmoteRain.SubscriberPower    = m_SubscriberPowerToggle.Value;
 
             ChatEmoteRain.Instance.OnSettingsChanged();
         }
@@ -99,16 +115,20 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain.UI
         {
             m_PreventChanges = true;
 
-            /// Left
-            m_MenuRain.Value                    = Config.ChatEmoteRain.MenuRain;
-            m_SongRain.Value                    = Config.ChatEmoteRain.SongRain;
-            SDK.UI.SliderSetting.SetValue(m_MenuRainSizeSlider, Config.ChatEmoteRain.MenuRainSize);
-            SDK.UI.SliderSetting.SetValue(m_SongRainSizeSlider, Config.ChatEmoteRain.SongRainSize);
+            /// First row
+            m_MenuRain.Value                = Config.ChatEmoteRain.MenuRain;
+            SDK.UI.SliderSetting.SetValue(m_MenuRainSizeSlider,     Config.ChatEmoteRain.MenuRainSize);
+            SDK.UI.SliderSetting.SetValue(m_MenuFallSpeedSlider,    Config.ChatEmoteRain.MenuFallSpeed);
 
-            /// Right
-            SDK.UI.SliderSetting.SetValue(m_EmoteDelay,         Config.ChatEmoteRain.EmoteDelay);
-            SDK.UI.SliderSetting.SetValue(m_Fallspeed,          Config.ChatEmoteRain.EmoteFallSpeed);
-            m_ModeratorPowerToggle.Value = Config.ChatEmoteRain.ModeratorPower;
+            /// Second row
+            m_SongRain.Value                = Config.ChatEmoteRain.SongRain;
+            SDK.UI.SliderSetting.SetValue(m_SongRainSizeSlider,     Config.ChatEmoteRain.SongRainSize);
+            SDK.UI.SliderSetting.SetValue(m_SongFallSpeedSlider,    Config.ChatEmoteRain.SongFallSpeed);
+
+            /// Third row
+            m_ModeratorPowerToggle.Value    = Config.ChatEmoteRain.ModeratorPower;
+            m_VIPPowerToggle.Value          = Config.ChatEmoteRain.VIPPower;
+            m_SubscriberPowerToggle.Value   = Config.ChatEmoteRain.SubscriberPower;
 
             m_PreventChanges = false;
 

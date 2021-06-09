@@ -1,0 +1,3 @@
+﻿<bg bg='round-rect-panel'>
+  <clickable-image id='LockIcon' src='BeatSaberPlus.Modules.SongChartVisualizer.Resources.Locked.png' on-click='lock-pressed' ignore-layout='true' anchor-min-x='0.96' anchor-max-x='0.96' anchor-min-y='0.08' anchor-max-y='0.08' size-delta-x='7' preserve-aspect='true' default-color='#FFFFFFFF' highlight-color='#FFFFFF11'></clickable-image>
+</bg>

@@ -14,18 +14,19 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches
     [HarmonyPatch(nameof(PlayerSettingsPanelController.SetLayout), new Type[] { typeof(PlayerSettingsPanelController.PlayerSettingsPanelLayout) })]
     public class PPlayerSettingsPanelController : PlayerSettingsPanelController
     {
-        private static Toggle                                m_LeftHandedToggle                         = null;
-        private static Toggle                                m_StaticLightsToggle                       = null;
-        private static Toggle                                m_ReduceDebrisToggle                       = null;
-        private static Toggle                                m_NoTextsAndHudsToggle                     = null;
-        private static Toggle                                m_AdvanceHudToggle                         = null;
-        private static PlayerHeightSettingsController        m_PlayerHeightSettingsController           = null;
-        private static Toggle                                m_AutomaticPlayerHeightToggle              = null;
-        private static FormattedFloatListSettingsController  m_SfxVolumeSettingsController              = null;
-        private static FormattedFloatListSettingsController  m_SaberTrailIntensitySettingsController    = null;
-        private static NoteJumpStartBeatOffsetDropdown       m_NoteJumpStartBeatOffsetDropdown          = null;
-        private static Toggle                                m_HideNoteSpawnEffectToggle                = null;
-        private static Toggle                                m_AdaptiveSfxToggle                        = null;
+        private static Toggle                                 m_LeftHandedToggle                                    = null;
+        private static EnvironmentEffectsFilterPresetDropdown m_EnvironmentEffectsFilterDefaultPresetDropdown       = null;
+        private static EnvironmentEffectsFilterPresetDropdown m_EnvironmentEffectsFilterExpertPlusPresetDropdown    = null;
+        private static Toggle                                 m_ReduceDebrisToggle                                  = null;
+        private static Toggle                                 m_NoTextsAndHudsToggle                                = null;
+        private static Toggle                                 m_AdvanceHudToggle                                    = null;
+        private static PlayerHeightSettingsController         m_PlayerHeightSettingsController                      = null;
+        private static Toggle                                 m_AutomaticPlayerHeightToggle                         = null;
+        private static FormattedFloatListSettingsController   m_SfxVolumeSettingsController                         = null;
+        private static FormattedFloatListSettingsController   m_SaberTrailIntensitySettingsController               = null;
+        private static NoteJumpStartBeatOffsetDropdown        m_NoteJumpStartBeatOffsetDropdown                     = null;
+        private static Toggle                                 m_HideNoteSpawnEffectToggle                           = null;
+        private static Toggle                                 m_AdaptiveSfxToggle                                   = null;
 
         private static IncrementSetting m_OverrideLightsIntensityToggle            = null;
 
@@ -35,10 +36,9 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches
         /// <summary>
         /// Prefix
         /// </summary>
-        /// <param name="__instance">PlayerSettingsPanelController instance</param>
-        internal static void Prefix(ref PlayerSettingsPanelController __instance,
-                                    ref Toggle                                  ____leftHandedToggle,
-                                    ref Toggle                                  ____staticLightsToggle,
+        internal static void Prefix(ref Toggle                                  ____leftHandedToggle,
+                                    ref EnvironmentEffectsFilterPresetDropdown  ____environmentEffectsFilterDefaultPresetDropdown,
+                                    ref EnvironmentEffectsFilterPresetDropdown  ____environmentEffectsFilterExpertPlusPresetDropdown,
                                     ref Toggle                                  ____reduceDebrisToggle,
                                     ref Toggle                                  ____noTextsAndHudsToggle,
                                     ref Toggle                                  ____advanceHudToggle,
@@ -50,22 +50,26 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches
                                     ref Toggle                                  ____hideNoteSpawnEffectToggle,
                                     ref Toggle                                  ____adaptiveSfxToggle)
         {
-            m_LeftHandedToggle                      = ____leftHandedToggle;
-            m_StaticLightsToggle                    = ____staticLightsToggle;
-            m_ReduceDebrisToggle                    = ____reduceDebrisToggle;
-            m_NoTextsAndHudsToggle                  = ____noTextsAndHudsToggle;
-            m_AdvanceHudToggle                      = ____advanceHudToggle;
-            m_PlayerHeightSettingsController        = ____playerHeightSettingsController;
-            m_AutomaticPlayerHeightToggle           = ____automaticPlayerHeightToggle;
-            m_SfxVolumeSettingsController           = ____sfxVolumeSettingsController;
-            m_SaberTrailIntensitySettingsController = ____saberTrailIntensitySettingsController;
-            m_NoteJumpStartBeatOffsetDropdown       = ____noteJumpStartBeatOffsetDropdown;
-            m_HideNoteSpawnEffectToggle             = ____hideNoteSpawnEffectToggle;
-            m_AdaptiveSfxToggle                     = ____adaptiveSfxToggle;
+            m_LeftHandedToggle                                  = ____leftHandedToggle;
+            m_EnvironmentEffectsFilterDefaultPresetDropdown     = ____environmentEffectsFilterDefaultPresetDropdown;
+            m_EnvironmentEffectsFilterExpertPlusPresetDropdown  = ____environmentEffectsFilterExpertPlusPresetDropdown;
+            m_ReduceDebrisToggle                                = ____reduceDebrisToggle;
+            m_NoTextsAndHudsToggle                              = ____noTextsAndHudsToggle;
+            m_AdvanceHudToggle                                  = ____advanceHudToggle;
+            m_PlayerHeightSettingsController                    = ____playerHeightSettingsController;
+            m_AutomaticPlayerHeightToggle                       = ____automaticPlayerHeightToggle;
+            m_SfxVolumeSettingsController                       = ____sfxVolumeSettingsController;
+            m_SaberTrailIntensitySettingsController             = ____saberTrailIntensitySettingsController;
+            m_NoteJumpStartBeatOffsetDropdown                   = ____noteJumpStartBeatOffsetDropdown;
+            m_HideNoteSpawnEffectToggle                         = ____hideNoteSpawnEffectToggle;
+            m_AdaptiveSfxToggle                                 = ____adaptiveSfxToggle;
 
             /// Apply
             if (Config.GameTweaker.Enabled)
                 SetReorderEnabled(Config.GameTweaker.ReorderPlayerSettings, Config.GameTweaker.AddOverrideLightIntensityOption);
+
+            if (Config.GameTweaker.Enabled)
+                SetLightsOptionMerging(Config.GameTweaker.MergeLightPressetOptions);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -77,25 +81,25 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches
         /// <param name="p_Enabled">New state</param>
         internal static void SetReorderEnabled(bool p_Enabled, bool p_AddOverrideLightsIntensityOption)
         {
-            if (m_StaticLightsToggle == null || m_NoteJumpStartBeatOffsetDropdown == null || m_SfxVolumeSettingsController == null)
+            if (m_EnvironmentEffectsFilterDefaultPresetDropdown == null || m_NoteJumpStartBeatOffsetDropdown == null || m_SfxVolumeSettingsController == null)
                 return;
 
-            m_StaticLightsToggle.transform.parent.parent.GetComponent<VerticalLayoutGroup>().enabled = true;
+            m_EnvironmentEffectsFilterDefaultPresetDropdown.transform.parent.parent.GetComponent<VerticalLayoutGroup>().enabled = true;
 
             if (p_AddOverrideLightsIntensityOption && (m_OverrideLightsIntensityToggle == null || !m_OverrideLightsIntensityToggle))
             {
                 var l_Creator = new BeatSaberMarkupLanguage.Tags.Settings.IncrementSettingTag();
-                var l_Clone = l_Creator.CreateObject(m_StaticLightsToggle.transform.parent.parent);
+                var l_Clone = l_Creator.CreateObject(m_EnvironmentEffectsFilterDefaultPresetDropdown.transform.parent.parent);
                 l_Clone.GetComponentInChildren<TextMeshProUGUI>().text = "Override lights intensity";
                 (l_Clone.transform as RectTransform).offsetMax = new Vector2(90, (l_Clone.transform as RectTransform).offsetMax.y);
 
-                if (m_StaticLightsToggle.transform.parent.Find("Icon"))
+                if (m_EnvironmentEffectsFilterDefaultPresetDropdown.transform.parent.Find("Icon"))
                 {
-                    var l_Icon = GameObject.Instantiate(m_StaticLightsToggle.transform.parent.Find("Icon"), l_Clone.transform);
+                    var l_Icon = GameObject.Instantiate(m_EnvironmentEffectsFilterDefaultPresetDropdown.transform.parent.Find("Icon"), l_Clone.transform);
                     l_Icon.transform.SetAsFirstSibling();
                 }
 
-                var l_LabelTemplateRectTransform = m_StaticLightsToggle.transform.parent.GetChild(1).transform as RectTransform;
+                var l_LabelTemplateRectTransform = m_EnvironmentEffectsFilterDefaultPresetDropdown.transform.parent.GetChild(1).transform as RectTransform;
                 (l_Clone.transform.GetChild(1).transform as RectTransform).offsetMin = l_LabelTemplateRectTransform.offsetMin;
                 (l_Clone.transform.GetChild(1).transform as RectTransform).offsetMax = l_LabelTemplateRectTransform.offsetMax;
 
@@ -124,7 +128,8 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches
                 m_NoTextsAndHudsToggle.transform.parent.SetAsFirstSibling();
                 m_AdvanceHudToggle.transform.parent.SetAsFirstSibling();
                 if (m_OverrideLightsIntensityToggle != null && m_OverrideLightsIntensityToggle) m_OverrideLightsIntensityToggle.transform.SetAsFirstSibling();
-                m_StaticLightsToggle.transform.parent.SetAsFirstSibling();
+                m_EnvironmentEffectsFilterExpertPlusPresetDropdown.transform.parent.SetAsFirstSibling();
+                m_EnvironmentEffectsFilterDefaultPresetDropdown.transform.parent.SetAsFirstSibling();
                 m_NoteJumpStartBeatOffsetDropdown.transform.parent.SetAsFirstSibling();
             }
             else
@@ -137,12 +142,32 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches
                 m_NoTextsAndHudsToggle.transform.parent.SetAsFirstSibling();
                 m_SaberTrailIntensitySettingsController.transform.parent.SetAsFirstSibling();
                 if (m_OverrideLightsIntensityToggle != null && m_OverrideLightsIntensityToggle) m_OverrideLightsIntensityToggle.transform.SetAsFirstSibling();
-                m_StaticLightsToggle.transform.parent.SetAsFirstSibling();
+                m_EnvironmentEffectsFilterExpertPlusPresetDropdown.transform.parent.SetAsFirstSibling();
+                m_EnvironmentEffectsFilterDefaultPresetDropdown.transform.parent.SetAsFirstSibling();
                 m_LeftHandedToggle.transform.parent.SetAsFirstSibling();
                 m_SfxVolumeSettingsController.transform.parent.SetAsFirstSibling();
                 m_PlayerHeightSettingsController.transform.SetAsFirstSibling();
                 m_AutomaticPlayerHeightToggle.transform.parent.SetAsFirstSibling();
             }
+        }
+        /// <summary>
+        /// Should merge the two lights options
+        /// </summary>
+        /// <param name="p_Enabled"></param>
+        internal static void SetLightsOptionMerging(bool p_Enabled)
+        {
+            // todo fix bug
+            return;
+            if (m_EnvironmentEffectsFilterDefaultPresetDropdown)
+            {
+                m_EnvironmentEffectsFilterDefaultPresetDropdown.didSelectCellWithIdxEvent -= OnLightSettingChanged;
+
+                if (p_Enabled)
+                    m_EnvironmentEffectsFilterDefaultPresetDropdown.didSelectCellWithIdxEvent += OnLightSettingChanged;
+            }
+
+            if (m_EnvironmentEffectsFilterExpertPlusPresetDropdown)
+                m_EnvironmentEffectsFilterExpertPlusPresetDropdown.transform.parent.gameObject.SetActive(!p_Enabled);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -155,6 +180,21 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches
         private static void OnOverrideLightIntensityChange(object p_Value)
         {
             Config.GameTweaker.OverrideLightIntensity = (float)p_Value;
+        }
+        /// <summary>
+        /// On light preset change, replicate to the hidden one
+        /// </summary>
+        /// <param name="p_CellIndex"></param>
+        private static void OnLightSettingChanged(int p_CellIndex)
+        {
+            if (!m_EnvironmentEffectsFilterExpertPlusPresetDropdown)
+                return;
+
+            m_EnvironmentEffectsFilterExpertPlusPresetDropdown.HandleSimpleTextDropdownDidSelectCellWithIdx(null, p_CellIndex);
+
+            if (m_EnvironmentEffectsFilterDefaultPresetDropdown)
+                m_EnvironmentEffectsFilterExpertPlusPresetDropdown.SelectCellWithLightReductionAmount
+                        (m_EnvironmentEffectsFilterDefaultPresetDropdown.GetLightsReductionAmount());
         }
     }
 }

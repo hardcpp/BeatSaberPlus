@@ -119,7 +119,7 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
 
             m_SongInfo_Detail.SetPracticeButtonEnabled(true);
             m_SongInfo_Detail.SetPracticeButtonText("Skip");
-            m_SongInfo_Detail.SetPracticeButtonAction(SkipSong);
+            m_SongInfo_Detail.SetPracticeButtonAction(SkipOrAddToQueueSong);
 
             m_SongInfo_Detail.SetPlayButtonText("Play");
             m_SongInfo_Detail.SetPlayButtonEnabled(true);
@@ -166,7 +166,8 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
             UnselectSong();
             m_SongsProvider = p_Index == 0 ? ChatRequest.Instance.SongQueue : (p_Index == 1 ? ChatRequest.Instance.SongHistory : ChatRequest.Instance.SongBlackList);
             RebuildSongList(false);
-            m_SongInfo_Detail.SetPracticeButtonEnabled(p_Index == 0);
+
+            m_SongInfo_Detail.SetPracticeButtonText(p_Index == 0 ? "Skip" : "Add to queue");
         }
         /// <summary>
         /// Go to previous song page
@@ -224,6 +225,9 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
 
                         if (l_Current.RequestTime.HasValue)
                             l_HoverHint += "\n<b><u>$$time$$</b></u>";
+
+                        if (!string.IsNullOrEmpty(l_Current.Message))
+                            l_HoverHint += "\n" + l_Current.Message;
 
                         m_SongList.Data.Add(new SDK.UI.DataSource.SongList.Entry() {
                             BeatSaver_Map       = l_Current.BeatMap,
@@ -340,7 +344,7 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
         /// <summary>
         /// Skip a song
         /// </summary>
-        private void SkipSong()
+        private void SkipOrAddToQueueSong()
         {
             if (m_SelectedSong == null)
             {
@@ -349,7 +353,10 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
                 return;
             }
 
-            ChatRequest.Instance.DequeueSong(m_SelectedSong, false);
+            if (m_TypeSegmentControl.selectedCellNumber == 0/* Request */)
+                ChatRequest.Instance.DequeueSong(m_SelectedSong, false);
+            else
+                ChatRequest.Instance.ReEnqueueSong(m_SelectedSong);
 
             UnselectSong();
             RebuildSongList();
@@ -448,7 +455,7 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
         /// <param name="p_Value"></param>
         void IProgress<double>.Report(double p_Value)
         {
-            SetLoadingModal_DownloadProgress("Downloading", (float)p_Value);
+            SetLoadingModal_DownloadProgress($"Downloading {Mathf.Round((float)(p_Value * 100.0))}%", (float)p_Value);
         }
         /// <summary>
         /// When a downloaded song is downloaded

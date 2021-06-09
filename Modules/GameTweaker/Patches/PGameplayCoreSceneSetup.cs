@@ -25,8 +25,8 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches
         /// <summary>
         /// Prefix
         /// </summary>
-        /// <param name="__instance">GameplayCoreInstaller instance</param>
-        internal static void Prefix(ref GameplayCoreInstaller __instance, ref GameplayCoreSceneSetupData ____sceneSetupData)
+        /// <param name="____sceneSetupData">GameplayCoreSceneSetupData instance</param>
+        internal static void Prefix(ref GameplayCoreSceneSetupData ____sceneSetupData)
         {
             if (!(Config.GameTweaker.Enabled && Config.GameTweaker.NoFake360HUD))
                 return;

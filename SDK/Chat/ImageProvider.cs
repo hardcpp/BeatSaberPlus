@@ -1,10 +1,10 @@
-﻿using BeatSaberMarkupLanguage.Animations;
-using BeatSaberPlusChatCore.Models;
+﻿using BeatSaberPlus.SDK.Chat.Models;
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -41,6 +41,7 @@ namespace BeatSaberPlus.SDK.Chat
     /// </summary>
     public class ImageProvider
     {
+        private static bool m_CacheEnabled = true;
         /// <summary>
         /// Forced emote height
         /// </summary>
@@ -109,7 +110,7 @@ namespace BeatSaberPlus.SDK.Chat
         /// <param name="p_URI">URI of the image</param>
         /// <param name="p_ID">ID of the image</param>
         /// <returns></returns>
-        public static void PrecacheAnimatedImage(string p_URI, string p_ID)//, int p_ForcedHeight = -1)
+        public static void PrecacheAnimatedImage(string p_URI, string p_ID)
         {
             TryCacheSingleImage(p_ID, p_URI, true, null);
         }
@@ -133,13 +134,43 @@ namespace BeatSaberPlus.SDK.Chat
                 return;
             }
 
-            SDK.Unity.MainThreadInvoker.Enqueue(() =>
+            if (string.IsNullOrEmpty(p_URI))
             {
-                SharedCoroutineStarter.instance.StartCoroutine(DownloadContent(p_URI, (p_Bytes) =>
+                Logger.Instance.Error($"[SDK.Chat][ImageProvider.DownloadContent] URI is null or empty in request for resource {p_URI}. Aborting!");
+
+                m_CachedSpriteSheets[p_URI] = null;
+                p_Finally?.Invoke(null);
+
+                return;
+            }
+
+            string l_CacheID = "";
+            if (m_CacheEnabled)
+                l_CacheID = "Emote_" + SDK.Cryptography.SHA1.GetHashString(p_URI) + ".dat";
+
+            Task.Run(() => LoadFromCacheOrDownload(p_URI, l_CacheID, (p_Bytes) =>
+            {
+                if (p_IsAnimated)
                 {
-                    OnSingleImageCached(p_ID, p_Bytes, p_IsAnimated, p_Finally, m_ForcedHeight);
-                }));
-            });
+                    SDK.Unity.EnhancedImage.FromRawAnimated(p_ID, SDK.Animation.AnimationType.GIF, p_Bytes, (p_Result) =>
+                    {
+                        if (p_Result != null)
+                            m_CachedImageInfo[p_ID] = p_Result;
+
+                        p_Finally?.Invoke(p_Result);
+                    }, m_ForcedHeight);
+                }
+                else
+                {
+                    SDK.Unity.EnhancedImage.FromRawStatic(p_ID, p_Bytes, (p_Result) =>
+                    {
+                        if (p_Result != null)
+                            m_CachedImageInfo[p_ID] = p_Result;
+
+                        p_Finally?.Invoke(p_Result);
+                    }, m_ForcedHeight);
+                }
+            }));
         }
         /// <summary>
         /// Try to cache sprite sheet
@@ -166,17 +197,28 @@ namespace BeatSaberPlus.SDK.Chat
             }
             else
             {
-                SDK.Unity.MainThreadInvoker.Enqueue(() =>
+                if (string.IsNullOrEmpty(p_URI))
                 {
-                    SharedCoroutineStarter.instance.StartCoroutine(DownloadContent(p_URI, (p_Bytes) =>
-                    {
-                        //Logger.Instance.Info($"Finished download content for emote {p_ID}!");
-                        l_Texture = SDK.Unity.Texture2D.CreateFromRaw(p_Bytes);
-                        m_CachedSpriteSheets[p_URI] = l_Texture;
+                    Logger.Instance.Error($"[SDK.Chat][ImageProvider.DownloadContent] URI is null or empty in request for resource {p_URI}. Aborting!");
 
-                        CacheSpriteSheetImage(p_ID, l_Texture, p_Rect, p_Finally, m_ForcedHeight);
-                    }));
-                });
+                    m_CachedSpriteSheets[p_URI] = null;
+                    p_Finally?.Invoke(null);
+
+                    return;
+                }
+
+                string l_CacheID = "";
+                if (m_CacheEnabled)
+                    l_CacheID = "Emote_" + SDK.Cryptography.SHA1.GetHashString(p_URI) + ".dat";
+
+                Task.Run(() => LoadFromCacheOrDownload(p_URI, l_CacheID, (p_Bytes) =>
+                {
+                    Unity.Texture2D.CreateFromRawEx(p_Bytes, (p_Texture) =>
+                    {
+                        m_CachedSpriteSheets[p_URI] = p_Texture;
+                        CacheSpriteSheetImage(p_ID, p_Texture, p_Rect, p_Finally, m_ForcedHeight);
+                    });
+                }));
             }
         }
 
@@ -184,31 +226,38 @@ namespace BeatSaberPlus.SDK.Chat
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
+        /// Load from cache or download
+        /// </summary>
+        /// <param name="p_URI">The resource location</param>
+        /// <param name="p_CacheID">Cache ID</param>
+        /// <param name="p_Finally">A callback that occurs after the resource is retrieved. This will always occur even if the resource is already cached.</param>
+        private static void LoadFromCacheOrDownload(string p_URI, string p_CacheID, Action<byte[]> p_Finally)
+        {
+            if (m_CacheEnabled)
+            {
+                if (File.Exists(m_CacheFolder + p_CacheID))
+                {
+                    var l_Content = File.ReadAllBytes(m_CacheFolder + p_CacheID);
+                    p_Finally?.Invoke(l_Content);
+                    return;
+                }
+            }
+
+            SDK.Unity.MainThreadInvoker.Enqueue(() => SharedCoroutineStarter.instance.StartCoroutine(DownloadContent(p_URI, p_CacheID, p_Finally)));
+        }
+        /// <summary>
         /// Retrieves the requested content from the provided Uri. Don't yield to this function, as it may return instantly if the download is already queued when you request it.
         /// <para>
         /// The <paramref name="p_Finally"/> callback will *always* be called for this function. If it returns an empty byte array, that should be considered a failure.
         /// </para>
         /// </summary>
         /// <param name="p_URI">The resource location</param>
+        /// <param name="p_CacheID">Cache ID</param>
         /// <param name="p_Finally">A callback that occurs after the resource is retrieved. This will always occur even if the resource is already cached.</param>
         /// <param name="p_IsRetry">Is a retry attempt</param>
-        private static IEnumerator DownloadContent(string p_URI, Action<byte[]> p_Finally, bool p_IsRetry = false)
+        private static IEnumerator DownloadContent(string p_URI, string p_CacheID, Action<byte[]> p_Finally, bool p_IsRetry = false)
         {
-            if (string.IsNullOrEmpty(p_URI))
-            {
-                Logger.Instance.Error($"[SDK.Chat][ImageProvider.DownloadContent] URI is null or empty in request for resource {p_URI}. Aborting!");
-                p_Finally?.Invoke(null);
-                yield break;
-            }
-
-            string l_CacheID = "Emote_" + SDK.Cryptography.SHA1.GetHashString(p_URI) + ".dat";
-            if (!p_IsRetry && File.Exists(m_CacheFolder + l_CacheID))
-            {
-                p_Finally?.Invoke(File.ReadAllBytes(m_CacheFolder + l_CacheID));
-                yield break;
-            }
-
-            if (!p_IsRetry && m_ActiveDownloads.TryGetValue(p_URI, out var activeDownload))
+            if (!p_IsRetry && m_ActiveDownloads.TryGetValue(p_URI, out var _))
             {
                 Logger.Instance.Info($"[SDK.Chat][ImageProvider.DownloadContent] Request already active for {p_URI}");
                 yield break;
@@ -227,8 +276,8 @@ namespace BeatSaberPlus.SDK.Chat
                 /// Failed to download due to HTTP error, don't retry
                 if (l_Request.isHttpError)
                 {
-                    m_ActiveDownloads[p_URI]?.Invoke(new byte[0]);
-                    m_ActiveDownloads.TryRemove(p_URI, out var d1);
+                    m_ActiveDownloads[p_URI]?.Invoke(null);
+                    m_ActiveDownloads.TryRemove(p_URI, out var _);
                     yield break;
                 }
 
@@ -239,61 +288,30 @@ namespace BeatSaberPlus.SDK.Chat
                         Logger.Instance.Error($"[SDK.Chat][ImageProvider.DownloadContent] A network error occurred during request to {p_URI}. Retrying in 3 seconds... {l_Request.error}");
                         yield return new WaitForSeconds(3);
 
-                        SharedCoroutineStarter.instance.StartCoroutine(DownloadContent(p_URI, p_Finally, true));
+                        SharedCoroutineStarter.instance.StartCoroutine(DownloadContent(p_URI, p_CacheID, p_Finally, true));
 
                         yield break;
                     }
-                    m_ActiveDownloads[p_URI]?.Invoke(new byte[0]);
-                    m_ActiveDownloads.TryRemove(p_URI, out var d2);
+
+                    m_ActiveDownloads[p_URI]?.Invoke(null);
+                    m_ActiveDownloads.TryRemove(p_URI, out var _);
 
                     yield break;
                 }
 
                 var l_Data = l_Request.downloadHandler.data;
 
-                if (!Directory.Exists(m_CacheFolder))
-                    Directory.CreateDirectory(m_CacheFolder);
-
-                File.WriteAllBytes(m_CacheFolder + l_CacheID, l_Data);
+                if (m_CacheEnabled && l_Data != null && l_Data.Length > 0)
+                    SharedCoroutineStarter.instance.StartCoroutine(WriteCacheFile(p_CacheID, l_Data));
 
                 m_ActiveDownloads[p_URI]?.Invoke(l_Data);
-                m_ActiveDownloads.TryRemove(p_URI, out var d3);
+                m_ActiveDownloads.TryRemove(p_URI, out var _);
             }
         }
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        /// <summary>
-        /// On single image cached
-        /// </summary>
-        /// <param name="p_ID"></param>
-        /// <param name="p_Bytes">Result bytes</param>
-        /// <param name="p_IsAnimated">Is and animation image</param>
-        /// <param name="p_Finally">A callback that occurs after the resource is retrieved. This will always occur even if the resource is already cached.</param>
-        /// <param name="p_ForcedHeight">Forced height</param>
-        /// <returns></returns>
-        private static void OnSingleImageCached(string p_ID, byte[] p_Bytes, bool p_IsAnimated, Action<Unity.EnhancedImage> p_Finally = null, int p_ForcedHeight = -1)
-        {
-            if (p_IsAnimated)
-            {
-                SDK.Unity.EnhancedImage.FromRawAnimated(p_ID, AnimationType.GIF, p_Bytes, (p_Result) =>
-                {
-                    if (p_Result != null)
-                        m_CachedImageInfo[p_ID] = p_Result;
-
-                    p_Finally?.Invoke(p_Result);
-                }, p_ForcedHeight);
-            }
-            else
-            {
-                var l_Result = SDK.Unity.EnhancedImage.FromRawStatic(p_ID, p_Bytes, p_ForcedHeight);
-                if (l_Result != null)
-                    m_CachedImageInfo[p_ID] = l_Result;
-
-                p_Finally?.Invoke(l_Result);
-            }
-        }
         /// <summary>
         /// On sprite sheet cached
         /// </summary>
@@ -310,6 +328,29 @@ namespace BeatSaberPlus.SDK.Chat
                 m_CachedImageInfo[p_ID] = l_Result;
 
             p_Finally?.Invoke(l_Result);
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Write cache file
+        /// </summary>
+        /// <param name="p_CacheID">Cache ID</param>
+        /// <param name="p_Content">Content to write</param>
+        /// <returns></returns>
+        private static IEnumerator WriteCacheFile(string p_CacheID, byte[] p_Content)
+        {
+            /// Wait until menu scene
+            yield return new WaitUntil(() => Game.Logic.ActiveScene == Game.Logic.SceneType.Menu);
+
+            Task.Run(() =>
+            {
+                if (!Directory.Exists(m_CacheFolder))
+                    Directory.CreateDirectory(m_CacheFolder);
+
+                File.WriteAllBytes(m_CacheFolder + p_CacheID, p_Content);
+            });
         }
     }
 }

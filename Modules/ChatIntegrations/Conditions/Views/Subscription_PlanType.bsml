@@ -1,0 +1,8 @@
+﻿<vertical min-height='55' child-align='UpperCenter'>
+  <text text='Plan type:' align='Center' />
+
+  <list-setting id='PlanTypeList' value='PlanTypeList_Value' choices='PlanTypeList_Choices' apply-on-change='true' text='Plan type' />
+
+  <horizontal min-height='50'></horizontal>
+
+</vertical>

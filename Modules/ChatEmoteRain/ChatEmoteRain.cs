@@ -1,5 +1,5 @@
 ﻿using BeatSaberMarkupLanguage;
-using BeatSaberPlusChatCore.Interfaces;
+using BeatSaberPlus.SDK.Chat.Interfaces;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -219,12 +219,17 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain
                     var l_ParticleSystem = l_System.PS.main;
 
                     if (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Menu)
-                        l_ParticleSystem.startSize = Config.ChatEmoteRain.MenuRainSize;
+                    {
+                        l_ParticleSystem.startSize      = Config.ChatEmoteRain.MenuRainSize;
+                        l_ParticleSystem.startSpeed     = Config.ChatEmoteRain.MenuFallSpeed;
+                        l_ParticleSystem.startLifetime  = (8 / (Config.ChatEmoteRain.MenuFallSpeed - 1)) + 1;
+                    }
                     if (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Playing)
-                        l_ParticleSystem.startSize = Config.ChatEmoteRain.SongRainSize;
-
-                    l_ParticleSystem.startSpeed     = Config.ChatEmoteRain.EmoteFallSpeed;
-                    l_ParticleSystem.startLifetime  = (8 / (Config.ChatEmoteRain.EmoteFallSpeed - 1)) + 1;
+                    {
+                        l_ParticleSystem.startSize      = Config.ChatEmoteRain.SongRainSize;
+                        l_ParticleSystem.startSpeed     = Config.ChatEmoteRain.SongFallSpeed;
+                        l_ParticleSystem.startLifetime  = (8 / (Config.ChatEmoteRain.SongFallSpeed - 1)) + 1;
+                    }
                 }
             }
         }
@@ -301,20 +306,22 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain
         {
             if (p_FileName.ToLower().EndsWith(".png"))
             {
-                var l_Result = SDK.Unity.EnhancedImage.FromRawStatic(p_ID, File.ReadAllBytes(p_FileName));
-                if (l_Result != null)
+                SDK.Unity.EnhancedImage.FromRawStatic(p_ID, File.ReadAllBytes(p_FileName), (p_Result) =>
                 {
-                    l_Result.Sprite.texture.wrapMode = TextureWrapMode.Mirror;
-                    p_Callback?.Invoke(l_Result);
-                }
-                else
-                    Logger.Instance.Warn("Failed to load image " + p_FileName);
+                    if (p_Result != null)
+                    {
+                        p_Result.Sprite.texture.wrapMode = TextureWrapMode.Mirror;
+                        p_Callback?.Invoke(p_Result);
+                    }
+                    else
+                        Logger.Instance.Warn("Failed to load image " + p_FileName);
+                });
             }
             else if (p_FileName.ToLower().EndsWith(".gif"))
             {
                 SDK.Unity.EnhancedImage.FromRawAnimated(
                     p_ID,
-                    BeatSaberMarkupLanguage.Animations.AnimationType.GIF,
+                    SDK.Animation.AnimationType.GIF,
                     File.ReadAllBytes(p_FileName), (p_Result) =>
                     {
                         if (p_Result != null)
@@ -327,7 +334,7 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain
             {
                 SDK.Unity.EnhancedImage.FromRawAnimated(
                     p_ID,
-                    BeatSaberMarkupLanguage.Animations.AnimationType.APNG,
+                    SDK.Animation.AnimationType.APNG,
                     File.ReadAllBytes(p_FileName), (p_Result) =>
                     {
                         if (p_Result != null)
@@ -493,18 +500,41 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain
                 var l_ParticleSystem = l_TimeoutScript.PS.main;
 
                 if (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Menu)
-                    l_ParticleSystem.startSize = Config.ChatEmoteRain.MenuRainSize;
+                {
+                    l_ParticleSystem.startSize      = Config.ChatEmoteRain.MenuRainSize;
+                    l_ParticleSystem.startSpeed     = Config.ChatEmoteRain.MenuFallSpeed;
+                    l_ParticleSystem.startLifetime  = (8 / (Config.ChatEmoteRain.MenuFallSpeed - 1)) + 1;
+
+                }
                 if (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Playing)
-                    l_ParticleSystem.startSize = Config.ChatEmoteRain.SongRainSize;
+                {
+                    l_ParticleSystem.startSize      = Config.ChatEmoteRain.SongRainSize;
+                    l_ParticleSystem.startSpeed     = Config.ChatEmoteRain.SongFallSpeed;
+                    l_ParticleSystem.startLifetime  = (8 / (Config.ChatEmoteRain.SongFallSpeed - 1)) + 1;
+                }
 
                 l_ParticleSystem.simulationSpace    = ParticleSystemSimulationSpace.World;
-                l_ParticleSystem.startSpeed         = Config.ChatEmoteRain.EmoteFallSpeed;
-                l_ParticleSystem.startLifetime      = (8 / (Config.ChatEmoteRain.EmoteFallSpeed - 1)) + 1;
 
                 if (!l_PrefabPair.Item1.ContainsKey(p_EmoteID))
                     l_PrefabPair.Item1.Add(p_EmoteID, l_TimeoutScript);
                 else
                     l_PrefabPair.Item1[p_EmoteID] = l_TimeoutScript;
+
+                float l_AspectRatio = (float)l_EnhancedImageInfo.Width / (float)l_EnhancedImageInfo.Height;
+
+                /// Wide emote support
+                if (Mathf.Abs(1f - l_AspectRatio) > 0.1f)
+                {
+                    var l_StartSize3D = new Vector3(
+                            l_ParticleSystem.startSize.constant * l_AspectRatio,
+                            l_ParticleSystem.startSize.constant,
+                            l_ParticleSystem.startSize.constant
+                        );
+                    l_ParticleSystem.startSize3D = true;
+                    l_ParticleSystem.startSizeXMultiplier = l_StartSize3D.x;
+                    l_ParticleSystem.startSizeYMultiplier = l_StartSize3D.y;
+                    l_ParticleSystem.startSizeZMultiplier = l_StartSize3D.z;
+                }
 
                 /// Sorta working animated emotes
                 if (p_EmoteID != s_SUBRAIN_NO_EMOTE && l_EnhancedImageInfo.AnimControllerData != null)
@@ -670,9 +700,12 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain
         /// <returns></returns>
         private bool HasPower(IChatUser p_User)
         {
-            if (p_User is BeatSaberPlusChatCore.Models.Twitch.TwitchUser l_TwitchUser)
+            if (p_User is SDK.Chat.Models.Twitch.TwitchUser l_TwitchUser)
             {
-                return l_TwitchUser.IsBroadcaster || (Config.ChatEmoteRain.ModeratorPower && l_TwitchUser.IsModerator);
+                return l_TwitchUser.IsBroadcaster
+                    || (Config.ChatEmoteRain.ModeratorPower     && l_TwitchUser.IsModerator)
+                    || (Config.ChatEmoteRain.VIPPower           && l_TwitchUser.IsVip)
+                    || (Config.ChatEmoteRain.SubscriberPower    && l_TwitchUser.IsSubscriber);
             }
 
             return false;

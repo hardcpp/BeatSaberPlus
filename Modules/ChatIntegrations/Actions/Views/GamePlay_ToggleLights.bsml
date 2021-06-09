@@ -1,0 +1,12 @@
+﻿<vertical min-height='55' child-align='UpperCenter'>
+
+  <text text='Change lights:' align='Center' />
+  <list-setting id='TypeList' value='TypeList_Value' choices='TypeList_Choices' apply-on-change='true' text='Change type' />
+
+  <vertical id='InfoPanel_Background' bg='round-rect-panel' size-delta-x='60' min-width='60' pad-top='2' pad-bottom='2' pad-left='2' pad-right='2'>
+    <text align='Center' text="This action require BS+ GameTweaker to be enabled!"/>
+  </vertical>
+
+  <horizontal min-height='30'></horizontal>
+
+</vertical>

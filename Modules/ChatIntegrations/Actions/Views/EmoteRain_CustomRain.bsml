@@ -1,0 +1,24 @@
+﻿<vertical min-height='55' child-align='UpperCenter'>
+
+  <text text='Custom emote:' align='Center' />
+  <dropdown-list-setting id='File_DropDown' choices='File_DropDownOptions' apply-on-change='true' />
+
+  <increment-setting id='CountIncrement' text='Emote count' min='0' max='100' increment='1' integer-only='true'/>
+
+  <primary-button on-click='click-test-btn-pressed' text='Test' min-width='20'></primary-button>
+
+  <vertical id='InfoPanel_Background' bg='round-rect-panel' size-delta-x='60' min-width='60' pad-top='2' pad-bottom='2' pad-left='2' pad-right='2'>
+    <text align='Center' text="Assets are located in"/>
+    <text align='Center' text="UserData/BeatSaberPlus/ChatIntegrations/Assets/EmoteRain/"/>
+  </vertical>
+
+  <horizontal min-height='20'></horizontal>
+
+  <modal id='EmoteRainNotEnabledModal' show-event='ShowEmoteRainNotEnabledModal' hide-event='CloseEmoteRainNotEnabledModal,CloseAllModals' move-to-center='true' size-delta-y='20' size-delta-x='80'>
+    <vertical pad='0'>
+      <text text='ChatEmoteRain is not enabled!' align='Center'/>
+      <primary-button text='Ok' click-event='CloseEmoteRainNotEnabledModal'></primary-button>
+    </vertical>
+  </modal>
+
+</vertical>

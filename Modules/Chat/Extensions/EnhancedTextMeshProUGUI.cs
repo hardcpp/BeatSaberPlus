@@ -1,5 +1,4 @@
-﻿using BeatSaberMarkupLanguage.Animations;
-using BeatSaberPlusChatCore.Interfaces;
+﻿using BeatSaberPlus.SDK.Chat.Interfaces;
 using System;
 using System.Collections.Generic;
 using TMPro;
@@ -70,9 +69,11 @@ namespace BeatSaberPlus.Modules.Chat.Extensions
                 l_Image.rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
                 l_Image.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
                 l_Image.rectTransform.pivot     = new Vector2(0, 0);
-                l_Image.AnimStateUpdater        = l_Image.gameObject.AddComponent<AnimationStateUpdater>();
+                l_Image.AnimStateUpdater        = l_Image.gameObject.AddComponent<SDK.Animation.AnimationStateUpdater>();
                 l_Image.AnimStateUpdater.image  = l_Image;
                 l_Image.gameObject.SetActive(false);
+
+                SDK.Unity.GameObject.ChangerLayerRecursive(l_Image.gameObject, LayerMask.NameToLayer("UI"));
 
                 DontDestroyOnLoad(l_Image.gameObject);
 

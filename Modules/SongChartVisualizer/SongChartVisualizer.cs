@@ -55,6 +55,10 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer
         /// Window GameObject
         /// </summary>
         private GameObject m_MasterGOB = null;
+        /// <summary>
+        /// Chart floating screen
+        /// </summary>
+        private FloatingScreen m_ChartFloatingScreen = null;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -65,10 +69,7 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer
         protected override void OnEnable()
         {
             /// Bind event
-            SDK.Game.Logic.OnSceneChange += Game_OnSceneChange;
-
-            /// Temp
-            Config.SongChartVisualizer.ResetPosition();
+            SDK.Game.Logic.OnLevelStarted += Game_LevelStarted;
         }
         /// <summary>
         /// Disable the Module
@@ -76,7 +77,7 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer
         protected override void OnDisable()
         {
             /// Unbind event
-            SDK.Game.Logic.OnSceneChange -= Game_OnSceneChange;
+            SDK.Game.Logic.OnLevelStarted -= Game_LevelStarted;
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -105,14 +106,13 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
-        /// When the active scene change
+        /// When a level start
         /// </summary>
-        /// <param name="p_Scene">Scene type</param>
-        private void Game_OnSceneChange(SDK.Game.Logic.SceneType p_Scene)
+        /// <param name="p_Data">Level data</param>
+        private void Game_LevelStarted(SDK.Game.LevelData p_Data)
         {
-            m_MasterGOB = null;
-
-            if (p_Scene != SDK.Game.Logic.SceneType.Playing)
+            /// Not enabled in multi-player
+            if (p_Data.Type == SDK.Game.LevelType.Multiplayer)
                 return;
 
             /// Start the task
@@ -127,13 +127,13 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer
         /// </summary>
         internal void RefreshPreview()
         {
-            DestroyPreview();
+            DestroyChart();
             SharedCoroutineStarter.instance.StartCoroutine(CreateChartVisualizer());
         }
         /// <summary>
         /// Destroy the preview
         /// </summary>
-        internal void DestroyPreview()
+        internal void DestroyChart()
         {
             if (m_MasterGOB == null || !m_MasterGOB)
                 return;
@@ -153,7 +153,7 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer
         {
             yield return new WaitForEndOfFrame();
 
-            var l_HasRotation = BS_Utils.Plugin.LevelData?.GameplayCoreSceneSetupData?.difficultyBeatmap?.beatmapData?.spawnRotationEventsCount > 0;
+            var l_HasRotation = SDK.Game.Logic.LevelData?.Data?.difficultyBeatmap?.beatmapData?.spawnRotationEventsCount > 0;
             var l_Position = l_HasRotation ? new Vector3(Config.SongChartVisualizer.Chart360_90PositionX,   Config.SongChartVisualizer.Chart360_90PositionY,    Config.SongChartVisualizer.Chart360_90PositionZ)
                                            : new Vector3(Config.SongChartVisualizer.ChartStandardPositionX, Config.SongChartVisualizer.ChartStandardPositionY,  Config.SongChartVisualizer.ChartStandardPositionZ);
             var l_Rotation = l_HasRotation ? new Vector3(Config.SongChartVisualizer.Chart360_90RotationX,   Config.SongChartVisualizer.Chart360_90RotationY,    Config.SongChartVisualizer.Chart360_90RotationZ)
@@ -165,14 +165,31 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer
                 l_Rotation = new Vector3(0f, 58f, 0f);
             }
 
-            var l_FloatingScreen = FloatingScreen.CreateFloatingScreen(new Vector2(105, 65), false, l_Position, Quaternion.identity, 0f, true);
-            l_FloatingScreen.gameObject.AddComponent<Components.SongChart>();
+            m_ChartFloatingScreen = FloatingScreen.CreateFloatingScreen(new Vector2(105, 65), true, l_Position, Quaternion.identity, 0f, true);
+            m_ChartFloatingScreen.handle.transform.localScale    = new Vector2(105, 65);
+            m_ChartFloatingScreen.handle.transform.localPosition = Vector3.zero;
+            m_ChartFloatingScreen.handle.transform.localRotation = Quaternion.identity;
+            m_ChartFloatingScreen.gameObject.AddComponent<Components.SongChart>();
 
             /// Set rotation
-            l_FloatingScreen.ScreenRotation = Quaternion.Euler(l_Rotation);
+            m_ChartFloatingScreen.ScreenRotation = Quaternion.Euler(l_Rotation);
 
             /// Update background color
-            l_FloatingScreen.GetComponentInChildren<ImageView>().color = Config.SongChartVisualizer.BackgroundColor;
+            m_ChartFloatingScreen.GetComponentInChildren<ImageView>().color = Config.SongChartVisualizer.BackgroundColor;
+
+            /// Update handle material
+            var l_ChartFloatingScreenHandleMaterial = GameObject.Instantiate(SDK.Unity.Material.UINoGlowMaterial);
+            l_ChartFloatingScreenHandleMaterial.color = Color.clear;
+            m_ChartFloatingScreen.handle.gameObject.GetComponent<Renderer>().material = l_ChartFloatingScreenHandleMaterial;
+
+            /// Bind event
+            m_ChartFloatingScreen.HandleReleased += OnFloatingWindowMoved;
+
+            /// Create UI Controller
+            var l_ChatFloatingScreenController = BeatSaberUI.CreateViewController<UI.FloatingWindow>();
+            m_ChartFloatingScreen.SetRootViewController(l_ChatFloatingScreenController, HMUI.ViewController.AnimationType.None);
+            l_ChatFloatingScreenController.gameObject.SetActive(true);
+            m_ChartFloatingScreen.GetComponentInChildren<Canvas>().sortingOrder = 4;
 
             /// Master GameObject
             m_MasterGOB = new GameObject("BeatSaberPlus_SongChartVisualizer");
@@ -180,7 +197,42 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer
             m_MasterGOB.transform.rotation = Quaternion.identity;
 
             /// Apply parent
-            l_FloatingScreen.transform.SetParent(m_MasterGOB.transform);
+            m_ChartFloatingScreen.transform.SetParent(m_MasterGOB.transform);
+        }
+        /// <summary>
+        /// When the floating window is moved
+        /// </summary>
+        /// <param name="p_Sender">Event sender</param>
+        /// <param name="p_Event">Event data</param>
+        private void OnFloatingWindowMoved(object p_Sender, FloatingScreenHandleEventArgs p_Event)
+        {
+            /// Always parallel to the floor
+            if (Config.SongChartVisualizer.AlignWithFloor)
+                m_ChartFloatingScreen.transform.localEulerAngles = new Vector3(m_ChartFloatingScreen.transform.localEulerAngles.x, m_ChartFloatingScreen.transform.localEulerAngles.y, 0);
+
+            /// Don't update from preview
+            if (SDK.Game.Logic.ActiveScene != SDK.Game.Logic.SceneType.Playing)
+                return;
+
+            var l_HasRotation = SDK.Game.Logic.LevelData?.Data?.difficultyBeatmap?.beatmapData?.spawnRotationEventsCount > 0;
+            if (!l_HasRotation)
+            {
+                Config.SongChartVisualizer.ChartStandardPositionX   = m_ChartFloatingScreen.transform.localPosition.x;
+                Config.SongChartVisualizer.ChartStandardPositionY   = m_ChartFloatingScreen.transform.localPosition.y;
+                Config.SongChartVisualizer.ChartStandardPositionZ   = m_ChartFloatingScreen.transform.localPosition.z;
+                Config.SongChartVisualizer.ChartStandardRotationX   = m_ChartFloatingScreen.transform.localEulerAngles.x;
+                Config.SongChartVisualizer.ChartStandardRotationY   = m_ChartFloatingScreen.transform.localEulerAngles.y;
+                Config.SongChartVisualizer.ChartStandardRotationZ   = m_ChartFloatingScreen.transform.localEulerAngles.z;
+            }
+            else
+            {
+                Config.SongChartVisualizer.Chart360_90PositionX     = m_ChartFloatingScreen.transform.localPosition.x;
+                Config.SongChartVisualizer.Chart360_90PositionY     = m_ChartFloatingScreen.transform.localPosition.y;
+                Config.SongChartVisualizer.Chart360_90PositionZ     = m_ChartFloatingScreen.transform.localPosition.z;
+                Config.SongChartVisualizer.Chart360_90RotationX     = m_ChartFloatingScreen.transform.localEulerAngles.x;
+                Config.SongChartVisualizer.Chart360_90RotationY     = m_ChartFloatingScreen.transform.localEulerAngles.y;
+                Config.SongChartVisualizer.Chart360_90RotationZ     = m_ChartFloatingScreen.transform.localEulerAngles.z;
+            }
         }
     }
 }

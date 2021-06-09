@@ -76,12 +76,6 @@ namespace BeatSaberPlus.SDK.Game
                         return;
                     }
                 }
-
-                var l_BSUtilsTask = BS_Utils.Gameplay.GetUserInfo.GetUserAsync();
-                l_BSUtilsTask.Wait();
-
-                m_UserID   = l_BSUtilsTask.Result.platformUserId;
-                m_UserName = l_BSUtilsTask.Result.userName;
             }
             catch (System.Exception l_Exception)
             {

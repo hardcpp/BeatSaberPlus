@@ -210,13 +210,27 @@ namespace BeatSaberPlus.SDK.UI.DataSource
 
             if ((l_SongEntry.BeatSaver_Map != null && !l_SongEntry.BeatSaver_Map.Partial) || l_SongEntry.CustomLevel != null)
             {
-                var l_HaveSong = l_SongEntry.CustomLevel != null && SongCore.Loader.CustomLevels.ContainsKey(l_SongEntry.CustomLevel.customLevelPath);
+                var l_HaveSong  = l_SongEntry.CustomLevel != null && SongCore.Loader.CustomLevels.ContainsKey(l_SongEntry.CustomLevel.customLevelPath);
+                var l_Scores    = Game.Level.GetScoresByHash(l_SongEntry.GetLevelHash(), out var l_HaveAnyScore, out var l_HaveAllScores);
 
                 string l_MapName        = "";
                 string l_MapAuthor      = "";
                 string l_MapSongAuthor  = "";
                 float  l_Duration       = 0f;
                 float  l_BPM            = 0f;
+
+                if (l_HaveAnyScore && l_Scores.Count != 0)
+                {
+                    string l_HoverHintSuffix = "";
+                    foreach (var l_Row in l_Scores)
+                    {
+                        l_HoverHintSuffix += $"\n{l_Row.Key.serializedName} ";
+                        foreach (var l_SubRow in l_Row.Value)
+                            l_HoverHintSuffix += (l_SubRow.Item2 != -1 ? "<color=green>✔</color> " : "<color=red>❌</color> ");
+                    }
+
+                    l_SongEntry.HoverHint += "\n" + l_HoverHintSuffix;
+                }
 
                 if (l_SongEntry.CustomLevel != null)
                 {
@@ -248,11 +262,19 @@ namespace BeatSaberPlus.SDK.UI.DataSource
                     l_BPM           = l_SongEntry.BeatSaver_Map.Metadata.BPM;
                 }
 
-                string l_Title      = l_SongEntry.TitlePrefix + (l_SongEntry.TitlePrefix.Length != 0 ? " " : "") + (l_HaveSong ? "<#7F7F7F>" : "") + l_MapName;
-                string l_SubTitle   = l_MapAuthor + " [" + l_MapSongAuthor + "]";
+                var l_ColorPrefix = "";
+                if (l_HaveAllScores)
+                    l_ColorPrefix = "<#52F700>";
+                else if (l_HaveAnyScore)
+                    l_ColorPrefix = "<#F8E600>";
+                else if (l_HaveSong)
+                    l_ColorPrefix = "<#7F7F7F>";
 
-                if (l_Title.Length > (28 + (l_HaveSong ? "<#7F7F7F>".Length : 0)))
-                    l_Title = l_Title.Substring(0, 28 + (l_HaveSong ? "<#7F7F7F>".Length : 0)) + "...";
+                string l_Title          = l_SongEntry.TitlePrefix + (l_SongEntry.TitlePrefix.Length != 0 ? " " : "") + l_ColorPrefix + l_MapName;
+                string l_SubTitle       = l_MapAuthor + " [" + l_MapSongAuthor + "]";
+
+                if (l_Title.Length > (28 + l_ColorPrefix.Length))
+                    l_Title = l_Title.Substring(0, 28 + l_ColorPrefix.Length) + "...";
                 if (l_SubTitle.Length > 28)
                     l_SubTitle = l_SubTitle.Substring(0, 28) + "...";
 
@@ -311,34 +333,55 @@ namespace BeatSaberPlus.SDK.UI.DataSource
                     }
                     else if (l_SongEntry.BeatSaver_Map != null)
                     {
-                        /// Fetch cover
-                        var l_CoverTask = l_SongEntry.BeatSaver_Map.CoverImageBytes();
-                        _ = l_CoverTask.ContinueWith(p_CoverTaskResult =>
+                        var l_CoverByte = Game.BeatSaver.GetBeatmapCoverFromCacheByKey(l_SongEntry.BeatSaver_Map.Key);
+                        if (l_CoverByte != null && l_CoverByte.Length > 0)
                         {
-                            if (l_Cell.idx >= Data.Count || l_SongEntry != Data[l_Cell.idx])
-                                return;
-
-                            Unity.MainThreadInvoker.Enqueue(() =>
+                            var l_Texture = Unity.Texture2D.CreateFromRaw(l_CoverByte);
+                            if (l_Texture != null)
                             {
-                                var l_Texture = Unity.Texture2D.CreateFromRaw(p_CoverTaskResult.Result);
-                                if (l_Texture != null)
+                                l_SongEntry.Cover = UnityEngine.Sprite.Create(l_Texture, new UnityEngine.Rect(0, 0, l_Texture.width, l_Texture.height), new UnityEngine.Vector2(0.5f, 0.5f), 100);
+
+                                /// Cache cover
+                                if (!CoverCache.ContainsKey(l_SongEntry.GetLevelHash()))
+                                    CoverCache.Add(l_SongEntry.GetLevelHash(), l_SongEntry.Cover);
+
+                                l_Cell.GetField<UnityEngine.UI.Image, LevelListTableCell>("_coverImage").sprite = l_SongEntry.Cover;
+                                OnCoverFetched?.Invoke(l_Cell.idx, l_SongEntry);
+                            }
+                        }
+                        else
+                        {
+                            /// Fetch cover
+                            var l_CoverTask = l_SongEntry.BeatSaver_Map.CoverImageBytes();
+                            _ = l_CoverTask.ContinueWith(p_CoverTaskResult =>
+                            {
+                                Game.BeatSaver.CacheBeatmapCover(l_SongEntry.BeatSaver_Map, p_CoverTaskResult.Result);
+
+                                if (l_Cell.idx >= Data.Count || l_SongEntry != Data[l_Cell.idx])
+                                    return;
+
+                                Unity.MainThreadInvoker.Enqueue(() =>
                                 {
-                                    l_SongEntry.Cover = UnityEngine.Sprite.Create(l_Texture, new UnityEngine.Rect(0, 0, l_Texture.width, l_Texture.height), new UnityEngine.Vector2(0.5f, 0.5f), 100);
-
-                                    /// Cache cover
-                                    if (!CoverCache.ContainsKey(l_SongEntry.GetLevelHash()))
-                                        CoverCache.Add(l_SongEntry.GetLevelHash(), l_SongEntry.Cover);
-
-                                    if (l_Cell.idx < Data.Count && l_SongEntry == Data[l_Cell.idx])
+                                    var l_Texture = Unity.Texture2D.CreateFromRaw(p_CoverTaskResult.Result);
+                                    if (l_Texture != null)
                                     {
-                                        l_Cell.GetField<UnityEngine.UI.Image, LevelListTableCell>("_coverImage").sprite = l_SongEntry.Cover;
-                                        l_Cell.RefreshVisuals();
+                                        l_SongEntry.Cover = UnityEngine.Sprite.Create(l_Texture, new UnityEngine.Rect(0, 0, l_Texture.width, l_Texture.height), new UnityEngine.Vector2(0.5f, 0.5f), 100);
 
-                                        OnCoverFetched?.Invoke(l_Cell.idx, l_SongEntry);
+                                        /// Cache cover
+                                        if (!CoverCache.ContainsKey(l_SongEntry.GetLevelHash()))
+                                            CoverCache.Add(l_SongEntry.GetLevelHash(), l_SongEntry.Cover);
+
+                                        if (l_Cell.idx < Data.Count && l_SongEntry == Data[l_Cell.idx])
+                                        {
+                                            l_Cell.GetField<UnityEngine.UI.Image, LevelListTableCell>("_coverImage").sprite = l_SongEntry.Cover;
+                                            l_Cell.RefreshVisuals();
+
+                                            OnCoverFetched?.Invoke(l_Cell.idx, l_SongEntry);
+                                        }
                                     }
-                                }
+                                });
                             });
-                        });
+                        }
                     }
                 }
             }
@@ -442,7 +485,7 @@ namespace BeatSaberPlus.SDK.UI.DataSource
             if (l_SongRowData.CustomLevel != null && SongCore.Loader.CustomLevels.ContainsKey(l_SongRowData.CustomLevel.customLevelPath))
             {
                 if (AudioClipCache.TryGetValue(l_SongRowData.GetLevelHash(), out var l_AudioClip))
-                    m_SongPreviewPlayer.CrossfadeTo(l_AudioClip, l_SongRowData.CustomLevel.previewStartTime, l_SongRowData.CustomLevel.previewDuration, PreviewAudioVolume);
+                    m_SongPreviewPlayer.CrossfadeTo(l_AudioClip, l_SongRowData.CustomLevel.previewStartTime, l_SongRowData.CustomLevel.previewDuration, false);
                 else
                 {
                     l_SongRowData.CustomLevel.GetPreviewAudioClipAsync(CancellationToken.None).ContinueWith(x =>
@@ -454,7 +497,7 @@ namespace BeatSaberPlus.SDK.UI.DataSource
                                 if (!AudioClipCache.ContainsKey(l_SongRowData.GetLevelHash()))
                                     AudioClipCache.Add(l_SongRowData.GetLevelHash(), x.Result);
 
-                                m_SongPreviewPlayer.CrossfadeTo(x.Result, l_SongRowData.CustomLevel.previewStartTime, l_SongRowData.CustomLevel.previewDuration, PreviewAudioVolume);
+                                m_SongPreviewPlayer.CrossfadeTo(x.Result, l_SongRowData.CustomLevel.previewStartTime, l_SongRowData.CustomLevel.previewDuration, false);
                             });
                         }
                     });

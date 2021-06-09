@@ -49,15 +49,15 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer.Components
         {
             m_AudioTimeSyncController = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().FirstOrDefault();
 
-            bool l_NoUI = BS_Utils.Plugin.LevelData?.GameplayCoreSceneSetupData?.playerSpecificSettings?.noTextsAndHuds ?? false;
+            bool l_NoUI = SDK.Game.Logic.LevelData?.Data?.playerSpecificSettings?.noTextsAndHuds ?? false;
 
             if (l_NoUI)
             {
-                SongChartVisualizer.Instance.DestroyPreview();
+                SongChartVisualizer.Instance.DestroyChart();
                 return;
             }
 
-            var l_DifficultyBeatmap = BS_Utils.Plugin.LevelData?.GameplayCoreSceneSetupData?.difficultyBeatmap;
+            var l_DifficultyBeatmap = SDK.Game.Logic.LevelData?.Data?.difficultyBeatmap;
             if ((l_DifficultyBeatmap != null && l_DifficultyBeatmap.beatmapData != null) || SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Menu)
             {
                 var l_SongDuration = -1f;
@@ -263,6 +263,8 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer.Components
                         (m_Pointer.transform as RectTransform).anchorMin         = Vector2.zero;
                         (m_Pointer.transform as RectTransform).anchorMax         = Vector2.zero;
                         (m_Pointer.transform as RectTransform).anchoredPosition  = m_Points.Count > 0 ? m_Points[m_CurrentGraphDataIndex] : Vector2.zero;
+
+                        SDK.Unity.GameObject.ChangerLayerRecursive(gameObject, LayerMask.NameToLayer("UI"));
                     }
                 }
             }
@@ -282,7 +284,7 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer.Components
             if (m_FlyingGameHUDRotation != null && m_FlyingGameHUDRotation && Config.SongChartVisualizer.FollowEnvironementRotation)
                 transform.parent.rotation = m_FlyingGameHUDRotation.transform.rotation;
 
-            if (m_AudioTimeSyncController == null || m_GraphCanvas == null || m_Pointer == null)
+            if (m_GraphCanvas == null || m_Pointer == null || m_AudioTimeSyncController == null || !m_AudioTimeSyncController || m_AudioTimeSyncController .state == AudioTimeSyncController.State.Stopped)
                 return;
 
             float l_CurrentSongPosition = m_AudioTimeSyncController.songTime;

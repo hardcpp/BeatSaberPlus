@@ -1,8 +1,7 @@
-﻿using BeatSaberPlusChatCore.Interfaces;
+﻿using BeatSaberPlus.SDK.Chat.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Collections.Concurrent;
-using System.Linq;
+using System.Diagnostics;
 
 namespace BeatSaberPlus.SDK.Chat
 {
@@ -14,11 +13,11 @@ namespace BeatSaberPlus.SDK.Chat
         /// <summary>
         /// Chat core instance
         /// </summary>
-        private static BeatSaberPlusChatCore.ChatCoreInstance m_ChatCore = null;
+        private static List<Interfaces.IChatService> m_Services = null;
         /// <summary>
         /// Chat core multiplexer
         /// </summary>
-        private static BeatSaberPlusChatCore.Services.ChatServiceMultiplexer m_ChatCoreMutiplixer = null;
+        private static Services.ChatServiceMultiplexer m_ChatCoreMutiplixer = null;
         /// <summary>
         /// Reference count
         /// </summary>
@@ -27,6 +26,18 @@ namespace BeatSaberPlus.SDK.Chat
         /// Lock object
         /// </summary>
         private static object m_Object = new object();
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Init
+        /// </summary>
+        internal static void Init()
+        {
+            AuthConfig.Init();
+            SettingsConfig.Init();
+        }
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -60,7 +71,8 @@ namespace BeatSaberPlus.SDK.Chat
                 else
                     m_ReferenceCount--;
 
-                if (m_ReferenceCount < 0) m_ReferenceCount = 0;
+                if (m_ReferenceCount < 0)
+                    m_ReferenceCount = 0;
             }
         }
 
@@ -72,14 +84,20 @@ namespace BeatSaberPlus.SDK.Chat
         /// </summary>
         public static void OpenWebConfigurator()
         {
-            if (m_ChatCore != null)
-                m_ChatCore.LaunchWebApp();
+            Process.Start($"http://localhost:{SettingsConfig.WebApp.WebAppPort}");
         }
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        public static BeatSaberPlusChatCore.Services.ChatServiceMultiplexer Multiplexer => m_ChatCoreMutiplixer;
+        /// <summary>
+        /// Chat multiplexer
+        /// </summary>
+        public static Services.ChatServiceMultiplexer Multiplexer => m_ChatCoreMutiplixer;
+        /// <summary>
+        /// Discrete OnTextMessageReceived
+        /// </summary>
+        public static event Action<IChatService, IChatMessage> Discrete_OnTextMessageReceived;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -89,36 +107,59 @@ namespace BeatSaberPlus.SDK.Chat
         /// </summary>
         private static void Create()
         {
-            if (m_ChatCore != null)
+            if (m_Services != null)
                 return;
 
-            /// Init chat core
-            m_ChatCore = BeatSaberPlusChatCore.ChatCoreInstance.Create();
-            m_ChatCore.OnLogReceived += ChatCore_OnLogReceived;
+            /// Init services
+            m_Services = new List<Interfaces.IChatService>()
+            {
+                new Services.Twitch.TwitchService()
+            };
 
             /// Run all services
-            m_ChatCoreMutiplixer = m_ChatCore.RunAllServices();
+            m_ChatCoreMutiplixer = new Services.ChatServiceMultiplexer(m_Services);
             m_ChatCoreMutiplixer.OnChannelResourceDataCached += ChatCoreMutiplixer_OnChannelResourceDataCached;
+            m_ChatCoreMutiplixer.OnTextMessageReceived       += ChatCoreMutiplixer_OnTextMessageReceived;
+
+            /// Start services
+            foreach (var l_Service in m_Services)
+            {
+                if (l_Service is Services.Twitch.TwitchService l_TwitchService)
+                    l_TwitchService.Start();
+            }
+
+            /// WebApp
+            WebApp.Start();
+            if (SettingsConfig.WebApp.LaunchWebAppOnStartup)
+                OpenWebConfigurator();
         }
         /// <summary>
         /// Destroy
         /// </summary>
         private static void Destroy()
         {
-            if (m_ChatCore == null)
+            if (m_Services == null)
                 return;
+
+            /// WebApp
+            WebApp.Stop();
 
             /// Clear cache
             ImageProvider.ClearCache();
 
             /// Unbind services
             m_ChatCoreMutiplixer.OnChannelResourceDataCached -= ChatCoreMutiplixer_OnChannelResourceDataCached;
+            m_ChatCoreMutiplixer.OnTextMessageReceived       -= ChatCoreMutiplixer_OnTextMessageReceived;
             m_ChatCoreMutiplixer = null;
 
             /// Stop all chat services
-            m_ChatCore.StopAllServices();
-            m_ChatCore.OnLogReceived -= ChatCore_OnLogReceived;
-            m_ChatCore = null;
+            foreach (var l_Service in m_Services)
+            {
+                if (l_Service is Services.Twitch.TwitchService l_TwitchService)
+                    l_TwitchService.Stop();
+            }
+
+            m_Services = null;
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -133,29 +174,6 @@ namespace BeatSaberPlus.SDK.Chat
         {
             foreach (var l_Current in Multiplexer.Channels)
                 l_Current.Item1.SendTextMessage(l_Current.Item2, p_Message);
-        }
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        /// <summary>
-        /// Forward chat core message
-        /// </summary>
-        /// <param name="p_Level">Logging level</param>
-        /// <param name="p_Category">Message category</param>
-        /// <param name="p_Message">Message</param>
-        private static void ChatCore_OnLogReceived(BeatSaberPlusChatCore.Logging.CustomLogLevel p_Level, string p_Category, string p_Message)
-        {
-            string l_Message = string.Format("[{0}] {1}", p_Category, p_Message);
-            switch (p_Level)
-            {
-                case BeatSaberPlusChatCore.Logging.CustomLogLevel.Critical:      Logger.Instance.Critical(l_Message);    break;
-                case BeatSaberPlusChatCore.Logging.CustomLogLevel.Debug:         Logger.Instance.Debug(l_Message);       break;
-                case BeatSaberPlusChatCore.Logging.CustomLogLevel.Error:         Logger.Instance.Error(l_Message);       break;
-                case BeatSaberPlusChatCore.Logging.CustomLogLevel.Information:   Logger.Instance.Info(l_Message);        break;
-                case BeatSaberPlusChatCore.Logging.CustomLogLevel.Trace:         Logger.Instance.Trace(l_Message);       break;
-                case BeatSaberPlusChatCore.Logging.CustomLogLevel.Warning:       Logger.Instance.Warn(l_Message);        break;
-            }
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -183,6 +201,30 @@ namespace BeatSaberPlus.SDK.Chat
 
                 Logger.Instance.Info($"Pre-cached {l_Count} animated emotes.");
             });
+        }
+        /// <summary>
+        /// On text message received
+        /// </summary>
+        /// <param name="p_Service">Chat service</param>
+        /// <param name="p_Message">Chat message</param>
+        private static void ChatCoreMutiplixer_OnTextMessageReceived(IChatService p_Service, IChatMessage p_Message)
+        {
+            if (p_Message.Message.Length > 2 && p_Message.Message[0] == '!')
+            {
+                string l_LMessage = p_Message.Message.ToLower();
+
+                if (l_LMessage.StartsWith("!bsplusversion"))
+                    p_Service.SendTextMessage(p_Message.Channel, $"! @{p_Message.Sender.DisplayName} current version {Plugin.Version.Major}.{Plugin.Version.Minor}.{Plugin.Version.Patch}!");
+            }
+
+            try
+            {
+                Discrete_OnTextMessageReceived?.Invoke(p_Service, p_Message);
+            }
+            catch
+            {
+
+            }
         }
     }
 }

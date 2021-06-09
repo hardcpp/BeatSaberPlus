@@ -28,6 +28,18 @@ namespace BeatSaberPlus.SDK.Config
         /// <param name="p_FilePath">Full path to INI file.</param>
         public INIFile(string p_FilePath)
         {
+            try
+            {
+                var l_Directory = Path.GetDirectoryName(p_FilePath);
+                if (!Directory.Exists(l_Directory))
+                    Directory.CreateDirectory(l_Directory);
+            }
+            catch(System.Exception l_Exception)
+            {
+                Logger.Instance?.Error("[SDK.Config][IniFile] Failed to create directory " + p_FilePath);
+                Logger.Instance?.Error(l_Exception);
+            }
+
             TextReader l_TextReader = null;
 
             SortedDictionary<string, string> l_CurrentRoot = null;
@@ -53,11 +65,19 @@ namespace BeatSaberPlus.SDK.Config
 
                                 l_CurrentRoot = m_Values[l_SectionName];
                             }
-                            else if (l_CurrentRoot != null)
+                            else if (l_CurrentRoot != null && l_StrLine.Contains("="))
                             {
-                                var l_KeyPair = l_StrLine.Split(new char[] { '=' }, 2);
-                                var l_Key = (l_KeyPair.Length > 0) ? l_KeyPair[0].Trim() : "";
-                                var l_Val = (l_KeyPair.Length > 1) ? l_KeyPair[1].Trim() : null;
+                                var l_Left  = l_StrLine.Substring(0, l_StrLine.IndexOf('='));
+                                var l_Right = l_StrLine.Substring(l_StrLine.IndexOf('=') + 1);
+
+                                var l_Key = l_Left.Trim();
+                                var l_Val = l_Right.Trim();
+
+                                if (l_Val.Contains("//"))
+                                    l_Val = l_Val.Substring(0, l_Val.IndexOf("//")).Trim();
+
+                                if (l_Val.StartsWith("\"") && l_Val.EndsWith("\""))
+                                    l_Val = l_Val.Substring(1, l_Val.Length - 2);
 
                                 if (!l_CurrentRoot.ContainsKey(l_Key))
                                     l_CurrentRoot.Add(l_Key, l_Val);

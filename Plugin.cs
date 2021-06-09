@@ -1,9 +1,14 @@
 ﻿using BeatSaberMarkupLanguage.MenuButtons;
 using HarmonyLib;
 using IPA;
+using IPA.Utilities;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Reflection.Emit;
+using TMPro;
+using UnityEngine;
 
 namespace BeatSaberPlus
 {
@@ -60,6 +65,21 @@ namespace BeatSaberPlus
 
             /// Init config
             Config.Init();
+            SDK.Chat.Service.Init();
+
+            /// Cleaning old BeatSaberPlusChatCore
+            try
+            {
+                if (System.IO.File.Exists("Plugins/BeatSaberPlusChatCore.manifest"))
+                    System.IO.File.Delete("Plugins/BeatSaberPlusChatCore.manifest");
+
+                if (System.IO.File.Exists("Libs/BeatSaberPlusChatCore.dll"))
+                    System.IO.File.Delete("Libs/BeatSaberPlusChatCore.dll");
+            }
+            catch (System.Exception)
+            {
+
+            }
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -71,6 +91,7 @@ namespace BeatSaberPlus
         [OnEnable]
         public void OnEnable()
         {
+            //new GameObject().AddComponent<test>();
             try
             {
                 Logger.Instance.Debug("Applying Harmony patches.");
@@ -123,6 +144,8 @@ namespace BeatSaberPlus
                 }
 
                 Modules.Sort((x, y) => x.Name.CompareTo(y.Name));
+
+                SDK.VoiceAttack.Service.Acquire();
             }
             catch (System.Exception p_Exception)
             {
@@ -140,6 +163,9 @@ namespace BeatSaberPlus
 
             /// Release all chat services
             SDK.Chat.Service.Release(true);
+
+            /// Release voice attack service
+            SDK.VoiceAttack.Service.Release(true);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -161,7 +187,7 @@ namespace BeatSaberPlus
             {
                 try {
                     l_Module.CheckForActivation(SDK.IModuleBaseActivationType.OnMenuSceneLoaded);
-                } catch (System.Exception p_InitException) { Logger.Instance.Error("Error on plugin init " + l_Module.Name); Logger.Instance.Error(p_InitException); }
+                } catch (System.Exception p_InitException) { Logger.Instance.Error("Error on module init " + l_Module.Name); Logger.Instance.Error(p_InitException); }
             }
         }
     }

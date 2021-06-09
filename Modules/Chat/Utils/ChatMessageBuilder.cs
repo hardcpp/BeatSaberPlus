@@ -1,6 +1,6 @@
-﻿using BeatSaberPlusChatCore.Interfaces;
-using BeatSaberPlusChatCore.Models;
-using BeatSaberPlusChatCore.Models.Twitch;
+﻿using BeatSaberPlus.SDK.Chat.Interfaces;
+using BeatSaberPlus.SDK.Chat.Models;
+using BeatSaberPlus.SDK.Chat.Models.Twitch;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;

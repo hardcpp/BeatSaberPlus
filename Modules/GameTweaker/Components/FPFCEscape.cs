@@ -1,4 +1,4 @@
-﻿using BS_Utils.Utilities;
+﻿using IPA.Utilities;
 using Polyglot;
 using System.Linq;
 using TMPro;
@@ -69,9 +69,9 @@ namespace BeatSaberPlus.Modules.GameTweaker.Components
                 if (m_FPFCPause && !m_PauseMenuManager.enabled)
                 {
                     /// Enable localized
-                    m_PauseMenuManager.GetField<Button>("_backButton").transform.GetChild(2).GetComponentInChildren<LocalizedTextMeshProUGUI>().enabled = true;
-                    m_PauseMenuManager.GetField<Button>("_restartButton").transform.GetChild(2).GetComponentInChildren<LocalizedTextMeshProUGUI>().enabled = true;
-                    m_PauseMenuManager.GetField<Button>("_continueButton").transform.GetChild(2).GetComponentInChildren<LocalizedTextMeshProUGUI>().enabled = true;
+                    m_PauseMenuManager.GetField<Button, PauseMenuManager>("_backButton").transform.GetChild(2).GetComponentInChildren<LocalizedTextMeshProUGUI>().enabled = true;
+                    m_PauseMenuManager.GetField<Button, PauseMenuManager>("_restartButton").transform.GetChild(2).GetComponentInChildren<LocalizedTextMeshProUGUI>().enabled = true;
+                    m_PauseMenuManager.GetField<Button, PauseMenuManager>("_continueButton").transform.GetChild(2).GetComponentInChildren<LocalizedTextMeshProUGUI>().enabled = true;
 
                     m_FPFCPause = false;
                 }
@@ -109,14 +109,14 @@ namespace BeatSaberPlus.Modules.GameTweaker.Components
                     if (l_ShouldRestore)
                     {
                         /// Enable localized
-                        m_PauseMenuManager.GetField<Button>("_backButton").transform.GetChild(2).GetComponentInChildren<LocalizedTextMeshProUGUI>().enabled = true;
-                        m_PauseMenuManager.GetField<Button>("_restartButton").transform.GetChild(2).GetComponentInChildren<LocalizedTextMeshProUGUI>().enabled = true;
-                        m_PauseMenuManager.GetField<Button>("_continueButton").transform.GetChild(2).GetComponentInChildren<LocalizedTextMeshProUGUI>().enabled = true;
+                        m_PauseMenuManager.GetField<Button, PauseMenuManager>("_backButton").transform.GetChild(2).GetComponentInChildren<LocalizedTextMeshProUGUI>().enabled = true;
+                        m_PauseMenuManager.GetField<Button, PauseMenuManager>("_restartButton").transform.GetChild(2).GetComponentInChildren<LocalizedTextMeshProUGUI>().enabled = true;
+                        m_PauseMenuManager.GetField<Button, PauseMenuManager>("_continueButton").transform.GetChild(2).GetComponentInChildren<LocalizedTextMeshProUGUI>().enabled = true;
 
                         m_FPFCPause = false;
                     }
                     else
-                        m_PauseMenuManager.GetField<Button>("_backButton").transform.GetChild(2).GetComponentInChildren<TextMeshProUGUI>().text = m_BackButtonText;
+                        m_PauseMenuManager.GetField<Button, PauseMenuManager>("_backButton").transform.GetChild(2).GetComponentInChildren<TextMeshProUGUI>().text = m_BackButtonText;
                 }
                 /// Should pause
                 else if (!m_PauseMenuManager.enabled && Input.GetKeyDown(KeyCode.Escape))
@@ -126,14 +126,14 @@ namespace BeatSaberPlus.Modules.GameTweaker.Components
                     m_PauseMenuManager.ShowMenu();
 
                     /// Disable localized
-                    m_PauseMenuManager.GetField<Button>("_backButton").transform.GetChild(2).GetComponentInChildren<LocalizedTextMeshProUGUI>().enabled = false;
-                    m_PauseMenuManager.GetField<Button>("_restartButton").transform.GetChild(2).GetComponentInChildren<LocalizedTextMeshProUGUI>().enabled = false;
-                    m_PauseMenuManager.GetField<Button>("_continueButton").transform.GetChild(2).GetComponentInChildren<LocalizedTextMeshProUGUI>().enabled = false;
+                    m_PauseMenuManager.GetField<Button, PauseMenuManager>("_backButton").transform.GetChild(2).GetComponentInChildren<LocalizedTextMeshProUGUI>().enabled = false;
+                    m_PauseMenuManager.GetField<Button, PauseMenuManager>("_restartButton").transform.GetChild(2).GetComponentInChildren<LocalizedTextMeshProUGUI>().enabled = false;
+                    m_PauseMenuManager.GetField<Button, PauseMenuManager>("_continueButton").transform.GetChild(2).GetComponentInChildren<LocalizedTextMeshProUGUI>().enabled = false;
 
                     /// Get buttons
-                    var l_BackButton     = m_PauseMenuManager.GetField<Button>("_backButton").transform.GetChild(2).GetComponentInChildren<TextMeshProUGUI>();
-                    var l_RestartButton  = m_PauseMenuManager.GetField<Button>("_restartButton").transform.GetChild(2).GetComponentInChildren<TextMeshProUGUI>();
-                    var l_ContinueButton = m_PauseMenuManager.GetField<Button>("_continueButton").transform.GetChild(2).GetComponentInChildren<TextMeshProUGUI>();
+                    var l_BackButton     = m_PauseMenuManager.GetField<Button, PauseMenuManager>("_backButton").transform.GetChild(2).GetComponentInChildren<TextMeshProUGUI>();
+                    var l_RestartButton  = m_PauseMenuManager.GetField<Button, PauseMenuManager>("_restartButton").transform.GetChild(2).GetComponentInChildren<TextMeshProUGUI>();
+                    var l_ContinueButton = m_PauseMenuManager.GetField<Button, PauseMenuManager>("_continueButton").transform.GetChild(2).GetComponentInChildren<TextMeshProUGUI>();
 
                     /// Enable rich text
                     l_BackButton.richText       = true;

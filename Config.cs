@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Linq;
 
 namespace BeatSaberPlus
 {
@@ -26,7 +27,14 @@ namespace BeatSaberPlus
 
         internal class Chat
         {
-            private static string _s = "Chat";
+            private  static string _s = "Chat";
+            internal static string s_ModerationKeyDefault_Split = "#|#";
+            private  static string s_ModerationKeyDefault = string.Join(s_ModerationKeyDefault_Split, new string[] {
+                "/host",
+                "/unban",
+                "/untimeout",
+                "!bsr"
+            });
 
             internal static bool Enabled {
                 get { return m_Config.GetBool(_s, "Enabled", false, true);                      }
@@ -53,6 +61,14 @@ namespace BeatSaberPlus
                 set {        m_Config.SetFloat(_s, "FontSize", value);                          }
             }
 
+            internal static bool AlignWithFloor {
+                get { return m_Config.GetBool(_s, "AlignWithFloor", true, true);                }
+                set {        m_Config.SetBool(_s, "AlignWithFloor", value);                     }
+            }
+            internal static bool ShowLockIcon {
+                get { return m_Config.GetBool(_s, "ShowLockIcon", true, true);                  }
+                set {        m_Config.SetBool(_s, "ShowLockIcon", value);                       }
+            }
             internal static bool FollowEnvironementRotation {
                 get { return m_Config.GetBool(_s, "FollowEnvironementRotation", true, true);    }
                 set {        m_Config.SetBool(_s, "FollowEnvironementRotation", value);         }
@@ -117,7 +133,7 @@ namespace BeatSaberPlus
             internal static Color PingColor => new Color(PingR, PingG, PingB, PingA);
 
             internal static float MenuChatPositionX { get { return m_Config.GetFloat(_s, "MenuChatPositionX",     0, true); } set { m_Config.SetFloat(_s, "MenuChatPositionX", value); } }
-            internal static float MenuChatPositionY { get { return m_Config.GetFloat(_s, "MenuChatPositionY", 3.75f, true); } set { m_Config.SetFloat(_s, "MenuChatPositionY", value); } }
+            internal static float MenuChatPositionY { get { return m_Config.GetFloat(_s, "MenuChatPositionY", 3.87f, true); } set { m_Config.SetFloat(_s, "MenuChatPositionY", value); } }
             internal static float MenuChatPositionZ { get { return m_Config.GetFloat(_s, "MenuChatPositionZ", 2.50f, true); } set { m_Config.SetFloat(_s, "MenuChatPositionZ", value); } }
             internal static float MenuChatRotationX { get { return m_Config.GetFloat(_s, "MenuChatRotationX",  325f, true); } set { m_Config.SetFloat(_s, "MenuChatRotationX", value); } }
             internal static float MenuChatRotationY { get { return m_Config.GetFloat(_s, "MenuChatRotationY",    0f, true); } set { m_Config.SetFloat(_s, "MenuChatRotationY", value); } }
@@ -130,6 +146,11 @@ namespace BeatSaberPlus
             internal static float PlayingChatRotationY { get { return m_Config.GetFloat(_s, "PlayingChatRotationY",    0f, true); } set { m_Config.SetFloat(_s, "PlayingChatRotationY", value); } }
             internal static float PlayingChatRotationZ { get { return m_Config.GetFloat(_s, "PlayingChatRotationZ",    0f, true); } set { m_Config.SetFloat(_s, "PlayingChatRotationZ", value); } }
 
+            internal static string ModerationKeys {
+                get { return m_Config.GetString(_s, "ModerationKeys", s_ModerationKeyDefault, true); }
+                set {        m_Config.SetString(_s, "ModerationKeys", value);                        }
+            }
+
             internal static void Reset()
             {
                 ChatWidth               = 120;
@@ -138,6 +159,8 @@ namespace BeatSaberPlus
                 SystemFontName          = "Segoe UI";
                 FontSize                = 3.4f;
 
+                AlignWithFloor              = true;
+                ShowLockIcon                = true;
                 FollowEnvironementRotation  = true;
                 ShowViewerCount             = true;
                 ShowFollowEvents            = true;
@@ -172,12 +195,14 @@ namespace BeatSaberPlus
                 PingG = 0.00f;
                 PingB = 0.00f;
 
+                ModerationKeys = s_ModerationKeyDefault;
+
                 ResetPosition();
             }
 
             internal static void ResetPosition()
             {
-                MenuChatPositionY = 3.75f;
+                MenuChatPositionY = 3.87f;
                 MenuChatPositionZ = 2.50f;
                 MenuChatRotationX = 325f;
                 MenuChatPositionX = MenuChatRotationY = MenuChatRotationZ = 0f;
@@ -207,6 +232,10 @@ namespace BeatSaberPlus
                 get { return m_Config.GetFloat(_s, "MenuRainSize", 0.4f, true);     }
                 set {        m_Config.SetFloat(_s, "MenuRainSize", value);          }
             }
+            internal static float MenuFallSpeed {
+                get { return m_Config.GetFloat(_s, "MenuFallSpeed",   3f, true);   }
+                set {        m_Config.SetFloat(_s, "MenuFallSpeed", value);        }
+            }
 
             internal static bool SongRain {
                 get { return m_Config.GetBool(_s, "SongRain", true, true);          }
@@ -216,19 +245,27 @@ namespace BeatSaberPlus
                 get { return m_Config.GetFloat(_s, "SongRainSize", 0.6f, true);     }
                 set {        m_Config.SetFloat(_s, "SongRainSize", value);          }
             }
+            internal static float SongFallSpeed {
+                get { return m_Config.GetFloat(_s, "SongFallSpeed",   3f, true);   }
+                set {        m_Config.SetFloat(_s, "SongFallSpeed", value);        }
+            }
+
+            internal static bool ModeratorPower {
+                get { return m_Config.GetBool(_s, "ModeratorPower", true, true);        }
+                set {        m_Config.SetBool(_s, "ModeratorPower", value);             }
+            }
+            internal static bool VIPPower {
+                get { return m_Config.GetBool(_s, "VIPPower", false, true);             }
+                set {        m_Config.SetBool(_s, "VIPPower", value);                   }
+            }
+            internal static bool SubscriberPower {
+                get { return m_Config.GetBool(_s, "SubscriberPower", false, true);      }
+                set {        m_Config.SetBool(_s, "SubscriberPower", value);            }
+            }
 
             internal static int EmoteDelay {
                 get { return m_Config.GetInt(_s, "EmoteDelay", 8, true);            }
                 set {        m_Config.SetInt(_s, "EmoteDelay", value);              }
-            }
-            internal static float EmoteFallSpeed {
-                get { return m_Config.GetFloat(_s, "EmoteFallSpeed",   3f, true);   }
-                set {        m_Config.SetFloat(_s, "EmoteFallSpeed", value);        }
-            }
-
-            internal static bool ModeratorPower {
-                get { return m_Config.GetBool(_s, "ModeratorPower", true, true);     }
-                set {        m_Config.SetBool(_s, "ModeratorPower", value);          }
             }
 
             internal static bool SubRain {
@@ -261,14 +298,17 @@ namespace BeatSaberPlus
             {
                 MenuRain        = true;
                 MenuRainSize    = 0.4f;
+                MenuFallSpeed   = 3f;
 
                 SongRain        = true;
                 SongRainSize    = 0.6f;
+                SongFallSpeed   = 3f;
+
+                ModeratorPower  = true;
+                VIPPower        = false;
+                SubscriberPower = false;
 
                 EmoteDelay      = 8;
-                EmoteFallSpeed  = 3f;
-
-                ModeratorPower = true;
 
                 SubRain             = true;
                 SubRainEmoteCount   = 20;
@@ -506,15 +546,6 @@ namespace BeatSaberPlus
                 set {        m_Config.SetBool(_s, "NoFake360HUD", value);                               }
             }
 
-            internal static float SaberSmoothingTrailIntensity {
-                get { return m_Config.GetFloat(_s, "SaberSmoothingTrailIntensity", 0.4f, true);         }
-                set {        m_Config.SetFloat(_s, "SaberSmoothingTrailIntensity", value);              }
-            }
-            internal static bool RemoveSaberSmoothingTrail {
-                get { return m_Config.GetBool(_s, "RemoveSaberSmoothingTrail", false, true);            }
-                set {        m_Config.SetBool(_s, "RemoveSaberSmoothingTrail", value);                  }
-            }
-
             ////////////////////////////////////////////////////////////////////////////
             /// Menu
             ////////////////////////////////////////////////////////////////////////////
@@ -528,6 +559,11 @@ namespace BeatSaberPlus
                 get { return m_Config.GetBool(_s, "RemoveNewContentPromotional", true, true);           }
                 set {        m_Config.SetBool(_s, "RemoveNewContentPromotional", value);                }
             }
+            internal static bool RemoveAnniversaryEvent {
+                get { return m_Config.GetBool(_s, "RemoveAnniversaryEvent", true, true);           }
+                set {        m_Config.SetBool(_s, "RemoveAnniversaryEvent", value);                }
+            }
+
 
             /// Level selection
             internal static bool RemoveBaseGameFilterButton {
@@ -542,6 +578,10 @@ namespace BeatSaberPlus
                 get { return m_Config.GetBool(_s, "AddOverrideLightIntensityOption", false, true);      }
                 set {        m_Config.SetBool(_s, "AddOverrideLightIntensityOption", value);            }
             }
+            internal static bool MergeLightPressetOptions {
+                get { return m_Config.GetBool(_s, "MergeLightPressetOptions", true, true);  }
+                set {        m_Config.SetBool(_s, "MergeLightPressetOptions", value);       }
+            }
             internal static float OverrideLightIntensity {
                 get { return m_Config.GetFloat(_s, "OverrideLightIntensity", 1.0f, true);               }
                 set {        m_Config.SetFloat(_s, "OverrideLightIntensity", value);                    }
@@ -549,6 +589,11 @@ namespace BeatSaberPlus
             internal static bool DeleteSongButton {
                 get { return m_Config.GetBool(_s, "DeleteSongButton", true, true);                      }
                 set {        m_Config.SetBool(_s, "DeleteSongButton", value);                           }
+            }
+            internal static bool DeleteSongBrowserTrashcan
+            {
+                get { return m_Config.GetBool(_s, "DeleteSongBrowserTrashcan", false, true); }
+                set {        m_Config.SetBool(_s, "DeleteSongBrowserTrashcan", value);       }
             }
 
             ////////////////////////////////////////////////////////////////////////////
@@ -585,18 +630,18 @@ namespace BeatSaberPlus
                 RemoveFullComboLossAnimation    = false;
                 NoFake360HUD                    = false;
 
-                SaberSmoothingTrailIntensity    = 0.4f;
-                RemoveSaberSmoothingTrail       = false;
-
                 /// Main menu
                 DisableBeatMapEditorButtonOnMainMenu = false;
+                RemoveAnniversaryEvent               = true;
                 RemoveNewContentPromotional          = true;
 
                 /// Level selection
                 RemoveBaseGameFilterButton      = true;
                 ReorderPlayerSettings           = true;
                 AddOverrideLightIntensityOption = true;
+                MergeLightPressetOptions        = true;
                 DeleteSongButton                = true;
+                DeleteSongBrowserTrashcan       = false;
 
                 /// Logs
                 RemoveOldLogs                   = true;
@@ -683,6 +728,14 @@ namespace BeatSaberPlus
                 set {        m_Config.SetBool(_s, "Enabled", value);                            }
             }
 
+            internal static bool AlignWithFloor {
+                get { return m_Config.GetBool(_s, "AlignWithFloor", true, true);                }
+                set {        m_Config.SetBool(_s, "AlignWithFloor", value);                     }
+            }
+            internal static bool ShowLockIcon {
+                get { return m_Config.GetBool(_s, "ShowLockIcon", true, true);                  }
+                set {        m_Config.SetBool(_s, "ShowLockIcon", value);                       }
+            }
             internal static bool FollowEnvironementRotation {
                 get { return m_Config.GetBool(_s, "FollowEnvironementRotation", true, true);    }
                 set {        m_Config.SetBool(_s, "FollowEnvironementRotation", value);         }
@@ -738,6 +791,8 @@ namespace BeatSaberPlus
 
             internal static void Reset()
             {
+                AlignWithFloor              = true;
+                ShowLockIcon                = true;
                 FollowEnvironementRotation  = true;
                 ShowNPSLegend               = false;
 

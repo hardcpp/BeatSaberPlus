@@ -66,7 +66,8 @@ namespace BeatSaberPlus.Modules.GameTweaker
         protected override void OnEnable()
         {
             /// Bind event
-            SDK.Game.Logic.OnSceneChange += Game_OnSceneChange;
+            SDK.Game.Logic.OnSceneChange  += Game_OnSceneChange;
+            SDK.Game.Logic.OnLevelStarted += Game_OnLevelStarted;
 
             /// Update patches
             UpdatePatches(false);
@@ -80,7 +81,8 @@ namespace BeatSaberPlus.Modules.GameTweaker
             UpdatePatches(true);
 
             /// Unbind event
-            SDK.Game.Logic.OnSceneChange -= Game_OnSceneChange;
+            SDK.Game.Logic.OnLevelStarted -= Game_OnLevelStarted;
+            SDK.Game.Logic.OnSceneChange  -= Game_OnSceneChange;
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -142,10 +144,6 @@ namespace BeatSaberPlus.Modules.GameTweaker
             try {
                 UpdateWorldParticles(p_ForceDisable);
             } catch (System.Exception p_PatchException) { Logger.Instance.Error("[GameTweaker] Error on updating UpdateWorldParticles"); Logger.Instance.Error(p_PatchException); }
-            /// Apply trail
-            try {
-                Patches.PSaberTrailRenderer.SetEnabled(!p_ForceDisable && Config.GameTweaker.RemoveSaberSmoothingTrail, p_ForceDisable ? 1.0f : Config.GameTweaker.SaberSmoothingTrailIntensity);
-            } catch (System.Exception p_PatchException) { Logger.Instance.Error("[GameTweaker] Error on updating PSaberTrailRenderer"); Logger.Instance.Error(p_PatchException); }
 
             ////////////////////////////////////////////////////////////////////////////
             /// Menu
@@ -154,6 +152,12 @@ namespace BeatSaberPlus.Modules.GameTweaker
             /// Apply show player statistics in main menu
             try {
                 Patches.PMainMenuViewController.SetBeatMapEditorButtonDisabled(!p_ForceDisable && Config.GameTweaker.DisableBeatMapEditorButtonOnMainMenu);
+                Patches.PMainMenuViewController.SetRemovePackMusicPromoBanner(!p_ForceDisable && Config.GameTweaker.RemoveNewContentPromotional);
+
+                var l_Manager = UnityEngine.Resources.FindObjectsOfTypeAll<AnniversaryManager>().FirstOrDefault();
+                if (l_Manager)
+                    l_Manager.gameObject.SetActive(p_ForceDisable || !Config.GameTweaker.RemoveAnniversaryEvent);
+
             } catch (System.Exception p_PatchException) { Logger.Instance.Error("[GameTweaker] Error on updating PMainMenuViewController"); Logger.Instance.Error(p_PatchException); }
             /// Apply new content promotional settings
             try {
@@ -162,6 +166,7 @@ namespace BeatSaberPlus.Modules.GameTweaker
             /// Apply player settings
             try {
                 Patches.PPlayerSettingsPanelController.SetReorderEnabled(!p_ForceDisable && Config.GameTweaker.ReorderPlayerSettings, !p_ForceDisable && Config.GameTweaker.AddOverrideLightIntensityOption);
+                Patches.PPlayerSettingsPanelController.SetLightsOptionMerging(!p_ForceDisable && Config.GameTweaker.MergeLightPressetOptions);
             } catch (System.Exception p_PatchException) { Logger.Instance.Error("[GameTweaker] Error on updating PlayerSettingsPanelController"); Logger.Instance.Error(p_PatchException); }
             /// Apply remove base game filter button settings
             try {
@@ -189,6 +194,10 @@ namespace BeatSaberPlus.Modules.GameTweaker
         /// <param name="p_ForceDisable">Force disable</param>
         internal void UpdateFPFCEscape(bool p_ForceDisable = false)
         {
+            var l_FPFCCamera = Resources.FindObjectsOfTypeAll<FirstPersonFlyingController>().FirstOrDefault();
+            if (l_FPFCCamera == null || !l_FPFCCamera.enabled)
+                return;
+
             if (!p_ForceDisable && Config.GameTweaker.FPFCEscape && m_FPFCEscape == null)
             {
                 m_FPFCEscape = new GameObject("BeatSaberPlus_FPFCEscape").AddComponent<Components.FPFCEscape>();
@@ -267,16 +276,30 @@ namespace BeatSaberPlus.Modules.GameTweaker
         /// <param name="p_Scene">New scene</param>
         private void Game_OnSceneChange(SDK.Game.Logic.SceneType p_Scene)
         {
-            if (p_Scene == SDK.Game.Logic.SceneType.Playing)
-            {
-                Patches.PLightSwitchEventEffect.SetFromConfig();
-                Patches.PNoteDebrisSpawner.SetFromConfig();
-
-                if (Config.GameTweaker.RemoveMusicBandLogo)
-                    new GameObject("BeatSaberPlus_MusicBandLogoRemover").AddComponent<Components.MusicBandLogoRemover>();
-            }
-
             UpdateWorldParticles();
+        }
+        /// <summary>
+        /// On level started
+        /// </summary>
+        /// <param name="p_LevelData">Level data</param>
+        private void Game_OnLevelStarted(SDK.Game.LevelData p_LevelData)
+        {
+            Patches.Lights.PLightSwitchEventEffect.SetFromConfig();
+            Patches.PNoteDebrisSpawner.SetFromConfig();
+
+            if (Config.GameTweaker.RemoveMusicBandLogo && p_LevelData?.Data?.environmentInfo != null)
+            {
+                switch (p_LevelData.Data.environmentInfo.serializedName)
+                {
+                    case "BTSEnvironment":
+                    case "LinkinParkEnvironment":
+                        new GameObject("BeatSaberPlus_MusicBandLogoRemover").AddComponent<Components.MusicBandLogoRemover>();
+                        break;
+
+                    default:
+                        break;
+                }
+            }
         }
     }
 }

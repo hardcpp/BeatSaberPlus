@@ -1,5 +1,4 @@
-﻿using BeatSaberMarkupLanguage.Animations;
-using UnityEngine.UI;
+﻿using UnityEngine.UI;
 
 namespace BeatSaberPlus.Modules.Chat.Extensions
 {
@@ -37,6 +36,6 @@ namespace BeatSaberPlus.Modules.Chat.Extensions
         /// <summary>
         /// Animation state updater instance
         /// </summary>
-        internal AnimationStateUpdater AnimStateUpdater { get; set; } = null;
+        internal SDK.Animation.AnimationStateUpdater AnimStateUpdater { get; set; } = null;
     }
 }

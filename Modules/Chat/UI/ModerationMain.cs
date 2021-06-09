@@ -1,6 +1,7 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 
 namespace BeatSaberPlus.Modules.Chat.UI
@@ -10,6 +11,14 @@ namespace BeatSaberPlus.Modules.Chat.UI
     /// </summary>
     internal class ModerationMain : SDK.UI.ResourceViewController<ModerationMain>
     {
+        /// <summary>
+        /// Keyboard original key count
+        /// </summary>
+        private int m_InputKeyboardInitialKeyCount = -1;
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
 #pragma warning disable CS0414
         [UIComponent("MessageKeyboard")]
         private ModalKeyboard m_MessageKeyboard = null;
@@ -27,28 +36,58 @@ namespace BeatSaberPlus.Modules.Chat.UI
         {
             /// Update opacity
             SDK.UI.ModalView.SetOpacity(m_MessageKeyboard.modalView, 0.75f);
-
-            var l_Color         = new Color(0.92f, 0.64f, 0);
-            var l_ButtonY       = 11f;
-            var l_ButtonHeight  = 10;
-
-            KEYBOARD.KEY l_Host         = new KEYBOARD.KEY(m_MessageKeyboard.keyboard, new Vector2(-35.0f, l_ButtonY), "/host",      15, l_ButtonHeight, l_Color);
-            KEYBOARD.KEY l_Unban        = new KEYBOARD.KEY(m_MessageKeyboard.keyboard, new Vector2(-27.0f, l_ButtonY), "/unban",     20, l_ButtonHeight, l_Color);
-            KEYBOARD.KEY l_UnTimeout    = new KEYBOARD.KEY(m_MessageKeyboard.keyboard, new Vector2(-16.5f, l_ButtonY), "/untimeout", 25, l_ButtonHeight, l_Color);
-
-            l_Host.keyaction        += (_) => ChangePrefix("/host");
-            l_Unban.keyaction       += (_) => ChangePrefix("/unban");
-            l_UnTimeout.keyaction   += (_) => ChangePrefix("/untimeout");
-
-            m_MessageKeyboard.keyboard.keys.Add(l_Host);
-            m_MessageKeyboard.keyboard.keys.Add(l_Unban);
-            m_MessageKeyboard.keyboard.keys.Add(l_UnTimeout);
         }
         /// <summary>
         /// On view activation
         /// </summary>
         protected override sealed void OnViewActivation()
         {
+            ShowKeyboard();
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        private void ShowKeyboard()
+        {
+            /// Clear old keys
+            if (m_InputKeyboardInitialKeyCount == -1)
+                m_InputKeyboardInitialKeyCount = m_MessageKeyboard.keyboard.keys.Count;
+
+            while (m_MessageKeyboard.keyboard.keys.Count > m_InputKeyboardInitialKeyCount)
+            {
+                var l_Key = m_MessageKeyboard.keyboard.keys.ElementAt(m_MessageKeyboard.keyboard.keys.Count - 1);
+                m_MessageKeyboard.keyboard.Clear(l_Key);
+                m_MessageKeyboard.keyboard.keys.RemoveAt(m_MessageKeyboard.keyboard.keys.Count - 1);
+
+                GameObject.Destroy(l_Key.mybutton.gameObject);
+            }
+
+            /// Add custom keys
+            var l_CustomKeys = Config.Chat.ModerationKeys.Split(new string[] { Config.Chat.s_ModerationKeyDefault_Split }, System.StringSplitOptions.RemoveEmptyEntries);
+            if (l_CustomKeys != null && l_CustomKeys.Length != 0)
+            {
+                var l_FirstButton   = m_MessageKeyboard.keyboard.BaseButton.GetComponentInChildren<TextMeshProUGUI>();
+                var l_Color         = new Color(0.92f, 0.64f, 0);
+                var l_ButtonY       = 11f;
+                var l_Margin        = 1f;
+                var l_TotalLeft     = -35.0f;
+
+                var l_I = 0;
+                foreach (var l_Var in l_CustomKeys)
+                {
+                    var l_Position  = new Vector2(l_TotalLeft, l_ButtonY);
+                    var l_Width     = l_FirstButton.GetPreferredValues(" " + l_Var + " ").x * 2.0f;
+                    var l_Key       = new KEYBOARD.KEY(m_MessageKeyboard.keyboard, l_Position, " " + l_Var + " ", l_Width, 10f, l_Color);
+
+                    l_TotalLeft     += ((l_Width / 2.0f) + l_Margin);
+                    l_Key.keyaction += (_) => ChangePrefix(l_Var);
+
+                    m_MessageKeyboard.keyboard.keys.Add(l_Key);
+                    ++l_I;
+                }
+            }
+
             ShowModal("OpenMessageModal");
         }
 
@@ -61,18 +100,23 @@ namespace BeatSaberPlus.Modules.Chat.UI
         /// <param name="p_Prefix">New prefix</param>
         private void ChangePrefix(string p_Prefix)
         {
-            if (!m_MessageKeyboard.keyboard.KeyboardText.text.StartsWith("/"))
-                m_MessageKeyboard.keyboard.KeyboardText.text = p_Prefix + " " + m_MessageKeyboard.keyboard.KeyboardText.text;
-            else
+            if (p_Prefix.StartsWith("!") || p_Prefix.StartsWith("/"))
             {
-                if (m_MessageKeyboard.keyboard.KeyboardText.text.Contains(' '))
-                {
-                    var l_Parts = m_MessageKeyboard.keyboard.KeyboardText.text.Split(new char[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
-                    m_MessageKeyboard.keyboard.KeyboardText.text = p_Prefix + " " + string.Join(" ", l_Parts.Skip(1).ToArray());
-                }
+                if (!m_MessageKeyboard.keyboard.KeyboardText.text.StartsWith("/") && !m_MessageKeyboard.keyboard.KeyboardText.text.StartsWith("!"))
+                    m_MessageKeyboard.keyboard.KeyboardText.text = p_Prefix + " " + m_MessageKeyboard.keyboard.KeyboardText.text;
                 else
-                    m_MessageKeyboard.keyboard.KeyboardText.text = p_Prefix + " ";
+                {
+                    if (m_MessageKeyboard.keyboard.KeyboardText.text.Contains(' '))
+                    {
+                        var l_Parts = m_MessageKeyboard.keyboard.KeyboardText.text.Split(new char[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
+                        m_MessageKeyboard.keyboard.KeyboardText.text = p_Prefix + " " + string.Join(" ", l_Parts.Skip(1).ToArray());
+                    }
+                    else
+                        m_MessageKeyboard.keyboard.KeyboardText.text = p_Prefix + " ";
+                }
             }
+            else
+                m_MessageKeyboard.keyboard.KeyboardText.text = m_MessageKeyboard.keyboard.KeyboardText.text + " " + p_Prefix;
         }
 
         ////////////////////////////////////////////////////////////////////////////

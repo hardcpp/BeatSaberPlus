@@ -2,7 +2,7 @@
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.FloatingScreen;
-using BeatSaberPlusChatCore.Interfaces;
+using BeatSaberPlus.SDK.Chat.Interfaces;
 using HMUI;
 using System.Collections;
 using System.Collections.Concurrent;
@@ -205,6 +205,8 @@ namespace BeatSaberPlus.Modules.Chat.UI
                     l_Message.SetWidth(m_ChatWidth);
                     l_Message.gameObject.SetActive(false);
 
+                    SDK.Unity.GameObject.ChangerLayerRecursive(l_Message.gameObject, LayerMask.NameToLayer("UI"));
+
                     UpdateMessage(l_Message);
 
                     return l_Message;
@@ -241,6 +243,11 @@ namespace BeatSaberPlus.Modules.Chat.UI
 
             /// Update lock state
             m_AllowMovement = false;
+
+            /// Hide/show the lock icon
+            m_LockIcon.gameObject.SetActive(Config.Chat.ShowLockIcon);
+
+            SDK.Unity.GameObject.ChangerLayerRecursive(gameObject, LayerMask.NameToLayer("UI"));
         }
         /// <summary>
         /// On view destruction
@@ -330,6 +337,9 @@ namespace BeatSaberPlus.Modules.Chat.UI
                 transform.parent.parent.rotation = Quaternion.identity;
 
             UpdateMessages();
+
+            /// Hide/show the lock icon
+            m_LockIcon.gameObject.SetActive(Config.Chat.ShowLockIcon);
         }
 
         ////////////////////////////////////////////////////////////////////////////

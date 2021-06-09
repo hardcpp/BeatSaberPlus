@@ -45,9 +45,9 @@ namespace BeatSaberPlus.Modules.Chat.UI
             if (SDK.Chat.Service.Multiplexer.Channels.Count != 0)
             {
                 var l_Channel = SDK.Chat.Service.Multiplexer.Channels.First();
-                if (l_Channel.Item2 is BeatSaberPlusChatCore.Models.Twitch.TwitchChannel)
+                if (l_Channel.Item2 is SDK.Chat.Models.Twitch.TwitchChannel)
                 {
-                    var l_TwitchChannel = l_Channel.Item2 as BeatSaberPlusChatCore.Models.Twitch.TwitchChannel;
+                    var l_TwitchChannel = l_Channel.Item2 as SDK.Chat.Models.Twitch.TwitchChannel;
 
                     if (l_TwitchChannel.Roomstate.EmoteOnly)
                         l_States.Add("Emotes only");
@@ -97,9 +97,9 @@ namespace BeatSaberPlus.Modules.Chat.UI
                 return;
 
             var l_Channel = SDK.Chat.Service.Multiplexer.Channels.First();
-            if (l_Channel.Item2 is BeatSaberPlusChatCore.Models.Twitch.TwitchChannel)
+            if (l_Channel.Item2 is SDK.Chat.Models.Twitch.TwitchChannel)
             {
-                var l_TwitchChannel = l_Channel.Item2 as BeatSaberPlusChatCore.Models.Twitch.TwitchChannel;
+                var l_TwitchChannel = l_Channel.Item2 as SDK.Chat.Models.Twitch.TwitchChannel;
 
                 if (l_TwitchChannel.Roomstate.EmoteOnly)
                     ShowConfirmationModal("Do you really want to <b>disable</b> emote only mode?", () => l_Channel.Item1.SendTextMessage(l_Channel.Item2, "/emoteonlyoff"));
@@ -117,9 +117,9 @@ namespace BeatSaberPlus.Modules.Chat.UI
                 return;
 
             var l_Channel = SDK.Chat.Service.Multiplexer.Channels.First();
-            if (l_Channel.Item2 is BeatSaberPlusChatCore.Models.Twitch.TwitchChannel)
+            if (l_Channel.Item2 is SDK.Chat.Models.Twitch.TwitchChannel)
             {
-                var l_TwitchChannel = l_Channel.Item2 as BeatSaberPlusChatCore.Models.Twitch.TwitchChannel;
+                var l_TwitchChannel = l_Channel.Item2 as SDK.Chat.Models.Twitch.TwitchChannel;
 
                 if (l_TwitchChannel.Roomstate.FollowersOnly)
                     ShowConfirmationModal("Do you really want to <b>disable</b> follower only mode?", () => l_Channel.Item1.SendTextMessage(l_Channel.Item2, "/followersoff"));
@@ -137,15 +137,23 @@ namespace BeatSaberPlus.Modules.Chat.UI
                 return;
 
             var l_Channel = SDK.Chat.Service.Multiplexer.Channels.First();
-            if (l_Channel.Item2 is BeatSaberPlusChatCore.Models.Twitch.TwitchChannel)
+            if (l_Channel.Item2 is SDK.Chat.Models.Twitch.TwitchChannel)
             {
-                var l_TwitchChannel = l_Channel.Item2 as BeatSaberPlusChatCore.Models.Twitch.TwitchChannel;
+                var l_TwitchChannel = l_Channel.Item2 as SDK.Chat.Models.Twitch.TwitchChannel;
 
                 if (l_TwitchChannel.Roomstate.SlowModeInterval != 0)
                     ShowConfirmationModal("Do you really want to <b>disable</b> slow mode?", () => l_Channel.Item1.SendTextMessage(l_Channel.Item2, "/slowoff"));
                 else
                     ShowConfirmationModal("Do you really want to <b>enable</b> slow mode?", () => l_Channel.Item1.SendTextMessage(l_Channel.Item2, "/slow"));
             }
+        }
+        /// <summary>
+        /// Manage shortcuts
+        /// </summary>
+        [UIAction("click-manage-shortcut-btn-pressed")]
+        private void OnManageShortcutButton()
+        {
+            ModerationViewFlowCoordinator.Instance().SwitchToShortcut();
         }
     }
 }

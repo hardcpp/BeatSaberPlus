@@ -32,15 +32,7 @@ namespace BeatSaberPlus.Modules.GameTweaker.UI
         [UIComponent("removefullcombolossanimation-toggle")]
         private ToggleSetting m_RemoveFullComboLossAnimation;
         [UIComponent("nofake360hud-toggle")]
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
         private ToggleSetting m_NoFake360HUD;
-        [UIComponent("removetrail-toggle")]
-        private ToggleSetting m_RemoveTrail;
-        [UIComponent("intensity-increment")]
-        private IncrementSetting m_Intensity;
 #pragma warning restore CS0649
 
         ////////////////////////////////////////////////////////////////////////////
@@ -78,13 +70,6 @@ namespace BeatSaberPlus.Modules.GameTweaker.UI
             SDK.UI.ToggleSetting.Setup(m_RemoveMusicBandLogo,           l_Event,                                           Config.GameTweaker.RemoveMusicBandLogo,          true);
             SDK.UI.ToggleSetting.Setup(m_RemoveFullComboLossAnimation,  l_Event,                                           Config.GameTweaker.RemoveFullComboLossAnimation, true);
             SDK.UI.ToggleSetting.Setup(m_NoFake360HUD,                  l_Event,                                           Config.GameTweaker.NoFake360HUD,                 true);
-
-            /// Sabers
-            SDK.UI.ToggleSetting.Setup(m_RemoveTrail,                   l_Event,                                           Config.GameTweaker.RemoveSaberSmoothingTrail,    true);
-            SDK.UI.IncrementSetting.Setup(m_Intensity,                  l_Event, SDK.UI.BSMLSettingFormartter.Percentage,   Config.GameTweaker.SaberSmoothingTrailIntensity, true);
-            m_Intensity.gameObject.SetActive(false);
-            m_Intensity.interactable = !Config.GameTweaker.RemoveSaberSmoothingTrail;
-            m_Intensity.gameObject.SetActive(true);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -113,11 +98,6 @@ namespace BeatSaberPlus.Modules.GameTweaker.UI
             Config.GameTweaker.RemoveFullComboLossAnimation     = m_RemoveFullComboLossAnimation.Value;
             Config.GameTweaker.NoFake360HUD                     = m_NoFake360HUD.Value;
 
-            /// Sabers
-            Config.GameTweaker.RemoveSaberSmoothingTrail        = m_RemoveTrail.Value;
-            Config.GameTweaker.SaberSmoothingTrailIntensity     = m_Intensity.Value;
-            m_Intensity.interactable = !Config.GameTweaker.RemoveSaberSmoothingTrail;
-
             /// Update patches
             GameTweaker.Instance.UpdatePatches(false);
         }
@@ -145,10 +125,6 @@ namespace BeatSaberPlus.Modules.GameTweaker.UI
             m_RemoveMusicBandLogo.Value             = Config.GameTweaker.RemoveMusicBandLogo;
             m_RemoveFullComboLossAnimation.Value    = Config.GameTweaker.RemoveFullComboLossAnimation;
             m_NoFake360HUD.Value                    = Config.GameTweaker.NoFake360HUD;
-
-            /// Sabers
-            m_RemoveTrail.Value                     = Config.GameTweaker.RemoveSaberSmoothingTrail;
-            m_Intensity.Value                       = Config.GameTweaker.SaberSmoothingTrailIntensity;
 
             m_PreventChanges = false;
 
