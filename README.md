@@ -81,6 +81,7 @@ https://discord.gg/K4X94Ea
 * [Beat-Saber-Utils](https://github.com/Kylemc1413/Beat-Saber-Utils)
 * [BeatSaverDownloader](https://github.com/Kylemc1413/BeatSaverDownloader)
 * [BeatSaberMarkupLanguage](https://github.com/monkeymanboy/BeatSaberMarkupLanguage)
+* [websocket-sharp](https://github.com/sta/websocket-sharp)
 
 ## **Screenshots**
 ![](https://puu.sh/GO6tf/81ff167aab.png)
