@@ -17,7 +17,7 @@ IMPORTANT When you enable Chat module, it will open a page in your browser for c
 	 - Display in game your twitch chat (FFZ & BTTV support).
 	 - **Emotes cache system to save bandwidth on game start!** 
 	 - See subscriptions, follow, raid, bits events.
-	 - See channel point reward reedeming.
+	 - See channel point reward redeeming.
 	 - See next to chat if you are online or not and the actual viewer count.
 	 - See online/offline status with the viewer count
 	 - Lot of customization options (Color, Size, Filter TTS messages, hide specific events...).
