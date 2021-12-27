@@ -3,7 +3,7 @@
 
 # BeatSaberPlus (BS+)
 
-**Discord** https://discord.gg/K4X94Ea (**Download, Support, Testing, Early releases** and cool new mods coming soon)
+**Discord** https://discord.gg/63ebPMC (**Download, Support, Testing, Early releases** and cool new mods coming soon)
 **Patreon** [https://www.patreon.com/BeatSaberPlus](https://www.patreon.com/BeatSaberPlus) **if you want to support this project development!**
 
 Current version : 3.0.6
