@@ -63,7 +63,6 @@ IMPORTANT When you enable Chat module, it will open a page in your browser for c
 
 - SongCore [https://github.com/Kylemc1413/SongCore](https://github.com/Kylemc1413/SongCore)
 - BeatSaberMarkupLanguage [https://github.com/monkeymanboy/BeatSaberMarkupLanguage](https://github.com/monkeymanboy/BeatSaberMarkupLanguage)
-- BeatSaverSharp [https://github.com/lolPants/BeatSaverSharp](https://github.com/lolPants/BeatSaverSharp)
 
 ## **Special Thanks**:
 - **Vred#0001** For art & documentation
