@@ -50,7 +50,7 @@
             <button on-click='click-condition-moveup-btn-pressed'      min-width='20' text='▲' hover-hint='Move condition up in the list' />
           </horizontal>
           <horizontal>
-            <primary-button on-click='click-condition-new-btn-pressed' min-width='10' text='+'></primary-button>
+            <primary-button on-click='AddConditionFrame_Show'          min-width='10' text='+'></primary-button>
             <button on-click='click-condition-toggle-btn-pressed'      min-width='20' text='Toggle'></button>
             <button on-click='click-condition-delete-btn-pressed'      min-width='10' text='-'></button>
           </horizontal>
@@ -73,9 +73,9 @@
             <button on-click='click-action-moveup-btn-pressed'      min-width='20' text='▲' hover-hint='Move action up in the list' />
           </horizontal>
           <horizontal spacing='0'>
-            <primary-button on-click='click-action-new-btn-pressed' min-width='10' text='+'></primary-button>
-            <button on-click='click-action-toggle-btn-pressed'      min-width='20' text='Toggle'></button>
-            <button on-click='click-action-delete-btn-pressed'      min-width='10' text='-'></button>
+            <primary-button on-click='AddActionFrame_Show'      min-width='10' text='+'></primary-button>
+            <button on-click='click-action-toggle-btn-pressed'  min-width='20' text='Toggle'></button>
+            <button on-click='click-action-delete-btn-pressed'  min-width='10' text='-'></button>
           </horizontal>
         </vertical>
         <vertical id='EventFrame_ActionsTab_ActionContent' bg='round-rect-panel' pad='0' spacing='0' size-delta-x='100' size-delta-y='55' min-width='100'>
@@ -89,39 +89,53 @@
   <!-- =========================================== -->
 
   <horizontal id='AddConditionFrame' spacing='0' pad-top='-1'>
-    <horizontal>
-      <text text=' ' font-size='5.5' align='Center'/>
-    </horizontal>
-    <vertical id='AddConditionFrame_Background' bg='round-rect-panel' pad='8'>
-      <text text='Please select the kind of condition to add' font-size='4.5' align='Center'/>
-      <dropdown-list-setting id='AddConditionFrame_DropDown' choices='AddConditionFrame_DropDownOptions' apply-on-change='true' />
+    <vertical id='AddConditionFrame_LeftBackground' bg='round-rect-panel' spacing='0' pad='0'>
+      <text text='Category' font-size='4.5' align='Center'/>
+
+      <page-button id='AddConditionFrame_CategoryUpButton' direction='Up'></page-button>
+      <list id='AddConditionFrame_CategoryList' expand-cell='false'>
+      </list>
+      <page-button id='AddConditionFrame_CategoryDownButton' direction='Down'></page-button>
+    </vertical>
+    <vertical id='AddConditionFrame_RightBackground' bg='round-rect-panel' pad='0' spacing='0' size-delta-x='70' size-delta-y='30' min-width='70'>
+      <text text='Type' font-size='4.5' align='Center'/>
+
+      <page-button id='AddConditionFrame_TypeUpButton' direction='Up'></page-button>
+      <list id='AddConditionFrame_TypeList' expand-cell='false'>
+      </list>
+      <page-button id='AddConditionFrame_TypeDownButton' direction='Down'></page-button>
+
       <horizontal>
-        <button on-click='click-cancel-add-condition-btn-pressed' min-width='50' text='Cancel'></button>
-        <primary-button on-click='click-add-condition-btn-pressed' min-width='50' text='Add'></primary-button>
+        <button on-click='AddConditionFrame_OnCancelAddConditionButton' min-width='50' text='Cancel'></button>
+        <primary-button on-click='AddConditionFrame_OnAddConditionButton' min-width='50' text='Add'></primary-button>
       </horizontal>
     </vertical>
-    <horizontal>
-      <text text=' ' font-size='5.5' align='Center'/>
-    </horizontal>
   </horizontal>
 
   <!-- =========================================== -->
 
   <horizontal id='AddActionFrame' spacing='0' pad-top='-1'>
-    <horizontal>
-      <text text=' ' font-size='5.5' align='Center'/>
-    </horizontal>
-    <vertical id='AddActionFrame_Background' bg='round-rect-panel' pad='8'>
-      <text text='Please select the kind of action to add' font-size='4.5' align='Center'/>
-      <dropdown-list-setting id='AddActionFrame_DropDown' choices='AddActionFrame_DropDownOptions' apply-on-change='true' />
+    <vertical id='AddActionFrame_LeftBackground' bg='round-rect-panel' spacing='0' pad='0'>
+      <text text='Category' font-size='4.5' align='Center'/>
+
+      <page-button id='AddActionFrame_CategoryUpButton' direction='Up'></page-button>
+      <list id='AddActionFrame_CategoryList' expand-cell='false'>
+      </list>
+      <page-button id='AddActionFrame_CategoryDownButton' direction='Down'></page-button>
+    </vertical>
+    <vertical id='AddActionFrame_RightBackground' bg='round-rect-panel' pad='0' spacing='0' size-delta-x='70' size-delta-y='30' min-width='70'>
+      <text text='Type' font-size='4.5' align='Center'/>
+
+      <page-button id='AddActionFrame_TypeUpButton' direction='Up'></page-button>
+      <list id='AddActionFrame_TypeList' expand-cell='false'>
+      </list>
+      <page-button id='AddActionFrame_TypeDownButton' direction='Down'></page-button>
+
       <horizontal>
-        <button on-click='click-cancel-add-action-btn-pressed' min-width='50' text='Cancel'></button>
-        <primary-button on-click='click-add-action-btn-pressed' min-width='50' text='Add'></primary-button>
+        <button on-click='AddActionFrame_OnCancelAddActionButton' min-width='50' text='Cancel'></button>
+        <primary-button on-click='AddActionFrame_OnAddActionButton' min-width='50' text='Add'></primary-button>
       </horizontal>
     </vertical>
-    <horizontal>
-      <text text=' ' font-size='5.5' align='Center'/>
-    </horizontal>
   </horizontal>
 
   <!-- =========================================== -->

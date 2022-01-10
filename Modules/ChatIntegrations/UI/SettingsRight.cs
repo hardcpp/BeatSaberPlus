@@ -194,7 +194,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.UI
             var l_Filters   = new List<object>() { "All" };
             var l_Types     = new List<object>();
 
-            foreach (var l_CurrentType in ChatIntegrations.Instance.RegisteredEventTypes)
+            foreach (var l_CurrentType in ChatIntegrations.RegisteredEventTypes)
             {
                 l_Filters.Add(l_CurrentType.GetType().Name);
                 l_Types.Add(l_CurrentType.GetType().Name);
@@ -373,7 +373,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.UI
         {
             var l_TypeName      = (string)m_AddEventFrame_DropDown.Value;
             var l_EventName     = p_Text;
-            var l_MatchingType  = ChatIntegrations.Instance.RegisteredEventTypes.Where(x => x.GetType().Name == l_TypeName).FirstOrDefault();
+            var l_MatchingType  = ChatIntegrations.RegisteredEventTypes.Where(x => x.GetType().Name == l_TypeName).FirstOrDefault();
 
             if (l_MatchingType != null)
             {

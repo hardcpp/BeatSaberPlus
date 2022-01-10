@@ -1,6 +1,9 @@
 ﻿using BeatSaberPlus.SDK.Chat.Interfaces;
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace BeatSaberPlus.Modules.ChatRequest
 {
@@ -10,117 +13,95 @@ namespace BeatSaberPlus.Modules.ChatRequest
     internal partial class ChatRequest
     {
         /// <summary>
+        /// Command table
+        /// </summary>
+        private Dictionary<string, Action<IChatService, IChatMessage, string[]>>
+             m_CommandTable = new Dictionary<string, Action<IChatService, IChatMessage, string[]>>();
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Build command table
+        /// </summary>
+        private void BuildCommandTable()
+        {
+            m_CommandTable.Clear();
+
+            var l_Config = CRConfig.Instance.Commands;
+
+            /// User
+            if (l_Config.BSRCommandEnabled)         RegisterCommand(l_Config.BSRCommand,            (x, y, z) => Command_BSR(x, y, z, false, false));
+            if (l_Config.BSRHelpCommandEnabled)     RegisterCommand(l_Config.BSRHelpCommand,        Command_BSRHelp);
+            if (l_Config.LinkCommandEnabled)        RegisterCommand(l_Config.LinkCommand,           Command_Link);
+            if (l_Config.QueueCommandEnabled)       RegisterCommand(l_Config.QueueCommand,          Command_Queue);
+            if (l_Config.QueueStatusCommandEnabled) RegisterCommand(l_Config.QueueStatusCommand,    Command_QueueStatus);
+            if (l_Config.WrongCommandEnabled)       RegisterCommand(l_Config.WrongCommand,          Command_Wrong);
+
+            /// Moderator+
+            if (l_Config.Moderator_AddToTopCommandEnabled)      RegisterCommand(l_Config.Moderator_AddToTopCommand,         (x, y, z) => Command_BSR(x, y, z, true, true));
+            if (l_Config.Moderator_AllowCommandEnabled)         RegisterCommand(l_Config.Moderator_AllowCommand,            Command_Allow);
+            if (l_Config.Moderator_BlockCommandEnabled)         RegisterCommand(l_Config.Moderator_BlockCommand,            Command_Block);
+            if (l_Config.Moderator_BsrBanCommandEnabled)        RegisterCommand(l_Config.Moderator_BsrBanCommand,           Command_BanUser);
+            if (l_Config.Moderator_BsrBanMapperCommandEnabled)  RegisterCommand(l_Config.Moderator_BsrBanMapperCommand,     Command_BanMapper);
+            if (l_Config.Moderator_BsrUnbanCommandEnabled)      RegisterCommand(l_Config.Moderator_BsrUnbanCommand,         Command_UnBanUser);
+            if (l_Config.Moderator_BsrUnbanMapperCommandEnabled) RegisterCommand(l_Config.Moderator_BsrUnbanMapperCommand,  Command_UnBanMapper);
+            if (l_Config.Moderator_CloseCommandEnabled)         RegisterCommand(l_Config.Moderator_CloseCommand,            Command_Close);
+            if (l_Config.Moderator_ModAddCommandEnabled)        RegisterCommand(l_Config.Moderator_ModAddCommand,           (x, y, z) => Command_BSR(x, y, z, true, false));
+            if (l_Config.Moderator_MoveToTopCommandEnabled)     RegisterCommand(l_Config.Moderator_MoveToTopCommand,        Command_MoveToTop);
+            if (l_Config.Moderator_OpenCommandEnabled)          RegisterCommand(l_Config.Moderator_OpenCommand,             Command_Open);
+            if (l_Config.Moderator_RemapCommandEnabled)         RegisterCommand(l_Config.Moderator_RemapCommand,            Command_Remap);
+            if (l_Config.Moderator_RemoveCommandEnabled)        RegisterCommand(l_Config.Moderator_RemoveCommand,           Command_Remove);
+            if (l_Config.Moderator_SabotageCommandEnabled)      RegisterCommand(l_Config.Moderator_SabotageCommand,         Command_Sabotage);
+            if (l_Config.Moderator_SongMessageCommandEnabled)   RegisterCommand(l_Config.Moderator_SongMessageCommand,      Command_SongMessage);
+        }
+        /// <summary>
+        /// Register a command
+        /// </summary>
+        /// <param name="p_Name">Name or names</param>
+        /// <param name="p_Callback">Callback method</param>
+        private void RegisterCommand(string p_Name, Action<IChatService, IChatMessage, string[]> p_Callback)
+        {
+            foreach (var l_Current in p_Name.Split(','))
+            {
+                var l_Name = l_Current.ToLower().Trim().Replace("!", "");
+                if (!m_CommandTable.ContainsKey(l_Name))
+                    m_CommandTable.Add(l_Name, p_Callback);
+            }
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
         /// On text message received
         /// </summary>
-        /// <param name="p_ChatService">Chat service</param>
+        /// <param name="p_Service">Chat service</param>
         /// <param name="p_Message">ID of the message</param>
         private void ChatCoreMutiplixer_OnTextMessageReceived(IChatService p_Service, IChatMessage p_Message)
         {
             if (p_Message.Message.Length < 2 || p_Message.Message[0] != '!')
                 return;
 
-            string l_LMessage = p_Message.Message.ToLower();
+            var l_Parts         = Regex.Split(p_Message.Message, "(?<=^[^\"]*(?:\"[^\"]*\"[^\"]*)*) (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+            var l_Command       = l_Parts[0]?.ToLower().Remove(0, 1) ?? "";
+            var l_Parameters    = new List<string>(l_Parts);
 
-            ////////////////////////////////////////////////////////////////////////////
+            if (l_Parameters.Count != 0)
+                l_Parameters.RemoveAt(0);
 
-            if (l_LMessage.StartsWith("!link"))
-                Command_Link(p_Service, p_Message);
-
-            ////////////////////////////////////////////////////////////////////////////
-
-            else if (l_LMessage.StartsWith("!bsr "))
-                Command_BSR(p_Service, p_Message, p_Message.Message.Substring("!bsr ".Length).Trim(), false, false);
-            else if (l_LMessage.StartsWith("!bsrhelp"))
-                SendChatMessage($"@{p_Message.Sender.UserName} To request a song, go to https://beatsaver.com/search and find a song, Click on \"Copy !bsr\" button and paste this on the stream and I'll play it soon!.");
-            else if (l_LMessage.StartsWith("!oops") || l_LMessage.StartsWith("!wrongsong") || l_LMessage.StartsWith("!wrong"))
-                Command_Wrong(p_Service, p_Message);
-            else if (l_LMessage.StartsWith("!queuestatus"))
-                Command_QueueStatus(p_Service, p_Message);
-            else if (l_LMessage.StartsWith("!queue"))
-                Command_Queue(p_Service, p_Message);
-
-            ////////////////////////////////////////////////////////////////////////////
-
-            else if (l_LMessage.StartsWith("!modadd "))
-                Command_BSR(p_Service, p_Message, p_Message.Message.Substring("!modadd ".Length).Trim(), true, false);
-            else if (l_LMessage.StartsWith("!open"))
-                Command_Open(p_Service, p_Message);
-            else if (l_LMessage.StartsWith("!close"))
-                Command_Close(p_Service, p_Message);
-            else if (l_LMessage.StartsWith("!sabotage "))
-                Command_Sabotage(p_Service, p_Message, p_Message.Message.Substring("!sabotage ".Length).Trim());
-            else if (l_LMessage.StartsWith("!songmsg "))
-                Command_SongMessage(p_Service, p_Message, p_Message.Message.Substring("!songmsg ".Length).Trim());
-            else if (l_LMessage.StartsWith("!mtt "))
-                Command_MoveToTop(p_Service, p_Message, p_Message.Message.Substring("!mtt ".Length).Trim());
-            else if (l_LMessage.StartsWith("!att "))
-                Command_BSR(p_Service, p_Message, p_Message.Message.Substring("!att ".Length).Trim(), true, true);
-            else if (l_LMessage.StartsWith("!remove"))
-                Command_Remove(p_Service, p_Message, p_Message.Message.Substring("!remove ".Length).Trim());
-
-            ////////////////////////////////////////////////////////////////////////////
-
-            else if (l_LMessage.StartsWith("!bsrban "))
-                Command_BanUser(p_Service, p_Message, p_Message.Message.Substring("!bsrban ".Length).Trim());
-            else if (l_LMessage.StartsWith("!bsrunban "))
-                Command_UnBanUser(p_Service, p_Message, p_Message.Message.Substring("!bsrunban ".Length).Trim());
-
-            ////////////////////////////////////////////////////////////////////////////
-
-            else if (l_LMessage.StartsWith("!bsrbanmapper "))
-                Command_BanMapper(p_Service, p_Message, p_Message.Message.Substring("!bsrbanmapper ".Length).Trim());
-            else if (l_LMessage.StartsWith("!bsrunbanmapper "))
-                Command_UnBanMapper(p_Service, p_Message, p_Message.Message.Substring("!bsrunbanmapper ".Length).Trim());
-
-            ////////////////////////////////////////////////////////////////////////////
-
-            else if (l_LMessage.StartsWith("!remap "))
-                Command_Remap(p_Service, p_Message, p_Message.Message.Substring("!remap ".Length).Trim());
-            else if (l_LMessage.StartsWith("!allow "))
-                Command_Allow(p_Service, p_Message, p_Message.Message.Substring("!allow ".Length).Trim());
-            else if (l_LMessage.StartsWith("!block "))
-                Command_Block(p_Service, p_Message, p_Message.Message.Substring("!block ".Length).Trim());
+            if (m_CommandTable.TryGetValue(l_Command, out var l_CommandBlock))
+                l_CommandBlock?.Invoke(p_Service, p_Message, l_Parameters.ToArray());
         }
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        /// <summary>
-        /// Command link
-        /// </summary>
-        /// <param name="p_Service">Chat service</param>
-        /// <param name="p_Message">Chat message</param>
-        private void Command_Link(IChatService p_Service, IChatMessage p_Message)
-        {
-            if (SDK.Game.Logic.LevelData == null
-                || SDK.Game.Logic.LevelData?.Data == null
-                || SDK.Game.Logic.LevelData?.Data.difficultyBeatmap == null)
-            {
-                if (m_LastPlayingLevelResponse == "")
-                    SendChatMessage($"@{p_Message.Sender.UserName} no song is being played right now!");
-                else
-                    SendChatMessage($"@{p_Message.Sender.UserName} last song : " + m_LastPlayingLevelResponse);
-            }
-            else
-            {
-                SendChatMessage($"@{p_Message.Sender.UserName} current song : " + m_LastPlayingLevelResponse);
-            }
-        }
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        /// <summary>
-        /// Handle BSR command
-        /// </summary>
-        /// <param name="p_Service">Chat service</param>
-        /// <param name="p_Message">Chat message</param>
-        /// <param name="p_ID">ID of the BSR</param>
-        private void Command_BSR(IChatService p_Service, IChatMessage p_Message, string p_ID, bool p_ModeratorAddCommand, bool p_ModeratorAddToTop)
+        private void Command_BSR(IChatService p_Service, IChatMessage p_Message, string[] p_Params, bool p_ModeratorAddCommand, bool p_ModeratorAddToTop)
         {
             if (IsUserBanned(p_Message.Sender.UserName))
             {
-                SendChatMessage($"@{p_Message.Sender.UserName} You are not allowed to make requests!");
+                SendChatMessage(CRConfig.Instance.Commands.BSRCommand_UserBanned.Replace("$UserName", p_Message.Sender.UserName));
                 return;
             }
 
@@ -134,38 +115,42 @@ namespace BeatSaberPlus.Modules.ChatRequest
 
             if (!QueueOpen && !(l_IsModerator && p_ModeratorAddCommand))
             {
-                SendChatMessage($"@{p_Message.Sender.UserName} the queue is closed!");
+                SendChatMessage(CRConfig.Instance.Commands.BSRCommand_QueueClosed, p_Message.Sender);
                 return;
             }
 
-            string l_Key = p_ID.ToLower();
+            string l_Key = p_Params.Length > 0 ? p_Params[0].ToLower() : "";
 
             if (!OnlyHexInString(l_Key))
             {
-                _ = m_BeatSaver.Search(new BeatSaverSharp.SearchRequestOptions(l_Key)).ContinueWith((p_SearchTaskResult) =>
+                SDK.Game.BeatMapsClient.GetOnlineBySearch(l_Key, (p_Valid, p_SearchTaskResult) =>
                 {
-                    if (p_SearchTaskResult.Result == null || p_SearchTaskResult.Result.Docs.Count == 0)
+                    if (!p_Valid || p_SearchTaskResult.Length == 0)
                     {
-                        SendChatMessage($"@{p_Message.Sender.UserName} your search \"{l_Key}\" produced 0 results!");
+                        SendChatMessage(CRConfig.Instance.Commands.BSRCommand_Search0Result.Replace("$Search", l_Key), p_Message.Sender);
                         return;
                     }
 
-                    var l_Docs = p_SearchTaskResult.Result.Docs;
-                    string l_Reply = $"@{p_Message.Sender.UserName} your search \"{l_Key}\" produced {l_Docs.Count} results : ";
+                    var l_Results   = "";
 
                     int l_I = 0;
-                    for (; l_I < l_Docs.Count && l_I < 4; ++l_I)
+                    for (; l_I < p_SearchTaskResult.Length && l_I < 4; ++l_I)
                     {
                         if (l_I != 0)
-                            l_Reply += ", ";
+                            l_Results += ", ";
 
-                        l_Reply += " (!bsr " + l_Docs[l_I].Key + ") " + l_Docs[l_I].Name;
+                        l_Results += " (!bsr " + p_SearchTaskResult[l_I].id + ") " + p_SearchTaskResult[l_I].name;
                     }
 
-                    if (l_I < l_Docs.Count)
-                        l_Reply += "...";
+                    if (l_I < p_SearchTaskResult.Length)
+                        l_Results += "...";
 
-                    SendChatMessage(l_Reply);
+                    var l_Reply = CRConfig.Instance.Commands.BSRCommand_SearchResults
+                                    .Replace("$Search",     l_Key)
+                                    .Replace("$Count",      p_SearchTaskResult.Length.ToString())
+                                    .Replace("$Results",    l_Results);
+
+                    SendChatMessage(l_Reply, p_Message.Sender);
                 });
 
                 return;
@@ -185,10 +170,10 @@ namespace BeatSaberPlus.Modules.ChatRequest
             {
                 lock (SongBlackList)
                 {
-                    var l_BeatMap = SongBlackList.Where(x => x.BeatMap.Key.ToLower() == l_Key).FirstOrDefault();
+                    var l_BeatMap = SongBlackList.Where(x => x.BeatMap.id.ToLower() == l_Key).FirstOrDefault();
                     if (l_BeatMap != null)
                     {
-                        SendChatMessage($"@{p_Message.Sender.UserName} (bsr {l_BeatMap.BeatMap.Key}) {l_BeatMap.BeatMap.Metadata.SongName} / {l_BeatMap.BeatMap.Metadata.LevelAuthorName} is blacklisted!");
+                        SendChatMessage(CRConfig.Instance.Commands.BSRCommand_Blacklisted, p_Message.Sender, l_BeatMap.BeatMap);
                         return;
                     }
                 }
@@ -197,10 +182,10 @@ namespace BeatSaberPlus.Modules.ChatRequest
             /// Check if already in queue
             lock (SongQueue)
             {
-                var l_BeatMap = SongQueue.Where(x => x.BeatMap.Key.ToLower() == l_Key).FirstOrDefault();
+                var l_BeatMap = SongQueue.Where(x => x.BeatMap.id.ToLower() == l_Key).FirstOrDefault();
                 if (l_BeatMap != null)
                 {
-                    SendChatMessage($"@{p_Message.Sender.UserName} (bsr {l_BeatMap.BeatMap.Key}) {l_BeatMap.BeatMap.Metadata.SongName} / {l_BeatMap.BeatMap.Metadata.LevelAuthorName} is already in queue!");
+                    SendChatMessage(CRConfig.Instance.Commands.BSRCommand_AlreadyQueued, p_Message.Sender, l_BeatMap.BeatMap);
                     return;
                 }
 
@@ -214,12 +199,12 @@ namespace BeatSaberPlus.Modules.ChatRequest
             {
                 var l_TwitchUser = p_Message.Sender as SDK.Chat.Models.Twitch.TwitchUser;
 
-                (int, string) l_Limit = (Config.ChatRequest.UserMaxRequest, "Users");
+                (int, string) l_Limit = (CRConfig.Instance.UserMaxRequest, "Users");
 
-                if (l_TwitchUser.IsVip && !l_TwitchUser.IsSubscriber)       l_Limit = (l_Limit.Item1 + Config.ChatRequest.VIPBonusRequest,                                             "VIPs");
-                if (l_TwitchUser.IsSubscriber && !l_TwitchUser.IsVip)       l_Limit = (l_Limit.Item1 + Config.ChatRequest.SubscriberBonusRequest,                                      "Subscribers");
-                if (l_TwitchUser.IsSubscriber &&  l_TwitchUser.IsVip)       l_Limit = (l_Limit.Item1 + Config.ChatRequest.VIPBonusRequest + Config.ChatRequest.SubscriberBonusRequest, "VIP Subscribers");
-                if (l_TwitchUser.IsModerator || l_TwitchUser.IsBroadcaster) l_Limit = (1000,                                                                                           "Moderators");
+                if (l_TwitchUser.IsVip && !l_TwitchUser.IsSubscriber)       l_Limit = (l_Limit.Item1 + CRConfig.Instance.VIPBonusRequest,                                             "VIPs");
+                if (l_TwitchUser.IsSubscriber && !l_TwitchUser.IsVip)       l_Limit = (l_Limit.Item1 + CRConfig.Instance.SubscriberBonusRequest,                                      "Subscribers");
+                if (l_TwitchUser.IsSubscriber &&  l_TwitchUser.IsVip)       l_Limit = (l_Limit.Item1 + CRConfig.Instance.VIPBonusRequest + CRConfig.Instance.SubscriberBonusRequest,  "VIP Subscribers");
+                if (l_TwitchUser.IsModerator || l_TwitchUser.IsBroadcaster) l_Limit = (1000,                                                                                          "Moderators");
 
                 if (l_TwitchUser.IsModerator || l_TwitchUser.IsBroadcaster)
                     l_NamePrefix = "🗡";
@@ -230,7 +215,11 @@ namespace BeatSaberPlus.Modules.ChatRequest
 
                 if (l_UserRequestCount >= l_Limit.Item1)
                 {
-                    SendChatMessage($"@{p_Message.Sender.UserName} You already have {l_UserRequestCount} on the queue. {l_Limit.Item2} are limited to {l_Limit.Item1} request(s).");
+                    SendChatMessage(CRConfig.Instance.Commands.BSRCommand_RequestLimit
+                                    .Replace("$UserName",           p_Message.Sender.UserName)
+                                    .Replace("$UserRequestCount",   l_UserRequestCount.ToString())
+                                    .Replace("$UserType",           l_Limit.Item2)
+                                    .Replace("$UserTypeLimit",      l_Limit.Item1.ToString()));
                     return;
                 }
             }
@@ -238,7 +227,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
             /// Check if already requested
             if (!(l_IsModerator && p_ModeratorAddCommand) && m_RequestedThisSession.Contains(l_Key))
             {
-                SendChatMessage($"@{p_Message.Sender.UserName} this song was already requested this session!");
+                SendChatMessage(CRConfig.Instance.Commands.BSRCommand_AlreadyPlayed, p_Message.Sender);
                 return;
             }
 
@@ -250,24 +239,24 @@ namespace BeatSaberPlus.Modules.ChatRequest
             }
 
             /// Fetch beatmap
-            _ = m_BeatSaver.Key(l_Key).ContinueWith(p_SongTaskResult =>
+            SDK.Game.BeatMapsClient.GetOnlineByKey(l_Key, (p_Valid, p_BeatMap) =>
             {
                 try
                 {
-                    string l_Reply = "@" + p_Message.Sender.UserName + " map " + l_Key + " not found.";
-                    if (    p_SongTaskResult.Result != null
+                    string l_Reply = CRConfig.Instance.Commands.BSRCommand_NotFound.Replace("$BSRKey", l_Key);
+
+                    if (p_Valid
                         &&  (
                                     (l_IsModerator && p_ModeratorAddCommand)
-                                ||  (l_ForceAllow  || FilterBeatMap(p_SongTaskResult.Result, p_Message.Sender.UserName, out l_Reply))
+                                ||  (l_ForceAllow  || FilterBeatMap(p_BeatMap, p_Message.Sender.UserName, out l_Reply))
                             )
                        )
                     {
-                        var     l_BeatMap           = p_SongTaskResult.Result;
-                        float   l_Vote              = (float)Math.Round((double)l_BeatMap.Stats.Rating * 100f, 0);
+                        float   l_Vote              = (float)Math.Round((double)p_BeatMap.stats.score * 100f, 0);
                         var     l_IsMapperBanned    = false;
 
                         lock (BannedMappers)
-                            l_IsMapperBanned = BannedMappers.Contains(l_BeatMap.Uploader.Username.ToLower());
+                            l_IsMapperBanned = BannedMappers.Contains(p_BeatMap.uploader.name.ToLower());
 
                         if ((l_IsModerator && p_ModeratorAddCommand) || (!l_IsMapperBanned && !m_RequestedThisSession.Contains(l_Key)))
                         {
@@ -275,7 +264,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
 
                             var l_Entry = new SongEntry()
                             {
-                                BeatMap         = l_BeatMap,
+                                BeatMap         = p_BeatMap,
                                 RequesterName   = p_Message.Sender.UserName,
                                 RequestTime     = DateTime.Now,
                                 NamePrefix      = l_NamePrefix
@@ -289,23 +278,28 @@ namespace BeatSaberPlus.Modules.ChatRequest
                                     SongQueue.Add(l_Entry);
                             }
 
-                            OnBeatmapPopulated(p_SongTaskResult, l_Entry);
+                            OnBeatmapPopulated(p_Valid, l_Entry);
 
                             /// Update request manager
                             OnQueueChanged();
 
-                            l_Reply = $"(bsr {l_BeatMap.Key}) {l_BeatMap.Metadata.SongName} / {l_BeatMap.Metadata.LevelAuthorName} {l_Vote}% requested by @{p_Message.Sender.UserName} added to queue.";
+                            l_Reply = CRConfig.Instance.Commands.BSRCommand_RequestOK
+                                        .Replace("$BSRKey",             p_BeatMap.id.ToLower())
+                                        .Replace("$SongName",           p_BeatMap.metadata.songName)
+                                        .Replace("$LevelAuthorName",    p_BeatMap.metadata.levelAuthorName)
+                                        .Replace("$Vote",               l_Vote.ToString());
                         }
                         else
                         {
                             if (l_IsMapperBanned)
-                                l_Reply = $"@{p_Message.Sender.UserName} {l_BeatMap.Uploader.Username}'s maps are not allowed!";
+                                l_Reply = CRConfig.Instance.Commands.BSRCommand_MapperBanned
+                                        .Replace("$UploaderName", p_BeatMap.uploader.name);
                             else
-                                l_Reply = $"@{p_Message.Sender.UserName} this song was already requested this session!";
+                                l_Reply = CRConfig.Instance.Commands.BSRCommand_AlreadyPlayed;
                         }
                     }
 
-                    SendChatMessage(l_Reply);
+                    SendChatMessage(l_Reply, p_Message.Sender);
                 }
                 catch (System.Exception p_Exception)
                 {
@@ -314,43 +308,34 @@ namespace BeatSaberPlus.Modules.ChatRequest
                 }
             });
         }
-        /// <summary>
-        /// Command wrong
-        /// </summary>
-        /// <param name="p_Service">Chat service</param>
-        /// <param name="p_Message">Chat message</param>
-        private void Command_Wrong(IChatService p_Service, IChatMessage p_Message)
+        private void Command_BSRHelp(IChatService p_Service, IChatMessage p_Message, string[] p_Params)
         {
-            SongEntry l_SongEntry = null;
-
-            lock (SongQueue)
+            SendChatMessage(CRConfig.Instance.Commands.BSRHelpCommand_Reply, p_Message.Sender);
+        }
+        private void Command_Link(IChatService p_Service, IChatMessage p_Message, string[] p_Params)
+        {
+            string l_Response = "";
+            if (SDK.Game.Logic.LevelData == null
+                || SDK.Game.Logic.LevelData?.Data == null
+                || SDK.Game.Logic.LevelData?.Data.difficultyBeatmap == null)
             {
-                l_SongEntry = SongQueue.Where(x => x.RequesterName == p_Message.Sender.UserName).LastOrDefault();
-                if (l_SongEntry != null)
-                    SongQueue.Remove(l_SongEntry);
-            }
-
-            if (l_SongEntry != null)
-            {
-                SendChatMessage($"@{p_Message.Sender.UserName} (bsr {l_SongEntry.BeatMap.Key}) {l_SongEntry.BeatMap.Metadata.SongName} / {l_SongEntry.BeatMap.Metadata.LevelAuthorName} is removed from queue!");
-
-                /// Update request manager
-                OnQueueChanged();
+                if (m_LastPlayingLevelResponse == "")
+                    l_Response = CRConfig.Instance.Commands.LinkCommand_NoSong;
+                else
+                    l_Response = CRConfig.Instance.Commands.LinkCommand_LastSong;
             }
             else
-                SendChatMessage($"@{p_Message.Sender.UserName} You have no song in queue!");
+                l_Response = CRConfig.Instance.Commands.LinkCommand_CurrentSong;
+
+            if (!string.IsNullOrEmpty(l_Response))
+                SendChatMessage(l_Response.Replace("$SongInfo", m_LastPlayingLevelResponse), p_Message.Sender);
         }
-        /// <summary>
-        /// Command queue
-        /// </summary>
-        /// <param name="p_Service">Chat service</param>
-        /// <param name="p_Message">Chat message</param>
-        private void Command_Queue(IChatService p_Service, IChatMessage p_Message)
+        private void Command_Queue(IChatService p_Service, IChatMessage p_Message, string[] p_Param)
         {
             var l_DiffTime = (DateTime.Now - m_LastQueueCommandTime).TotalSeconds;
-            if (l_DiffTime < Config.ChatRequest.QueueCommandCooldown)
+            if (l_DiffTime < CRConfig.Instance.QueueCommandCooldown)
             {
-                SendChatMessage($"@{p_Message.Sender.UserName} queue command is on cooldown!");
+                SendChatMessage(CRConfig.Instance.Commands.QueueCommand_Cooldown, p_Message.Sender);
                 return;
             }
 
@@ -367,29 +352,24 @@ namespace BeatSaberPlus.Modules.ChatRequest
                     l_Reply = $"Song queue ({SongQueue.Count} songs {l_Minutes}m{l_Seconds}s), next : ";
 
                     int l_I = 0;
-                    for (; l_I < SongQueue.Count && l_I < Config.ChatRequest.QueueCommandShowSize; ++l_I)
+                    for (; l_I < SongQueue.Count && l_I < CRConfig.Instance.QueueCommandShowSize; ++l_I)
                     {
                         if (l_I != 0)
                             l_Reply += ", ";
 
-                        l_Reply += " (bsr " + SongQueue[l_I].BeatMap.Key + ") " + SongQueue[l_I].BeatMap.Name;
+                        l_Reply += " (bsr " + SongQueue[l_I].BeatMap.id.ToLower() + ") " + SongQueue[l_I].BeatMap.name;
                     }
 
                     if (l_I < SongQueue.Count)
                         l_Reply += "...";
                 }
                 else
-                    l_Reply = "Song queue is empty!";
+                    l_Reply = CRConfig.Instance.Commands.QueueCommand_Empty;
             }
 
-            SendChatMessage(l_Reply);
+            SendChatMessage(l_Reply, p_Message.Sender);
         }
-        /// <summary>
-        /// Command queue status
-        /// </summary>
-        /// <param name="p_Service">Chat service</param>
-        /// <param name="p_Message">Chat message</param>
-        private void Command_QueueStatus(IChatService p_Service, IChatMessage p_Message)
+        private void Command_QueueStatus(IChatService p_Service, IChatMessage p_Message, string[] p_Param)
         {
             string l_Reply = "";
             lock (SongQueue)
@@ -404,18 +384,34 @@ namespace BeatSaberPlus.Modules.ChatRequest
                     l_Reply = $"@{p_Message.Sender.UserName} Song queue is " + (QueueOpen ? "open" : "closed") + ", no song queued!";
             }
 
-            SendChatMessage(l_Reply);
+            SendChatMessage(l_Reply, p_Message.Sender);
+        }
+        private void Command_Wrong(IChatService p_Service, IChatMessage p_Message, string[] p_Params)
+        {
+            SongEntry l_SongEntry = null;
+
+            lock (SongQueue)
+            {
+                l_SongEntry = SongQueue.Where(x => x.RequesterName == p_Message.Sender.UserName).LastOrDefault();
+                if (l_SongEntry != null)
+                    SongQueue.Remove(l_SongEntry);
+            }
+
+            if (l_SongEntry != null)
+            {
+                SendChatMessage($"@{p_Message.Sender.UserName} (bsr {l_SongEntry.BeatMap.id}) {l_SongEntry.BeatMap.metadata.songName} / {l_SongEntry.BeatMap.metadata.levelAuthorName} is removed from queue!");
+
+                /// Update request manager
+                OnQueueChanged();
+            }
+            else
+                SendChatMessage(CRConfig.Instance.Commands.WrongCommand_NoSong, p_Message.Sender);
         }
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        /// <summary>
-        /// Command open
-        /// </summary>
-        /// <param name="p_Service">Chat service</param>
-        /// <param name="p_Message">Chat message</param>
-        private void Command_Open(IChatService p_Service, IChatMessage p_Message)
+        private void Command_Open(IChatService p_Service, IChatMessage p_Message, string[] p_Params)
         {
             if (!HasPower(p_Message.Sender))
             {
@@ -431,12 +427,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
 
             ToggleQueueStatus();
         }
-        /// <summary>
-        /// Command open
-        /// </summary>
-        /// <param name="p_Service">Chat service</param>
-        /// <param name="p_Message">Chat message</param>
-        private void Command_Close(IChatService p_Service, IChatMessage p_Message)
+        private void Command_Close(IChatService p_Service, IChatMessage p_Message, string[] p_Params)
         {
             if (!HasPower(p_Message.Sender))
             {
@@ -452,13 +443,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
 
             ToggleQueueStatus();
         }
-        /// <summary>
-        /// Command sabotage (LIV streamer kit)
-        /// </summary>
-        /// <param name="p_Service">Chat service</param>
-        /// <param name="p_Message">Chat message</param>
-        /// <param name="p_Parameter">Command parameter</param>
-        private void Command_Sabotage(IChatService p_Service, IChatMessage p_Message, string p_Parameter)
+        private void Command_Sabotage(IChatService p_Service, IChatMessage p_Message, string[] p_Params)
         {
             /// Original implementation :
             /// https://github.com/angturil/SongRequestManager/blob/dev/EnhancedTwitchIntegration/Bot/ChatCommands.cs#L589
@@ -469,14 +454,13 @@ namespace BeatSaberPlus.Modules.ChatRequest
                 return;
             }
 
-            p_Parameter = p_Parameter.ToLower();
-
-            if (p_Parameter == "on" || p_Parameter == "off")
+            var l_Parameter = p_Params.Length > 0 ? p_Params[0].ToLower() : "";
+            if (l_Parameter == "on" || l_Parameter == "off")
             {
                 try
                 {
-                    System.Diagnostics.Process.Start($"liv-streamerkit://gamechanger/beat-saber-sabotage/" + (p_Parameter == "on" ? "enable" : "disable"));
-                    SendChatMessage($"The !bomb command is now " + (p_Parameter == "on" ? "enabled!" : "disabled!"));
+                    System.Diagnostics.Process.Start($"liv-streamerkit://gamechanger/beat-saber-sabotage/" + (l_Parameter == "on" ? "enable" : "disable"));
+                    SendChatMessage($"The !bomb command is now " + (l_Parameter == "on" ? "enabled!" : "disabled!"));
                 }
                 catch
                 {
@@ -486,13 +470,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
             else
                 SendChatMessage($"@{p_Message.Sender.UserName} syntax is : !sabotage on/off");
         }
-        /// <summary>
-        /// Command song message
-        /// </summary>
-        /// <param name="p_Service">Chat service</param>
-        /// <param name="p_Message">Chat message</param>
-        /// <param name="p_Parameter">Command parameter</param>
-        private void Command_SongMessage(IChatService p_Service, IChatMessage p_Message, string p_Parameter)
+        private void Command_SongMessage(IChatService p_Service, IChatMessage p_Message, string[] p_Params)
         {
             if (!HasPower(p_Message.Sender))
             {
@@ -500,19 +478,18 @@ namespace BeatSaberPlus.Modules.ChatRequest
                 return;
             }
 
-            var l_Parts = p_Parameter.Split(' ');
-            if (l_Parts.Length < 2)
+            if (p_Params.Length < 2)
             {
                 SendChatMessage($"@{p_Message.Sender.UserName} invalid command, syntax is !songmsg #BSRKEY|#REQUESTERNAME #MESSAGE");
                 return;
             }
 
-            var l_Key       = l_Parts[0].ToLower();
-            var l_Message   = string.Join(" ", l_Parts.Skip(1));
+            var l_Key       = p_Params[0].ToLower();
+            var l_Message   = string.Join(" ", p_Params.Skip(1));
 
             SongEntry l_SongEntry = null;
             lock (SongQueue)
-                l_SongEntry = SongQueue.Where(x => (l_Key.StartsWith("@") ? (l_Key.ToLower() == ("@" + x.RequesterName.ToLower())) : x.BeatMap.Key.ToLower() == l_Key)).FirstOrDefault();
+                l_SongEntry = SongQueue.Where(x => (l_Key.StartsWith("@") ? (l_Key.ToLower() == ("@" + x.RequesterName.ToLower())) : x.BeatMap.id.ToLower() == l_Key)).FirstOrDefault();
 
             if (l_SongEntry != null)
             {
@@ -526,13 +503,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
             else
                 SendChatMessage($"@{p_Message.Sender.UserName} No song in queue found with the key or username \"{l_Key}\"!");
         }
-        /// <summary>
-        /// Move song to top
-        /// </summary>
-        /// <param name="p_Service">Chat service</param>
-        /// <param name="p_Message">Chat message</param>
-        /// <param name="p_ID">ID of the BSR</param>
-        private void Command_MoveToTop(IChatService p_Service, IChatMessage p_Message, string p_ID)
+        private void Command_MoveToTop(IChatService p_Service, IChatMessage p_Message, string[] p_Params)
         {
             if (!HasPower(p_Message.Sender))
             {
@@ -540,17 +511,17 @@ namespace BeatSaberPlus.Modules.ChatRequest
                 return;
             }
 
-            string l_Key = p_ID.ToLower();
+            string l_Key = p_Params.Length > 0 ? p_Params[0].ToLower().Trim() : "";
 
             lock (SongQueue)
             {
-                var l_SongEntry = SongQueue.Where(x => (l_Key.StartsWith("@") ? (l_Key.ToLower() == ("@" + x.RequesterName.ToLower())) : x.BeatMap.Key.ToLower() == l_Key)).FirstOrDefault();
+                var l_SongEntry = SongQueue.Where(x => (l_Key.StartsWith("@") ? (l_Key.ToLower() == ("@" + x.RequesterName.ToLower())) : x.BeatMap.id.ToLower() == l_Key)).FirstOrDefault();
                 if (l_SongEntry != null)
                 {
                     SongQueue.Remove(l_SongEntry);
                     SongQueue.Insert(0, l_SongEntry);
 
-                    SendChatMessage($"@{p_Message.Sender.UserName} (bsr {l_SongEntry.BeatMap.Key}) {l_SongEntry.BeatMap.Metadata.SongName} / {l_SongEntry.BeatMap.Metadata.LevelAuthorName} requested by @{l_SongEntry.RequesterName} is now on top of queue!");
+                    SendChatMessage($"@{p_Message.Sender.UserName} (bsr {l_SongEntry.BeatMap.id.ToLower()}) {l_SongEntry.BeatMap.metadata.songName} / {l_SongEntry.BeatMap.metadata.levelAuthorName} requested by @{l_SongEntry.RequesterName} is now on top of queue!");
 
                     /// Update request manager
                     OnQueueChanged();
@@ -561,12 +532,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
                 SendChatMessage($"@{p_Message.Sender.UserName} No song in queue found with the key or username \"{l_Key}\"!");
             }
         }
-        /// <summary>
-        /// Command remove
-        /// </summary>
-        /// <param name="p_Service">Chat service</param>
-        /// <param name="p_Message">Chat message</param>
-        private void Command_Remove(IChatService p_Service, IChatMessage p_Message, string p_ID)
+        private void Command_Remove(IChatService p_Service, IChatMessage p_Message, string[] p_Params)
         {
             if (!HasPower(p_Message.Sender))
             {
@@ -574,12 +540,12 @@ namespace BeatSaberPlus.Modules.ChatRequest
                 return;
             }
 
-            string l_Key = p_ID.ToLower();
+            string l_Key = p_Params.Length > 0 ? p_Params[0].ToLower() : "";
 
             SongEntry l_SongEntry = null;
             lock (SongQueue)
             {
-                l_SongEntry = SongQueue.Where(x => (l_Key.StartsWith("@") ? (l_Key.ToLower() == ("@" + x.RequesterName.ToLower())) : x.BeatMap.Key.ToLower() == l_Key)).FirstOrDefault();
+                l_SongEntry = SongQueue.Where(x => (l_Key.StartsWith("@") ? (l_Key.ToLower() == ("@" + x.RequesterName.ToLower())) : x.BeatMap.id.ToLower() == l_Key)).FirstOrDefault();
 
                 if (l_SongEntry != null)
                     SongQueue.Remove(l_SongEntry);
@@ -587,7 +553,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
 
             if (l_SongEntry != null)
             {
-                SendChatMessage($"@{p_Message.Sender.UserName} (bsr {l_SongEntry.BeatMap.Key}) {l_SongEntry.BeatMap.Metadata.SongName} / {l_SongEntry.BeatMap.Metadata.LevelAuthorName} request by @{l_SongEntry.RequesterName} is removed from queue!");
+                SendChatMessage($"@{p_Message.Sender.UserName} (bsr {l_SongEntry.BeatMap.id}) {l_SongEntry.BeatMap.metadata.songName} / {l_SongEntry.BeatMap.metadata.levelAuthorName} request by @{l_SongEntry.RequesterName} is removed from queue!");
 
                 /// Update request manager
                 OnQueueChanged();
@@ -599,13 +565,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        /// <summary>
-        /// Ban user
-        /// </summary>
-        /// <param name="p_Service">Chat service</param>
-        /// <param name="p_Message">Chat message</param>
-        /// <param name="p_Parameter">Command parameter</param>
-        private void Command_BanUser(IChatService p_Service, IChatMessage p_Message, string p_Parameter)
+        private void Command_BanUser(IChatService p_Service, IChatMessage p_Message, string[] p_Params)
         {
             if (!HasPower(p_Message.Sender))
             {
@@ -613,7 +573,8 @@ namespace BeatSaberPlus.Modules.ChatRequest
                 return;
             }
 
-            var l_UserName = (p_Parameter.StartsWith("@") ? p_Parameter.Substring(1) : p_Parameter).ToLower();
+            var l_Parameter = p_Params.Length > 0 ? p_Params[0].ToLower() : "";
+            var l_UserName = (l_Parameter.StartsWith("@") ? l_Parameter.Substring(1) : l_Parameter).ToLower();
 
             lock (BannedUsers)
             {
@@ -627,13 +588,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
                 SendChatMessage($"@{p_Message.Sender.UserName} User \"{l_UserName}\" was add to the requester ban list!");
             }
         }
-        /// <summary>
-        /// Unban user
-        /// </summary>
-        /// <param name="p_Service">Chat service</param>
-        /// <param name="p_Message">Chat message</param>
-        /// <param name="p_Parameter">Command parameter</param>
-        private void Command_UnBanUser(IChatService p_Service, IChatMessage p_Message, string p_Parameter)
+        private void Command_UnBanUser(IChatService p_Service, IChatMessage p_Message, string[] p_Params)
         {
             if (!HasPower(p_Message.Sender))
             {
@@ -641,7 +596,8 @@ namespace BeatSaberPlus.Modules.ChatRequest
                 return;
             }
 
-            var l_UserName = (p_Parameter.StartsWith("@") ? p_Parameter.Substring(1) : p_Parameter).ToLower();
+            var l_Parameter = p_Params.Length > 0 ? p_Params[0].ToLower() : "";
+            var l_UserName = (l_Parameter.StartsWith("@") ? l_Parameter.Substring(1) : l_Parameter).ToLower();
 
             lock (BannedUsers)
             {
@@ -661,13 +617,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        /// <summary>
-        /// Ban mapper
-        /// </summary>
-        /// <param name="p_Service">Chat service</param>
-        /// <param name="p_Message">Chat message</param>
-        /// <param name="p_Parameter">Command parameter</param>
-        private void Command_BanMapper(IChatService p_Service, IChatMessage p_Message, string p_Parameter)
+        private void Command_BanMapper(IChatService p_Service, IChatMessage p_Message, string[] p_Params)
         {
             if (!HasPower(p_Message.Sender))
             {
@@ -675,7 +625,8 @@ namespace BeatSaberPlus.Modules.ChatRequest
                 return;
             }
 
-            var l_MapperName = (p_Parameter.StartsWith("@") ? p_Parameter.Substring(1) : p_Parameter).ToLower();
+            var l_Parameter = p_Params.Length > 0 ? p_Params[0].ToLower() : "";
+            var l_MapperName = (l_Parameter.StartsWith("@") ? l_Parameter.Substring(1) : l_Parameter).ToLower();
 
             lock (BannedMappers)
             {
@@ -689,13 +640,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
                 SendChatMessage($"@{p_Message.Sender.UserName} Mapper \"{l_MapperName}\" was add to the mapper ban list!");
             }
         }
-        /// <summary>
-        /// Unban mapper
-        /// </summary>
-        /// <param name="p_Service">Chat service</param>
-        /// <param name="p_Message">Chat message</param>
-        /// <param name="p_Parameter">Command parameter</param>
-        private void Command_UnBanMapper(IChatService p_Service, IChatMessage p_Message, string p_Parameter)
+        private void Command_UnBanMapper(IChatService p_Service, IChatMessage p_Message, string[] p_Params)
         {
             if (!HasPower(p_Message.Sender))
             {
@@ -703,7 +648,8 @@ namespace BeatSaberPlus.Modules.ChatRequest
                 return;
             }
 
-            var l_MapperName = (p_Parameter.StartsWith("@") ? p_Parameter.Substring(1) : p_Parameter).ToLower();
+            var l_Parameter = p_Params.Length > 0 ? p_Params[0].ToLower() : "";
+            var l_MapperName = (l_Parameter.StartsWith("@") ? l_Parameter.Substring(1) : l_Parameter).ToLower();
 
             lock (BannedMappers)
             {
@@ -723,13 +669,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        /// <summary>
-        /// Remap a song
-        /// </summary>
-        /// <param name="p_Service">Chat service</param>
-        /// <param name="p_Message">Chat message</param>
-        /// <param name="p_Parameter">Command parameter</param>
-        private void Command_Remap(IChatService p_Service, IChatMessage p_Message, string p_Parameter)
+        private void Command_Remap(IChatService p_Service, IChatMessage p_Message, string[] p_Params)
         {
             if (!HasPower(p_Message.Sender))
             {
@@ -737,45 +677,37 @@ namespace BeatSaberPlus.Modules.ChatRequest
                 return;
             }
 
-            var l_Parts = p_Parameter.Split(' ');
-
-            if (l_Parts.Length != 2 || !OnlyHexInString(l_Parts[0]) || !OnlyHexInString(l_Parts[1]))
+            if (p_Params.Length != 2 || !OnlyHexInString(p_Params[0]) || !OnlyHexInString(p_Params[1]))
             {
                 SendChatMessage($"@{p_Message.Sender.UserName} Syntax is => !remap #BSR #BSR");
                 return;
             }
 
-            bool l_IsRemove = l_Parts[0] == l_Parts[1];
+            bool l_IsRemove = p_Params[0] == p_Params[1];
 
             lock (Remaps)
             {
                 if (!l_IsRemove)
                 {
-                    if (Remaps.ContainsKey(l_Parts[0]))
-                        Remaps[l_Parts[0]] = l_Parts[1];
+                    if (Remaps.ContainsKey(p_Params[0]))
+                        Remaps[p_Params[0]] = p_Params[1];
                     else
-                        Remaps.Add(l_Parts[0], l_Parts[1]);
+                        Remaps.Add(p_Params[0], p_Params[1]);
 
-                    SendChatMessage($"@{p_Message.Sender.UserName} All {l_Parts[0]} requests will remap to {l_Parts[1]}!");
+                    SendChatMessage($"@{p_Message.Sender.UserName} All {p_Params[0]} requests will remap to {p_Params[1]}!");
                 }
-                else if (Remaps.ContainsKey(l_Parts[0]))
+                else if (Remaps.ContainsKey(p_Params[0]))
                 {
-                    Remaps.Remove(l_Parts[0]);
-                    SendChatMessage($"@{p_Message.Sender.UserName} Remap for song {l_Parts[0]} removed!");
+                    Remaps.Remove(p_Params[0]);
+                    SendChatMessage($"@{p_Message.Sender.UserName} Remap for song {p_Params[0]} removed!");
                 }
                 else
-                    SendChatMessage($"@{p_Message.Sender.UserName} No remap found for {l_Parts[0]}!");
+                    SendChatMessage($"@{p_Message.Sender.UserName} No remap found for {p_Params[0]}!");
             }
 
             OnQueueChanged(false, false);
         }
-        /// <summary>
-        /// Allow a map
-        /// </summary>
-        /// <param name="p_Service">Chat service</param>
-        /// <param name="p_Message">Chat message</param>
-        /// <param name="p_Parameter">Command parameter</param>
-        private void Command_Allow(IChatService p_Service, IChatMessage p_Message, string p_Parameter)
+        private void Command_Allow(IChatService p_Service, IChatMessage p_Message, string[] p_Params)
         {
             if (!HasPower(p_Message.Sender))
             {
@@ -783,7 +715,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
                 return;
             }
 
-            string l_Key = p_Parameter.ToLower();
+            var l_Key = p_Params.Length > 0 ? p_Params[0].ToLower() : "";
             if (!OnlyHexInString(l_Key))
             {
                 SendChatMessage($"@{p_Message.Sender.UserName} Syntax is => !allow #BSR");
@@ -800,13 +732,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
 
             OnQueueChanged(false, false);
         }
-        /// <summary>
-        /// Block a song
-        /// </summary>
-        /// <param name="p_Service">Chat service</param>
-        /// <param name="p_Message">Chat message</param>
-        /// <param name="p_ID">ID of the BSR</param>
-        private void Command_Block(IChatService p_Service, IChatMessage p_Message, string p_ID)
+        private void Command_Block(IChatService p_Service, IChatMessage p_Message, string[] p_Params)
         {
             if (!HasPower(p_Message.Sender))
             {
@@ -814,7 +740,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
                 return;
             }
 
-            string l_Key = p_ID.ToLower();
+            var l_Key = p_Params.Length > 0 ? p_Params[0].ToLower() : "";
 
             if (!OnlyHexInString(l_Key))
             {
@@ -824,32 +750,31 @@ namespace BeatSaberPlus.Modules.ChatRequest
 
             lock (SongBlackList)
             {
-                var l_BeatMap = SongBlackList.Where(x => x.BeatMap.Key.ToLower() == l_Key).FirstOrDefault();
+                var l_BeatMap = SongBlackList.Where(x => x.BeatMap.id.ToLower() == l_Key).FirstOrDefault();
                 if (l_BeatMap != null)
                 {
-                    SendChatMessage($"@{p_Message.Sender.UserName} (bsr {l_BeatMap.BeatMap.Key}) {l_BeatMap.BeatMap.Metadata.SongName} / {l_BeatMap.BeatMap.Metadata.LevelAuthorName} is already blacklisted!");
+                    SendChatMessage($"@{p_Message.Sender.UserName} (bsr {l_BeatMap.BeatMap.id}) {l_BeatMap.BeatMap.metadata.songName} / {l_BeatMap.BeatMap.metadata.levelAuthorName} is already blacklisted!");
                     return;
                 }
             }
 
             /// Fetch beatmap
-            _ = m_BeatSaver.Key(l_Key).ContinueWith(p_SongTaskResult =>
+            SDK.Game.BeatMapsClient.GetOnlineByKey(l_Key, (p_Valid, p_BeatMap) =>
             {
                 try
                 {
                     string l_Reply = "@" + p_Message.Sender.UserName + " map " + l_Key + " not found.";
-                    if (p_SongTaskResult.Result != null)
+                    if (p_Valid)
                     {
-                        var l_BeatMap = p_SongTaskResult.Result;
-                        l_Reply = $"@{p_Message.Sender.UserName} (bsr {l_BeatMap.Key}) {l_BeatMap.Metadata.SongName} / {l_BeatMap.Metadata.LevelAuthorName} is now blacklisted!";
+                        l_Reply = $"@{p_Message.Sender.UserName} (bsr {p_BeatMap.id.ToLower()}) {p_BeatMap.metadata.songName} / {p_BeatMap.metadata.levelAuthorName} is now blacklisted!";
 
                         lock (SongQueue) { lock (SongHistory) { lock (SongBlackList) {
-                            SongQueue.RemoveAll(x => x.BeatMap.Key   == l_BeatMap.Key);
-                            SongHistory.RemoveAll(x => x.BeatMap.Key == l_BeatMap.Key);
+                            SongQueue.RemoveAll(x => x.BeatMap.id   == p_BeatMap.id);
+                            SongHistory.RemoveAll(x => x.BeatMap.id == p_BeatMap.id);
 
                             /// Add to blacklist
-                            SongBlackList.RemoveAll(x => x.BeatMap.Hash == l_BeatMap.Hash);
-                            SongBlackList.Insert(0, new SongEntry() { BeatMap = l_BeatMap, NamePrefix = "🗡", RequesterName = p_Message.Sender.DisplayName });
+                            SongBlackList.RemoveAll(x => x.BeatMap.id == p_BeatMap.id);
+                            SongBlackList.Insert(0, new SongEntry() { BeatMap = p_BeatMap, NamePrefix = "🗡", RequesterName = p_Message.Sender.DisplayName });
                         } } }
 
                         /// Update request manager

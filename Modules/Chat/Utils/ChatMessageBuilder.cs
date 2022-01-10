@@ -4,7 +4,9 @@ using BeatSaberPlus.SDK.Chat.Models.Twitch;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace BeatSaberPlus.Modules.Chat.Utils
@@ -64,7 +66,7 @@ namespace BeatSaberPlus.Modules.Chat.Utils
                     switch (l_Emote.Type)
                     {
                         case EmoteType.SingleImage:
-                           SDK.Chat.ImageProvider.TryCacheSingleImage(l_Emote.Id, l_Emote.Uri, l_Emote.IsAnimated, (l_Info) => {
+                           SDK.Chat.ImageProvider.TryCacheSingleImage(l_Emote.Id, l_Emote.Uri, l_Emote.Animation, (l_Info) => {
                                 if (l_Info != null && !p_Font.TryRegisterImageInfo(l_Info, out var l_Character))
                                     Logger.Instance.Warn($"Failed to register emote \"{l_Emote.Id}\" in font {p_Font.Font.name}.");
 
@@ -101,7 +103,7 @@ namespace BeatSaberPlus.Modules.Chat.Utils
                     l_PendingEmoteDownloads.Add(l_Badge.Id);
                     var l_TaskCompletionSource = new TaskCompletionSource<SDK.Unity.EnhancedImage>();
 
-                    SDK.Chat.ImageProvider.TryCacheSingleImage(l_Badge.Id, l_Badge.Uri, false, (p_Info) => {
+                    SDK.Chat.ImageProvider.TryCacheSingleImage(l_Badge.Id, l_Badge.Uri, SDK.Animation.AnimationType.NONE, (p_Info) => {
                         if (p_Info != null && !p_Font.TryRegisterImageInfo(p_Info, out var l_Character))
                             Logger.Instance.Warn($"Failed to register badge \"{l_Badge.Id}\" in font {p_Font.Font.name}.");
 
@@ -143,7 +145,7 @@ namespace BeatSaberPlus.Modules.Chat.Utils
                 }
 
                 /// Replace all instances of <;> with a zero-width non-breaking character
-                StringBuilder l_StringBuilder = new StringBuilder(p_Message.Message).Replace("<", "<\u200B").Replace(">", "\u200B>");
+                StringBuilder l_StringBuilder = new StringBuilder(ProcessRTL(p_Message.Message, out bool l_IsRtl)).Replace("<", "<\u200B").Replace(">", "\u200B>");
 
                 foreach (var l_Emote in p_Message.Emotes)
                 {
@@ -193,22 +195,47 @@ namespace BeatSaberPlus.Modules.Chat.Utils
                     /// Message becomes the color of their name if it's an action message
                     if (p_Message.IsActionMessage)
                     {
-                        l_StringBuilder.Insert(0, $"<color={p_Message.Sender.Color}><b>{p_Message.Sender.DisplayName}</b> ");
-                        l_StringBuilder.Append("</color>");
+                        if (l_IsRtl)
+                        {
+                            l_StringBuilder.Insert(0, $"<color={p_Message.Sender.Color}>");
+                            l_StringBuilder.Append(" <b>{p_Message.Sender.DisplayName}</b> </color>");
+                        }
+                        else
+                        {
+                            l_StringBuilder.Insert(0, $"<color={p_Message.Sender.Color}><b>{p_Message.Sender.DisplayName}</b> ");
+                            l_StringBuilder.Append("</color>");
+                        }
                     }
                     /// Insert username w/ color
                     else
-                        l_StringBuilder.Insert(0, $"<color={p_Message.Sender.Color}><b>{p_Message.Sender.DisplayName}</b></color>: ");
-
-                    for (int l_I = 0; l_I < p_Message.Sender.Badges.Length; l_I++)
                     {
-                        /// Insert user badges at the beginning of the string in reverse order
-                        if (l_Badges.TryPop(out var l_Badge) && p_Font.TryGetReplaceCharacter(l_Badge.ImageID, out var l_Character))
-                            l_StringBuilder.Insert(0, $"{char.ConvertFromUtf32((int)l_Character)} ");
+                        if (l_IsRtl)
+                            l_StringBuilder.Append($" :<color={p_Message.Sender.Color}><b>{p_Message.Sender.DisplayName}</b></color> ");
+                        else
+                            l_StringBuilder.Insert(0, $"<color={p_Message.Sender.Color}><b>{p_Message.Sender.DisplayName}</b></color>: ");
+                    }
+
+                    if (l_IsRtl)
+                    {
+                        for (int l_I = 0; l_I < p_Message.Sender.Badges.Length; l_I++)
+                        {
+                            /// Insert user badges at the beginning of the string in reverse order
+                            if (l_Badges.TryPop(out var l_Badge) && p_Font.TryGetReplaceCharacter(l_Badge.ImageID, out var l_Character))
+                                l_StringBuilder.Append($"{char.ConvertFromUtf32((int)l_Character)} ");
+                        }
+                    }
+                    else
+                    {
+                        for (int l_I = 0; l_I < p_Message.Sender.Badges.Length; l_I++)
+                        {
+                            /// Insert user badges at the beginning of the string in reverse order
+                            if (l_Badges.TryPop(out var l_Badge) && p_Font.TryGetReplaceCharacter(l_Badge.ImageID, out var l_Character))
+                                l_StringBuilder.Insert(0, $"{char.ConvertFromUtf32((int)l_Character)} ");
+                        }
                     }
                 }
 
-                return l_StringBuilder.Replace("\r", "").Replace("\n", "").ToString();
+                return (l_IsRtl ? "<align=\"right\">" : "") + l_StringBuilder.Replace("\r", "").Replace("\n", "").ToString();
             }
             catch (Exception p_Exception)
             {
@@ -217,6 +244,52 @@ namespace BeatSaberPlus.Modules.Chat.Utils
             }
 
             return p_Message.Message;
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Process RTL support
+        /// </summary>
+        /// <param name="p_Input">Input string</param>
+        /// <param name="p_IsRTL">Is right to left</param>
+        /// <returns></returns>
+        public static string ProcessRTL(string p_Input, out bool p_IsRTL)
+        {
+            p_IsRTL = false;
+
+            /// temp
+            return p_Input;
+
+            const char FirstHebChar = (char)1488; /// א
+            const char LastHebChar  = (char)1514; /// ת
+            bool IsHebrew(char c) => c >= FirstHebChar && c <= LastHebChar;
+
+
+            if (p_Input == null || !p_Input.ToCharArray().Any(x => IsHebrew(x)))
+                return p_Input;
+
+            p_IsRTL = true;
+
+            var matches = Regex.Matches(p_Input, @"[\p{IsHebrew}\P{L}]+|\P{IsHebrew}+");
+
+            string l_Result = "";
+
+            foreach (var l_Match in matches)
+            {
+                var l_MatchStr = l_Match.ToString();
+                if (l_MatchStr.ToCharArray().Any(x => IsHebrew(x)))
+                {
+                    var l_Chars = l_MatchStr.ToCharArray();
+                    Array.Reverse(l_Chars);
+                    l_Result += (l_Result.Length == 0 ? "" : " ") + new string(l_Chars);
+                }
+                else
+                    l_Result += (l_Result.Length == 0 ? "" : " ") + l_MatchStr;
+            }
+
+            return l_Result;
         }
     }
 }

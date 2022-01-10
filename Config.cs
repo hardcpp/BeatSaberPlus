@@ -219,78 +219,78 @@ namespace BeatSaberPlus
             private static string _s = "ChatEmoteRain";
 
             internal static bool Enabled {
-                get { return m_Config.GetBool(_s, "Enabled", false, true);          }
+                get { return m_Config.GetBool(_s, "Enabled", false, false);         }
                 set {        m_Config.SetBool(_s, "Enabled", value);                }
             }
             internal static string Prefix => "!er";
 
             internal static bool MenuRain {
-                get { return m_Config.GetBool(_s, "MenuRain", true, true);          }
+                get { return m_Config.GetBool(_s, "MenuRain", true, false);         }
                 set {        m_Config.SetBool(_s, "MenuRain", value);               }
             }
             internal static float MenuRainSize {
-                get { return m_Config.GetFloat(_s, "MenuRainSize", 0.4f, true);     }
+                get { return m_Config.GetFloat(_s, "MenuRainSize", 0.4f, false);    }
                 set {        m_Config.SetFloat(_s, "MenuRainSize", value);          }
             }
             internal static float MenuFallSpeed {
-                get { return m_Config.GetFloat(_s, "MenuFallSpeed",   3f, true);   }
+                get { return m_Config.GetFloat(_s, "MenuFallSpeed",   3f, false);  }
                 set {        m_Config.SetFloat(_s, "MenuFallSpeed", value);        }
             }
 
             internal static bool SongRain {
-                get { return m_Config.GetBool(_s, "SongRain", true, true);          }
+                get { return m_Config.GetBool(_s, "SongRain", true, false);         }
                 set {        m_Config.SetBool(_s, "SongRain", value);               }
             }
             internal static float SongRainSize {
-                get { return m_Config.GetFloat(_s, "SongRainSize", 0.6f, true);     }
+                get { return m_Config.GetFloat(_s, "SongRainSize", 0.6f, false);    }
                 set {        m_Config.SetFloat(_s, "SongRainSize", value);          }
             }
             internal static float SongFallSpeed {
-                get { return m_Config.GetFloat(_s, "SongFallSpeed",   3f, true);   }
-                set {        m_Config.SetFloat(_s, "SongFallSpeed", value);        }
+                get { return m_Config.GetFloat(_s, "SongFallSpeed",   3f, false);   }
+                set {        m_Config.SetFloat(_s, "SongFallSpeed", value);         }
             }
 
             internal static bool ModeratorPower {
-                get { return m_Config.GetBool(_s, "ModeratorPower", true, true);        }
-                set {        m_Config.SetBool(_s, "ModeratorPower", value);             }
+                get { return m_Config.GetBool(_s, "ModeratorPower", true, false);   }
+                set {        m_Config.SetBool(_s, "ModeratorPower", value);         }
             }
             internal static bool VIPPower {
-                get { return m_Config.GetBool(_s, "VIPPower", false, true);             }
-                set {        m_Config.SetBool(_s, "VIPPower", value);                   }
+                get { return m_Config.GetBool(_s, "VIPPower", false, false);        }
+                set {        m_Config.SetBool(_s, "VIPPower", value);               }
             }
             internal static bool SubscriberPower {
-                get { return m_Config.GetBool(_s, "SubscriberPower", false, true);      }
-                set {        m_Config.SetBool(_s, "SubscriberPower", value);            }
+                get { return m_Config.GetBool(_s, "SubscriberPower", false, false); }
+                set {        m_Config.SetBool(_s, "SubscriberPower", value);        }
             }
 
             internal static int EmoteDelay {
-                get { return m_Config.GetInt(_s, "EmoteDelay", 8, true);            }
+                get { return m_Config.GetInt(_s, "EmoteDelay", 8, false);           }
                 set {        m_Config.SetInt(_s, "EmoteDelay", value);              }
             }
 
             internal static bool SubRain {
-                get { return m_Config.GetBool(_s, "SubRain", true, true);           }
+                get { return m_Config.GetBool(_s, "SubRain", true, false);          }
                 set {        m_Config.SetBool(_s, "SubRain", value);                }
             }
             internal static int SubRainEmoteCount {
-                get { return m_Config.GetInt(_s, "SubRainEmoteCount", 20, true);    }
+                get { return m_Config.GetInt(_s, "SubRainEmoteCount", 20, false);   }
                 set {        m_Config.SetInt(_s, "SubRainEmoteCount", value);       }
             }
 
             internal static bool ComboMode {
-                get { return m_Config.GetBool(_s, "ComboMode", false, true);        }
+                get { return m_Config.GetBool(_s, "ComboMode", false, false);       }
                 set {        m_Config.SetBool(_s, "ComboMode", value);              }
             }
             internal static int ComboModeType {
-                get { return m_Config.GetInt(_s, "ComboModeType", 0, true);         }
+                get { return m_Config.GetInt(_s, "ComboModeType", 0, false);        }
                 set {        m_Config.SetInt(_s, "ComboModeType", value);           }
             }
             internal static float ComboTimer {
-                get { return m_Config.GetFloat(_s, "ComboTimer", 5f, true);         }
+                get { return m_Config.GetFloat(_s, "ComboTimer", 5f, false);        }
                 set {        m_Config.SetFloat(_s, "ComboTimer", value);            }
             }
             internal static int ComboCount {
-                get { return m_Config.GetInt(_s, "ComboCount", 3, true);            }
+                get { return m_Config.GetInt(_s, "ComboCount", 3, false);           }
                 set {        m_Config.SetInt(_s, "ComboCount", value);              }
             }
 
@@ -337,6 +337,10 @@ namespace BeatSaberPlus
             internal static bool Enabled {
                 get { return m_Config.GetBool(_s, "Enabled", false, true);           }
                 set {        m_Config.SetBool(_s, "Enabled", value);                 }
+            }
+            internal static bool OldConfigMigrated {
+                get { return m_Config.GetBool(_s, "OldConfigMigrated", false, true); }
+                set {        m_Config.SetBool(_s, "OldConfigMigrated", value);       }
             }
 
             internal static bool QueueOpen {
@@ -457,42 +461,6 @@ namespace BeatSaberPlus
                 get { return m_Config.GetInt(_s, "SimpleQueueFileCount", 10, true);                     }
                 set {        m_Config.SetInt(_s, "SimpleQueueFileCount", value);                        }
             }
-
-            internal static void Reset()
-            {
-                UserMaxRequest          = 2;
-                VIPBonusRequest         = 2;
-                SubscriberBonusRequest  = 3;
-
-                HistorySize         = 50;
-                PlayPreviewMusic    = true;
-                ModeratorPower      = true;
-
-                QueueCommandShowSize = 4;
-                QueueCommandCooldown = 10;
-
-                NoBeatSage  = false;
-                NPSMin      = false;
-                NPSMax      = false;
-                NJSMin      = false;
-                NJSMax      = false;
-                DurationMax = false;
-                VoteMin     = false;
-                DateMin     = false;
-                DateMax     = false;
-
-                NPSMinV         =    0;
-                NPSMaxV         =   30;
-                NJSMinV         =    0;
-                NJSMaxV         =   30;
-                DurationMaxV    =    3;
-                VoteMinV        = 0.5f;
-                DateMinV        =    0;
-                DateMaxV        =   36;
-
-                ///SimpleQueueFileFormat = "%i - %n by %m";
-                ///SimpleQueueFileCount = 10;
-            }
         }
 
         internal class GameTweaker
@@ -559,11 +527,6 @@ namespace BeatSaberPlus
                 get { return m_Config.GetBool(_s, "RemoveNewContentPromotional", true, true);           }
                 set {        m_Config.SetBool(_s, "RemoveNewContentPromotional", value);                }
             }
-            internal static bool RemoveAnniversaryEvent {
-                get { return m_Config.GetBool(_s, "RemoveAnniversaryEvent", true, true);           }
-                set {        m_Config.SetBool(_s, "RemoveAnniversaryEvent", value);                }
-            }
-
 
             /// Level selection
             internal static bool RemoveBaseGameFilterButton {
@@ -595,6 +558,12 @@ namespace BeatSaberPlus
                 get { return m_Config.GetBool(_s, "DeleteSongBrowserTrashcan", false, true); }
                 set {        m_Config.SetBool(_s, "DeleteSongBrowserTrashcan", value);       }
             }
+            internal static bool HighlightPlayedSong
+            {
+                get { return m_Config.GetBool(_s, "HighlightPlayedSong", true, true);  }
+                set {        m_Config.SetBool(_s, "HighlightPlayedSong", value);       }
+            }
+
 
             ////////////////////////////////////////////////////////////////////////////
             /// Dev / Testing
@@ -632,7 +601,6 @@ namespace BeatSaberPlus
 
                 /// Main menu
                 DisableBeatMapEditorButtonOnMainMenu = false;
-                RemoveAnniversaryEvent               = true;
                 RemoveNewContentPromotional          = true;
 
                 /// Level selection
@@ -642,6 +610,7 @@ namespace BeatSaberPlus
                 MergeLightPressetOptions        = true;
                 DeleteSongButton                = true;
                 DeleteSongBrowserTrashcan       = false;
+                HighlightPlayedSong             = true;
 
                 /// Logs
                 RemoveOldLogs                   = true;
@@ -711,6 +680,103 @@ namespace BeatSaberPlus
             }
         }
 
+        internal class NoteTweaker
+        {
+            private static string _s = "NoteTweaker";
+
+            internal static bool Enabled {
+                get { return m_Config.GetBool(_s, "Enabled", false, true);              }
+                set {        m_Config.SetBool(_s, "Enabled", value);                    }
+            }
+
+            internal static bool ShowDotsWithArrow {
+                get { return m_Config.GetBool(_s, "ShowDotsWithArrow", true, true);     }
+                set {        m_Config.SetBool(_s, "ShowDotsWithArrow", value);          }
+            }
+            internal static bool OverrideArrowColors {
+                get { return m_Config.GetBool(_s, "OverrideArrowColors", false, true);  }
+                set {        m_Config.SetBool(_s, "OverrideArrowColors", value);        }
+            }
+            internal static bool OverrideDotColors {
+                get { return m_Config.GetBool(_s, "OverrideDotColors", false, true);    }
+                set {        m_Config.SetBool(_s, "OverrideDotColors", value);          }
+            }
+            internal static float Scale {
+                get { return m_Config.GetFloat(_s, "Scale", 0.9f, true);                }
+                set {        m_Config.SetFloat(_s, "Scale", value);                     }
+            }
+
+            internal static float ArrowScale {
+                get { return m_Config.GetFloat(_s, "ArrowScale", 1.0f, true);           }
+                set {        m_Config.SetFloat(_s, "ArrowScale", value);                }
+            }
+            internal static float ArrowA  { get { return m_Config.GetFloat(_s, "ArrowA", 1.00f, true);  } set { m_Config.SetFloat(_s, "ArrowA", value);  } }
+            internal static float ArrowLR { get { return m_Config.GetFloat(_s, "ArrowLR", 0.12f, true); } set { m_Config.SetFloat(_s, "ArrowLR", value); } }
+            internal static float ArrowLG { get { return m_Config.GetFloat(_s, "ArrowLG", 0.75f, true); } set { m_Config.SetFloat(_s, "ArrowLG", value); } }
+            internal static float ArrowLB { get { return m_Config.GetFloat(_s, "ArrowLB", 1.00f, true); } set { m_Config.SetFloat(_s, "ArrowLB", value); } }
+            internal static float ArrowRR { get { return m_Config.GetFloat(_s, "ArrowRR", 0.12f, true); } set { m_Config.SetFloat(_s, "ArrowRR", value); } }
+            internal static float ArrowRG { get { return m_Config.GetFloat(_s, "ArrowRG", 0.75f, true); } set { m_Config.SetFloat(_s, "ArrowRG", value); } }
+            internal static float ArrowRB { get { return m_Config.GetFloat(_s, "ArrowRB", 1.00f, true); } set { m_Config.SetFloat(_s, "ArrowRB", value); } }
+            internal static Color ArrowLColor => new Color(ArrowLR, ArrowLG, ArrowLB, ArrowA);
+            internal static Color ArrowRColor => new Color(ArrowRR, ArrowRG, ArrowRB, ArrowA);
+
+            internal static float DotScale {
+                get { return m_Config.GetFloat(_s, "DotScale", 0.85f, true);            }
+                set {        m_Config.SetFloat(_s, "DotScale", value);                  }
+            }
+            internal static float DotA  { get { return m_Config.GetFloat(_s, "DotA", 1.00f, true);  } set { m_Config.SetFloat(_s, "DotA", value);  } }
+            internal static float DotLR { get { return m_Config.GetFloat(_s, "DotLR", 0.12f, true); } set { m_Config.SetFloat(_s, "DotLR", value); } }
+            internal static float DotLG { get { return m_Config.GetFloat(_s, "DotLG", 0.75f, true); } set { m_Config.SetFloat(_s, "DotLG", value); } }
+            internal static float DotLB { get { return m_Config.GetFloat(_s, "DotLB", 1.00f, true); } set { m_Config.SetFloat(_s, "DotLB", value); } }
+            internal static float DotRR { get { return m_Config.GetFloat(_s, "DotRR", 0.12f, true); } set { m_Config.SetFloat(_s, "DotRR", value); } }
+            internal static float DotRG { get { return m_Config.GetFloat(_s, "DotRG", 0.75f, true); } set { m_Config.SetFloat(_s, "DotRG", value); } }
+            internal static float DotRB { get { return m_Config.GetFloat(_s, "DotRB", 1.00f, true); } set { m_Config.SetFloat(_s, "DotRB", value); } }
+            internal static Color DotLColor => new Color(DotLR, DotLG, DotLB, DotA);
+            internal static Color DotRColor => new Color(DotRR, DotRG, DotRB, DotA);
+
+            internal static bool OverrideBombColor {
+                get { return m_Config.GetBool(_s, "OverrideBombColor", false, true);    }
+                set {        m_Config.SetBool(_s, "OverrideBombColor", value);          }
+            }
+            internal static float BombR { get { return m_Config.GetFloat(_s, "BombR", 1.0000f, true); } set { m_Config.SetFloat(_s, "BombR", value); } }
+            internal static float BombG { get { return m_Config.GetFloat(_s, "BombG", 0.0000f, true); } set { m_Config.SetFloat(_s, "BombG", value); } }
+            internal static float BombB { get { return m_Config.GetFloat(_s, "BombB", 0.6469f, true); } set { m_Config.SetFloat(_s, "BombB", value); } }
+            internal static Color BombColor => new Color(BombR, BombG, BombB, 1f);
+
+            internal static float PrecisionDotScale {
+                get { return m_Config.GetFloat(_s, "PrecisionDotScale", 0.40f, true);   }
+                set {        m_Config.SetFloat(_s, "PrecisionDotScale", value);         }
+            }
+
+            internal static void Reset()
+            {
+                ShowDotsWithArrow   = true;
+                OverrideArrowColors = false;
+                OverrideDotColors   = false;
+                Scale               = 0.9f;
+
+                ArrowScale          = 1.0f;
+                ArrowA              = 1.00f;
+                ArrowLR             = 0.12f;
+                ArrowLG             = 0.75f;
+                ArrowLB             = 1.00f;
+                ArrowRR             = 0.12f;
+                ArrowRG             = 0.75f;
+                ArrowRB             = 1.00f;
+
+                DotScale            = 0.85f;
+                DotA                = 1.00f;
+                DotLR               = 0.12f;
+                DotLG               = 0.75f;
+                DotLB               = 1.00f;
+                DotRR               = 0.12f;
+                DotRG               = 0.75f;
+                DotRB               = 1.00f;
+
+                PrecisionDotScale   = 0.40f;
+            }
+        }
+
         internal class RankedAssistant
         {
             internal static bool Enabled {
@@ -769,10 +835,10 @@ namespace BeatSaberPlus
             internal static float LegendB { get { return m_Config.GetFloat(_s, "LegendB", 0.86f, true); } set { m_Config.SetFloat(_s, "LegendB", value); } }
             internal static Color LegendColor => new Color(LegendR, LegendG, LegendB, LegendA);
 
-            internal static float DashLineA { get { return m_Config.GetFloat(_s, "DashA", 0.10f, true); } set { m_Config.SetFloat(_s, "DashA", value); } }
-            internal static float DashLineR { get { return m_Config.GetFloat(_s, "DashR", 0.05f, true); } set { m_Config.SetFloat(_s, "DashR", value); } }
-            internal static float DashLineG { get { return m_Config.GetFloat(_s, "DashG", 0.59f, true); } set { m_Config.SetFloat(_s, "DashG", value); } }
-            internal static float DashLineB { get { return m_Config.GetFloat(_s, "DashB", 0.00f, true); } set { m_Config.SetFloat(_s, "DashB", value); } }
+            internal static float DashLineA { get { return m_Config.GetFloat(_s, "DashA", 1.00f, true); } set { m_Config.SetFloat(_s, "DashA", value); } }
+            internal static float DashLineR { get { return m_Config.GetFloat(_s, "DashR", 0.37f, true); } set { m_Config.SetFloat(_s, "DashR", value); } }
+            internal static float DashLineG { get { return m_Config.GetFloat(_s, "DashG", 0.10f, true); } set { m_Config.SetFloat(_s, "DashG", value); } }
+            internal static float DashLineB { get { return m_Config.GetFloat(_s, "DashB", 0.86f, true); } set { m_Config.SetFloat(_s, "DashB", value); } }
             internal static Color DashLineColor => new Color(DashLineR, DashLineG, DashLineB, DashLineA);
 
             internal static float ChartStandardPositionX { get { return m_Config.GetFloat(_s, "ChartStandardPositionX",     0, true); } set { m_Config.SetFloat(_s, "ChartStandardPositionX", value); } }

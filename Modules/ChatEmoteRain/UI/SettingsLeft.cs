@@ -55,7 +55,7 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain.UI
             ShowConfirmationModal("<color=yellow><b>Do you really want to reset\nall chat emote rain settings?", () =>
             {
                 /// Reset settings
-                Config.ChatEmoteRain.Reset();
+                CERConfig.Instance.Reset();
 
                 /// Refresh values
                 Settings.Instance.RefreshSettings();

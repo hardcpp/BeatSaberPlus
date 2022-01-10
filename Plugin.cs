@@ -5,10 +5,12 @@ using IPA.Utilities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
 using TMPro;
 using UnityEngine;
+using UnityEngine.XR;
 
 namespace BeatSaberPlus
 {
@@ -67,18 +69,27 @@ namespace BeatSaberPlus
             Config.Init();
             SDK.Chat.Service.Init();
 
-            /// Cleaning old BeatSaberPlusChatCore
             try
             {
-                if (System.IO.File.Exists("Plugins/BeatSaberPlusChatCore.manifest"))
-                    System.IO.File.Delete("Plugins/BeatSaberPlusChatCore.manifest");
+                /// Cleaning old BeatSaberPlusChatCore
+                if (File.Exists("Plugins/BeatSaberPlusChatCore.manifest"))
+                    File.Delete("Plugins/BeatSaberPlusChatCore.manifest");
 
-                if (System.IO.File.Exists("Libs/BeatSaberPlusChatCore.dll"))
-                    System.IO.File.Delete("Libs/BeatSaberPlusChatCore.dll");
+                if (File.Exists("Libs/BeatSaberPlusChatCore.dll"))
+                    File.Delete("Libs/BeatSaberPlusChatCore.dll");
+
+                /// Installing WEBP codec
+                if (!Directory.Exists("Libs/Natives/"))
+                    Directory.CreateDirectory("Libs/Natives/");
+
+                if (!File.Exists("Libs/Natives/libwebp.dll"))
+                    File.WriteAllBytes("Libs/Natives/libwebp.dll", GetResource(Assembly.GetExecutingAssembly(), "BeatSaberPlus.Resources.libwebp.dll"));
+                if (!File.Exists("Libs/Natives/libwebpdemux.dll"))
+                    File.WriteAllBytes("Libs/Natives/libwebpdemux.dll", GetResource(Assembly.GetExecutingAssembly(), "BeatSaberPlus.Resources.libwebpdemux.dll"));
             }
-            catch (System.Exception)
+            catch (System.Exception l_Exception)
             {
-
+                Logger.Instance.Error(l_Exception);
             }
         }
 
@@ -189,6 +200,23 @@ namespace BeatSaberPlus
                     l_Module.CheckForActivation(SDK.IModuleBaseActivationType.OnMenuSceneLoaded);
                 } catch (System.Exception p_InitException) { Logger.Instance.Error("Error on module init " + l_Module.Name); Logger.Instance.Error(p_InitException); }
             }
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Get resource bytes
+        /// </summary>
+        /// <param name="p_Assembly">Target assembly</param>
+        /// <param name="p_ResourceName">Target resource</param>
+        /// <returns></returns>
+        public static byte[] GetResource(Assembly p_Assembly, string p_ResourceName)
+        {
+            var l_Stream = p_Assembly.GetManifestResourceStream(p_ResourceName);
+            var l_Data = new byte[l_Stream.Length];
+            l_Stream.Read(l_Data, 0, (int)l_Stream.Length);
+            return l_Data;
         }
     }
 }

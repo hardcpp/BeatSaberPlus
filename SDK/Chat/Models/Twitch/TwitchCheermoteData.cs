@@ -9,7 +9,7 @@ namespace BeatSaberPlus.SDK.Chat.Models.Twitch
         public int MinBits { get; internal set; }
         public string Color { get; internal set; }
         public bool CanCheer { get; internal set; }
-        public bool IsAnimated { get; internal set; } = true;
+        public Animation.AnimationType Animation { get; internal set; } = SDK.Animation.AnimationType.GIF;
         public string Type { get; internal set; } = "TwitchCheermote";
     }
 

@@ -38,6 +38,10 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
         /// FFZ data provider
         /// </summary>
         private FFZDataProvider m_FFZDataProvider = new FFZDataProvider();
+        /// <summary>
+        /// 7TV data provider
+        /// </summary>
+        private _7TVDataProvider m_7TVDataProvider = new _7TVDataProvider();
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -55,6 +59,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                     await m_TwitchBadgeProvider.TryRequestResources(null);
                     await m_BTTVDataProvider.TryRequestResources(null);
                     await m_FFZDataProvider.TryRequestResources(null);
+                    await m_7TVDataProvider.TryRequestResources(null);
                     ///Logger.Instance.Information("Finished caching global emotes/badges.");
                 }
                 catch (Exception l_Exception)
@@ -92,6 +97,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                         await m_TwitchCheermoteProvider.TryRequestResources(l_RoomId);
                         await m_BTTVDataProvider.TryRequestResources(l_RoomId);
                         await m_FFZDataProvider.TryRequestResources(p_Channel.Id);
+                        await m_7TVDataProvider.TryRequestResources(p_Channel.Id);
 
                         Dictionary<string, IChatResourceData> l_Result = new Dictionary<string, IChatResourceData>();
 
@@ -112,6 +118,11 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                             l_Result[$"{x.Value.Type}_{(l_Parts.Length > 1 ? l_Parts[1] : l_Parts[0])}"] = x.Value;
                         });
                         m_FFZDataProvider.Resources.ToList().ForEach(x =>
+                        {
+                            var l_Parts = x.Key.Split(new char[] { '_' }, 2);
+                            l_Result[$"{x.Value.Type}_{(l_Parts.Length > 1 ? l_Parts[1] : l_Parts[0])}"] = x.Value;
+                        });
+                        m_7TVDataProvider.Resources.ToList().ForEach(x =>
                         {
                             var l_Parts = x.Key.Split(new char[] { '_' }, 2);
                             l_Result[$"{x.Value.Type}_{(l_Parts.Length > 1 ? l_Parts[1] : l_Parts[0])}"] = x.Value;
@@ -171,7 +182,8 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
         internal bool TryGetThirdPartyEmote(string p_Word, string p_Channel, out ChatResourceData p_Data)
         {
             if (  m_BTTVDataProvider.TryGetResource(p_Word, p_Channel, out p_Data)
-                || m_FFZDataProvider.TryGetResource(p_Word, p_Channel, out p_Data))
+                || m_FFZDataProvider.TryGetResource(p_Word, p_Channel, out p_Data)
+                || m_7TVDataProvider.TryGetResource(p_Word, p_Channel, out p_Data))
                 return true;
 
             p_Data = null;

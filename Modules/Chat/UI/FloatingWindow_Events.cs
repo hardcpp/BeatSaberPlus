@@ -10,6 +10,26 @@ namespace BeatSaberPlus.Modules.Chat.UI
     internal partial class FloatingWindow
     {
         /// <summary>
+        /// On system message
+        /// </summary>
+        /// <param name="p_Service">Chat service</param>
+        /// <param name="p_Message">System message</param>
+        internal void OnSystemMessage(IChatService p_Service, string p_Message)
+        {
+            var l_MessageStr = $"<color=#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] {p_Message}</color>";
+
+            SDK.Unity.MainThreadInvoker.Enqueue(() =>
+            {
+                var l_NewMessage = m_MessagePool.Alloc();
+                l_NewMessage.Text.text          = l_MessageStr;
+                l_NewMessage.HighlightEnabled   = true;
+                l_NewMessage.HighlightColor     = Color.gray.ColorWithAlpha(0.18f);
+
+                AddMessage(l_NewMessage);
+                m_LastMessage = l_NewMessage;
+            });
+        }
+        /// <summary>
         /// On login
         /// </summary>
         /// <param name="p_Service">Chat service</param>
@@ -133,7 +153,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
             {
                 TaskCompletionSource<SDK.Unity.EnhancedImage> l_TaskCompletionSource = new TaskCompletionSource<SDK.Unity.EnhancedImage>();
 
-                SDK.Chat.ImageProvider.TryCacheSingleImage("TwitchChannelPoint_" + p_Event.Title, p_Event.Image, false, (l_Info) =>
+                SDK.Chat.ImageProvider.TryCacheSingleImage("TwitchChannelPoint_" + p_Event.Title, p_Event.Image, SDK.Animation.AnimationType.NONE, (l_Info) =>
                 {
                     if (l_Info != null && !m_ChatFont.TryRegisterImageInfo(l_Info, out var l_Character))
                         Logger.Instance.Warn($"Failed to register emote \"{"TwitchChannelPoint_" + p_Event.Title}\" in font {m_ChatFont.Font.name}.");

@@ -149,9 +149,9 @@ namespace BeatSaberPlus.SDK.Game
                 var l_InputFieldView = p_LevelSearchViewController.GetField<HMUI.InputFieldView, LevelSearchViewController>("_searchTextInputFieldView");
                 if (l_InputFieldView != null && l_InputFieldView)
                 {
-                    l_InputFieldView.SetText(m_PendingFilterSong.songName);
-                    l_InputFieldView.UpdateClearButton();
-                    l_InputFieldView.UpdatePlaceholder();
+                    //l_InputFieldView.SetText(m_PendingFilterSong.songName);
+                    //l_InputFieldView.UpdateClearButton();
+                    //l_InputFieldView.UpdatePlaceholder();
                 }
 
                 p_LevelSearchViewController.UpdateSearchLevelFilterParams(LevelFilterParams.ByBeatmapLevelIds(new HashSet<string>() { m_PendingFilterSong.levelID }));

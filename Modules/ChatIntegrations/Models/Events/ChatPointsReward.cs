@@ -25,6 +25,9 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Models.Events
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         internal int Cooldown = 0;
 
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
+        internal bool AutoFullfillRefund = true;
+
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 

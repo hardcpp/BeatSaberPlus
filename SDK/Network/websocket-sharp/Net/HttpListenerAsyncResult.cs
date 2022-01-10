@@ -8,7 +8,7 @@
  * The MIT License
  *
  * Copyright (c) 2005 Ximian, Inc. (http://www.ximian.com)
- * Copyright (c) 2012-2016 sta.blockhead
+ * Copyright (c) 2012-2021 sta.blockhead
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -55,12 +55,12 @@ namespace BSP_WebSocketSharp.Net
 
     private AsyncCallback       _callback;
     private bool                _completed;
+    private bool                _completedSynchronously;
     private HttpListenerContext _context;
     private bool                _endCalled;
     private Exception           _exception;
     private object              _state;
     private object              _sync;
-    private bool                _syncCompleted;
     private ManualResetEvent    _waitHandle;
 
     #endregion
@@ -128,7 +128,7 @@ namespace BSP_WebSocketSharp.Net
 
     public bool CompletedSynchronously {
       get {
-        return _syncCompleted;
+        return _completedSynchronously;
       }
     }
 
@@ -178,10 +178,12 @@ namespace BSP_WebSocketSharp.Net
       complete ();
     }
 
-    internal void Complete (HttpListenerContext context, bool syncCompleted)
+    internal void Complete (
+      HttpListenerContext context, bool completedSynchronously
+    )
     {
       _context = context;
-      _syncCompleted = syncCompleted;
+      _completedSynchronously = completedSynchronously;
 
       complete ();
     }

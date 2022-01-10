@@ -9,7 +9,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations
     /// <summary>
     /// ChatIntegrations database logic
     /// </summary>
-    internal partial class ChatIntegrations
+    public partial class ChatIntegrations
     {
         /// <summary>
         /// Load the database

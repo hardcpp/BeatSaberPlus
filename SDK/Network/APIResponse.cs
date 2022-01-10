@@ -44,13 +44,15 @@ namespace BeatSaberPlus.SDK.Network
             IsSuccessStatusCode = p_Reply.IsSuccessStatusCode;
             BodyBytes           = p_BodyBytes;
             BodyString          = p_BodyString;
-
-            ///foreach (var l_Header in p_Reply.RequestMessage.Headers)
-            ///{
-            ///    Logger.Instance.Debug(l_Header.Key);
-            ///    foreach (var l_Value in l_Header.Value)
-            ///        Logger.Instance.Debug("    " + l_Value);
-            ///}
+#if DEBUG
+            Logger.Instance.Debug("[SDK.Network][APIResponse.APIResponse] Result " + p_Reply.RequestMessage.RequestUri.ToString() + " - " + StatusCode);
+            /*foreach (var l_Header in p_Reply.RequestMessage.Headers)
+            {
+                Logger.Instance.Debug(l_Header.Key);
+                foreach (var l_Value in l_Header.Value)
+                    Logger.Instance.Debug("    " + l_Value);
+            }*/
+#endif
 
             p_Reply.Dispose();
         }

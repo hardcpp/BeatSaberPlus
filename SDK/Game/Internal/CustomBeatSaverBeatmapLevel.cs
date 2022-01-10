@@ -1,25 +1,25 @@
-﻿using BeatSaverSharp;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace BeatSaberPlus.SDK.Game.Internal
 {
-    internal class BeatSaver_CustomBeatmapLevel : CustomBeatmapLevel
+    internal class BeatMaps_CustomBeatmapLevel : CustomBeatmapLevel
     {
-        internal BeatSaver_CustomBeatmapLevel(Beatmap p_BeatMap, CustomPreviewBeatmapLevel customPreviewBeatmapLevel, AudioClip previewAudioClip)
-            : base(customPreviewBeatmapLevel, previewAudioClip)
+        internal BeatMaps_CustomBeatmapLevel(   BeatMaps.MapDetail          p_MapDetail,
+                                                BeatMaps.MapVersion         p_Version,
+                                                CustomPreviewBeatmapLevel   p_CustomPreviewBeatmapLevel,
+                                                AudioClip                   p_PreviewAudioClip)
+            : base(p_CustomPreviewBeatmapLevel)
         {
-            List<IDifficultyBeatmapSet> l_IDifficultyBeatmapSet = new List<IDifficultyBeatmapSet>();
-            foreach (var l_Current in p_BeatMap.Metadata.Characteristics)
-            {
-                if (l_Current.Difficulties.Count == 0)
-                    continue;
+            var l_IDifficultyBeatmapSet     = new List<IDifficultyBeatmapSet>();
+            var l_VersionCharacteristics    = p_Version.GetCharacteristicsInOrder();
 
-                var l_Entry = new BeatSaver_DifficultyBeatmapSet(
+            foreach (var l_Current in l_VersionCharacteristics)
+            {
+                var l_Entry = new BeatMaps_DifficultyBeatmapSet(
                     this,
-                    SongCore.Loader.beatmapCharacteristicCollection.GetBeatmapCharacteristicBySerializedName(l_Current.Name),
-                    l_Current
+                    Levels.GetCharacteristicSOBySerializedName(l_Current),
+                    p_Version.GetDifficultiesPerCharacteristic(l_Current)
                 );
 
                 l_IDifficultyBeatmapSet.Add(l_Entry);
@@ -28,25 +28,20 @@ namespace BeatSaberPlus.SDK.Game.Internal
             SetBeatmapLevelData(new BeatmapLevelData(null, l_IDifficultyBeatmapSet.ToArray()));
         }
 
-        internal static BeatSaver_CustomBeatmapLevel FromBeatSaver(Beatmap p_BeatMap)
+        internal static BeatMaps_CustomBeatmapLevel FromBeatSaver(BeatMaps.MapDetail p_MapDetail, BeatMaps.MapVersion p_Version)
         {
-            List<PreviewDifficultyBeatmapSet> l_PreviewDifficultyBeatmapSet = new List<PreviewDifficultyBeatmapSet>();
-            foreach (var l_Current in p_BeatMap.Metadata.Characteristics)
+            var l_PreviewDifficultyBeatmapSet   = new List<PreviewDifficultyBeatmapSet>();
+            var l_VersionCharacteristics        = p_Version.GetCharacteristicsInOrder();
+
+            foreach (var l_Current in l_VersionCharacteristics)
             {
-                if (l_Current.Difficulties.Count == 0)
-                    continue;
-
                 var l_Difficulties = new List<BeatmapDifficulty>();
-                foreach (var l_CurrentDiff in l_Current.Difficulties.Where(x => x.Value != null).ToList())
-                {
-                    if (l_CurrentDiff.Value == null)
-                        continue;
 
-                    l_Difficulties.Add(SDK.Game.Level.SerializedToDifficulty(l_CurrentDiff.Key));
-                }
+                foreach (var l_CurrentDiff in p_Version.GetDifficultiesPerCharacteristic(l_Current))
+                    l_Difficulties.Add(Levels.SerializedToDifficulty(l_CurrentDiff.difficulty));
 
                 l_PreviewDifficultyBeatmapSet.Add(new PreviewDifficultyBeatmapSet(
-                    SongCore.Loader.beatmapCharacteristicCollection.GetBeatmapCharacteristicBySerializedName(l_Current.Name),
+                    Levels.GetCharacteristicSOBySerializedName(l_Current),
                     l_Difficulties.ToArray()
                 ));
             }
@@ -56,50 +51,56 @@ namespace BeatSaberPlus.SDK.Game.Internal
                 null,
                 "",
                 null,
-                null,
-                "custom_level_" + p_BeatMap.Hash.ToUpper(),
-                p_BeatMap.Metadata.SongName,
-                p_BeatMap.Metadata.SongSubName,
-                p_BeatMap.Metadata.SongAuthorName,
-                p_BeatMap.Metadata.LevelAuthorName,
-                p_BeatMap.Metadata.BPM,
+                "custom_level_" + p_Version.hash.ToUpper(),
+                p_MapDetail.metadata.songName,
+                p_MapDetail.metadata.songSubName,
+                p_MapDetail.metadata.songAuthorName,
+                p_MapDetail.metadata.levelAuthorName,
+                p_MapDetail.metadata.bpm,
                 0f,    ///< todo
                 0f,    ///< todo
                 0f,    ///< todo
                 0f,    ///< todo
-                p_BeatMap.Metadata.Duration,
+                p_MapDetail.metadata.duration,
                 null,
                 null,
                 l_PreviewDifficultyBeatmapSet.ToArray()
             );
 
-            return new BeatSaver_CustomBeatmapLevel(p_BeatMap, l_CustomPreviewBeatmapLevel, null);
+            return new BeatMaps_CustomBeatmapLevel(p_MapDetail, p_Version, l_CustomPreviewBeatmapLevel, null);
         }
     }
 
-    internal class BeatSaver_DifficultyBeatmapSet : IDifficultyBeatmapSet
+    internal class BeatMaps_DifficultyBeatmapSet : IDifficultyBeatmapSet
     {
         public BeatmapCharacteristicSO beatmapCharacteristic { get; internal set; }
         public IDifficultyBeatmap[] difficultyBeatmaps { get; internal set; }
 
-        internal BeatSaver_DifficultyBeatmapSet(BeatSaver_CustomBeatmapLevel p_BSBeatmapLevel, BeatmapCharacteristicSO p_CharacteristicSO, BeatmapCharacteristic p_Characteristic)
+        internal BeatMaps_DifficultyBeatmapSet( BeatMaps_CustomBeatmapLevel    p_BSBeatmapLevel,
+                                                BeatmapCharacteristicSO         p_CharacteristicSO,
+                                                List<BeatMaps.MapDifficulty>    p_Characteristic)
         {
             beatmapCharacteristic = p_CharacteristicSO;
 
             List<IDifficultyBeatmap> l_Difficulties = new List<IDifficultyBeatmap>();
-            foreach (var l_Current in p_Characteristic.Difficulties)
+            foreach (var l_Current in p_Characteristic)
             {
-                if (l_Current.Value == null)
-                    continue;
-
-                l_Difficulties.Add(new BeatSaver_DifficultyBeatmap(this, p_BSBeatmapLevel, p_CharacteristicSO, SDK.Game.Level.SerializedToDifficulty(l_Current.Key), l_Current.Value));
+                l_Difficulties.Add(
+                    new BeatMaps_DifficultyBeatmap(
+                        this,
+                        p_BSBeatmapLevel,
+                        p_CharacteristicSO,
+                        Levels.SerializedToDifficulty(l_Current.difficulty),
+                        l_Current
+                    )
+                );
             }
 
             difficultyBeatmaps = l_Difficulties.ToArray();
         }
     }
 
-    internal class BeatSaver_DifficultyBeatmap : IDifficultyBeatmap
+    internal class BeatMaps_DifficultyBeatmap : IDifficultyBeatmap
     {
         public IBeatmapLevel level                              { get; internal set; }
         public IDifficultyBeatmapSet parentDifficultyBeatmapSet { get; internal set; }
@@ -109,13 +110,17 @@ namespace BeatSaberPlus.SDK.Game.Internal
         public float noteJumpStartBeatOffset                    { get; internal set; }
         public BeatmapData beatmapData                          { get; internal set; }
 
-        internal BeatSaver_DifficultyBeatmap(BeatSaver_DifficultyBeatmapSet p_Parent, BeatSaver_CustomBeatmapLevel p_BSBeatmapLevel, BeatmapCharacteristicSO p_CharacteristicSO, BeatmapDifficulty p_Difficulty, BeatmapCharacteristicDifficulty p_CharacteristicDifficulty)
+        internal BeatMaps_DifficultyBeatmap(   BeatMaps_DifficultyBeatmapSet    p_Parent,
+                                                BeatMaps_CustomBeatmapLevel     p_BSBeatmapLevel,
+                                                BeatmapCharacteristicSO         p_CharacteristicSO,
+                                                BeatmapDifficulty               p_Difficulty,
+                                                BeatMaps.MapDifficulty          p_CharacteristicDifficulty)
         {
             level                      = p_BSBeatmapLevel;
             parentDifficultyBeatmapSet = p_Parent;
             difficulty                 = p_Difficulty;
-            noteJumpMovementSpeed      = p_CharacteristicDifficulty.NoteJumpSpeed;
-            noteJumpStartBeatOffset    = p_CharacteristicDifficulty.NoteJumpSpeedOffset;
+            noteJumpMovementSpeed      = p_CharacteristicDifficulty.njs;
+            noteJumpStartBeatOffset    = p_CharacteristicDifficulty.offset;
             beatmapData                = new BeatmapData(4);
 
             /// From DefaultRating
@@ -128,7 +133,7 @@ namespace BeatSaberPlus.SDK.Game.Internal
                 case BeatmapDifficulty.ExpertPlus:  difficultyRank = 9; break;
             }
 
-            for (int l_I = 0; l_I < p_CharacteristicDifficulty.Notes; ++l_I)
+            for (int l_I = 0; l_I < p_CharacteristicDifficulty.notes; ++l_I)
                 beatmapData.AddBeatmapObjectData(NoteData.CreateBasicNoteData(0f, 0, NoteLineLayer.Base, ColorType.ColorA, NoteCutDirection.Any));
         }
     }

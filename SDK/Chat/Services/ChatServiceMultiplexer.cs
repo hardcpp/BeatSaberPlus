@@ -19,6 +19,16 @@ namespace BeatSaberPlus.SDK.Chat.Services
         /// <summary>
         /// p_Channels
         /// </summary>
+        public IReadOnlyList<IChatService> Services
+        {
+            get
+            {
+                return new List<IChatService>(m_Services).AsReadOnly();
+            }
+        }
+        /// <summary>
+        /// p_Channels
+        /// </summary>
         public ReadOnlyCollection<(IChatService, IChatChannel)> Channels
         {
             get
@@ -58,6 +68,7 @@ namespace BeatSaberPlus.SDK.Chat.Services
             StringBuilder l_NameBuilder = new StringBuilder();
             foreach (var l_Service in m_Services)
             {
+                l_Service.OnSystemMessage               += Service_OnSystemMessage;
                 l_Service.OnLogin                       += Service_OnLogin;
 
                 l_Service.OnJoinChannel                 += Service_OnJoinp_Channel;
@@ -100,6 +111,11 @@ namespace BeatSaberPlus.SDK.Chat.Services
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
+        private void Service_OnSystemMessage(IChatService p_ChatService, string p_Message)
+        {
+            lock (m_InvokeLock)
+                m_OnSystemMessageCallbacks.InvokeAll(p_ChatService, p_Message);
+        }
         private void Service_OnLogin(IChatService p_ChatService)
         {
             lock (m_InvokeLock)

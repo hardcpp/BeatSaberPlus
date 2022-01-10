@@ -1,0 +1,79 @@
+﻿<vertical min-height='55' child-align='UpperCenter'>
+
+  <horizontal min-width='30' spacing='0' >
+    <vertical size-delta-x='15' min-width='15' pad-right='2'>
+      <text text='Name:' bold='true' underlined='true' face-color='yellow'/>
+      <text text='Speed:' bold='true' underlined='true' face-color='yellow'/>
+      <text text='Size:' bold='true' underlined='true' face-color='yellow'/>
+    </vertical>
+    <vertical size-delta-x='56' min-width='56'>
+      <text text=' ' id='NameText' align='Left'/>
+      <slider-setting min='0.1' max='5' increment='.1' id='SpeedSlider' integer-only='false' apply-on-change='true' />
+      <slider-setting min='0.1' max='5' increment='.1' id='SizeSlider' integer-only='false' apply-on-change='true' />
+    </vertical>
+    <vertical size-delta-x='10' min-width='10' pad-left='2'>
+      <primary-button on-click='click-name-btn-pressed' text='📝' />
+      <text text=' '></text>
+      <text text=' '></text>
+    </vertical>
+  </horizontal>
+
+  <horizontal>
+    <vertical spacing='0' pad-right='5' size-delta-x='30' min-width='30'>
+      <vertical size-delta-x='30' min-width='30' pad-top='0'>
+        <text align='Center' text='PosX'></text>
+        <slider-setting id='PosX' min='-20' max='20' increment='.1' apply-on-change='true'></slider-setting>
+      </vertical>
+      <vertical size-delta-x='30' min-width='30'>
+        <text align='Center' text='RotX'></text>
+        <slider-setting id='RotX' min='0' max='360' increment='1' integer-only='true' apply-on-change='true'></slider-setting>
+      </vertical>
+      <vertical size-delta-x='30' min-width='30' pad-bottom='0'>
+        <text align='Center' text='SizeX'></text>
+        <slider-setting id='SizeX' min='0' max='30' increment='.1' apply-on-change='true'></slider-setting>
+      </vertical>
+    </vertical>
+
+    <vertical spacing='0' size-delta-x='30' min-width='30'>
+      <vertical size-delta-x='30' min-width='30' pad-top='0'>
+        <text align='Center' text='PosY'></text>
+        <slider-setting id='PosY' min='-20' max='20' increment='.1' apply-on-change='true'></slider-setting>
+      </vertical>
+      <vertical size-delta-x='30' min-width='30'>
+        <text align='Center' text='RotY'></text>
+        <slider-setting id='RotY' min='0' max='360' increment='1' integer-only='true' apply-on-change='true'></slider-setting>
+      </vertical>
+      <vertical size-delta-x='30' min-width='30' pad-bottom='0'>
+        <text align='Center' text='SizeY'></text>
+        <slider-setting id='SizeY' min='0' max='30' increment='.1' apply-on-change='true'></slider-setting>
+      </vertical>
+    </vertical>
+
+    <vertical spacing='0' pad-left='5' size-delta-x='30' min-width='30'>
+      <vertical size-delta-x='30' min-width='30' pad-top='0'>
+        <text align='Center' text='PosZ'></text>
+        <slider-setting id='PosZ' min='-20' max='20' increment='.1' apply-on-change='true'></slider-setting>
+      </vertical>
+      <vertical size-delta-x='30' min-width='30'>
+        <text align='Center' text='RotZ'></text>
+        <slider-setting id='RotZ' min='0' max='360' increment='1' integer-only='true' apply-on-change='true'></slider-setting>
+      </vertical>
+      <vertical size-delta-x='30' min-width='30' pad-bottom='0'>
+        <text align='Center' text='SizeZ'></text>
+        <slider-setting id='SizeZ' min='0' max='30' increment='.1' apply-on-change='true'></slider-setting>
+      </vertical>
+    </vertical>
+  </horizontal>
+
+  <!-- =========================================== -->
+
+  <modal-keyboard id='InputKeyboard'
+                move-to-center="true"
+                value="InputKeyboardValue"
+                show-event="OpenInputKeyboardModal"
+                hide-event="CloseAllModals"
+                clear-on-open="false"
+                on-enter="InputKeyboardEnterPressed"
+                click-off-closes="true"></modal-keyboard>
+
+</vertical>

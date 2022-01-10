@@ -52,6 +52,11 @@ namespace BeatSaberPlus.SDK.Chat
                 get { return m_Config.GetBool(_s, "ParseFFZEmotes", true, true); }
                 set {        m_Config.SetBool(_s, "ParseFFZEmotes", value); }
             }
+            internal static bool Parse7TVEmotes
+            {
+                get { return m_Config.GetBool(_s, "Parse7TVEmotes", true, true); }
+                set {        m_Config.SetBool(_s, "Parse7TVEmotes", value); }
+            }
             internal static bool ParseTwitchEmotes {
                 get { return m_Config.GetBool(_s, "ParseTwitchEmotes", true, true); }
                 set {        m_Config.SetBool(_s, "ParseTwitchEmotes", value); }

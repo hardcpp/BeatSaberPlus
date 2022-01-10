@@ -243,9 +243,9 @@ namespace BeatSaberPlus.SDK.Network
         /// </summary>
         /// <param name="p_Sender">Event sender</param>
         /// <param name="p_Event">Event data</param>
-        private void Client_OnClose(object p_Sender, EventArgs p_Event)
+        private void Client_OnClose(object p_Sender, CloseEventArgs p_Event)
         {
-            Logger.Instance.Debug($"[SDK.Network][WebSocketClient.Client_OnClose] WebSocket connection to {m_URI} was closed");
+            Logger.Instance.Debug($"[SDK.Network][WebSocketClient.Client_OnClose] WebSocket connection to {m_URI} was closed : " + p_Event);
             OnClose?.Invoke();
 
             TryHandleReconnect();

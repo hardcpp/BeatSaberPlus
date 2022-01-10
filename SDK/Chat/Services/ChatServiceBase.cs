@@ -11,7 +11,10 @@ namespace BeatSaberPlus.SDK.Chat.Services
     /// </summary>
     public class ChatServiceBase
     {
-        protected ConcurrentDictionary<ChatServiceBase, Action<IChatService>> m_OnLoginCallbacks = new ConcurrentDictionary<ChatServiceBase, Action<IChatService>>();
+        protected ConcurrentDictionary<ChatServiceBase, Action<IChatService, string>>   m_OnSystemMessageCallbacks 
+            = new ConcurrentDictionary<ChatServiceBase, Action<IChatService, string>>();
+        protected ConcurrentDictionary<ChatServiceBase, Action<IChatService>>           m_OnLoginCallbacks 
+            = new ConcurrentDictionary<ChatServiceBase, Action<IChatService>>();
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -48,6 +51,11 @@ namespace BeatSaberPlus.SDK.Chat.Services
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
+        public event Action<IChatService, string> OnSystemMessage
+        {
+            add     => m_OnSystemMessageCallbacks.AddAction(this, value);
+            remove  => m_OnSystemMessageCallbacks.RemoveAction(this, value);
+        }
         public event Action<IChatService> OnLogin
         {
             add     => m_OnLoginCallbacks.AddAction(this, value);

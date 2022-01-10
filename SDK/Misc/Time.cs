@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace BeatSaberPlus.SDK.Misc
 {
@@ -40,6 +41,16 @@ namespace BeatSaberPlus.SDK.Misc
         public static DateTime FromUnixTime(Int64 p_TimeStamp)
         {
             return s_UnixEpoch.AddSeconds(p_TimeStamp).ToLocalTime();
+        }
+        /// <summary>
+        /// Try parse international data
+        /// </summary>
+        /// <param name="p_Input"></param>
+        /// <param name="p_Result"></param>
+        /// <returns></returns>
+        public static bool TryParseInternational(string p_Input, out DateTime p_Result)
+        {
+            return DateTime.TryParse(p_Input, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out p_Result);
         }
     }
 }

@@ -1076,12 +1076,14 @@ namespace BSP_WebSocketSharp
     internal static string TrimSlashFromEnd (this string value)
     {
       var ret = value.TrimEnd ('/');
+
       return ret.Length > 0 ? ret : "/";
     }
 
     internal static string TrimSlashOrBackslashFromEnd (this string value)
     {
       var ret = value.TrimEnd ('/', '\\');
+
       return ret.Length > 0 ? ret : value[0].ToString ();
     }
 

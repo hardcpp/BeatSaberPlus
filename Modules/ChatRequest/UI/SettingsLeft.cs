@@ -87,7 +87,7 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
             ShowConfirmationModal("<color=yellow><b>Do you really want to reset\nchat request configuration and filters?", () =>
             {
                 /// Reset config
-                Config.ChatRequest.Reset();
+                CRConfig.Instance.Reset();
 
                 /// Refresh values
                 Settings.Instance.RefreshSettings();

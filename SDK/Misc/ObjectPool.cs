@@ -156,6 +156,5 @@ namespace BeatSaberPlus.SDK.Misc
 
             return l_NewObject;
         }
-
     }
 }

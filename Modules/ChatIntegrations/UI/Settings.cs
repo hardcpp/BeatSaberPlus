@@ -14,7 +14,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.UI
     /// <summary>
     /// Chat integrations main settings view
     /// </summary>
-    internal class Settings : SDK.UI.ResourceViewController<Settings>
+    internal partial class Settings : SDK.UI.ResourceViewController<Settings>
     {
         /// <summary>
         /// Maximum item on a list page
@@ -87,30 +87,6 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.UI
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        [UIObject("AddConditionFrame")]
-        private GameObject m_AddConditionFrame = null;
-        [UIObject("AddConditionFrame_Background")]
-        private GameObject m_AddConditionFrame_Background = null;
-        [UIComponent("AddConditionFrame_DropDown")]
-        private DropDownListSetting m_AddConditionFrame_DropDown;
-        [UIValue("AddConditionFrame_DropDownOptions")]
-        private List<object> m_AddConditionFrame_DropDownOptions = new List<object>() { "Loading...", };
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        [UIObject("AddActionFrame")]
-        private GameObject m_AddActionFrame = null;
-        [UIObject("AddActionFrame_Background")]
-        private GameObject m_AddActionFrame_Background = null;
-        [UIComponent("AddActionFrame_DropDown")]
-        private DropDownListSetting m_AddActionFrame_DropDown;
-        [UIValue("AddActionFrame_DropDownOptions")]
-        private List<object> m_AddActionFrame_DropDownOptions = new List<object>() { "Loading...", };
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
         [UIComponent("InputKeyboard")]
         private ModalKeyboard m_InputKeyboard = null;
         [UIValue("InputKeyboardValue")]
@@ -127,7 +103,6 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.UI
         private int m_SelectedAction = -1;
 
         private Dictionary<string, System.Type> m_ConditionAddingMatches = new Dictionary<string, System.Type>();
-        private Dictionary<string, System.Type> m_ActionAddingMatches = new Dictionary<string, System.Type>();
 
         /// <summary>
         /// Keyboard original key count
@@ -153,8 +128,6 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.UI
             SDK.UI.Backgroundable.SetOpacity(m_EventFrame_ConditionsTab_ConditionContent,   0.50f);
             SDK.UI.Backgroundable.SetOpacity(m_EventFrame_ActionsTab,                       0.50f);
             SDK.UI.Backgroundable.SetOpacity(m_EventFrame_ActionsTab_ActionContent,         0.50f);
-            SDK.UI.Backgroundable.SetOpacity(m_AddConditionFrame_Background,                0.50f);
-            SDK.UI.Backgroundable.SetOpacity(m_AddActionFrame_Background,                   0.50f);
             SDK.UI.ModalView.SetOpacity(m_InputKeyboard.modalView,                          0.75f);
 
             /// Scale down up & down button
@@ -205,8 +178,8 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.UI
                 m_EventFrame_ActionsTab_DownButton.onClick.AddListener(OnActionPageDownPressed);
             }
 
-            SDK.UI.DropDownListSetting.Setup(m_AddConditionFrame_DropDown, null, true);
-            SDK.UI.DropDownListSetting.Setup(m_AddActionFrame_DropDown, null, true);
+            SetupAddConditionFrame();
+            SetupAddActionFrame();
 
             /// Create type selector
             m_EventFrame_TabSelectorControl = SDK.UI.TextSegmentedControl.Create(m_EventFrame_TabSelector.transform as RectTransform, false);
@@ -445,65 +418,6 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.UI
             RebuildConditionList(l_Condition);
         }
         /// <summary>
-        /// New condition button
-        /// </summary>
-        [UIAction("click-condition-new-btn-pressed")]
-        private void OnConditionNewButton()
-        {
-            var l_Types = new List<object>();
-            int l_I = 1;
-
-            var l_SortedList = m_CurrentEvent.AvailableConditions.OrderBy(x => x.GetTypeNameShort());
-            m_ConditionAddingMatches.Clear();
-
-            foreach (var l_CurrentType in l_SortedList)
-            {
-                var l_Line = "<align=\"left\">" + l_I + " - " + FancyShortTypeName(l_CurrentType.GetTypeNameShort());
-                l_Types.Add(l_Line);
-                m_ConditionAddingMatches.Add(l_Line, l_CurrentType.GetType());
-                ++l_I;
-            }
-
-            m_AddConditionFrame_DropDownOptions = l_Types;
-            m_AddConditionFrame_DropDown.values = l_Types;
-            m_AddConditionFrame_DropDown.UpdateChoices();
-
-            m_EventFrame.SetActive(false);
-            m_AddConditionFrame.SetActive(true);
-        }
-        /// <summary>
-        /// On cancel add condition button pressed
-        /// </summary>
-        [UIAction("click-cancel-add-condition-btn-pressed")]
-        private void OnCancelAddConditionButton()
-        {
-            m_AddConditionFrame.SetActive(false);
-            m_EventFrame.SetActive(true);
-        }
-        /// <summary>
-        /// On add condition button pressed
-        /// </summary>
-        [UIAction("click-add-condition-btn-pressed")]
-        private void OnAddConditionButton()
-        {
-            var l_Selected = m_AddConditionFrame_DropDown.Value as string;
-
-            if (m_ConditionAddingMatches.TryGetValue(l_Selected, out var l_MatchingType))
-            {
-                /// Create instance
-                var l_NewCondition = Activator.CreateInstance(l_MatchingType) as Interfaces.IConditionBase;
-                l_NewCondition.Event        = m_CurrentEvent;
-                l_NewCondition.IsEnabled    = true;
-
-                m_CurrentEvent.AddCondition(l_NewCondition);
-
-                RebuildConditionList(l_NewCondition);
-            }
-
-            m_AddConditionFrame.SetActive(false);
-            m_EventFrame.SetActive(true);
-        }
-        /// <summary>
         /// Toggle condition button
         /// </summary>
         [UIAction("click-condition-toggle-btn-pressed")]
@@ -690,65 +604,6 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.UI
             m_SelectedAction    = m_CurrentEvent.MoveAction(l_Action, true);
 
             RebuildActionList(l_Action);
-        }
-        /// <summary>
-        /// New action button
-        /// </summary>
-        [UIAction("click-action-new-btn-pressed")]
-        private void OnActionNewButton()
-        {
-            var l_Types = new List<object>();
-            int l_I     = 1;
-
-            var l_SortedList = m_CurrentEvent.AvailableActions.OrderBy(x => x.GetTypeNameShort());
-            m_ActionAddingMatches.Clear();
-
-            foreach (var l_CurrentType in l_SortedList)
-            {
-                var l_Line = "<align=\"left\">" + l_I + " - " + FancyShortTypeName(l_CurrentType.GetTypeNameShort());
-                l_Types.Add(l_Line);
-                m_ActionAddingMatches.Add(l_Line, l_CurrentType.GetType());
-                ++l_I;
-            }
-
-            m_AddActionFrame_DropDownOptions = l_Types;
-            m_AddActionFrame_DropDown.values = l_Types;
-            m_AddActionFrame_DropDown.UpdateChoices();
-
-            m_EventFrame.SetActive(false);
-            m_AddActionFrame.SetActive(true);
-        }
-        /// <summary>
-        /// On cancel add action button pressed
-        /// </summary>
-        [UIAction("click-cancel-add-action-btn-pressed")]
-        private void OnCancelAddActionButton()
-        {
-            m_AddActionFrame.SetActive(false);
-            m_EventFrame.SetActive(true);
-        }
-        /// <summary>
-        /// On add action button pressed
-        /// </summary>
-        [UIAction("click-add-action-btn-pressed")]
-        private void OnAddActionButton()
-        {
-            var l_Selected = m_AddActionFrame_DropDown.Value as string;
-
-            if (m_ActionAddingMatches.TryGetValue(l_Selected, out var l_MatchingType))
-            {
-                /// Create instance
-                var l_NewAction = Activator.CreateInstance(l_MatchingType) as Interfaces.IActionBase;
-                l_NewAction.Event       = m_CurrentEvent;
-                l_NewAction.IsEnabled   = true;
-
-                m_CurrentEvent.AddAction(l_NewAction);
-
-                RebuildActionList(l_NewAction);
-            }
-
-            m_AddActionFrame.SetActive(false);
-            m_EventFrame.SetActive(true);
         }
         /// <summary>
         /// Toggle action button

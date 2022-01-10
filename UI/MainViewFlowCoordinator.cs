@@ -8,7 +8,7 @@
         /// <summary>
         /// Title
         /// </summary>
-        public override string Title => "Beat Saber Plus v3.0.9-Preview";
+        public override string Title => "Beat Saber Plus v3.4.3";
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,10 @@
         /// Settings view
         /// </summary>
         private SettingsView m_SettingsView;
+        /// <summary>
+        /// Settings left view
+        /// </summary>
+        private SettingsLeftView m_SettingsLeftView;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -38,10 +42,11 @@
         /// </summary>
         public MainViewFlowCoordinator()
         {
-            m_InfoView      = CreateViewController<InfoView>();
-            m_MainView      = CreateViewController<MainView>();
-            m_ChangeLogView = CreateViewController<ChangeLogView>();
-            m_SettingsView  = CreateViewController<SettingsView>();
+            m_InfoView          = CreateViewController<InfoView>();
+            m_MainView          = CreateViewController<MainView>();
+            //m_ChangeLogView     = CreateViewController<ChangeLogView>();
+            m_SettingsView      = CreateViewController<SettingsView>();
+            m_SettingsLeftView  = CreateViewController<SettingsLeftView>();
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -51,7 +56,7 @@
         /// Get initial views controller
         /// </summary>
         /// <returns>(Middle, Left, Right)</returns>
-        protected override sealed (HMUI.ViewController, HMUI.ViewController, HMUI.ViewController) GetInitialViewsController() => (m_MainView, m_InfoView, m_ChangeLogView);
+        protected override sealed (HMUI.ViewController, HMUI.ViewController, HMUI.ViewController) GetInitialViewsController() => (m_MainView, m_InfoView, null);
         /// <summary>
         /// On back button pressed
         /// </summary>
@@ -78,6 +83,6 @@
         /// <summary>
         /// Switch to settings view
         /// </summary>
-        public void SwitchToSettingsView() => ChangeView(m_SettingsView);
+        public void SwitchToSettingsView() => ChangeView(m_SettingsView, m_SettingsLeftView);
     }
 }

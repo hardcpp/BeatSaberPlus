@@ -50,7 +50,14 @@
                             </div>
                             <label class="form-checkbox">
                                 <input type="checkbox" onclick="toggleTwitchOAuthVis()"><i class="form-icon"></i>Show
-                                (<a href="javascript:openNewOAuthToken()" class="text-center">Need an OAuth Token? Click here!</a>)
+                                <a href="javascript:openNewOAuthToken()" class="text-center" style="
+                                    display: block;
+                                    color: white;
+                                    background-color: #5755d9;
+                                    border-radius: 10px;
+                                    font-weight: bold;
+                                    padding: 10px;
+                                    ">Get new token!</a>
                             </label>
                             <br />
 
@@ -76,7 +83,17 @@
                             {GlobalSettingsHTML}
                         </div>
                         <div class="panel-footer">
-                            <button class="btn my-2 mx-2 float-right" type="submit">Save</button>
+                            <button class="btn my-2 mx-2 float-right" type="submit" style="
+                                display: block;
+                                color: white;
+                                background-color: #5755d9;
+                                border-radius: 10px;
+                                font-weight: bold;
+                                padding-left: 20px;
+                                padding-right: 20px;
+                            ">
+                                Save
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -89,7 +106,7 @@
         let twitchIdCounter = document.getElementById("twitch-channel-container").getElementsByTagName("input").length;
 
         function openNewOAuthToken() {
-            window.open("https://id.twitch.tv/oauth2/authorize?client_id=23vjr9ec2cwoddv2fc3xfbx9nxv8vi&redirect_uri=http%3A%2F%2Flocalhost:8339&response_type=token&scope=chat:edit+chat:read+whispers:edit+whispers:read+channel:read:redemptions+bits:read+channel_subscriptions+channel:moderate+channel:manage:redemptions+user:edit:broadcast+clips:edit",'_blank');
+            window.open("https://id.twitch.tv/oauth2/authorize?client_id=23vjr9ec2cwoddv2fc3xfbx9nxv8vi&redirect_uri=http%3A%2F%2Flocalhost:8339&response_type=token&scope=chat:edit+chat:read+whispers:edit+whispers:read+channel:read:redemptions+bits:read+channel_subscriptions+channel:moderate+channel:manage:redemptions+user:edit:broadcast+clips:edit+channel:manage:polls+channel:manage:predictions",'_blank');
             var element = document.getElementById("content");
             element.parentNode.removeChild(element);
         }
@@ -110,7 +127,7 @@
             span.id = channelId;
             span.className = "chip";
             span.innerHTML =
-                "<input type=\"text\" class=\"borderless-input\" name=\"twitch_channel\" placeholder=\"Twitch Channel\" value=\"\" />" +
+                "<input type=\"text\" class=\"borderless-input\" name=\"twitch_channel\" placeholder=\"Twitch Channel Name\" value=\"\" />" +
                 "<button type=\"button\" onclick=\"removeTwitchChannel('" + channelId + "')\" class=\"btn btn-clear\" aria-label=\"Close\" role=\"button\" />";
             container.insertBefore(span, document.getElementById("add_twitch_channel_button_span"));
             //container.appendChild(span);
@@ -138,16 +155,20 @@
 
         function processForm() {
             if (document.getElementById('twitch_oauth_input').value == "") {
-                alert("No OAuth token specified, please generate a new token by clicking on \"Need an OAuth Token? Click here!\"!");
+                alert("No OAuth token specified, please generate a new token by clicking on \"Get new token!\"!");
                 return false;
             }
-            if (!document.getElementById('twitch-channel-container') || document.getElementById('twitch-channel-container').childElementCount == 1) {
+            if (!document.getElementById('twitch-channel-container')
+                || document.getElementById('twitch-channel-container').childElementCount == 1) {
                 alert("No twitch channel specified, please add your twitch channel name in Channels section by clicking on the + button!");
                 return false;
             }
 
             return true;
         }
+
+        if ({TwitchHasChannels} == false)
+            addTwitchChannel();
 
     </script>
 

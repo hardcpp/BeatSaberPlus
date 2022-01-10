@@ -157,6 +157,7 @@ namespace BeatSaberPlus.Modules.Chat
                 SDK.Chat.Service.Acquire();
 
                 /// Run all services
+                SDK.Chat.Service.Multiplexer.OnSystemMessage            += ChatCoreMutiplixer_OnSystemMessage;
                 SDK.Chat.Service.Multiplexer.OnLogin                    += ChatCoreMutiplixer_OnLogin;
                 SDK.Chat.Service.Multiplexer.OnJoinChannel              += ChatCoreMutiplixer_OnJoinChannel;
                 SDK.Chat.Service.Multiplexer.OnLeaveChannel             += ChatCoreMutiplixer_OnLeaveChannel;
@@ -194,6 +195,7 @@ namespace BeatSaberPlus.Modules.Chat
             if (m_ChatCoreAcquired)
             {
                 /// Unbind services
+                SDK.Chat.Service.Multiplexer.OnSystemMessage            -= ChatCoreMutiplixer_OnSystemMessage;
                 SDK.Chat.Service.Multiplexer.OnLogin                    -= ChatCoreMutiplixer_OnLogin;
                 SDK.Chat.Service.Multiplexer.OnJoinChannel              -= ChatCoreMutiplixer_OnJoinChannel;
                 SDK.Chat.Service.Multiplexer.OnLeaveChannel             -= ChatCoreMutiplixer_OnLeaveChannel;
@@ -354,11 +356,12 @@ namespace BeatSaberPlus.Modules.Chat
                 yield return new WaitForSeconds(0.25f);
             }
 
-            m_ModerationButton = SDK.UI.Button.Create(p_LevelSelectionNavigationController.transform, "Chat Moderation", () => UI.ModerationViewFlowCoordinator.Instance().Present(), null);
-            m_ModerationButton.transform.localPosition      = new Vector3(32.50f, 38.50f, 2.6f);
-            m_ModerationButton.transform.localScale         = new Vector3(1.0f, 0.8f, 1.0f);
-            m_ModerationButton.transform.SetAsLastSibling();
+            m_ModerationButton = SDK.UI.Button.Create(p_LevelSelectionNavigationController.transform, "Chat\nModeration", () => UI.ModerationViewFlowCoordinator.Instance().Present(), null);
+            m_ModerationButton.transform.localPosition      = new Vector3(72.50f, 30.00f - 3, 2.6f);
+            m_ModerationButton.transform.localScale         = new Vector3(0.65f, 0.50f, 0.65f);
+            m_ModerationButton.transform.SetAsFirstSibling();
             m_ModerationButton.gameObject.SetActive(true);
+            m_ModerationButton.GetComponentInChildren<TextMeshProUGUI>().margin = new Vector4(0, 4, 0, 0);
 
             UpdateButton();
 
@@ -372,12 +375,22 @@ namespace BeatSaberPlus.Modules.Chat
             if (m_ModerationButton == null)
                 return;
 
-            m_ModerationButton.transform.localPosition = new Vector3(32.50f, 38.50f, 2.6f);
+            m_ModerationButton.transform.localPosition  = new Vector3(72.50f, 30.00f - 3, 2.6f);
+            m_ModerationButton.transform.localScale     = new Vector3(0.65f, 0.50f, 0.65f);
         }
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
+        /// <summary>
+        /// On system message
+        /// </summary>
+        /// <param name="p_ChatService">Chat service</param>
+        /// <param name="p_Message">Message</param>
+        private void ChatCoreMutiplixer_OnSystemMessage(IChatService p_ChatService, string p_Message)
+        {
+            QueueOrSendChatAction(() => m_ChatFloatingScreenController.OnSystemMessage(p_ChatService, p_Message));
+        }
         /// <summary>
         /// On login
         /// </summary>

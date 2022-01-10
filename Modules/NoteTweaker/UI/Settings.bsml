@@ -1,0 +1,91 @@
+﻿<vertical child-control-height='false'>
+  <horizontal bg='panel-top' pad-left='15' pad-right='15' horizontal-fit='PreferredSize'>
+    <text text='Note Tweaker' align='Center' font-size='4.2'/>
+  </horizontal>
+
+  <horizontal min-width='110'>
+    <vertical spacing='0' pad-right='5' size-delta-x='36' min-width='36'>
+      <vertical size-delta-x='30' min-width='30' pad-top='0'>
+        <text font-size='3.5' text='Show dot on directional notes' align='Center'></text>
+        <bool-setting id='ShowDotOnDirectionalNoteToggle' apply-on-change='true' />
+      </vertical>
+      <vertical size-delta-x='30' min-width='30'>
+        <text font-size='3.5' text='Arrow scale' align='Center'></text>
+        <increment-setting id='ArrowScaleIncrement' min='0.2' max='1.4' increment='0.05'/>
+      </vertical>
+      <vertical size-delta-x='30' min-width='30'>
+        <text font-size='3.5' text='Dot scale' align='Center'></text>
+        <increment-setting id='DotScaleIncrement' min='0.2' max='1.5' increment='0.05'/>
+      </vertical>
+      <vertical size-delta-x='30' min-width='30' pad-bottom='0'>
+        <text font-size='3.5' text='Precision dot scale' align='Center'></text>
+        <increment-setting id='PrecisionDotScaleIncrement' min='0.2' max='1.5' increment='0.05'/>
+      </vertical>
+    </vertical>
+
+    <vertical spacing='0' pad-right='5' size-delta-x='36' min-width='36'>
+      <vertical size-delta-x='30' min-width='30' pad-top='0'>
+        <text font-size='3.5' text='Override arrow colors' align='Center'></text>
+        <bool-setting id='OverrideArrowColors' apply-on-change='true' />
+      </vertical>
+      <vertical size-delta-x='30' min-width='30'>
+        <text font-size='3.5' text='Arrow left color'  align='Center'></text>
+        <color-setting id='ArrowLColor' apply-on-change='true'></color-setting>
+      </vertical>
+      <vertical size-delta-x='30' min-width='30'>
+        <text font-size='3.5' text='Dot left color' align='Center'></text>
+        <color-setting id='DotLColor' apply-on-change='true'></color-setting>
+      </vertical>
+      <vertical size-delta-x='30' min-width='30' pad-bottom='0'>
+        <text font-size='3.5' text='Override bomb color' align='Center'></text>
+        <bool-setting id='OverrideBombColorToggle' apply-on-change='true' />
+      </vertical>
+    </vertical>
+
+    <vertical spacing='0' pad-right='5' size-delta-x='36' min-width='36'>
+      <vertical size-delta-x='30' min-width='30' pad-top='0'>
+        <text font-size='3.5' text='Override dot colors' align='Center'></text>
+        <bool-setting id='OverrideDotColors' apply-on-change='true' />
+      </vertical>
+      <vertical size-delta-x='30' min-width='30'>
+        <text font-size='3.5' text='Arrow right color'  align='Center'></text>
+        <color-setting id='ArrowRColor' apply-on-change='true'></color-setting>
+      </vertical>
+      <vertical size-delta-x='30' min-width='30'>
+        <text font-size='3.5' text='Dot right color' align='Center'></text>
+        <color-setting id='DotRColor' apply-on-change='true'></color-setting>
+      </vertical>
+      <vertical size-delta-x='30' min-width='30' pad-bottom='0'>
+        <text font-size='3.5' text='Bomb color'  align='Center'></text>
+        <color-setting id='BombColor' apply-on-change='true'></color-setting>
+      </vertical>
+    </vertical>
+
+    <vertical spacing='0' pad-right='5' size-delta-x='36' min-width='36'>
+      <vertical size-delta-x='30' min-width='30' pad-top='0'>
+        <text font-size='3.5' text='Note scale' align='Center'></text>
+        <increment-setting id='NoteScaleIncrement' min='0.4' max='1.2' increment='0.05'/>
+      </vertical>
+      <vertical size-delta-x='30' min-width='30'>
+        <text font-size='3.5' text='Arrow glow intensity' align='Center'></text>
+        <increment-setting id='ArrowIntensity' min='0' max='1' increment='0.05'/>
+      </vertical>
+      <vertical size-delta-x='30' min-width='30'>
+        <text font-size='3.5' text='Dot glow intensity' align='Center'></text>
+        <increment-setting id='DotIntensity' min='0' max='1' increment='0.05'/>
+      </vertical>
+      <vertical size-delta-x='30' min-width='30' pad-bottom='0'>
+        <text font-size='3.5' text=' ' align='Center'></text>
+        <text text=' ' align='Center'></text>
+      </vertical>
+    </vertical>
+  </horizontal>
+
+  <horizontal>
+    <vertical id='InfoBackground' bg='round-rect-panel' size-delta-x='120' min-width='120' pad-top='2' pad-bottom='2' pad-left='2' pad-right='2'>
+      <text align='Center' text="This module change only the visual appearance of the notes, The hitbox will stay the same as default"/>
+      <text align='Center' text="The scale settings can conflict with CustomNotes if not 100%"/>
+    </vertical>
+  </horizontal>
+
+</vertical>

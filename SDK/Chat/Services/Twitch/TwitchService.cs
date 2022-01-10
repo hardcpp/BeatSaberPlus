@@ -17,7 +17,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
     public class TwitchService : ChatServiceBase, IChatService
     {
         /// <summary>
-        /// BOOMBOX twitch application ID
+        /// Twitch application ID
         /// </summary>
         internal const string TWITCH_CLIENT_ID = "23vjr9ec2cwoddv2fc3xfbx9nxv8vi";
 
@@ -42,6 +42,31 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
         /// OAuth token API
         /// </summary>
         public string OAuthTokenAPI => m_OAuthTokenAPI;
+
+        /// <summary>
+        /// Required token scopes
+        /// </summary>
+        public IReadOnlyList<string> RequiredTokenScopes = new List<string>()
+        {
+            "bits:read",
+            "channel:manage:polls",
+            "channel:manage:predictions",
+            "channel:manage:redemptions",
+            "channel:moderate",
+            "channel:read:redemptions",
+            "channel_subscriptions",
+            "chat:edit",
+            "chat:read",
+            "clips:edit",
+            "user:edit:broadcast",
+            "whispers:edit",
+            "whispers:read"
+        }.AsReadOnly();
+
+        /// <summary>
+        /// Helix API instance
+        /// </summary>
+        public TwitchHelix HelixAPI { get; private set; } = null;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -83,6 +108,10 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
         /// </summary>
         private string m_OAuthTokenCache;
         /// <summary>
+        /// OAuth token cache
+        /// </summary>
+        private string m_OAuthTokenAPICache;
+        /// <summary>
         /// Logged in user
         /// </summary>
         private TwitchUser m_LoggedInUser = null;
@@ -106,6 +135,10 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
         /// Process message queue task
         /// </summary>
         private Task m_ProcessQueuedMessagesTask = null;
+        /// <summary>
+        /// Update Helix task
+        /// </summary>
+        private Task m_UpdateHelixTask = null;
         /// <summary>
         /// Message receive lock
         /// </summary>
@@ -134,15 +167,18 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public TwitchService()
         {
             /// Init
             m_DataProvider  = new TwitchDataProvider();
             m_MessageParser = new TwitchMessageParser(m_DataProvider, new FrwTwemojiParser());
             m_Random        = new Random();
+            HelixAPI        = new TwitchHelix();
 
-            /// Listen on configuration change
-            //m_AuthManager.OnCredentialsUpdated += OnCredentialsUpdated;
+            HelixAPI.OnTokenValidate += HelixAPI_OnTokenValidate;
 
             /// IRC web socket
             m_IRCWebSocket = new Network.WebSocketClient();
@@ -173,13 +209,16 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                 {
                     m_IsStarted = true;
 
-                    m_PubSubSocket.Connect("wss://pubsub-edge.twitch.tv:443");
-                    m_IRCWebSocket.Connect("wss://irc-ws.chat.twitch.tv:443");
-
                     m_ProcessQueuedMessagesTask = Task.Run(ProcessQueuedMessages);
+                    m_UpdateHelixTask = Task.Run(UpdateHelix);
 
                     /// Cache OAuth token
-                    m_OAuthTokenCache = m_OAuthToken;
+                    m_OAuthTokenCache       = m_OAuthToken;
+                    m_OAuthTokenAPICache    = m_OAuthTokenAPI;
+
+                    HelixAPI.OnTokenChanged(m_OAuthTokenAPI);
+
+                    /// Waiting HelixAPI_OnTokenValidate callback
                 }
             }
         }
@@ -199,6 +238,12 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                 {
                     m_ProcessQueuedMessagesTask.Wait();
                     m_ProcessQueuedMessagesTask = null;
+                }
+
+                if (m_UpdateHelixTask != null && m_UpdateHelixTask.Status == TaskStatus.Running)
+                {
+                    m_UpdateHelixTask.Wait();
+                    m_UpdateHelixTask = null;
                 }
 
                 m_PubSubSocket.Disconnect();
@@ -225,21 +270,24 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
         /// When settings changed
         /// </summary>
         /// <param name="p_Credentials">New credential</param>
-        private void OnCredentialsUpdated()
+        internal void OnCredentialsUpdated()
         {
             if (!m_IsStarted)
                 return;
 
             /// Restart if OAuth token is different
-            if (m_OAuthToken != m_OAuthTokenCache)
+            if (m_OAuthToken != m_OAuthTokenCache || m_OAuthTokenAPI != m_OAuthTokenAPICache)
             {
+                m_OAuthTokenCache       = m_OAuthToken;
+                m_OAuthTokenAPICache    = m_OAuthTokenAPI;
+
                 Stop();
                 Start();
             }
             /// Join / Leave missing channels
             else
             {
-                var l_ChannelList = AuthConfig.Twitch.Channels.Split(',').ToList();
+                var l_ChannelList = AuthConfig.Twitch.Channels.Trim().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
                 foreach (var l_ChannelToJoin in l_ChannelList)
                 {
                     if (!m_Channels.ContainsKey(l_ChannelToJoin))
@@ -251,6 +299,31 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                     if (!l_ChannelList.Contains(l_Channel.Key))
                         PartChannel(l_Channel.Key);
                 }
+            }
+        }
+        /// <summary>
+        /// On Helix token validate
+        /// </summary>
+        /// <param name="p_Valid">Is valid</param>
+        /// <param name="p_Result">Result</param>
+        private void HelixAPI_OnTokenValidate(bool p_Valid, Helix_TokenValidate p_Result)
+        {
+            if (p_Valid)
+            {
+                m_PubSubSocket.Connect("wss://pubsub-edge.twitch.tv:443");
+                m_IRCWebSocket.Connect("wss://irc-ws.chat.twitch.tv:443");
+
+                foreach (var l_Scope in RequiredTokenScopes)
+                {
+                    if (p_Result.scopes.Contains(l_Scope, StringComparer.InvariantCultureIgnoreCase))
+                        continue;
+
+                    m_OnSystemMessageCallbacks?.InvokeAll(this, $"Your Twitch token is missing permission <b>{l_Scope}</b>, some features may not work, please update your token!");
+                }
+            }
+            else
+            {
+                m_OnSystemMessageCallbacks?.InvokeAll(this, "<b>Your Twitch token is invalid/expired</b>, please update it to make the chat work!");
             }
         }
 
@@ -294,7 +367,20 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                     m_CurrentSentMessageCount++;
                 }
 
-                Thread.Sleep(10);
+                Thread.Sleep(50);
+            }
+        }
+        /// <summary>
+        /// Update helix task
+        /// </summary>
+        /// <returns></returns>
+        private async Task UpdateHelix()
+        {
+            while (m_IsStarted)
+            {
+                HelixAPI.Update();
+
+                Thread.Sleep(1000);
             }
         }
 
@@ -372,7 +458,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
         {
             Logger.Instance.Warn("TwitchPubSub Send topics");
 
-            var l_OAuth = m_OAuthToken;
+            var l_OAuth = m_OAuthTokenAPI;
             if (l_OAuth != null && l_OAuth.Contains("oauth:"))
                 l_OAuth = l_OAuth.Replace("oauth:", "");
 
@@ -413,7 +499,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
         /// </summary>
         private void ResubscribeChannelsTopics()
         {
-            var l_OAuth = m_OAuthToken;
+            var l_OAuth = m_OAuthTokenAPI;
             if (l_OAuth != null && l_OAuth.Contains("oauth:"))
                 l_OAuth = l_OAuth.Replace("oauth:", "");
 
@@ -457,7 +543,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
         /// <param name="p_RoomID">ID of the channel</param>
         private void UnsubscribeTopics(string p_RoomID, string p_ChannelName)
         {
-            var l_OAuth = m_OAuthToken;
+            var l_OAuth = m_OAuthTokenAPI;
             if (l_OAuth != null && l_OAuth.Contains("oauth:"))
                 l_OAuth = l_OAuth.Replace("oauth:", "");
 
@@ -558,7 +644,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
 
                                 m_OnLoginCallbacks?.InvokeAll(this);
 
-                                var l_ChannelList = AuthConfig.Twitch.Channels.Split(',').ToList();
+                                var l_ChannelList = AuthConfig.Twitch.Channels.Trim().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
                                 foreach (var l_ChannelToJoin in l_ChannelList)
                                     JoinChannel(l_ChannelToJoin);
 
@@ -600,7 +686,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                                     Logger.Instance.Info($"Removed channel {l_Channel.Id} from the channel list.");
                                     m_OnLeaveRoomCallbacks?.InvokeAll(this, l_TwitchMessage.Channel);
 
-                                    if (!string.IsNullOrEmpty(m_OAuthToken))
+                                    if (!string.IsNullOrEmpty(m_OAuthTokenAPI))
                                         UnsubscribeTopics(l_TwitchChannel.Roomstate.RoomId, l_TwitchChannel.Name);
                                 }
                                 continue;
@@ -611,7 +697,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
 
                                 m_OnRoomStateUpdatedCallbacks?.InvokeAll(this, l_TwitchMessage.Channel);
 
-                                if (!string.IsNullOrEmpty(m_OAuthToken))
+                                if (!string.IsNullOrEmpty(m_OAuthTokenAPI))
                                 {
                                     SubscribeTopics(new string[] {
                                         "following",
@@ -621,6 +707,8 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                                         "video-playback"
                                     }, l_TwitchChannel.Roomstate.RoomId, l_TwitchChannel.Name);
                                 }
+
+                                HelixAPI.OnBroadcasterIDChanged(m_Channels.First().Value.AsTwitchChannel().Roomstate.RoomId);
                                 continue;
 
                             case "USERSTATE":

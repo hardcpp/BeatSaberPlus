@@ -24,9 +24,11 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches
         private static Toggle                                 m_AutomaticPlayerHeightToggle                         = null;
         private static FormattedFloatListSettingsController   m_SfxVolumeSettingsController                         = null;
         private static FormattedFloatListSettingsController   m_SaberTrailIntensitySettingsController               = null;
-        private static NoteJumpStartBeatOffsetDropdown        m_NoteJumpStartBeatOffsetDropdown                     = null;
         private static Toggle                                 m_HideNoteSpawnEffectToggle                           = null;
         private static Toggle                                 m_AdaptiveSfxToggle                                   = null;
+        private static NoteJumpDurationTypeSettingsDropdown   m_NoteJumpDurationTypeSettingsDropdown                = null;
+        private static FormattedFloatListSettingsController   m_NoteJumpFixedDurationSettingsController             = null;
+        private static NoteJumpStartBeatOffsetDropdown        m_NoteJumpStartBeatOffsetDropdown                     = null;
 
         private static IncrementSetting m_OverrideLightsIntensityToggle            = null;
 
@@ -48,7 +50,9 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches
                                     ref FormattedFloatListSettingsController    ____saberTrailIntensitySettingsController,
                                     ref NoteJumpStartBeatOffsetDropdown         ____noteJumpStartBeatOffsetDropdown,
                                     ref Toggle                                  ____hideNoteSpawnEffectToggle,
-                                    ref Toggle                                  ____adaptiveSfxToggle)
+                                    ref Toggle                                  ____adaptiveSfxToggle,
+                                    ref NoteJumpDurationTypeSettingsDropdown    ____noteJumpDurationTypeSettingsDropdown,
+                                    ref FormattedFloatListSettingsController    ____noteJumpFixedDurationSettingsController)
         {
             m_LeftHandedToggle                                  = ____leftHandedToggle;
             m_EnvironmentEffectsFilterDefaultPresetDropdown     = ____environmentEffectsFilterDefaultPresetDropdown;
@@ -63,6 +67,8 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches
             m_NoteJumpStartBeatOffsetDropdown                   = ____noteJumpStartBeatOffsetDropdown;
             m_HideNoteSpawnEffectToggle                         = ____hideNoteSpawnEffectToggle;
             m_AdaptiveSfxToggle                                 = ____adaptiveSfxToggle;
+            m_NoteJumpDurationTypeSettingsDropdown              = ____noteJumpDurationTypeSettingsDropdown;
+            m_NoteJumpFixedDurationSettingsController           = ____noteJumpFixedDurationSettingsController;
 
             /// Apply
             if (Config.GameTweaker.Enabled)
@@ -122,21 +128,26 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches
 
             if (p_Enabled)
             {
+                m_SaberTrailIntensitySettingsController.transform.parent.SetAsFirstSibling();
+                m_HideNoteSpawnEffectToggle.transform.parent.SetAsFirstSibling();
+                m_ReduceDebrisToggle.transform.parent.SetAsFirstSibling();
+                m_AdaptiveSfxToggle.transform.parent.SetAsFirstSibling();
+                m_SfxVolumeSettingsController.transform.parent.SetAsFirstSibling();
+                m_LeftHandedToggle.transform.parent.SetAsFirstSibling();
                 m_PlayerHeightSettingsController.transform.SetAsFirstSibling();
                 m_AutomaticPlayerHeightToggle.transform.parent.SetAsFirstSibling();
-                m_SfxVolumeSettingsController.transform.parent.SetAsFirstSibling();
-                m_NoTextsAndHudsToggle.transform.parent.SetAsFirstSibling();
-                m_AdvanceHudToggle.transform.parent.SetAsFirstSibling();
-                if (m_OverrideLightsIntensityToggle != null && m_OverrideLightsIntensityToggle) m_OverrideLightsIntensityToggle.transform.SetAsFirstSibling();
                 m_EnvironmentEffectsFilterExpertPlusPresetDropdown.transform.parent.SetAsFirstSibling();
                 m_EnvironmentEffectsFilterDefaultPresetDropdown.transform.parent.SetAsFirstSibling();
+                if (m_OverrideLightsIntensityToggle != null && m_OverrideLightsIntensityToggle) m_OverrideLightsIntensityToggle.transform.SetAsFirstSibling();
+                m_AdvanceHudToggle.transform.parent.SetAsFirstSibling();
+                m_NoTextsAndHudsToggle.transform.parent.SetAsFirstSibling();
+                m_NoteJumpFixedDurationSettingsController.transform.SetAsFirstSibling();
                 m_NoteJumpStartBeatOffsetDropdown.transform.parent.SetAsFirstSibling();
+                m_NoteJumpDurationTypeSettingsDropdown.transform.SetAsFirstSibling();
             }
             else
             {
-                m_NoteJumpStartBeatOffsetDropdown.transform.parent.SetAsFirstSibling();
                 m_HideNoteSpawnEffectToggle.transform.parent.SetAsFirstSibling();
-                m_AdaptiveSfxToggle.transform.parent.SetAsFirstSibling();
                 m_ReduceDebrisToggle.transform.parent.SetAsFirstSibling();
                 m_AdvanceHudToggle.transform.parent.SetAsFirstSibling();
                 m_NoTextsAndHudsToggle.transform.parent.SetAsFirstSibling();
@@ -144,8 +155,14 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches
                 if (m_OverrideLightsIntensityToggle != null && m_OverrideLightsIntensityToggle) m_OverrideLightsIntensityToggle.transform.SetAsFirstSibling();
                 m_EnvironmentEffectsFilterExpertPlusPresetDropdown.transform.parent.SetAsFirstSibling();
                 m_EnvironmentEffectsFilterDefaultPresetDropdown.transform.parent.SetAsFirstSibling();
-                m_LeftHandedToggle.transform.parent.SetAsFirstSibling();
+
+                m_NoteJumpFixedDurationSettingsController.transform.SetAsFirstSibling();
+                m_NoteJumpStartBeatOffsetDropdown.transform.parent.SetAsFirstSibling();
+                m_NoteJumpDurationTypeSettingsDropdown.transform.SetAsFirstSibling();
+
+                m_AdaptiveSfxToggle.transform.parent.SetAsFirstSibling();
                 m_SfxVolumeSettingsController.transform.parent.SetAsFirstSibling();
+                m_LeftHandedToggle.transform.parent.SetAsFirstSibling();
                 m_PlayerHeightSettingsController.transform.SetAsFirstSibling();
                 m_AutomaticPlayerHeightToggle.transform.parent.SetAsFirstSibling();
             }
@@ -158,16 +175,16 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches
         {
             // todo fix bug
             return;
-            if (m_EnvironmentEffectsFilterDefaultPresetDropdown)
-            {
-                m_EnvironmentEffectsFilterDefaultPresetDropdown.didSelectCellWithIdxEvent -= OnLightSettingChanged;
-
-                if (p_Enabled)
-                    m_EnvironmentEffectsFilterDefaultPresetDropdown.didSelectCellWithIdxEvent += OnLightSettingChanged;
-            }
-
-            if (m_EnvironmentEffectsFilterExpertPlusPresetDropdown)
-                m_EnvironmentEffectsFilterExpertPlusPresetDropdown.transform.parent.gameObject.SetActive(!p_Enabled);
+            //if (m_EnvironmentEffectsFilterDefaultPresetDropdown)
+            //{
+            //    m_EnvironmentEffectsFilterDefaultPresetDropdown.didSelectCellWithIdxEvent -= OnLightSettingChanged;
+            //
+            //    if (p_Enabled)
+            //        m_EnvironmentEffectsFilterDefaultPresetDropdown.didSelectCellWithIdxEvent += OnLightSettingChanged;
+            //}
+            //
+            //if (m_EnvironmentEffectsFilterExpertPlusPresetDropdown)
+            //    m_EnvironmentEffectsFilterExpertPlusPresetDropdown.transform.parent.gameObject.SetActive(!p_Enabled);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -187,14 +204,14 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches
         /// <param name="p_CellIndex"></param>
         private static void OnLightSettingChanged(int p_CellIndex)
         {
-            if (!m_EnvironmentEffectsFilterExpertPlusPresetDropdown)
-                return;
-
-            m_EnvironmentEffectsFilterExpertPlusPresetDropdown.HandleSimpleTextDropdownDidSelectCellWithIdx(null, p_CellIndex);
-
-            if (m_EnvironmentEffectsFilterDefaultPresetDropdown)
-                m_EnvironmentEffectsFilterExpertPlusPresetDropdown.SelectCellWithLightReductionAmount
-                        (m_EnvironmentEffectsFilterDefaultPresetDropdown.GetLightsReductionAmount());
+            //if (!m_EnvironmentEffectsFilterExpertPlusPresetDropdown)
+            //    return;
+            //
+            //m_EnvironmentEffectsFilterExpertPlusPresetDropdown.HandleSimpleTextDropdownDidSelectCellWithIdx(null, p_CellIndex);
+            //
+            //if (m_EnvironmentEffectsFilterDefaultPresetDropdown)
+            //    m_EnvironmentEffectsFilterExpertPlusPresetDropdown.SelectCellWithLightReductionAmount
+            //            (m_EnvironmentEffectsFilterDefaultPresetDropdown.GetLightsReductionAmount());
         }
     }
 }

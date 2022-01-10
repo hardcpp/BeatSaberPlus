@@ -6,7 +6,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations
     /// <summary>
     /// ChatIntegrations instance
     /// </summary>
-    internal partial class ChatIntegrations
+    public partial class ChatIntegrations
     {
         /// <summary>
         /// On channel join

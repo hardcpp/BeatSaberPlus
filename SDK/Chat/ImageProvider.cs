@@ -110,9 +110,9 @@ namespace BeatSaberPlus.SDK.Chat
         /// <param name="p_URI">URI of the image</param>
         /// <param name="p_ID">ID of the image</param>
         /// <returns></returns>
-        public static void PrecacheAnimatedImage(string p_URI, string p_ID)
+        public static void PrecacheAnimatedImage(string p_URI, string p_ID, Animation.AnimationType p_Animation)
         {
-            TryCacheSingleImage(p_ID, p_URI, true, null);
+            TryCacheSingleImage(p_ID, p_URI, p_Animation, null);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -126,7 +126,7 @@ namespace BeatSaberPlus.SDK.Chat
         /// <param name="p_IsAnimated">Is and animation image</param>
         /// <param name="p_Finally">A callback that occurs after the resource is retrieved. This will always occur even if the resource is already cached.</param>
         /// <returns></returns>
-        public static void TryCacheSingleImage(string p_ID, string p_URI, bool p_IsAnimated, Action<Unity.EnhancedImage> p_Finally = null)
+        public static void TryCacheSingleImage(string p_ID, string p_URI, Animation.AnimationType p_Animation, Action<Unity.EnhancedImage> p_Finally = null)
         {
             if (m_CachedImageInfo.TryGetValue(p_ID, out var p_Info))
             {
@@ -150,9 +150,9 @@ namespace BeatSaberPlus.SDK.Chat
 
             Task.Run(() => LoadFromCacheOrDownload(p_URI, l_CacheID, (p_Bytes) =>
             {
-                if (p_IsAnimated)
+                if (p_Animation != Animation.AnimationType.NONE)
                 {
-                    SDK.Unity.EnhancedImage.FromRawAnimated(p_ID, SDK.Animation.AnimationType.GIF, p_Bytes, (p_Result) =>
+                    SDK.Unity.EnhancedImage.FromRawAnimated(p_ID, p_Animation, p_Bytes, (p_Result) =>
                     {
                         if (p_Result != null)
                             m_CachedImageInfo[p_ID] = p_Result;

@@ -47,18 +47,6 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Interfaces
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
-        /// Custom available conditions
-        /// </summary>
-        private static List<IConditionBase> CustomAvailableConditions = new List<IConditionBase>();
-        /// <summary>
-        /// Custom available actions
-        /// </summary>
-        private static List<IActionBase> CustomAvailableActions = new List<IActionBase>();
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        /// <summary>
         /// Handle
         /// </summary>
         /// <param name="p_Context">Event context</param>
@@ -126,22 +114,6 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Interfaces
         /// <param name="p_Serialized"></param>
         /// <param name="p_Error">Error output</param>
         public abstract bool Unserialize(JObject p_Serialized, out string p_Error);
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        /// <summary>
-        /// Register custom condition
-        /// </summary>
-        /// <typeparam name="T">Condition to register</typeparam>
-        public void RegisterCustomCondition<T>() where T : IConditionBase, new()
-            => CustomAvailableConditions.Add(new T());
-        /// <summary>
-        /// Register custom action
-        /// </summary>
-        /// <typeparam name="T">Action to register</typeparam>
-        public void RegisterCustomAction<T>() where T : IActionBase, new()
-            => CustomAvailableActions.Add(new T());
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -235,14 +207,6 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Interfaces
         /// Property changed event
         /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        protected List<IConditionBase> GetInstanciatedCustomConditionList()
-            => CustomAvailableConditions.Select(x => Activator.CreateInstance(x.GetType()) as IConditionBase).ToList();
-        protected List<IActionBase> GetInstanciatedCustomActionList()
-            => CustomAvailableConditions.Select(x => Activator.CreateInstance(x.GetType()) as IActionBase).ToList();
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -351,6 +315,18 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Interfaces
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
+        /// Custom available conditions
+        /// </summary>
+        private static List<IConditionBase> m_CustomAvailableConditions = new List<IConditionBase>();
+        /// <summary>
+        /// Custom available actions
+        /// </summary>
+        private static List<IActionBase> m_CustomAvailableActions = new List<IActionBase>();
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
         /// Get type name
         /// </summary>
         /// <returns></returns>
@@ -366,6 +342,34 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Interfaces
         {
             return typeof(T).Name;
         }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Register custom condition
+        /// </summary>
+        /// <typeparam name="T">Condition to register</typeparam>
+        public static void RegisterCustomCondition<TCondition>() where TCondition : IConditionBase, new()
+            => m_CustomAvailableConditions.Add(new TCondition());
+        /// <summary>
+        /// Register custom action
+        /// </summary>
+        /// <typeparam name="T">Action to register</typeparam>
+        public static void RegisterCustomAction<TAction>() where TAction : IActionBase, new()
+            => m_CustomAvailableActions.Add(new TAction());
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        protected List<IConditionBase> GetInstanciatedCustomConditionList()
+            => m_CustomAvailableConditions.Select(x => Activator.CreateInstance(x.GetType()) as IConditionBase).ToList();
+        protected List<IActionBase> GetInstanciatedCustomActionList()
+            => m_CustomAvailableActions.Select(x => Activator.CreateInstance(x.GetType()) as IActionBase).ToList();
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
         /// <summary>
         /// Serialize
         /// </summary>

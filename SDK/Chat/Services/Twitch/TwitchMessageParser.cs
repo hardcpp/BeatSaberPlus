@@ -4,6 +4,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -155,7 +156,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                                             Uri         = $"https://static-cdn.jtvnw.net/emoticons/v1/{l_EmoteParts[0]}/3.0",
                                             StartIndex  = l_StartIndex,
                                             EndIndex    = l_EndIndex,
-                                            IsAnimated  = false,
+                                            Animation   = Animation.AnimationType.NONE,
                                             Bits        = 0,
                                             Color       = ""
                                         });
@@ -193,7 +194,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                                                         Uri         = l_Tier.Uri,
                                                         StartIndex  = l_StartIndex,
                                                         EndIndex    = l_EndIndex,
-                                                        IsAnimated  = true,
+                                                        Animation   = Animation.AnimationType.GIF,
                                                         Bits        = l_NumBits,
                                                         Color       = l_Tier.Color
                                                     });
@@ -201,7 +202,9 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                                             }
                                             else if (m_TwitchDataProvider.TryGetThirdPartyEmote(l_LastWord, l_MessageChannelName, out var l_EmoteData))
                                             {
-                                                if (l_EmoteData.Type.StartsWith("BTTV") && SettingsConfig.Twitch.ParseBTTVEmotes || l_EmoteData.Type.StartsWith("FFZ") && SettingsConfig.Twitch.ParseFFZEmotes)
+                                                if (   l_EmoteData.Type.StartsWith("BTTV") && SettingsConfig.Twitch.ParseBTTVEmotes
+                                                    || l_EmoteData.Type.StartsWith("FFZ")  && SettingsConfig.Twitch.ParseFFZEmotes
+                                                    || l_EmoteData.Type.StartsWith("7TV")  && SettingsConfig.Twitch.Parse7TVEmotes)
                                                 {
                                                     l_MessageEmotes.Add(new TwitchEmote()
                                                     {
@@ -210,7 +213,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                                                         Uri         = l_EmoteData.Uri,
                                                         StartIndex  = l_StartIndex,
                                                         EndIndex    = l_EndIndex,
-                                                        IsAnimated  = l_EmoteData.IsAnimated,
+                                                        Animation   = l_EmoteData.Animation,
                                                         Bits        = 0,
                                                         Color       = ""
                                                     });
@@ -359,7 +362,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                                                 Uri             = l_ProfileImage,
                                                 StartIndex      = 0,
                                                 EndIndex        = l_EmoteId.Length + 1,
-                                                IsAnimated      = false,
+                                                Animation       = Animation.AnimationType.NONE,
                                                 Bits            = 0,
                                                 Color           = ""
                                             }

@@ -1,0 +1,13 @@
+﻿<vertical child-control-height='true'>
+  <horizontal bg='panel-top' pad-left='15' pad-right='15' horizontal-fit='PreferredSize'>
+    <text text='Tools' align='Center' font-size='4.2'/>
+  </horizontal>
+
+  <horizontal>
+    <button text='Export LIV to camera2' on-click='click-livtocamera2-btn-pressed' min-height='10' min-width='70'></button>
+  </horizontal>
+
+  <horizontal min-height='55'>
+  </horizontal>
+
+</vertical>

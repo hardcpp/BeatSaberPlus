@@ -57,7 +57,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
 
-            SDK.UI.SliderSetting.Setup(m_DelaySlider,           l_Event, SDK.UI.BSMLSettingFormartter.Time, Model.Delay,                    true, true, new Vector2(0.51f, 0.10f), new Vector2(0.93f, 0.90f));
+            SDK.UI.SliderSetting.Setup(m_DelaySlider,           l_Event, SDK.UI.BSMLSettingFormartter.Time, Model.Delay,                    true, true, new Vector2(0.08f, 0.10f), new Vector2(0.93f, 0.90f));
             SDK.UI.ToggleSetting.Setup(m_PreventFailureToggle,  l_Event,                                    Model.PreventNextActionFailure, false);
         }
         private void OnSettingChanged(object p_Value)

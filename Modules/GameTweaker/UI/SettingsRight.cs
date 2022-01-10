@@ -23,8 +23,6 @@ namespace BeatSaberPlus.Modules.GameTweaker.UI
 
         [UIComponent("disablebeatmapeditorbuttononmainmenu-toggle")]
         private ToggleSetting m_DisableBeatMapEditorButtonInMainMenu;
-        [UIComponent("removeanniversaryevent-toggle")]
-        private ToggleSetting m_RemoveAnniversaryEvent;
         [UIComponent("removenewcontentpromotional-toggle")]
         private ToggleSetting m_RemoveNewContentPromotional;
 
@@ -40,6 +38,8 @@ namespace BeatSaberPlus.Modules.GameTweaker.UI
         private ToggleSetting m_DeleteSongButton;
         [UIComponent("removesongbrowsertrashcan-toggle")]
         private ToggleSetting m_RemoveSongBrowserTrashcan;
+        [UIComponent("highlightplayedsong-toggle")]
+        private ToggleSetting m_HighlightPlayedSong;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -87,7 +87,6 @@ namespace BeatSaberPlus.Modules.GameTweaker.UI
 
             /// Main menu
             SDK.UI.ToggleSetting.Setup(m_DisableBeatMapEditorButtonInMainMenu,  l_Event, Config.GameTweaker.DisableBeatMapEditorButtonOnMainMenu,   true);
-            SDK.UI.ToggleSetting.Setup(m_RemoveAnniversaryEvent,                l_Event, Config.GameTweaker.RemoveAnniversaryEvent,                 true);
             SDK.UI.ToggleSetting.Setup(m_RemoveNewContentPromotional,           l_Event, Config.GameTweaker.RemoveNewContentPromotional,            true);
 
             /// Level selection
@@ -97,6 +96,7 @@ namespace BeatSaberPlus.Modules.GameTweaker.UI
             SDK.UI.ToggleSetting.Setup(m_MergeLightPressetOptions,              l_Event, Config.GameTweaker.MergeLightPressetOptions,               true);
             SDK.UI.ToggleSetting.Setup(m_DeleteSongButton,                      l_Event, Config.GameTweaker.DeleteSongButton,                       true);
             SDK.UI.ToggleSetting.Setup(m_RemoveSongBrowserTrashcan,             l_Event, Config.GameTweaker.DeleteSongBrowserTrashcan,              true);
+            SDK.UI.ToggleSetting.Setup(m_HighlightPlayedSong,                   l_Event, Config.GameTweaker.HighlightPlayedSong,                    true);
 
             ////////////////////////////////////////////////////////////////////////////
             /// Dev / Testing
@@ -144,7 +144,6 @@ namespace BeatSaberPlus.Modules.GameTweaker.UI
 
             /// Main menu
             Config.GameTweaker.DisableBeatMapEditorButtonOnMainMenu = m_DisableBeatMapEditorButtonInMainMenu.Value;
-            Config.GameTweaker.RemoveAnniversaryEvent               = m_RemoveAnniversaryEvent.Value;
             Config.GameTweaker.RemoveNewContentPromotional          = m_RemoveNewContentPromotional.Value;
 
             /// Level selection
@@ -154,6 +153,7 @@ namespace BeatSaberPlus.Modules.GameTweaker.UI
             Config.GameTweaker.MergeLightPressetOptions             = m_MergeLightPressetOptions.Value;
             Config.GameTweaker.DeleteSongButton                     = m_DeleteSongButton.Value;
             Config.GameTweaker.DeleteSongBrowserTrashcan            = m_RemoveSongBrowserTrashcan.Value;
+            Config.GameTweaker.HighlightPlayedSong                  = m_HighlightPlayedSong.Value;
 
             ////////////////////////////////////////////////////////////////////////////
             /// Dev / Testing
@@ -189,7 +189,6 @@ namespace BeatSaberPlus.Modules.GameTweaker.UI
 
             /// Main menu
             m_DisableBeatMapEditorButtonInMainMenu.Value    = Config.GameTweaker.DisableBeatMapEditorButtonOnMainMenu;
-            m_RemoveAnniversaryEvent.Value                  = Config.GameTweaker.RemoveAnniversaryEvent;
             m_RemoveNewContentPromotional.Value             = Config.GameTweaker.RemoveNewContentPromotional;
 
             /// Level selection
@@ -199,6 +198,7 @@ namespace BeatSaberPlus.Modules.GameTweaker.UI
             m_MergeLightPressetOptions.Value                = Config.GameTweaker.MergeLightPressetOptions;
             m_DeleteSongButton.Value                        = Config.GameTweaker.DeleteSongButton;
             m_RemoveSongBrowserTrashcan.Value               = Config.GameTweaker.DeleteSongBrowserTrashcan;
+            m_HighlightPlayedSong.Value                     = Config.GameTweaker.HighlightPlayedSong;
 
             ////////////////////////////////////////////////////////////////////////////
             /// Tools / Dev

@@ -71,7 +71,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                             Resources[l_ID] = new ChatResourceData()
                             {
                                 Uri         = l_URI,
-                                IsAnimated  = false,
+                                Animation   = Animation.AnimationType.NONE,
                                 Type        = l_IsGlobal ? "TwitchGlobalBadge" : "TwitchChannelBadge"
                             };
 

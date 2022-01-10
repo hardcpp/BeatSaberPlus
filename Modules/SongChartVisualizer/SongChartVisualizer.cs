@@ -165,10 +165,7 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer
                 l_Rotation = new Vector3(0f, 58f, 0f);
             }
 
-            m_ChartFloatingScreen = FloatingScreen.CreateFloatingScreen(new Vector2(105, 65), true, l_Position, Quaternion.identity, 0f, true);
-            m_ChartFloatingScreen.handle.transform.localScale    = new Vector2(105, 65);
-            m_ChartFloatingScreen.handle.transform.localPosition = Vector3.zero;
-            m_ChartFloatingScreen.handle.transform.localRotation = Quaternion.identity;
+            m_ChartFloatingScreen = FloatingScreen.CreateFloatingScreen(new Vector2(105, 65), false, l_Position, Quaternion.identity, 0f, true);
             m_ChartFloatingScreen.gameObject.AddComponent<Components.SongChart>();
 
             /// Set rotation
@@ -176,11 +173,6 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer
 
             /// Update background color
             m_ChartFloatingScreen.GetComponentInChildren<ImageView>().color = Config.SongChartVisualizer.BackgroundColor;
-
-            /// Update handle material
-            var l_ChartFloatingScreenHandleMaterial = GameObject.Instantiate(SDK.Unity.Material.UINoGlowMaterial);
-            l_ChartFloatingScreenHandleMaterial.color = Color.clear;
-            m_ChartFloatingScreen.handle.gameObject.GetComponent<Renderer>().material = l_ChartFloatingScreenHandleMaterial;
 
             /// Bind event
             m_ChartFloatingScreen.HandleReleased += OnFloatingWindowMoved;

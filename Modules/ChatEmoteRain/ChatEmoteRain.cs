@@ -10,9 +10,6 @@ using UnityEngine;
 
 namespace BeatSaberPlus.Modules.ChatEmoteRain
 {
-
-    using PrefabPair = ValueTuple<Dictionary<string, Components.TimeoutScript>, UnityEngine.GameObject>;
-
     /// <summary>
     /// Chat Emote Rain instance
     /// </summary>
@@ -22,6 +19,10 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain
         /// No emote SUBRAIN default ID
         /// </summary>
         private static string s_SUBRAIN_NO_EMOTE = "_BSPSubRain_$DEFAULT$_";
+        /// <summary>
+        /// Warm-up size per scene
+        /// </summary>
+        private static int POOL_SIZE_PER_SCENE = 50;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -45,7 +46,7 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain
         /// <summary>
         /// Is enabled
         /// </summary>
-        public override bool IsEnabled { get => Config.ChatEmoteRain.Enabled; set => Config.ChatEmoteRain.Enabled = value; }
+        public override bool IsEnabled { get => CERConfig.Instance.Enabled; set { CERConfig.Instance.Enabled = value; CERConfig.Instance.Save(); } }
         /// <summary>
         /// Activation kind
         /// </summary>
@@ -71,13 +72,36 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain
         /// </summary>
         private bool m_ChatCoreAcquired = false;
         /// <summary>
-        /// Asset bundle
+        /// Preview material asset bundle
         /// </summary>
-        private AssetBundle m_AssetBundle = null;
+        private AssetBundle m_PreviewMateralAssetBundle = null;
         /// <summary>
-        /// Particles systems
+        /// Preview material
         /// </summary>
-        private Dictionary<SDK.Game.Logic.SceneType, PrefabPair> m_ParticleSystems = new Dictionary<SDK.Game.Logic.SceneType, PrefabPair>();
+        private Material m_PreviewMaterial;
+        /// <summary>
+        /// Template particle system
+        /// </summary>
+        private GameObject m_TemplateParticleSystem = null;
+        /// <summary>
+        /// Template material for particles
+        /// </summary>
+        private Material m_TemplateMaterial = null;
+        /// <summary>
+        /// Templates per scene
+        /// </summary>
+        private Dictionary<SDK.Game.Logic.SceneType, Components.EmitterGroup> m_Templates
+            = new Dictionary<SDK.Game.Logic.SceneType, Components.EmitterGroup>();
+        /// <summary>
+        /// Active systems
+        /// </summary>
+        private List<(string, Components.EmitterGroup)> m_ActiveSystems
+            = new List<(string, Components.EmitterGroup)>();
+        /// <summary>
+        /// Available systems
+        /// </summary>
+        private Dictionary<SDK.Game.Logic.SceneType, Queue<Components.EmitterGroup>> m_ReadySystems
+            = new Dictionary<SDK.Game.Logic.SceneType, Queue<Components.EmitterGroup>>();
         /// <summary>
         /// Combo state Dictionary<EmoteID, Tuple<ComboCount, lastSeenTickCount>>
         /// </summary>
@@ -110,8 +134,10 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain
             if (!Directory.Exists("CustomSubRain"))
                 Directory.CreateDirectory("CustomSubRain");
 
-            /// Load assets
             LoadAssets();
+            CreateTemplate();
+            UpdateTemplateFor(SDK.Game.Logic.SceneType.Menu);
+            UpdateTemplateFor(SDK.Game.Logic.SceneType.Playing);
 
             /// Load SubRain files
             LoadSubRainFiles();
@@ -144,6 +170,7 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain
 
             /// Unload assets
             UnloadAssets();
+            DestroyTemplate();
 
             /// Unload SubRain emotes
             m_SubRainTextures.Clear();
@@ -189,12 +216,24 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain
                 m_TempDisable = false;
             }
 
-            foreach (var l_KVP in m_ParticleSystems)
+            for (int l_I = 0; l_I < m_ActiveSystems.Count; ++l_I)
             {
-                if (l_KVP.Key == p_Scene)
+                var l_CurrentSystem = m_ActiveSystems[l_I].Item2;
+                if (l_CurrentSystem.Scene == p_Scene)
                     continue;
 
-                l_KVP.Value.Item1.Clear();
+                l_CurrentSystem.Stop();
+                l_CurrentSystem.gameObject.SetActive(false);
+
+                m_ActiveSystems.RemoveAt(l_I);
+                l_I--;
+
+                if (m_ReadySystems[l_CurrentSystem.Scene].Count < POOL_SIZE_PER_SCENE)
+                    m_ReadySystems[l_CurrentSystem.Scene].Enqueue(l_CurrentSystem);
+                else
+                    GameObject.Destroy(l_CurrentSystem);
+
+                continue;
             }
         }
 
@@ -206,32 +245,227 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain
         /// </summary>
         internal void OnSettingsChanged()
         {
-            foreach (var l_KVP in m_ParticleSystems)
+            for (int l_I = 0; l_I < m_ActiveSystems.Count; ++l_I)
+                m_ActiveSystems[l_I].Item2.UpdateEmitters();
+
+            foreach (var l_KVP in m_ReadySystems)
             {
-                if (l_KVP.Key != SDK.Game.Logic.ActiveScene)
-                    continue;
+                foreach (var l_Group in l_KVP.Value)
+                    l_Group.UpdateEmitters();
+            }
 
-                foreach (var l_System in l_KVP.Value.Item1.Values)
+            foreach (var l_KVP in m_Templates)
+            {
+                l_KVP.Value.UpdateEmitters();
+            }
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Create template
+        /// </summary>
+        private void CreateTemplate()
+        {
+            m_TemplateMaterial = new Material(Shader.Find("Particles/Standard Unlit"));
+            m_TemplateMaterial.EnableKeyword("ETC1_EXTERNAL_ALPHA");
+            m_TemplateMaterial.EnableKeyword("_ALPHABLEND_ON");
+            m_TemplateMaterial.EnableKeyword("_GLOSSYREFLECTIONS_OFF");
+            m_TemplateMaterial.EnableKeyword("_SPECULARHIGHLIGHTS_OFF");
+            m_TemplateMaterial.SetOverrideTag("RenderType", "Transparent");
+            m_TemplateMaterial.renderQueue = 3000;
+            m_TemplateMaterial.SetFloat("_BlendOp",                         0f);
+            m_TemplateMaterial.SetFloat("_BumpScale",                       1f);
+            m_TemplateMaterial.SetFloat("_CameraFadingEnabled",             0f);
+            m_TemplateMaterial.SetFloat("_CameraFarFadeDistance",           2f);
+            m_TemplateMaterial.SetFloat("_CameraNearFadeDistance",          1f);
+            m_TemplateMaterial.SetFloat("_ColorMode",                       0f);
+            m_TemplateMaterial.SetFloat("_Cull",                            2f);
+            m_TemplateMaterial.SetFloat("_Cutoff",                        0.5f);
+            m_TemplateMaterial.SetFloat("_DetailNormalMapScale",            1f);
+            m_TemplateMaterial.SetFloat("_DistortionBlend",               0.5f);
+            m_TemplateMaterial.SetFloat("_DistortionEnabled",               0f);
+            m_TemplateMaterial.SetFloat("_DistortionStrength",              1f);
+            m_TemplateMaterial.SetFloat("_DistortionStrengthScaled",        0f);
+            m_TemplateMaterial.SetFloat("_DstBlend",                       10f);
+            m_TemplateMaterial.SetFloat("_EmissionEnabled",                 0f);
+            m_TemplateMaterial.SetFloat("_EnableExternalAlpha",             0f);
+            m_TemplateMaterial.SetFloat("_FlipbookMode",                    0f);
+            m_TemplateMaterial.SetFloat("_GlossMapScale",                   1f);
+            m_TemplateMaterial.SetFloat("_Glossiness",                      1f);
+            m_TemplateMaterial.SetFloat("_GlossyReflections",               0f);
+            m_TemplateMaterial.SetFloat("_InvFade",                      1.15f);
+            m_TemplateMaterial.SetFloat("_LightingEnabled",                 0f);
+            m_TemplateMaterial.SetFloat("_Metallic",                        0f);
+            m_TemplateMaterial.SetFloat("_Mode",                            2f);
+            m_TemplateMaterial.SetFloat("_OcclusionStrength",               1f);
+            m_TemplateMaterial.SetFloat("_Parallax",                     0.02f);
+            m_TemplateMaterial.SetFloat("_SmoothnessTextureChannel",        0f);
+            m_TemplateMaterial.SetFloat("_SoftParticlesEnabled",            0f);
+            m_TemplateMaterial.SetFloat("_SoftParticlesFarFadeDistance",    1f);
+            m_TemplateMaterial.SetFloat("_SoftParticlesNearFadeDistance",   0f);
+            m_TemplateMaterial.SetFloat("_SrcBlend",                        5f);
+            m_TemplateMaterial.SetFloat("_UVSec",                           0f);
+            m_TemplateMaterial.SetFloat("_ZWrite",                          0f);
+            m_TemplateMaterial.enableInstancing = true;
+
+            m_TemplateMaterial.mainTexture = SDK.Unity.Texture2D.CreateFromRaw(
+                Utilities.GetResource(Assembly.GetExecutingAssembly(), "BeatSaberPlus.Modules.ChatEmoteRain.Resources.DefaultEmote.png")
+            );
+
+            m_TemplateParticleSystem = new GameObject("BSP_ChatEmoteRain_Template");
+            GameObject.DontDestroyOnLoad(m_TemplateParticleSystem);
+
+            var l_PS    = m_TemplateParticleSystem.AddComponent<ParticleSystem>();
+            var l_PSR   = m_TemplateParticleSystem.GetComponent<ParticleSystemRenderer>();
+
+            var l_Main = l_PS.main;
+            l_Main.duration             = 1.0f;
+            l_Main.loop                 = true;
+            l_Main.startDelay           = 0;
+            l_Main.startLifetime        = 5;
+            l_Main.startSpeed           = 3;
+            l_Main.startSize            = 0.4f;
+            l_Main.startColor           = Color.white;
+            l_Main.gravityModifier      = 0f;
+            l_Main.simulationSpace      = ParticleSystemSimulationSpace.World;
+            l_Main.playOnAwake          = false;
+            l_Main.emitterVelocityMode  = ParticleSystemEmitterVelocityMode.Transform;
+            l_Main.maxParticles         = 200;
+            l_Main.prewarm              = true;
+
+            var l_Emission = l_PS.emission;
+            l_Emission.enabled          = false;
+            l_Emission.rateOverTime     = 1;
+            l_Emission.rateOverDistance = 0;
+            l_Emission.burstCount       = 1;
+            l_Emission.SetBurst(0, new ParticleSystem.Burst()
+            {
+                time            = 0,
+                count           = 1,
+                cycleCount      = 1,
+                repeatInterval  = 0.010f,
+                probability     = 1f
+            });
+
+            var l_Shape = l_PS.shape;
+            l_Shape.shapeType       = ParticleSystemShapeType.Box;
+            l_Shape.position        = Vector3.zero;
+            l_Shape.rotation        = new Vector3(90f, 0f, 0f);
+            l_Shape.scale           = new Vector3(10f, 1.5f, 2f);
+            l_Shape.angle           = 25f;
+            l_Shape.length          = 5;
+            l_Shape.boxThickness    = Vector3.zero;
+            l_Shape.radiusThickness = 1f;
+
+            var l_UVModule = l_PS.textureSheetAnimation;
+            l_UVModule.enabled = false;
+
+            var l_ColorOT = l_PS.colorOverLifetime;
+            l_ColorOT.enabled = true;
+            l_ColorOT.color = new ParticleSystem.MinMaxGradient(new Gradient()
+            {
+                alphaKeys = new GradientAlphaKey[]
                 {
-                    if (l_System == null || !l_System)
-                        continue;
+                    new GradientAlphaKey() { time = 0.00f, alpha = 0f},
+                    new GradientAlphaKey() { time = 0.05f, alpha = 1f},
+                    new GradientAlphaKey() { time = 0.75f, alpha = 1f},
+                    new GradientAlphaKey() { time = 1.00f, alpha = 0f}
+                },
+                colorKeys = new GradientColorKey[]
+                {
+                    new GradientColorKey() { time = 0.00f, color = Color.white },
+                    new GradientColorKey() { time = 1.00f, color = Color.white }
+                }
+            });
 
-                    var l_ParticleSystem = l_System.PS.main;
+            var l_TextureSheetAnimation = l_PS.textureSheetAnimation;
+            l_TextureSheetAnimation.enabled     = false;
+            l_TextureSheetAnimation.mode        = ParticleSystemAnimationMode.Sprites;
+            l_TextureSheetAnimation.timeMode    = ParticleSystemAnimationTimeMode.Lifetime;
 
-                    if (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Menu)
-                    {
-                        l_ParticleSystem.startSize      = Config.ChatEmoteRain.MenuRainSize;
-                        l_ParticleSystem.startSpeed     = Config.ChatEmoteRain.MenuFallSpeed;
-                        l_ParticleSystem.startLifetime  = (8 / (Config.ChatEmoteRain.MenuFallSpeed - 1)) + 1;
-                    }
-                    if (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Playing)
-                    {
-                        l_ParticleSystem.startSize      = Config.ChatEmoteRain.SongRainSize;
-                        l_ParticleSystem.startSpeed     = Config.ChatEmoteRain.SongFallSpeed;
-                        l_ParticleSystem.startLifetime  = (8 / (Config.ChatEmoteRain.SongFallSpeed - 1)) + 1;
-                    }
+            l_PSR.renderMode = ParticleSystemRenderMode.VerticalBillboard;
+            l_PSR.normalDirection   = 1f;
+            l_PSR.material          = m_TemplateMaterial;
+            l_PSR.minParticleSize   = 0.0f;
+            l_PSR.maxParticleSize   = 0.5f;
+            l_PSR.receiveShadows    = false;
+            l_PSR.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        }
+        /// <summary>
+        /// Destroy template
+        /// </summary>
+        private void DestroyTemplate()
+        {
+            if (m_TemplateParticleSystem != null)
+                GameObject.Destroy(m_TemplateParticleSystem);
+
+            m_TemplateMaterial = null;
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Update templates from config
+        /// </summary>
+        /// <param name="p_Scene"></param>
+        internal void UpdateTemplateFor(SDK.Game.Logic.SceneType p_Scene)
+        {
+            if (!m_Templates.TryGetValue(p_Scene, out var l_Group))
+            {
+                l_Group = new GameObject("BSP_ChatEmoteRain_Group" + p_Scene.ToString()).AddComponent<Components.EmitterGroup>();
+                m_Templates.Add(p_Scene, l_Group);
+            }
+
+            var l_Configs = p_Scene == SDK.Game.Logic.SceneType.Menu
+                ?
+                    CERConfig.Instance.MenuEmitters.Where(x => x.Enabled).ToList()
+                :
+                    CERConfig.Instance.SongEmitters.Where(x => x.Enabled).ToList()
+                ;
+
+            l_Group.Scene = p_Scene;
+            l_Group.Setup(l_Configs, m_TemplateParticleSystem);
+            l_Group.SetupMaterial(m_TemplateMaterial, m_TemplateMaterial.mainTexture, m_PreviewMaterial);
+
+            if (!m_ReadySystems.ContainsKey(p_Scene))
+                m_ReadySystems.Add(p_Scene, new Queue<Components.EmitterGroup>());
+
+            if (m_ReadySystems[p_Scene].Count == 0)
+            {
+                for (int l_I = 0; l_I < POOL_SIZE_PER_SCENE; ++l_I)
+                {
+                    var l_Instance = new GameObject("BSP_ChatEmoteRain_Group" + p_Scene.ToString()).AddComponent<Components.EmitterGroup>();
+                    l_Instance.Scene = p_Scene;
+                    l_Instance.Setup(l_Configs, m_TemplateParticleSystem);
+                    l_Instance.SetupMaterial(m_TemplateMaterial, m_TemplateMaterial.mainTexture, m_PreviewMaterial);
+                    l_Instance.gameObject.SetActive(false);
+
+                    m_ReadySystems[p_Scene].Enqueue(l_Instance);
                 }
             }
+            else
+            {
+                foreach (var l_Current in m_ReadySystems[p_Scene])
+                    l_Current.Setup(l_Configs, m_TemplateParticleSystem);
+            }
+
+            foreach (var l_Current in m_ActiveSystems)
+            {
+                if (l_Current.Item2.Scene != p_Scene)
+                    continue;
+
+                l_Current.Item2.Setup(l_Configs, m_TemplateParticleSystem);
+            }
+        }
+        internal void SetTemplatesPreview(SDK.Game.Logic.SceneType p_Scene, bool p_Enabled, CERConfig._Emitter p_Focus)
+        {
+            if (!m_Templates.TryGetValue(p_Scene, out var l_Group))
+                return;
+
+            l_Group.SetPreview(p_Enabled, p_Focus);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -242,11 +476,18 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain
         /// </summary>
         private void LoadAssets()
         {
+            m_PreviewMateralAssetBundle = AssetBundle.LoadFromStream(
+                Assembly.GetExecutingAssembly().GetManifestResourceStream("BeatSaberPlus.Modules.ChatEmoteRain.Resources.PreviewMaterial.bundle"));
+
+            m_PreviewMaterial = m_PreviewMateralAssetBundle.LoadAsset<Material>("PreviewMaterial");
+
+            /*
             m_AssetBundle = AssetBundle.LoadFromStream(Assembly.GetExecutingAssembly().GetManifestResourceStream("BeatSaberPlus.Modules.ChatEmoteRain.Resources.ChatEmoteRain.bundle"));
 
+            var l_Prefab1 = m_AssetBundle.LoadAsset<GameObject>("ERParticleSystemMenu Variant");
             m_ParticleSystems.Add(SDK.Game.Logic.SceneType.Menu, new PrefabPair(
                 new Dictionary<string, Components.TimeoutScript>(),
-                m_AssetBundle.LoadAsset<GameObject>("ERParticleSystemMenu Variant")
+                l_Prefab1
             ));
             Logger.Instance.Debug("Prefab at: " + (m_ParticleSystems[SDK.Game.Logic.SceneType.Menu].Item2 ? m_ParticleSystems[SDK.Game.Logic.SceneType.Menu].Item2.name : "null"));
 
@@ -255,19 +496,28 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain
                 m_AssetBundle.LoadAsset<GameObject>("ERParticleSystemPlaySpace Variant")
             ));
             Logger.Instance.Debug("Prefab at: " + (m_ParticleSystems[SDK.Game.Logic.SceneType.Playing].Item2 ? m_ParticleSystems[SDK.Game.Logic.SceneType.Playing].Item2.name : "null"));
+            */
+
+
+            /*
+            var ee = new GameObject().AddComponent<Components.EmitterInstance>();
+            GameObject.DontDestroyOnLoad(ee.gameObject);
+            ee.transform.position = 5f * Vector3.up;
+            ee.GetComponent<ParticleSystemRenderer>().material =
+                l_Prefab1.GetComponent<ParticleSystemRenderer>().material;
+            ee.SetPreview(true, Color.red, true);*/
+
         }
         /// <summary>
         /// Unload assets
         /// </summary>
         private void UnloadAssets()
         {
-            if (m_AssetBundle == null)
-                return;
-
-            m_ParticleSystems.Clear();
-
-            m_AssetBundle.Unload(true);
-            m_AssetBundle = null;
+            if (m_PreviewMateralAssetBundle != null)
+            {
+                m_PreviewMateralAssetBundle.Unload(true);
+                m_PreviewMateralAssetBundle = null;
+            }
         }
         /// <summary>
         /// Load SubRain emotes
@@ -353,13 +603,13 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain
         /// </summary>
         internal void StartSubRain()
         {
-            if (!Config.ChatEmoteRain.SubRain)
+            if (!CERConfig.Instance.SubRain)
                 return;
 
-            if (   (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Menu    && Config.ChatEmoteRain.MenuRain)
-                || (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Playing && Config.ChatEmoteRain.SongRain))
+            if (   (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Menu    && CERConfig.Instance.EnableMenu)
+                || (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Playing && CERConfig.Instance.EnableSong))
             {
-                var l_EmitCount = (uint)Config.ChatEmoteRain.SubRainEmoteCount;
+                var l_EmitCount = (uint)CERConfig.Instance.SubRainEmoteCount;
                 if (m_SubRainTextures.Count == 0)
                     SharedCoroutineStarter.instance.StartCoroutine(StartParticleSystem(s_SUBRAIN_NO_EMOTE, null, l_EmitCount));
                 else
@@ -374,10 +624,41 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain
         /// </summary>
         /// <param name="p_EmoteID">Emote ID</param>
         /// <param name="p_Mode">Game mode</param>
-        internal void UnregisterParticleSystem(string p_EmoteID, SDK.Game.Logic.SceneType p_Mode)
+        internal void UnregisterGroup(Components.EmitterGroup p_Group)
         {
-            GameObject.Destroy(m_ParticleSystems[p_Mode].Item1[p_EmoteID].gameObject);
-            m_ParticleSystems[p_Mode].Item1.Remove(p_EmoteID);
+#if DEBUG
+            Logger.Instance.Debug("[ChatEmoteRain] UnregisterGroup group " + p_Group.GetHashCode());
+#endif
+
+            p_Group.Stop();
+            p_Group.gameObject.SetActive(false);
+
+            for (int l_I = 0; l_I < m_ActiveSystems.Count; ++l_I)
+            {
+                var l_CurrentSystem = m_ActiveSystems[l_I].Item2;
+                if (l_CurrentSystem != p_Group)
+                    continue;
+
+                m_ActiveSystems.RemoveAt(l_I);
+                l_I--;
+
+                if (m_ReadySystems[l_CurrentSystem.Scene].Count < POOL_SIZE_PER_SCENE)
+                {
+                    m_ReadySystems[l_CurrentSystem.Scene].Enqueue(l_CurrentSystem);
+#if DEBUG
+                    Logger.Instance.Debug("[ChatEmoteRain] Queuing back group " + p_Group.GetHashCode());
+#endif
+                }
+                else
+                {
+                    GameObject.Destroy(l_CurrentSystem.gameObject);
+#if DEBUG
+                    Logger.Instance.Debug("[ChatEmoteRain] Destroying overflow group " + p_Group.GetHashCode());
+#endif
+                }
+
+                continue;
+            }
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -435,14 +716,13 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain
             if (m_TempDisable)
                 return;
 
-            if (p_Message.IsSystemMessage && Config.ChatEmoteRain.SubRain
+            if (p_Message.IsSystemMessage && CERConfig.Instance.SubRain
                 && (p_Message.Message.StartsWith("⭐") || p_Message.Message.StartsWith("👑")))
             {
-                //Logger.Instance.Debug($"Received System Message: {p_Message.Message}; Should be Sub.");
                 SDK.Unity.MainThreadInvoker.Enqueue(() => StartSubRain());
             }
 
-            IChatEmote[] l_Emotes = Config.ChatEmoteRain.ComboMode ? FilterEmotesForCombo(p_Message) : p_Message.Emotes;
+            IChatEmote[] l_Emotes = CERConfig.Instance.ComboMode ? FilterEmotesForCombo(p_Message) : p_Message.Emotes;
             if (l_Emotes.Length > 0)
             {
                 SDK.Unity.MainThreadInvoker.Enqueue(() =>
@@ -466,8 +746,8 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain
         /// <returns></returns>
         private void EnqueueEmote(IChatEmote p_Emote, uint p_Count)
         {
-            if (   (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Menu    && Config.ChatEmoteRain.MenuRain)
-                || (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Playing && Config.ChatEmoteRain.SongRain))
+            if (   (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Menu    && CERConfig.Instance.EnableMenu)
+                || (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Playing && CERConfig.Instance.EnableSong))
             {
                 SharedCoroutineStarter.instance.StartCoroutine(StartParticleSystem(p_Emote.Id, null, p_Count));
             }
@@ -480,115 +760,149 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain
         /// <returns></returns>
         public IEnumerator StartParticleSystem(string p_EmoteID, SDK.Unity.EnhancedImage p_Raw, uint p_Count)
         {
-            PrefabPair l_PrefabPair = m_ParticleSystems[SDK.Game.Logic.ActiveScene];
+            SDK.Unity.EnhancedImage l_EnhancedImageInfo = p_Raw;
 
-            if (!l_PrefabPair.Item1.ContainsKey(p_EmoteID) || !l_PrefabPair.Item1[p_EmoteID])
+            if (p_Raw == null)
+                yield return new WaitUntil(() => SDK.Chat.ImageProvider.CachedImageInfo.TryGetValue(p_EmoteID, out l_EnhancedImageInfo) && SDK.Game.Logic.ActiveScene != SDK.Game.Logic.SceneType.None);
+
+            /// If not enhanced info, we skip
+            if (l_EnhancedImageInfo == null && p_EmoteID != s_SUBRAIN_NO_EMOTE)
+                yield break;
+
+            var l_ActiveScene   = SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Menu ? SDK.Game.Logic.SceneType.Menu : SDK.Game.Logic.SceneType.Playing;
+            var l_EmitterGroup  = m_ActiveSystems.Where(x => x.Item2.Scene == l_ActiveScene && x.Item1 == p_EmoteID).Select(x => x.Item2).FirstOrDefault();
+
+            if (l_EmitterGroup == null || !l_EmitterGroup)
             {
-                SDK.Unity.EnhancedImage l_EnhancedImageInfo = p_Raw;
-
-                if (p_Raw == null)
-                    yield return new WaitUntil(() => SDK.Chat.ImageProvider.CachedImageInfo.TryGetValue(p_EmoteID, out l_EnhancedImageInfo) && SDK.Game.Logic.ActiveScene != SDK.Game.Logic.SceneType.None);
-
-                /// If not enhanced info, we skip
-                if (l_EnhancedImageInfo == null && p_EmoteID != s_SUBRAIN_NO_EMOTE)
-                    yield break;
-
-                var l_TimeoutScript     = GameObject.Instantiate(l_PrefabPair.Item2).GetComponent<Components.TimeoutScript>();
-                l_TimeoutScript.key     = p_EmoteID;
-                l_TimeoutScript.mode    = SDK.Game.Logic.ActiveScene;
-
-                var l_ParticleSystem = l_TimeoutScript.PS.main;
-
-                if (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Menu)
+                if (m_ReadySystems[l_ActiveScene].Count > 0)
                 {
-                    l_ParticleSystem.startSize      = Config.ChatEmoteRain.MenuRainSize;
-                    l_ParticleSystem.startSpeed     = Config.ChatEmoteRain.MenuFallSpeed;
-                    l_ParticleSystem.startLifetime  = (8 / (Config.ChatEmoteRain.MenuFallSpeed - 1)) + 1;
+                    l_EmitterGroup = m_ReadySystems[l_ActiveScene].Dequeue();
+                    l_EmitterGroup.gameObject.SetActive(true);
 
+                    /// Reset animated images animator
+                    for (int l_EmitterI = 0; l_EmitterI < l_EmitterGroup.Emitters.Length; ++l_EmitterI)
+                    {
+                        var l_Current = l_EmitterGroup.Emitters[l_EmitterI];
+                        var l_TextureSheetAnimation = l_Current.PS.textureSheetAnimation;
+                        l_TextureSheetAnimation.enabled = false;
+                    }
+
+                    m_ActiveSystems.Add((p_EmoteID, l_EmitterGroup));
+
+                    Components.EmitterGroupManager.instance.Register(l_EmitterGroup);
                 }
-                if (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Playing)
-                {
-                    l_ParticleSystem.startSize      = Config.ChatEmoteRain.SongRainSize;
-                    l_ParticleSystem.startSpeed     = Config.ChatEmoteRain.SongFallSpeed;
-                    l_ParticleSystem.startLifetime  = (8 / (Config.ChatEmoteRain.SongFallSpeed - 1)) + 1;
-                }
-
-                l_ParticleSystem.simulationSpace    = ParticleSystemSimulationSpace.World;
-
-                if (!l_PrefabPair.Item1.ContainsKey(p_EmoteID))
-                    l_PrefabPair.Item1.Add(p_EmoteID, l_TimeoutScript);
                 else
-                    l_PrefabPair.Item1[p_EmoteID] = l_TimeoutScript;
+                {
+                    var l_Configs = l_ActiveScene == SDK.Game.Logic.SceneType.Menu
+                        ?
+                            CERConfig.Instance.MenuEmitters.Where(x => x.Enabled).ToList()
+                        :
+                            CERConfig.Instance.SongEmitters.Where(x => x.Enabled).ToList()
+                        ;
+
+                    l_EmitterGroup = new GameObject("BSP_ChatEmoteRain_Group" + l_ActiveScene.ToString()).AddComponent<Components.EmitterGroup>();
+                    l_EmitterGroup.Scene = l_ActiveScene;
+                    l_EmitterGroup.Setup(l_Configs, m_TemplateParticleSystem);
+                    l_EmitterGroup.SetupMaterial(m_TemplateMaterial, m_TemplateMaterial.mainTexture, m_PreviewMaterial);
+
+                    m_ActiveSystems.Add((p_EmoteID, l_EmitterGroup));
+
+                    Components.EmitterGroupManager.instance.Register(l_EmitterGroup);
+#if DEBUG
+                    Logger.Instance.Debug("[ChatEmoteRain] Allocating overgrown group " + l_EmitterGroup.GetHashCode());
+#endif
+                }
 
                 float l_AspectRatio = (float)l_EnhancedImageInfo.Width / (float)l_EnhancedImageInfo.Height;
-
-                /// Wide emote support
-                if (Mathf.Abs(1f - l_AspectRatio) > 0.1f)
-                {
-                    var l_StartSize3D = new Vector3(
-                            l_ParticleSystem.startSize.constant * l_AspectRatio,
-                            l_ParticleSystem.startSize.constant,
-                            l_ParticleSystem.startSize.constant
-                        );
-                    l_ParticleSystem.startSize3D = true;
-                    l_ParticleSystem.startSizeXMultiplier = l_StartSize3D.x;
-                    l_ParticleSystem.startSizeYMultiplier = l_StartSize3D.y;
-                    l_ParticleSystem.startSizeZMultiplier = l_StartSize3D.z;
-                }
 
                 /// Sorta working animated emotes
                 if (p_EmoteID != s_SUBRAIN_NO_EMOTE && l_EnhancedImageInfo.AnimControllerData != null)
                 {
-                    var l_TextureSheetAnimation = l_TimeoutScript.PS.textureSheetAnimation;
-                    l_TextureSheetAnimation.enabled     = true;
-                    l_TextureSheetAnimation.mode        = ParticleSystemAnimationMode.Sprites;
-                    l_TextureSheetAnimation.timeMode    = ParticleSystemAnimationTimeMode.Lifetime;
-
-                    int     l_SpriteCount   = l_EnhancedImageInfo.AnimControllerData.sprites.Length;
-                    float   l_TimeForEmote  = 0;
-                    for (int l_I = 0; l_I < l_SpriteCount; ++l_I)
+                    for (int l_EmitterI = 0; l_EmitterI < l_EmitterGroup.Emitters.Length; ++l_EmitterI)
                     {
-                        l_TextureSheetAnimation.AddSprite(l_EnhancedImageInfo.AnimControllerData.sprites[l_I]);
-                        l_TimeForEmote += l_EnhancedImageInfo.AnimControllerData.delays[l_I];
+                        var l_Current = l_EmitterGroup.Emitters[l_EmitterI];
+
+                        var l_TextureSheetAnimation         = l_Current.PS.textureSheetAnimation;
+                        l_TextureSheetAnimation.enabled     = true;
+
+                        int     l_SpriteCount   = l_EnhancedImageInfo.AnimControllerData.sprites.Length;
+                        float   l_TimeForEmote  = 0;
+                        for (int l_I = 0; l_I < l_SpriteCount; ++l_I)
+                        {
+                            l_TextureSheetAnimation.AddSprite(l_EnhancedImageInfo.AnimControllerData.sprites[l_I]);
+                            l_TimeForEmote += l_EnhancedImageInfo.AnimControllerData.delays[l_I];
+                        }
+
+                        AnimationCurve l_AnimationCurve = new AnimationCurve();
+
+                        float l_TimeAccumulator         = 0f;
+                        float l_SingleFramePercentage   = 1.0f / l_SpriteCount;
+                        float l_TimeMult                = 1000f / l_TimeForEmote;
+
+                        for (int l_FrameI = 0; l_FrameI < l_SpriteCount; ++l_FrameI)
+                        {
+                            l_AnimationCurve.AddKey(l_TimeAccumulator / l_TimeForEmote, ((float)l_FrameI) * l_SingleFramePercentage);
+                            l_TimeAccumulator += l_EnhancedImageInfo.AnimControllerData.delays[l_FrameI];
+                        }
+
+                        l_AnimationCurve.AddKey(1f, 1f);
+
+                        int l_CycleCount = (int)(((l_EmitterGroup.TimeOut * 1.5f) * 1000f) / l_TimeForEmote);
+
+                        l_TextureSheetAnimation.cycleCount      = l_CycleCount;
+                        l_TextureSheetAnimation.frameOverTime   = new ParticleSystem.MinMaxCurve(l_TimeForEmote > 1000f ? 1f : 1f / (l_TimeForEmote / 1000f), l_AnimationCurve);
+
+                        var l_PSMain = l_Current.PS.main;
+                        l_PSMain.startLifetime = (l_CycleCount * l_TimeForEmote) / 1000f;
+
+                        /// Wide emote support
+                        if (Mathf.Abs(1f - l_AspectRatio) > 0.1f)
+                        {
+                            var l_StartSize3D = new Vector3(
+                                    l_PSMain.startSize.constant * l_AspectRatio,
+                                    l_PSMain.startSize.constant,
+                                    l_PSMain.startSize.constant
+                                );
+                            l_PSMain.startSize3D = true;
+                            l_PSMain.startSizeXMultiplier = l_StartSize3D.x;
+                            l_PSMain.startSizeYMultiplier = l_StartSize3D.y;
+                            l_PSMain.startSizeZMultiplier = l_StartSize3D.z;
+                        }
+                    }
+                }
+                else
+                {
+                    for (int l_EmitterI = 0; l_EmitterI < l_EmitterGroup.Emitters.Length; ++l_EmitterI)
+                    {
+                        var l_Current = l_EmitterGroup.Emitters[l_EmitterI];
+
+                        var l_TextureSheetAnimation = l_Current.PS.textureSheetAnimation;
+                        l_TextureSheetAnimation.enabled = false;
+
+                        var l_PSMain = l_Current.PS.main;
+
+                        /// Wide emote support
+                        if (Mathf.Abs(1f - l_AspectRatio) > 0.1f)
+                        {
+                            var l_StartSize3D = new Vector3(
+                                    l_PSMain.startSize.constant * l_AspectRatio,
+                                    l_PSMain.startSize.constant,
+                                    l_PSMain.startSize.constant
+                                );
+                            l_PSMain.startSize3D = true;
+                            l_PSMain.startSizeXMultiplier = l_StartSize3D.x;
+                            l_PSMain.startSizeYMultiplier = l_StartSize3D.y;
+                            l_PSMain.startSizeZMultiplier = l_StartSize3D.z;
+                        }
                     }
 
-                    AnimationCurve l_AnimationCurve = new AnimationCurve();
-
-                    float l_TimeAccumulator         = 0f;
-                    float l_SingleFramePercentage   = 1.0f / l_SpriteCount;
-                    float l_TimeMult                = 1000f / l_TimeForEmote;
-
-                    for (int l_FrameI = 0; l_FrameI < l_SpriteCount; ++l_FrameI)
-                    {
-                        l_AnimationCurve.AddKey(l_TimeAccumulator / l_TimeForEmote, ((float)l_FrameI) * l_SingleFramePercentage);
-                        l_TimeAccumulator += l_EnhancedImageInfo.AnimControllerData.delays[l_FrameI];
-                    }
-
-                    l_AnimationCurve.AddKey(1f, 1f);
-
-                    ///Logger.Instance.Error(p_EmoteID);
-                    ///foreach (var l_Key in l_AnimationCurve.keys)
-                    ///    Logger.Instance.Error("( " + l_Key.time + ", " + l_Key.value + ")");
-
-                    int l_CycleCount = (int)(((l_TimeoutScript.TimeLimit * 1.5f) * 1000f) / l_TimeForEmote);
-                    l_ParticleSystem.startLifetime = (l_CycleCount * l_TimeForEmote) / 1000f;
-                    l_TextureSheetAnimation.cycleCount = l_CycleCount;
-
-                    l_TextureSheetAnimation.frameOverTime = new ParticleSystem.MinMaxCurve(l_TimeForEmote > 1000f ? 1f : 1f / (l_TimeForEmote / 1000f), l_AnimationCurve);
-
-                    ///Logger.Instance.Error("startLifetime " + l_TimeoutScript.PS.main.startLifetime.constant);
-                    ///Logger.Instance.Error("l_TimeForEmote " + l_TimeForEmote);
-                    ///Logger.Instance.Error("frameOverTime " + l_TextureSheetAnimation.frameOverTime.curveMultiplier);
-                    ///Logger.Instance.Error("cycleCount " + l_TextureSheetAnimation.cycleCount + " " + l_CycleCount);
+                    l_EmitterGroup.UpdateEmitters();
                 }
 
-                if (l_EnhancedImageInfo != null)
-                    l_TimeoutScript.PSR.material.mainTexture = l_EnhancedImageInfo.Sprite.texture;
-
-                l_TimeoutScript.Emit(p_Count);
+                l_EmitterGroup.UpdateTexture(l_EnhancedImageInfo.Sprite.texture);
             }
-            else
-                l_PrefabPair.Item1[p_EmoteID].Emit(p_Count);
+
+            l_EmitterGroup.Emit(p_Count);
 
             yield return null;
         }
@@ -600,7 +914,7 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain
         private IChatEmote[] FilterEmotesForCombo(IChatMessage p_Message)
         {
             IChatEmote[] returner = null;
-            if(Config.ChatEmoteRain.ComboModeType == 1) // Trigger type: 0 = Emote; 1 = User
+            if (CERConfig.Instance.ComboModeType == 1) // Trigger type: 0 = Emote; 1 = User
             {
                 IChatEmote[] l_Emotes = p_Message.Emotes;
                 string l_Sender = p_Message.Sender.Id;
@@ -617,7 +931,7 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain
                 {
                     if (m_ComboState2.ContainsKey(e.Id))
                     {
-                        if (Environment.TickCount - m_ComboState2[e.Id].Item2 < Config.ChatEmoteRain.ComboTimer * 1000 &&
+                        if (Environment.TickCount - m_ComboState2[e.Id].Item2 < CERConfig.Instance.ComboTimer * 1000 &&
                             !m_ComboState2[e.Id].Item1.Contains(l_Sender))
                         {
                             m_ComboState2[e.Id].Item1.Add(l_Sender);
@@ -631,7 +945,7 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain
                             m_ComboState2.Add(e.Id, new Tuple<List<string>, int>(temp, Environment.TickCount & int.MaxValue));
                         }
 
-                        if(m_ComboState2[e.Id].Item1.Count >= Config.ChatEmoteRain.ComboCount)
+                        if(m_ComboState2[e.Id].Item1.Count >= CERConfig.Instance.ComboCount)
                         {
                             l_SecondFiltering.Add(e);
                         }
@@ -661,7 +975,7 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain
                 {
                     if (m_ComboState.ContainsKey(l_CurrentEmote.Id))
                     {
-                        if (Environment.TickCount - m_ComboState[l_CurrentEmote.Id].Item2 < Config.ChatEmoteRain.ComboTimer * 1000)
+                        if (Environment.TickCount - m_ComboState[l_CurrentEmote.Id].Item2 < CERConfig.Instance.ComboTimer * 1000)
                             m_ComboState[l_CurrentEmote.Id] = new Tuple<int, int>(m_ComboState[l_CurrentEmote.Id].Item1 + 1, Environment.TickCount & int.MaxValue);
                         else
                         {
@@ -669,7 +983,7 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain
                             m_ComboState.Add(l_CurrentEmote.Id, new Tuple<int, int>(1, Environment.TickCount & int.MaxValue));
                         }
 
-                        if (m_ComboState[l_CurrentEmote.Id].Item1 >= Config.ChatEmoteRain.ComboCount)
+                        if (m_ComboState[l_CurrentEmote.Id].Item1 >= CERConfig.Instance.ComboCount)
                             l_SecondFiltering.Add(l_CurrentEmote);
                     }
                     else
@@ -703,9 +1017,9 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain
             if (p_User is SDK.Chat.Models.Twitch.TwitchUser l_TwitchUser)
             {
                 return l_TwitchUser.IsBroadcaster
-                    || (Config.ChatEmoteRain.ModeratorPower     && l_TwitchUser.IsModerator)
-                    || (Config.ChatEmoteRain.VIPPower           && l_TwitchUser.IsVip)
-                    || (Config.ChatEmoteRain.SubscriberPower    && l_TwitchUser.IsSubscriber);
+                    || (CERConfig.Instance.ChatCommands.ModeratorPower     && l_TwitchUser.IsModerator)
+                    || (CERConfig.Instance.ChatCommands.VIPPower           && l_TwitchUser.IsVip)
+                    || (CERConfig.Instance.ChatCommands.SubscriberPower    && l_TwitchUser.IsSubscriber);
             }
 
             return false;

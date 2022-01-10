@@ -368,29 +368,29 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer.Components
 
             if (Config.SongChartVisualizer.ShowNPSLegend)
             {
-                var l_Font          = Resources.FindObjectsOfTypeAll<Font>().FirstOrDefault(x => x.name == "Arial");
+                var l_Font          = Resources.FindObjectsOfTypeAll<TMPro.TMP_FontAsset>().FirstOrDefault(x => x.name == "Teko-Medium SDF");
                 var l_LabelCount    = 10;
                 for (var l_I = 0; l_I <= l_LabelCount; l_I++)
                 {
                     var l_NormalizedValue = l_I * 1f / l_LabelCount;
 
-                    var l_LegendLabel = new GameObject("", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
+                    var l_LegendLabel = new GameObject("", typeof(RectTransform), typeof(CanvasRenderer), typeof(TMPro.TextMeshProUGUI));
                     l_LegendLabel.transform.SetParent(m_GraphCanvas.transform, false);
-                    (l_LegendLabel.transform as RectTransform).anchorMin         = Vector2.zero;
-                    (l_LegendLabel.transform as RectTransform).anchorMax         = Vector2.zero;
-                    (l_LegendLabel.transform as RectTransform).sizeDelta         = new Vector2(160, 30);
-                    (l_LegendLabel.transform as RectTransform).pivot             = Vector2.one * 0.5f;
-                    (l_LegendLabel.transform as RectTransform).offsetMin         = new Vector2(-168.2f, 30.6f);
-                    (l_LegendLabel.transform as RectTransform).offsetMax         = new Vector2(-8.2f, 60.6f);
-                    (l_LegendLabel.transform as RectTransform).anchoredPosition  = new Vector2(-88.2f, 45.6f);
-                    (l_LegendLabel.transform as RectTransform).anchoredPosition  = new Vector2(-10f, l_NormalizedValue * m_GraphCanvas.sizeDelta.y);
-                    (l_LegendLabel.transform as RectTransform).localPosition     = new Vector3(-585.00f, (l_LegendLabel.transform as RectTransform).localPosition.y, (l_LegendLabel.transform as RectTransform).localPosition.z);
-                    l_LegendLabel.GetComponent<Text>().font                      = l_Font;
-                    l_LegendLabel.GetComponent<Text>().alignment                 = TextAnchor.MiddleRight;
-                    l_LegendLabel.GetComponent<Text>().color                     = Config.SongChartVisualizer.LegendColor;
-                    l_LegendLabel.GetComponent<Text>().text                      = Mathf.Round(l_MinValue + (l_NormalizedValue * (l_MaxValue - l_MinValue))).ToString();
-                    l_LegendLabel.GetComponent<Text>().fontSize                  = 25;
-                    l_LegendLabel.GetComponent<Text>().enabled                   = System.Math.Round(l_MinValue + (l_NormalizedValue * (l_MaxValue - l_MinValue)), 2) >= 0f;
+                    (l_LegendLabel.transform as RectTransform).anchorMin            = Vector2.zero;
+                    (l_LegendLabel.transform as RectTransform).anchorMax            = Vector2.zero;
+                    (l_LegendLabel.transform as RectTransform).sizeDelta            = new Vector2(160, 30);
+                    (l_LegendLabel.transform as RectTransform).pivot                = Vector2.one * 0.5f;
+                    (l_LegendLabel.transform as RectTransform).offsetMin            = new Vector2(-168.2f, 30.6f);
+                    (l_LegendLabel.transform as RectTransform).offsetMax            = new Vector2(-8.2f, 60.6f);
+                    (l_LegendLabel.transform as RectTransform).anchoredPosition     = new Vector2(-88.2f, 45.6f);
+                    (l_LegendLabel.transform as RectTransform).anchoredPosition     = new Vector2(-10f, l_NormalizedValue * m_GraphCanvas.sizeDelta.y);
+                    (l_LegendLabel.transform as RectTransform).localPosition        = new Vector3(-585.00f, (l_LegendLabel.transform as RectTransform).localPosition.y, (l_LegendLabel.transform as RectTransform).localPosition.z);
+                    l_LegendLabel.GetComponent<TMPro.TextMeshProUGUI>().font        = l_Font;
+                    l_LegendLabel.GetComponent<TMPro.TextMeshProUGUI>().alignment   = TMPro.TextAlignmentOptions.MidlineRight;
+                    l_LegendLabel.GetComponent<TMPro.TextMeshProUGUI>().color       = Config.SongChartVisualizer.LegendColor;
+                    l_LegendLabel.GetComponent<TMPro.TextMeshProUGUI>().text        = Mathf.Round(l_MinValue + (l_NormalizedValue * (l_MaxValue - l_MinValue))).ToString();
+                    l_LegendLabel.GetComponent<TMPro.TextMeshProUGUI>().fontSize    = 25;
+                    l_LegendLabel.GetComponent<TMPro.TextMeshProUGUI>().enabled     = System.Math.Round(l_MinValue + (l_NormalizedValue * (l_MaxValue - l_MinValue)), 2) >= 0f;
 
                     var l_LegendLine = new GameObject("", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
                     l_LegendLine.transform.SetParent(m_GraphCanvas, false);

@@ -11,7 +11,7 @@ namespace BeatSaberPlus.SDK.Game
     /// <summary>
     /// Level helper
     /// </summary>
-    public class Level
+    public class Levels
     {
         /// <summary>
         /// Get level cancellation token
@@ -284,6 +284,62 @@ namespace BeatSaberPlus.SDK.Game
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
+        /// Get BeatmapCharacteristicSO by name
+        /// </summary>
+        /// <param name="p_Name"></param>
+        /// <returns></returns>
+        public static BeatmapCharacteristicSO GetCharacteristicSOBySerializedName(string p_Name)
+        {
+            return SongCore.Loader.beatmapCharacteristicCollection.GetBeatmapCharacteristicBySerializedName(
+                SanitizeCharacteristic(p_Name)
+            );
+        }
+        /// <summary>
+        /// Sanitize characteristic
+        /// </summary>
+        /// <param name="p_Characteristic">Input characteristic</param>
+        /// <returns></returns>
+        public static string SanitizeCharacteristic(string p_Characteristic)
+        {
+            switch (p_Characteristic)
+            {
+                case "Standard":    return "Standard";
+
+                case "One Saber":
+                case "OneSaber":    return "OneSaber";
+
+                case "No Arrows":
+                case "NoArrows":    return "NoArrows";
+                case "360Degree":   return "360Degree";
+                case "Lawless":     return "Lawless";
+                case "90Degree":    return "90Degree";
+
+                case "LightShow":
+                case "Lightshow":   return "Lightshow";
+            }
+
+            return null;
+        }
+        /// <summary>
+        /// Get ordering value for a characteristic
+        /// </summary>
+        /// <param name="p_CharacteristicName">Input characteristic</param>
+        /// <returns></returns>
+        public static int GetCharacteristicOrdering(string p_CharacteristicName)
+        {
+            var l_SerializedName    = SanitizeCharacteristic(p_CharacteristicName);
+            var l_CharacteristicSO  = GetCharacteristicSOBySerializedName(l_SerializedName);
+
+            if (l_CharacteristicSO == null)
+                return 1000;
+
+            return l_CharacteristicSO.sortingOrder;
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
         /// Serialized difficulty name to difficulty name
         /// </summary>
         /// <param name="p_SerializedName">Serialized name</param>
@@ -359,7 +415,7 @@ namespace BeatSaberPlus.SDK.Game
         /// <param name="p_Difficulty">Song difficulty</param>
         /// <param name="p_ScoreMultiplier">Score mutiplier</param>
         /// <returns></returns>
-        public static int GetMaxScore(IDifficultyBeatmap p_Difficulty, float p_ScoreMultiplier = 1f) => GetMaxScore(p_Difficulty.beatmapData.cuttableNotesType, p_ScoreMultiplier);
+        public static int GetMaxScore(IDifficultyBeatmap p_Difficulty, float p_ScoreMultiplier = 1f) => GetMaxScore(p_Difficulty.beatmapData.cuttableNotesCount, p_ScoreMultiplier);
         /// <summary>
         /// Get score percentage
         /// </summary>
@@ -383,13 +439,20 @@ namespace BeatSaberPlus.SDK.Game
         /// <returns></returns>
         public static Dictionary<BeatmapCharacteristicSO, List<(BeatmapDifficulty, int)>> GetScoresByHash(string p_SongHash, out bool p_HaveAnyScore, out bool p_HaveAllScores)
         {
-            var l_PlayerDataModel   = Resources.FindObjectsOfTypeAll<PlayerDataModel>().FirstOrDefault();
-            var l_CustomLevelID     = "custom_level_" + p_SongHash.ToUpper();
-            var l_Level             = Loader.CustomLevelsCollection.beatmapLevels.Where(x => x.levelID == l_CustomLevelID).FirstOrDefault();
-            var l_Results           = new Dictionary<BeatmapCharacteristicSO, List<(BeatmapDifficulty, int)>>();
+            var l_Results = new Dictionary<BeatmapCharacteristicSO, List<(BeatmapDifficulty, int)>>();
 
             p_HaveAnyScore = false;
             p_HaveAllScores = true;
+
+            if (Loader.CustomLevelsCollection == null || Loader.CustomLevelsCollection.beatmapLevels == null)
+            {
+                p_HaveAllScores = false;
+                return l_Results;
+            }
+
+            var l_PlayerDataModel   = Resources.FindObjectsOfTypeAll<PlayerDataModel>().FirstOrDefault();
+            var l_CustomLevelID     = "custom_level_" + p_SongHash.ToUpper();
+            var l_Level             = Loader.CustomLevelsCollection.beatmapLevels.Where(x => x.levelID == l_CustomLevelID).FirstOrDefault();
 
             if (l_Level == null)
             {

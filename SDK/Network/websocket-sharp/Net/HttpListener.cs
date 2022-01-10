@@ -8,7 +8,7 @@
  * The MIT License
  *
  * Copyright (c) 2005 Novell, Inc. (http://www.novell.com)
- * Copyright (c) 2012-2016 sta.blockhead
+ * Copyright (c) 2012-2021 sta.blockhead
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -133,7 +133,7 @@ namespace BSP_WebSocketSharp.Net
     /// </summary>
     /// <value>
     ///   <para>
-    ///   One of the <see cref="BSP_WebSocketSharp.Net.AuthenticationSchemes"/>
+    ///   One of the <see cref="WebSocketSharp.Net.AuthenticationSchemes"/>
     ///   enum values.
     ///   </para>
     ///   <para>
@@ -141,7 +141,7 @@ namespace BSP_WebSocketSharp.Net
     ///   </para>
     ///   <para>
     ///   The default value is
-    ///   <see cref="BSP_WebSocketSharp.Net.AuthenticationSchemes.Anonymous"/>.
+    ///   <see cref="WebSocketSharp.Net.AuthenticationSchemes.Anonymous"/>.
     ///   </para>
     /// </value>
     /// <exception cref="ObjectDisposedException">
@@ -392,8 +392,8 @@ namespace BSP_WebSocketSharp.Net
     }
 
     /// <summary>
-    /// Gets or sets the SSL configuration used to authenticate the server
-    /// and optionally the client for secure connection.
+    /// Gets the SSL configuration used to authenticate the server and
+    /// optionally the client for secure connection.
     /// </summary>
     /// <value>
     /// A <see cref="ServerSslConfiguration"/> that represents the SSL
@@ -411,13 +411,6 @@ namespace BSP_WebSocketSharp.Net
           _sslConfig = new ServerSslConfiguration ();
 
         return _sslConfig;
-      }
-
-      set {
-        if (_disposed)
-          throw new ObjectDisposedException (_objectName);
-
-        _sslConfig = value;
       }
     }
 
@@ -492,8 +485,13 @@ namespace BSP_WebSocketSharp.Net
     )
     {
       lock (_contextRegistrySync) {
-        if (!_listening)
-          throw new HttpListenerException (995);
+        if (!_listening) {
+          var msg = _disposed
+                    ? "The listener is closed."
+                    : "The listener is stopped.";
+
+          throw new HttpListenerException (995, msg);
+        }
 
         var ares = new HttpListenerAsyncResult (callback, state);
 
@@ -546,7 +544,7 @@ namespace BSP_WebSocketSharp.Net
         ctx.Connection.Close (true);
     }
 
-    private void cleanupWaitQueue (Exception exception)
+    private void cleanupWaitQueue (string message)
     {
       if (_waitQueue.Count == 0)
         return;
@@ -555,8 +553,10 @@ namespace BSP_WebSocketSharp.Net
 
       _waitQueue.Clear ();
 
-      foreach (var ares in aress)
-        ares.Complete (exception);
+      foreach (var ares in aress) {
+        var ex = new HttpListenerException (995, message);
+        ares.Complete (ex);
+      }
     }
 
     private void close (bool force)
@@ -573,8 +573,7 @@ namespace BSP_WebSocketSharp.Net
       cleanupContextRegistry ();
 
       var msg = "The listener is closed.";
-      var ex = new HttpListenerException (995, msg);
-      cleanupWaitQueue (ex);
+      cleanupWaitQueue (msg);
 
       EndPointManager.RemoveListener (this);
 
@@ -943,8 +942,7 @@ namespace BSP_WebSocketSharp.Net
         cleanupContextRegistry ();
 
         var msg = "The listener is stopped.";
-        var ex = new HttpListenerException (995, msg);
-        cleanupWaitQueue (ex);
+        cleanupWaitQueue (msg);
 
         EndPointManager.RemoveListener (this);
       }

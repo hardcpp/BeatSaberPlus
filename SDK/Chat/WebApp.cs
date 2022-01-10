@@ -91,7 +91,7 @@ namespace BeatSaberPlus.SDK.Chat
             {
                 var l_Request       = p_Context.Request;
                 var l_Response      = p_Context.Response;
-                var l_ChannelList   = AuthConfig.Twitch.Channels.Split(',').ToList();
+                var l_ChannelList   = AuthConfig.Twitch.Channels.Trim().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
 
                 if (l_Request.HttpMethod == "POST" && l_Request.Url.AbsolutePath == "/submit")
                 {
@@ -125,9 +125,9 @@ namespace BeatSaberPlus.SDK.Chat
                                         break;
 
                                     case "twitch_channel":
-                                        string l_CurrentTwitchChannelName = l_Split[1].ToLower();
+                                        string l_CurrentTwitchChannelName = l_Split[1].ToLower().Trim();
 
-                                        if (!string.IsNullOrWhiteSpace(l_CurrentTwitchChannelName) && !l_ChannelList.Contains(l_CurrentTwitchChannelName))
+                                        if (!string.IsNullOrWhiteSpace(l_CurrentTwitchChannelName) && !l_ChannelList.Contains(l_CurrentTwitchChannelName, StringComparer.InvariantCultureIgnoreCase))
                                             l_ChannelList.Add(l_CurrentTwitchChannelName);
 
                                         Logger.Instance.Info($"[SDK.Chat][WebApp.OnContext] TwitchChannel: {l_CurrentTwitchChannelName}");
@@ -149,15 +149,30 @@ namespace BeatSaberPlus.SDK.Chat
                                 l_ChannelList.Remove(l_CurrentOldChannel);
                         }
 
-                        AuthConfig.Twitch.Channels = string.Join(",", l_ChannelList);
+                        try
+                        {
+                            AuthConfig.Twitch.Channels = string.Join(",", l_ChannelList);
 
-                        ParseWebAppSettings(l_PostValues);
-                        ParseGlobalSettings(l_PostValues);
-                        ParseTwitchSettings(l_PostValues);
+                            ParseWebAppSettings(l_PostValues);
+                            ParseGlobalSettings(l_PostValues);
+                            ParseTwitchSettings(l_PostValues);
+
+                            var l_TwitchService = Service.Multiplexer.Services.FirstOrDefault(x => x is Services.Twitch.TwitchService);
+                            if (l_TwitchService != null)
+                                (l_TwitchService as Services.Twitch.TwitchService).OnCredentialsUpdated();
+                            else
+                                Logger.Instance.Error("[SDK.Chat][WebApp.OnContext] Twitch service not found!");
+                        }
+                        catch (Exception l_Exception)
+                        {
+                            Logger.Instance.Error("[SDK.Chat][WebApp.OnContext] An exception occurred while updating config");
+                            Logger.Instance.Error(l_Exception);
+                        }
                     }
 
                     l_Response.Redirect(l_Request.UrlReferrer.OriginalString);
                     l_Response.Close();
+
                     return;
                 }
 
@@ -174,6 +189,7 @@ namespace BeatSaberPlus.SDK.Chat
                 l_PageBuilder.Replace("{GlobalSettingsHTML}",   GenerateGlobalSettings());
                 l_PageBuilder.Replace("{TwitchSettingsHTML}",   GenerateTwitchSettings());
                 l_PageBuilder.Replace("{TwitchChannelHtml}",    l_TwitchChannelHtmlString.ToString());
+                l_PageBuilder.Replace("{TwitchHasChannels}",    l_ChannelList.Count > 0 ? "true" : "false");
                 l_PageBuilder.Replace("{TwitchOAuthToken}",     AuthConfig.Twitch.OAuthToken);
 
                 byte[] l_Data = Encoding.UTF8.GetBytes(l_PageBuilder.ToString());
@@ -237,6 +253,7 @@ namespace BeatSaberPlus.SDK.Chat
             string l_Result = "<label class=\"form-label\">Twitch</label>";
             l_Result += BuildSwitchHTML(nameof(SettingsConfig.Twitch.ParseBTTVEmotes),      SettingsConfig.Twitch.ParseBTTVEmotes);
             l_Result += BuildSwitchHTML(nameof(SettingsConfig.Twitch.ParseFFZEmotes),       SettingsConfig.Twitch.ParseFFZEmotes);
+            l_Result += BuildSwitchHTML(nameof(SettingsConfig.Twitch.Parse7TVEmotes),       SettingsConfig.Twitch.Parse7TVEmotes);
             l_Result += BuildSwitchHTML(nameof(SettingsConfig.Twitch.ParseTwitchEmotes),    SettingsConfig.Twitch.ParseTwitchEmotes);
             l_Result += BuildSwitchHTML(nameof(SettingsConfig.Twitch.ParseCheermotes),      SettingsConfig.Twitch.ParseCheermotes);
 
@@ -253,6 +270,11 @@ namespace BeatSaberPlus.SDK.Chat
             {
                 var l_PostValue = p_Data[nameof(SettingsConfig.Twitch.ParseFFZEmotes)].ToLower();
                 SettingsConfig.Twitch.ParseFFZEmotes = l_PostValue == "true" || l_PostValue == "on" || l_PostValue == "1";
+            }
+            if (p_Data.ContainsKey(nameof(SettingsConfig.Twitch.Parse7TVEmotes)))
+            {
+                var l_PostValue = p_Data[nameof(SettingsConfig.Twitch.Parse7TVEmotes)].ToLower();
+                SettingsConfig.Twitch.Parse7TVEmotes = l_PostValue == "true" || l_PostValue == "on" || l_PostValue == "1";
             }
             if (p_Data.ContainsKey(nameof(SettingsConfig.Twitch.ParseTwitchEmotes)))
             {

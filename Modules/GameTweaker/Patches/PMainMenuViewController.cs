@@ -42,12 +42,7 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches
                 /// Apply
                 SetBeatMapEditorButtonDisabled(Config.GameTweaker.DisableBeatMapEditorButtonOnMainMenu);
                 SetRemovePackMusicPromoBanner(Config.GameTweaker.RemoveNewContentPromotional);
-
             }
-
-            var l_Manager = UnityEngine.Resources.FindObjectsOfTypeAll<AnniversaryManager>().FirstOrDefault();
-            if (l_Manager)
-                l_Manager.gameObject.SetActive(!Config.GameTweaker.Enabled || !Config.GameTweaker.RemoveAnniversaryEvent);
         }
 
         ////////////////////////////////////////////////////////////////////////////

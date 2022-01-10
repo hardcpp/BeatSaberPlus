@@ -25,6 +25,13 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
             /// Update queue status
             UpdateQueueStatus();
         }
+        /// <summary>
+        /// On view activation
+        /// </summary>
+        protected override sealed void OnViewActivation()
+        {
+            UpdateQueueStatus();
+        }
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////

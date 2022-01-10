@@ -47,7 +47,8 @@ namespace BeatSaberPlus.SDK.Network
         /// <param name="p_BaseAddress">Base address</param>
         /// <param name="p_TimeOut">Maximum timeout</param>
         /// <param name="p_KeepAlive">Should keep alive the connection</param>
-        public APIClient(string p_BaseAddress, TimeSpan p_TimeOut, bool p_KeepAlive = true)
+        /// <param name="p_ForceCacheDiscard">Should force cache discard</param>
+        public APIClient(string p_BaseAddress, TimeSpan p_TimeOut, bool p_KeepAlive = true, bool p_ForceCacheDiscard = true)
         {
             HttpClientHandler l_Handler = new HttpClientHandler()
             {
@@ -56,23 +57,27 @@ namespace BeatSaberPlus.SDK.Network
 
             m_Client = new HttpClient(l_Handler)
             {
-                Timeout     = p_TimeOut,
+                Timeout = p_TimeOut,
             };
 
             if (!string.IsNullOrEmpty(p_BaseAddress))
                 m_Client.BaseAddress = new Uri(p_BaseAddress);
 
-            m_Client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
+            if (p_ForceCacheDiscard)
             {
-                NoCache         = true,
-                NoStore         = false,
-                MustRevalidate  = true,
-                ProxyRevalidate = true,
-                MaxAge          = TimeSpan.FromSeconds(0),
-                SharedMaxAge    = TimeSpan.FromMilliseconds(0),
-                MaxStaleLimit   = TimeSpan.FromMilliseconds(0)
-            };
+                m_Client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
+                {
+                    NoCache         = true,
+                    NoStore         = false,
+                    MustRevalidate  = true,
+                    ProxyRevalidate = true,
+                    MaxAge          = TimeSpan.FromSeconds(0),
+                    SharedMaxAge    = TimeSpan.FromMilliseconds(0),
+                    MaxStaleLimit   = TimeSpan.FromMilliseconds(0)
+                };
+            }
             m_Client.DefaultRequestHeaders.ConnectionClose = p_KeepAlive;
+            m_Client.DefaultRequestHeaders.Add("User-Agent", $"BeatSaberPlus/{Plugin.Version.Major}.{Plugin.Version.Minor}.{Plugin.Version.Patch}");
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -85,6 +90,9 @@ namespace BeatSaberPlus.SDK.Network
         /// <returns>HTTPResponse</returns>
         public async Task<APIResponse> GetAsync(string p_URL, CancellationToken p_Token, bool p_DontRetry = false)
         {
+#if DEBUG
+            Logger.Instance.Debug("[SDK.Network][APIClient.GetAsync] GET " + p_URL);
+#endif
             p_Token.ThrowIfCancellationRequested();
 
             HttpResponseMessage l_Reply = null;
@@ -96,6 +104,20 @@ namespace BeatSaberPlus.SDK.Network
                 try
                 {
                     l_Reply = await m_Client.GetAsync(p_URL, p_Token);
+
+                    if (l_Reply != null && l_Reply.StatusCode == (HttpStatusCode)429)
+                    {
+                        var l_Limits = RateLimitInfo.FromHttp(l_Reply);
+                        if (l_Limits != null)
+                        {
+                            int l_TotalMilliseconds = (int)(l_Limits.Reset - DateTime.Now).TotalMilliseconds;
+                            if (l_TotalMilliseconds > 0)
+                            {
+                                await Task.Delay(l_TotalMilliseconds).ConfigureAwait(false);
+                                continue;
+                            }
+                        }
+                    }
 
                     if (p_DontRetry || l_Reply.IsSuccessStatusCode || l_Reply.StatusCode == HttpStatusCode.NotFound)
                     {

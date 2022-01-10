@@ -2,6 +2,7 @@
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components.Settings;
 using BeatSaberPlus.Modules.ChatIntegrations.Models;
+using IPA.Utilities;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,6 +31,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
                 new GamePlay_ChangeDebris(),
                 new GamePlay_ChangeLightIntensity(),
                 new GamePlay_ChangeMusicVolume(),
+                new GamePlay_ChangeNoteColors(),
                 new GamePlay_Restart(),
                 new GamePlay_SpawnBombPatterns(),
                 new GamePlay_SpawnSquatWalls(),
@@ -278,7 +280,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
                         l_NewValue = l_EventInput;
                     }
 
-                    l_AudioTimeSyncController.audioSource.volume = l_NewValue;
+                    l_AudioTimeSyncController.GetField<AudioSource, AudioTimeSyncController>("_audioSource").volume = l_NewValue;
 
                     if (Model.SendChatMessage && p_Context.ChatService != null && p_Context.Channel != null && p_Context.User != null)
                         p_Context.ChatService.SendTextMessage(p_Context.Channel, $"! @{p_Context.User.DisplayName} music volume was set to {Mathf.RoundToInt(l_NewValue * 100f)}]%");
@@ -290,6 +292,206 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
             yield return null;
         }
     }
+
+    public class GamePlay_ChangeNoteColors : Interfaces.IAction<GamePlay_ChangeNoteColors, Models.Actions.GamePlay_ChangeNoteColors>
+    {
+        public override string Description => "Change notes colors";
+
+#pragma warning disable CS0414
+        [UIComponent("TypeList")]
+        private ListSetting m_TypeList = null;
+        [UIValue("TypeList_Choices")]
+        private List<object> m_TypeListList_Choices = new List<object>() { "Default", "Input", "EventInput" };
+        [UIValue("TypeList_Value")]
+        private string m_TypeList_Value;
+        [UIComponent("LeftColor")]
+        protected ColorSetting m_LeftColor = null;
+        [UIComponent("RightColor")]
+        protected ColorSetting m_RightColor = null;
+        [UIComponent("SendMessageToggle")]
+        private ToggleSetting m_SendMessageToggle = null;
+#pragma warning restore CS0414
+
+        private Color? m_LeftColorCache;
+        private Color? m_RightColorCache;
+
+        public override sealed void BuildUI(Transform p_Parent)
+        {
+            if (Event.GetType() != typeof(Events.ChatCommand)
+                && Event.GetType() != typeof(Events.ChatPointsReward))
+            {
+                m_TypeListList_Choices.Remove("EventInput");
+            }
+
+            m_TypeList_Value = (string)m_TypeListList_Choices.ElementAt(Model.ValueType % m_TypeListList_Choices.Count);
+
+            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
+
+            EnsureColorCache();
+
+            var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
+
+            SDK.UI.ListSetting.Setup(m_TypeList,            l_Event,                                false);
+            SDK.UI.ColorSetting.Setup(m_LeftColor,          l_Event,    m_LeftColorCache.Value,     false);
+            SDK.UI.ColorSetting.Setup(m_RightColor,         l_Event,    m_RightColorCache.Value,    false);
+            SDK.UI.ToggleSetting.Setup(m_SendMessageToggle, l_Event,    Model.SendChatMessage,      false);
+
+            OnSettingChanged(null);
+        }
+        private void OnSettingChanged(object p_Value)
+        {
+            Model.ValueType         = m_TypeListList_Choices.Select(x => (string)x).ToList().IndexOf(m_TypeList.Value);
+            m_LeftColorCache        = m_LeftColor.CurrentColor;
+            m_RightColorCache       = m_RightColor.CurrentColor;
+            Model.SendChatMessage   = m_SendMessageToggle.Value;
+
+            Model.Left  = ColorUtility.ToHtmlStringRGB(m_LeftColorCache.Value);
+            Model.Right = ColorUtility.ToHtmlStringRGB(m_RightColorCache.Value);
+
+            m_LeftColor.interactable    = Model.ValueType == 1;
+            m_RightColor.interactable   = Model.ValueType == 1;
+        }
+
+        public override IEnumerator Eval(Models.EventContext p_Context)
+        {
+            bool l_Failed = true;
+            if (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Playing)
+            {
+                if (Model.ValueType == 0)
+                {
+                    NoteTweaker.Patches.PColorNoteVisuals.SetBlockColorOverride(false, Color.black, Color.black);
+                    PatchSabers(true);
+
+                    if (Model.SendChatMessage && p_Context.ChatService != null && p_Context.Channel != null && p_Context.User != null)
+                        p_Context.ChatService.SendTextMessage(p_Context.Channel, $"! @{p_Context.User.DisplayName} colors are back to default!");
+
+                    l_Failed = false;
+                }
+                else
+                {
+                    string l_LeftHex    = "#" + Model.Left;
+                    string l_RightHex   = "#" + Model.Right;
+
+                    if (Model.ValueType == 2 && (p_Context.Message != null || p_Context.PointsEvent != null)) /// Event user input
+                    {
+                        var l_Src = (p_Context.Message?.Message ?? p_Context.PointsEvent?.UserInput) ?? "";
+                        var l_Parts = l_Src.Split(new char[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
+                        if (l_Parts.Length >= 2
+                            && ColorUtility.TryParseHtmlString(l_Parts[l_Parts.Length - 2], out var l_LeftColor)
+                            && ColorUtility.TryParseHtmlString(l_Parts[l_Parts.Length - 1], out var l_RightColor))
+                        {
+                            m_LeftColorCache    = l_LeftColor;
+                            m_RightColorCache   = l_RightColor;
+                            l_LeftHex           = l_Parts[l_Parts.Length - 2];
+                            l_RightHex          = l_Parts[l_Parts.Length - 1];
+                            l_Failed            = false;
+                        }
+                        else if (p_Context.ChatService != null && p_Context.Channel != null && p_Context.User != null)
+                        {
+                            p_Context.ChatService.SendTextMessage(p_Context.Channel, $"! @{p_Context.User.DisplayName} the syntax is: #LEFTHEX #RIGHTHEX");
+                        }
+                    }
+                    else
+                    {
+                        l_Failed = false;
+                        EnsureColorCache();
+                    }
+
+                    if (!l_Failed)
+                    {
+                        NoteTweaker.Patches.PColorNoteVisuals.SetBlockColorOverride(true, m_LeftColorCache.Value, m_RightColorCache.Value);
+                        PatchSabers(false);
+
+                        if (Model.SendChatMessage && p_Context.ChatService != null && p_Context.Channel != null && p_Context.User != null)
+                            p_Context.ChatService.SendTextMessage(p_Context.Channel, $"! @{p_Context.User.DisplayName} colors are changed to {l_LeftHex} {l_RightHex}");
+                    }
+                }
+            }
+
+            if (l_Failed)
+                p_Context.HasActionFailed = true;
+
+            yield return null;
+        }
+
+        private void EnsureColorCache()
+        {
+            if (!m_LeftColorCache.HasValue)
+            {
+                if (ColorUtility.TryParseHtmlString(Model.Left, out var l_LeftColor))
+                    m_LeftColorCache = l_LeftColor;
+                else
+                    m_LeftColorCache = SDK.Game.Logic.LevelData?.Data?.colorScheme?.saberAColor ?? Color.red;
+            }
+            if (!m_RightColorCache.HasValue)
+            {
+                if (ColorUtility.TryParseHtmlString(Model.Right, out var l_RightColor))
+                    m_RightColorCache = l_RightColor;
+                else
+                    m_RightColorCache = SDK.Game.Logic.LevelData?.Data?.colorScheme?.saberBColor ?? Color.blue;
+            }
+        }
+        private void PatchSabers(bool p_UseDefault)
+        {
+            /// todo
+            return;
+
+            var l_Sabers            = Resources.FindObjectsOfTypeAll<SaberModelController>();
+            var l_ColorManager      = null as ColorManager;
+            var l_ColorSchemeBackup = null as ColorScheme;
+
+            for (int l_I = 0; l_I < l_Sabers.Length; ++l_I)
+            {
+                if (l_I == 0)
+                {
+                    l_ColorManager = l_Sabers[l_I].GetField<ColorManager, SaberModelController>("_colorManager");
+
+                    if (l_ColorManager != null)
+                    {
+                        l_ColorSchemeBackup = l_ColorManager.GetProperty<ColorScheme, ColorManager>("_colorScheme");
+                        if (l_ColorSchemeBackup != null && !p_UseDefault)
+                        {
+                            var l_ColorScheme = new ColorScheme("", "", false, "", false,
+                                m_LeftColorCache.Value, m_RightColorCache.Value, l_ColorSchemeBackup.environmentColor0,
+                                l_ColorSchemeBackup.environmentColor1, l_ColorSchemeBackup.supportsEnvironmentColorBoost,
+                                l_ColorSchemeBackup.environmentColor0Boost, l_ColorSchemeBackup.environmentColor1Boost,
+                                l_ColorSchemeBackup.obstaclesColor);
+
+                            l_ColorManager.SetProperty<ColorManager, ColorScheme>("_colorScheme", l_ColorScheme);
+                        }
+                    }
+                }
+
+                if (l_ColorSchemeBackup == null)
+                    break;
+
+                var l_SaberTrail                = l_Sabers[l_I].GetField<SaberTrail, SaberModelController>("_saberTrail");
+                var l_SetSaberGlowColors        = l_Sabers[l_I].GetField<SetSaberGlowColor[], SaberModelController>("_setSaberGlowColors");
+                var l_SetSaberFakeGlowColors    = l_Sabers[l_I].GetField<SetSaberFakeGlowColor[], SaberModelController>("_setSaberFakeGlowColors");
+                var l_SaberLight                = l_Sabers[l_I].GetField<TubeBloomPrePassLight, SaberModelController>("_saberLight");
+
+                if (l_SaberTrail == null || l_SetSaberGlowColors == null || l_SetSaberFakeGlowColors == null || l_SaberLight == null)
+                    continue;
+
+                var l_SaberType = l_SaberLight.color == l_ColorSchemeBackup.saberAColor ? SaberType.SaberA : SaberType.SaberB;
+                var l_Color     = l_SaberType == SaberType.SaberA ? m_LeftColorCache.Value : m_RightColorCache.Value;
+
+                //l_SaberTrail.Setup((l_Color * this._initData.trailTintColor).linear, (IBladeMovementData)saber.movementData);
+
+                foreach (var l_SetSaberGlowColor in l_SetSaberGlowColors)
+                    l_SetSaberGlowColor.SetColors();
+                foreach (var l_SaberFakeGlowColor in l_SetSaberFakeGlowColors)
+                    l_SaberFakeGlowColor.SetColors();
+
+                l_SaberLight.color = l_Color;
+
+                if (!p_UseDefault && l_I == (l_Sabers.Length - 1))
+                    l_ColorManager.SetProperty<ColorManager, ColorScheme>("_colorScheme", l_ColorSchemeBackup);
+            }
+        }
+    }
+
 
     public class GamePlay_Pause : Interfaces.IAction<GamePlay_Pause, Models.Action>
     {
@@ -481,8 +683,10 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
                                 0f,
                                 0f,
                                 0,
-                                0,
-                                1f));
+                                0f,
+                                1f,
+                                false,
+                                false));
                         }
 
                         l_Time += Model.Interval;

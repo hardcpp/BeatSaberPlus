@@ -2,6 +2,12 @@
 
 namespace BeatSaberPlus.Modules.ChatIntegrations.Models.Actions
 {
+    public class GamePlay_ChangeDebris : Action
+    {
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
+        public bool Debris = false;
+    }
+
     public class GamePlay_ChangeLightIntensity : Action
     {
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
@@ -30,10 +36,16 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Models.Actions
         public bool SendChatMessage = true;
     }
 
-    public class GamePlay_ChangeDebris : Action
+    public class GamePlay_ChangeNoteColors : Action
     {
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
-        public bool Debris = false;
+        public int ValueType = 0;
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
+        public string Left = "#FF0000";
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
+        public string Right = "#0000FF";
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
+        public bool SendChatMessage = true;
     }
 
     public class GamePlay_SpawnSquatWalls : Action

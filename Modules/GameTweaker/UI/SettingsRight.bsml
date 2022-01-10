@@ -13,20 +13,12 @@
           <text font-size='3.5' text='Disable BeatMap editor button'></text>
           <bool-setting id='disablebeatmapeditorbuttononmainmenu-toggle'></bool-setting>
         </vertical>
-        <vertical size-delta-x='70' min-width='45' pad-bottom='0'>
-          <text font-size='3.5' text='Remove anniversary event'></text>
-          <bool-setting id='removeanniversaryevent-toggle'></bool-setting>
-        </vertical>
       </vertical>
 
       <vertical spacing='0' size-delta-x='50' min-width='50'>
         <vertical size-delta-x='70' min-width='45' pad-top='0' pad-bottom='0'>
           <text font-size='3.5' text='Remove new content promotional'></text>
           <bool-setting id='removenewcontentpromotional-toggle'></bool-setting>
-        </vertical>
-        <vertical size-delta-x='70' min-width='45' pad-bottom='0'>
-          <text font-size='3.5' text=' '></text>
-          <text text=' '></text>
         </vertical>
       </vertical>
     </horizontal>
@@ -46,9 +38,13 @@
           <text font-size='3.5' text='Remove base game filter'></text>
           <bool-setting id='removebasegamefilterbutton-toggle' hover-hint='Remove the top right filter option from the game'></bool-setting>
         </vertical>
-        <vertical size-delta-x='70' min-width='45' pad-bottom='0'>
+        <vertical size-delta-x='70' min-width='45'>
           <text font-size='3.5' text='Song delete button'></text>
           <bool-setting id='deletesongbutton-toggle'></bool-setting>
+        </vertical>
+        <vertical size-delta-x='70' min-width='45' pad-bottom='0'>
+          <text font-size='3.5' text='Highlight played song'></text>
+          <bool-setting id='highlightplayedsong-toggle'></bool-setting>
         </vertical>
       </vertical>
 
@@ -61,9 +57,13 @@
           <text font-size='3.5' text='Merge light presset options'></text>
           <bool-setting id='mergelightpressetoptions-toggle'></bool-setting>
         </vertical>
-        <vertical size-delta-x='70' min-width='45' pad-bottom='0'>
+        <vertical size-delta-x='70' min-width='45' >
           <text font-size='3.5' text='Remove SongBrowser trashcan'></text>
           <bool-setting id='removesongbrowsertrashcan-toggle'></bool-setting>
+        </vertical>
+        <vertical size-delta-x='70' min-width='45' pad-bottom='0'>
+          <text font-size='3.5' text=' '></text>
+          <text text=' '></text>
         </vertical>
       </vertical>
     </horizontal>

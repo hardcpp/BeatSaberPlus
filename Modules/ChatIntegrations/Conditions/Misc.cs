@@ -27,7 +27,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Conditions
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
 
-            SDK.UI.SliderSetting.Setup(m_CooldownSlider,    l_Event, SDK.UI.BSMLSettingFormartter.Time, Model.CooldownTime, true, true, new Vector2(0.51f, 0f), new Vector2(0.93f, 1f));
+            SDK.UI.SliderSetting.Setup(m_CooldownSlider,    l_Event, SDK.UI.BSMLSettingFormartter.Time, Model.CooldownTime, true, true, new Vector2(0.08f, 0f), new Vector2(0.93f, 1f));
             SDK.UI.ToggleSetting.Setup(m_PerUserToggle,     l_Event,                                    Model.PerUser,      false);
             SDK.UI.ToggleSetting.Setup(m_NotifyUserToggle,  l_Event,                                    Model.NotifyUser,   false);
         }

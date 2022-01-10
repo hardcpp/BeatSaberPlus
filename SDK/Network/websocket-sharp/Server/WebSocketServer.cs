@@ -373,7 +373,7 @@ namespace BSP_WebSocketSharp.Server
     /// </remarks>
     /// <value>
     ///   <para>
-    ///   One of the <see cref="BSP_WebSocketSharp.Net.AuthenticationSchemes"/>
+    ///   One of the <see cref="WebSocketSharp.Net.AuthenticationSchemes"/>
     ///   enum values.
     ///   </para>
     ///   <para>
@@ -381,7 +381,7 @@ namespace BSP_WebSocketSharp.Server
     ///   </para>
     ///   <para>
     ///   The default value is
-    ///   <see cref="BSP_WebSocketSharp.Net.AuthenticationSchemes.Anonymous"/>.
+    ///   <see cref="WebSocketSharp.Net.AuthenticationSchemes.Anonymous"/>.
     ///   </para>
     /// </value>
     public AuthenticationSchemes AuthenticationSchemes {

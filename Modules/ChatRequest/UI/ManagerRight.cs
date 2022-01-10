@@ -36,11 +36,11 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
         /// <summary>
         /// Pending detail
         /// </summary>
-        private BeatSaverSharp.Beatmap m_PendingDetail = null;
+        private SDK.Game.BeatMaps.MapDetail m_PendingDetail = null;
         /// <summary>
         /// Last detail
         /// </summary>
-        private BeatSaverSharp.Beatmap m_LastDetail = null;
+        private SDK.Game.BeatMaps.MapDetail m_LastDetail = null;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -66,6 +66,13 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
             else
                 SetVisible(false);
         }
+        /// <summary>
+        /// On view deactivation
+        /// </summary>
+        protected sealed override void OnViewDeactivation()
+        {
+            CloseAllModals();
+        }
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -79,6 +86,7 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
             if (!CanBeUpdated || transform.childCount == 0)
                 return;
 
+            CloseAllModals();
             transform.GetChild(0).gameObject.SetActive(p_Visible);
         }
 
@@ -89,7 +97,7 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
         /// Set details
         /// </summary>
         /// <param name="p_Detail">p_Detail</param>
-        internal void SetDetail(BeatSaverSharp.Beatmap p_Detail, bool p_SecondTime = false)
+        internal void SetDetail(SDK.Game.BeatMaps.MapDetail p_Detail, bool p_SecondTime = false)
         {
             if (!CanBeUpdated)
             {
@@ -97,7 +105,7 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
                 return;
             }
 
-            string l_Description = "<line-height=125%>" + System.Net.WebUtility.HtmlEncode(p_Detail.Description.Replace("\r\n", "\n"));
+            string l_Description = "<line-height=125%>" + System.Net.WebUtility.HtmlEncode(p_Detail.description.Replace("\r\n", "\n"));
 
             if (l_Description.Trim().Length == "<line-height=125%>".Length)
                 l_Description = "<align=\"center\"><alpha=#AA><i>No description...</i></align>";
@@ -107,9 +115,11 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
             m_DetailText.SetText(l_Description);
             m_DetailText.ScrollTo(0, true);
 
-            float   l_Vote      = (float)Math.Round((double)p_Detail.Stats.Rating * 100f, 0);
-            string  l_SubText   = $"Votes +{p_Detail.Stats.UpVotes}/-{p_Detail.Stats.DownVotes} ({l_Vote}%) {p_Detail.Stats.Downloads} downloads\n";
-            l_SubText += "Uploaded on " + s_Months[p_Detail.Uploaded.Month - 1] + " " + p_Detail.Uploaded.Day + " of " + p_Detail.Uploaded.Year;
+            var l_Date = p_Detail.GetUploadTime();
+
+            float   l_Vote      = (float)Math.Round((double)p_Detail.stats.score * 100f, 0);
+            string  l_SubText   = $"Votes +{p_Detail.stats.upvotes}/-{p_Detail.stats.downvotes} ({l_Vote}%) {p_Detail.stats.downloads} downloads\n";
+            l_SubText += "Uploaded on " + s_Months[l_Date.Month - 1] + " " + l_Date.Day + " of " + l_Date.Year;
 
             m_SubDetailText.GetComponent<TextMeshProUGUI>().text = l_SubText;
 
@@ -129,7 +139,7 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
             ShowMessageModal("Song sent to the chat.");
 
             var l_Plugin = ChatRequest.Instance;
-            l_Plugin.SendChatMessage($"\"{m_LastDetail.Name}\" by {m_LastDetail.Metadata.LevelAuthorName} => https://beatsaver.com/beatmap/{m_LastDetail.Key}");
+            l_Plugin.SendChatMessage($"\"{m_LastDetail.name}\" by {m_LastDetail.metadata.levelAuthorName} => https://beatmaps.io/maps/{m_LastDetail.id}");
         }
         /// <summary>
         /// On beat saver pressed
@@ -138,7 +148,7 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
         private void OnBeatsaverPressed()
         {
             ShowMessageModal("URL opened in your desktop browser.");
-            Process.Start("https://beatsaver.com/beatmap/" + m_LastDetail.Key);
+            Process.Start("https://beatmaps.io/maps/" + m_LastDetail.id);
         }
     }
 }

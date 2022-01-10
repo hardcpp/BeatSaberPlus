@@ -20,6 +20,10 @@ namespace BeatSaberPlus.SDK.Chat.Interfaces
         ReadOnlyCollection<(IChatService, IChatChannel)> Channels { get; }
 
         /// <summary>
+        /// On system message
+        /// </summary>
+        event Action<IChatService, string> OnSystemMessage;
+        /// <summary>
         /// Callback that occurs when a successful login to the provided streaming service occurs
         /// </summary>
         event Action<IChatService> OnLogin;

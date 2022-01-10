@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using UnityEngine;
 
 namespace BeatSaberPlus.SDK.Chat
 {
@@ -192,9 +193,9 @@ namespace BeatSaberPlus.SDK.Chat
                 int l_Count = 0;
                 foreach (var l_Current in p_Resources)
                 {
-                    if (l_Current.Value.IsAnimated)
+                    if (l_Current.Value.Animation != Animation.AnimationType.NONE)
                     {
-                        ImageProvider.PrecacheAnimatedImage(l_Current.Value.Uri, l_Current.Key);
+                        ImageProvider.PrecacheAnimatedImage(l_Current.Value.Uri, l_Current.Key, l_Current.Value.Animation);
                         l_Count++;
                     }
                 }
@@ -214,7 +215,19 @@ namespace BeatSaberPlus.SDK.Chat
                 string l_LMessage = p_Message.Message.ToLower();
 
                 if (l_LMessage.StartsWith("!bsplusversion"))
-                    p_Service.SendTextMessage(p_Message.Channel, $"! @{p_Message.Sender.DisplayName} current version {Plugin.Version.Major}.{Plugin.Version.Minor}.{Plugin.Version.Patch}!");
+                {
+                    p_Service.SendTextMessage(p_Message.Channel,
+                        $"! @{p_Message.Sender.DisplayName} The current BS+ version is "
+                        + $"{Plugin.Version.Major}.{Plugin.Version.Minor}.{Plugin.Version.Patch}!"
+                        + $" The game version is "
+                        + $"{Application.version}");
+                }
+                else if (l_LMessage.StartsWith("!bsprofile"))
+                {
+                    p_Service.SendTextMessage(p_Message.Channel,
+                        $"! @{p_Message.Sender.DisplayName} You can find the streamer's ScoreSaber Profile at "
+                        + $"https://scoresaber.com/u/{Game.UserPlatform.GetUserID() ?? "unk"}");
+                }
             }
 
             try

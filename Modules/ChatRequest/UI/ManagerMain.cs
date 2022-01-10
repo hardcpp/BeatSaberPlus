@@ -72,6 +72,10 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
         /// Song list provider
         /// </summary>
         private List<ChatRequest.SongEntry> m_SongsProvider = null;
+        /// <summary>
+        /// Reload expected path
+        /// </summary>
+        private string m_SongReloadingExpectedPath = "";
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -96,7 +100,7 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
             l_BSMLTableView.SetDataSource(null, false);
             GameObject.DestroyImmediate(m_SongListView.GetComponentInChildren<CustomListTableData>());
             m_SongList = l_BSMLTableView.gameObject.AddComponent<SDK.UI.DataSource.SongList>();
-            m_SongList.PlayPreviewAudio     = Config.ChatRequest.PlayPreviewMusic;
+            m_SongList.PlayPreviewAudio     = CRConfig.Instance.PlayPreviewMusic;
             m_SongList.PreviewAudioVolume   = 1.0f;
             m_SongList.TableViewInstance    = l_BSMLTableView;
             m_SongList.Init();
@@ -133,7 +137,7 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
         /// </summary>
         protected override sealed void OnViewActivation()
         {
-            m_SongList.PlayPreviewAudio = Config.ChatRequest.PlayPreviewMusic;
+            m_SongList.PlayPreviewAudio = CRConfig.Instance.PlayPreviewMusic;
 
             /// Go back to request tab
             if (m_TypeSegmentControl.selectedCellNumber != 0)
@@ -231,20 +235,20 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
 
                         m_SongList.Data.Add(new SDK.UI.DataSource.SongList.Entry() {
                             BeatSaver_Map       = l_Current.BeatMap,
-                            TitlePrefix         = l_Current.NamePrefix,
+                            TitlePrefix         = l_Current.NamePrefix + (l_Current.BeatMap.ranked ? "<#F8E600><b>⭐</b>" : ""),
                             HoverHint           = l_HoverHint,
                             HoverHintTimeArg    = l_Current.RequestTime,
                             CustomData          = l_Current
                         });;
 
-                        if (m_SelectedSong != null && m_SelectedSong.BeatMap.Hash == l_Current.BeatMap.Hash)
+                        if (m_SelectedSong != null && m_SelectedSong.BeatMap.id == l_Current.BeatMap.id)
                         {
                             m_SongList.TableViewInstance.SelectCellWithIdx(m_SongList.Data.Count - 1);
                             OnSongSelected(m_SongList.TableViewInstance, m_SongList.Data.Count - 1);
                         }
                     }
 
-                    if (m_SelectedSong != null && m_SongsProvider.Where(x => x.BeatMap.Hash == m_SelectedSong.BeatMap.Hash).Count() == 0)
+                    if (m_SelectedSong != null && m_SongsProvider.Where(x => x.BeatMap.id == m_SelectedSong.BeatMap.id).Count() == 0)
                     {
                         UnselectSong();
                         m_SelectedSong = null;
@@ -307,7 +311,7 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
             m_SelectedSong = l_SongEntry.CustomData as ChatRequest.SongEntry;
 
             /// Launch preview music if local map
-            var l_LocalSong = SongCore.Loader.GetLevelByHash(m_SelectedSong.BeatMap.Hash);
+            var l_LocalSong = SongCore.Loader.GetLevelByHash(m_SelectedSong.BeatMap.SelectMapVersion().hash);
             if (l_LocalSong != null && SongCore.Loader.CustomLevels.ContainsKey(l_LocalSong.customLevelPath))
                 m_SongInfo_Detail.SetPlayButtonText("Play");
             else
@@ -375,7 +379,7 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
 
             try
             {
-                var l_LocalSong = SongCore.Loader.GetLevelByHash(m_SelectedSong.BeatMap.Hash);
+                var l_LocalSong = SongCore.Loader.GetLevelByHash(m_SelectedSong.BeatMap.SelectMapVersion().hash);
                 if (l_LocalSong != null && SongCore.Loader.CustomLevels.ContainsKey(l_LocalSong.customLevelPath))
                 {
                     ChatRequest.Instance.DequeueSong(m_SelectedSong, true);
@@ -391,10 +395,12 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
                     ShowLoadingModal("Downloading", true);
 
                     /// Start downloading
-                    SDK.Game.BeatSaver.DownloadSong(m_SelectedSong.BeatMap, CancellationToken.None, this).ContinueWith((x) =>
+                    SDK.Game.BeatMapsClient.DownloadSong(m_SelectedSong.BeatMap, m_SelectedSong.BeatMap.SelectMapVersion(), CancellationToken.None, this).ContinueWith((x) =>
                     {
-                        if (x.Result)
+                        if (x.Result.Item1)
                         {
+                            m_SongReloadingExpectedPath = x.Result.Item2;
+
                             /// Bind callback
                             SongCore.Loader.SongsLoadedEvent += OnDownloadedSongLoaded;
                             /// Refresh loaded songs
@@ -470,6 +476,26 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
             /// Avoid refresh if not active view anymore
             if (!CanBeUpdated)
                 return;
+
+            var l_LocalSong = SongCore.Loader.GetLevelByHash(m_SelectedSong.BeatMap.SelectMapVersion().hash);
+            if (l_LocalSong == null)
+            {
+                foreach (var l_Current in p_Maps)
+                {
+                    if (!l_Current.Value.customLevelPath.ToLower().Contains(m_SongReloadingExpectedPath.ToLower()))
+                        continue;
+
+                    l_LocalSong = l_Current.Value;
+                    break;
+                }
+            }
+
+            if (l_LocalSong == null || l_LocalSong.levelID.Replace("custom_level_", "").ToLower() != m_SelectedSong.BeatMap.SelectMapVersion().hash)
+            {
+                HideLoadingModal();
+                ShowMessageModal("An error occurred while downloading this map.\nDownloaded song doesn't match.");
+                return;
+            }
 
             StartCoroutine(PlayDownloadedLevel());
         }

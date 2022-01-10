@@ -12,7 +12,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations
     /// <summary>
     /// ChatIntegrations instance
     /// </summary>
-    internal partial class ChatIntegrations : SDK.ModuleBase<ChatIntegrations>
+    public partial class ChatIntegrations : SDK.ModuleBase<ChatIntegrations>
     {
         /// <summary>
         /// Database file path
@@ -92,6 +92,10 @@ namespace BeatSaberPlus.Modules.ChatIntegrations
             /// todo GameStart
             /// todo GameStop
         };
+        /// <summary>
+        /// Registered event types
+        /// </summary>
+        public static IReadOnlyList<Interfaces.IEventBase> RegisteredEventTypes = m_RegisteredEventTypes.AsReadOnly();
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -124,10 +128,6 @@ namespace BeatSaberPlus.Modules.ChatIntegrations
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        /// <summary>
-        /// Registered event types
-        /// </summary>
-        public IReadOnlyList<Interfaces.IEventBase> RegisteredEventTypes;
         /// <summary>
         /// Event list
         /// </summary>
@@ -288,9 +288,9 @@ namespace BeatSaberPlus.Modules.ChatIntegrations
         /// Register custom event type
         /// </summary>
         /// <typeparam name="T">Type</typeparam>
-        public void RegisterCustomEventType<T>() where T : Interfaces.IEventBase, new()
+        public static void RegisterCustomEventType<TEvent>() where TEvent : Interfaces.IEventBase, new()
         {
-            m_RegisteredEventTypes.Add(new T());
+            m_RegisteredEventTypes.Add(new TEvent());
             RegisteredEventTypes = m_RegisteredEventTypes.AsReadOnly();
         }
 

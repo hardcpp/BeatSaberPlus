@@ -1,10 +1,14 @@
 ﻿using IPA.Utilities;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using TMPro;
+using UnityEngine;
+using UnityEngine.Networking;
 
 namespace BeatSaberPlus.SDK.UI.DataSource
 {
@@ -25,6 +29,10 @@ namespace BeatSaberPlus.SDK.UI.DataSource
         /// Song preview player
         /// </summary>
         private SongPreviewPlayer m_SongPreviewPlayer = null;
+        /// <summary>
+        /// Old loading coroutine
+        /// </summary>
+        private Coroutine m_OldCoroutine = null;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -97,7 +105,7 @@ namespace BeatSaberPlus.SDK.UI.DataSource
             /// <summary>
             /// Beat saver map
             /// </summary>
-            public BeatSaverSharp.Beatmap BeatSaver_Map = null;
+            public Game.BeatMaps.MapDetail BeatSaver_Map = null;
             /// <summary>
             /// Custom level instance
             /// </summary>
@@ -128,7 +136,7 @@ namespace BeatSaberPlus.SDK.UI.DataSource
 
                 if (CustomLevel == null && BeatSaver_Map != null && !BeatSaver_Map.Partial)
                 {
-                    var l_LocalLevel = SongCore.Loader.GetLevelByHash(BeatSaver_Map.Hash.ToUpper());
+                    var l_LocalLevel = SongCore.Loader.GetLevelByHash(GetLevelHash().ToUpper());
                     if (l_LocalLevel != null && SongCore.Loader.CustomLevels.ContainsKey(l_LocalLevel.customLevelPath))
                         CustomLevel = l_LocalLevel;
                 }
@@ -141,8 +149,8 @@ namespace BeatSaberPlus.SDK.UI.DataSource
             /// <returns></returns>
             public string GetLevelHash()
             {
-                if (BeatSaver_Map != null && BeatSaver_Map.Hash != null)
-                    return BeatSaver_Map.Hash.ToLower();
+                if (BeatSaver_Map != null && BeatSaver_Map.SelectMapVersion() != null && BeatSaver_Map.SelectMapVersion().hash != null)
+                    return BeatSaver_Map.SelectMapVersion().hash.ToLower();
                 else if (CustomLevel != null && CustomLevel.levelID.StartsWith("custom_level_"))
                     return CustomLevel.levelID.Replace("custom_level_", "").ToLower();
 
@@ -211,7 +219,7 @@ namespace BeatSaberPlus.SDK.UI.DataSource
             if ((l_SongEntry.BeatSaver_Map != null && !l_SongEntry.BeatSaver_Map.Partial) || l_SongEntry.CustomLevel != null)
             {
                 var l_HaveSong  = l_SongEntry.CustomLevel != null && SongCore.Loader.CustomLevels.ContainsKey(l_SongEntry.CustomLevel.customLevelPath);
-                var l_Scores    = Game.Level.GetScoresByHash(l_SongEntry.GetLevelHash(), out var l_HaveAnyScore, out var l_HaveAllScores);
+                var l_Scores    = Game.Levels.GetScoresByHash(l_SongEntry.GetLevelHash(), out var l_HaveAnyScore, out var l_HaveAllScores);
 
                 string l_MapName        = "";
                 string l_MapAuthor      = "";
@@ -242,27 +250,14 @@ namespace BeatSaberPlus.SDK.UI.DataSource
                 }
                 else
                 {
-                    l_Duration = -1;
-                    if (l_SongEntry.BeatSaver_Map.Metadata.Characteristics.Count > 0)
-                    {
-                        var l_FirstChara = l_SongEntry.BeatSaver_Map.Metadata.Characteristics.FirstOrDefault();
-                        var l_DiffCount = l_FirstChara.Difficulties.Count(x => x.Value != null);
-
-                        if (l_DiffCount > 0)
-                        {
-                            var l_FirstDiff = l_FirstChara.Difficulties.Where(x => x.Value != null).LastOrDefault();
-                            l_Duration = l_FirstDiff.Value.Length;
-                        }
-
-                    }
-
-                    l_MapName       = l_SongEntry.BeatSaver_Map.Name;
-                    l_MapAuthor     = l_SongEntry.BeatSaver_Map.Metadata.LevelAuthorName;
-                    l_MapSongAuthor = l_SongEntry.BeatSaver_Map.Metadata.SongAuthorName;
-                    l_BPM           = l_SongEntry.BeatSaver_Map.Metadata.BPM;
+                    l_MapName       = l_SongEntry.BeatSaver_Map.name;
+                    l_MapAuthor     = l_SongEntry.BeatSaver_Map.metadata.levelAuthorName;
+                    l_MapSongAuthor = l_SongEntry.BeatSaver_Map.metadata.songAuthorName;
+                    l_BPM           = l_SongEntry.BeatSaver_Map.metadata.bpm;
+                    l_Duration      = l_SongEntry.BeatSaver_Map.metadata.duration;
                 }
 
-                var l_ColorPrefix = "";
+                var l_ColorPrefix = "<#FFFFFF>";
                 if (l_HaveAllScores)
                     l_ColorPrefix = "<#52F700>";
                 else if (l_HaveAnyScore)
@@ -271,12 +266,15 @@ namespace BeatSaberPlus.SDK.UI.DataSource
                     l_ColorPrefix = "<#7F7F7F>";
 
                 string l_Title          = l_SongEntry.TitlePrefix + (l_SongEntry.TitlePrefix.Length != 0 ? " " : "") + l_ColorPrefix + l_MapName;
-                string l_SubTitle       = l_MapAuthor + " [" + l_MapSongAuthor + "]";
+                string l_SubTitle       = l_MapSongAuthor + " [<size=85%>" + l_MapAuthor + "]";
 
-                if (l_Title.Length > (28 + l_ColorPrefix.Length))
+                if (Regex.Replace(l_Title, "<.*?>", String.Empty).Length > (28 + l_ColorPrefix.Length))
                     l_Title = l_Title.Substring(0, 28 + l_ColorPrefix.Length) + "...";
-                if (l_SubTitle.Length > 28)
-                    l_SubTitle = l_SubTitle.Substring(0, 28) + "...";
+                if (Regex.Replace(l_SubTitle, "<.*?>", String.Empty).Length > 35)
+                    l_SubTitle = l_SubTitle.Substring(0, 35) + "...";
+
+                /// Enable rich text support for the lower row text
+                l_SubText.richText = true;
 
                 l_Text.text     = l_Title;
                 l_SubText.text  = l_SubTitle;
@@ -333,7 +331,7 @@ namespace BeatSaberPlus.SDK.UI.DataSource
                     }
                     else if (l_SongEntry.BeatSaver_Map != null)
                     {
-                        var l_CoverByte = Game.BeatSaver.GetBeatmapCoverFromCacheByKey(l_SongEntry.BeatSaver_Map.Key);
+                        var l_CoverByte = Game.BeatMapsClient.GetCoverImageFromCacheByKey(l_SongEntry.BeatSaver_Map.id);
                         if (l_CoverByte != null && l_CoverByte.Length > 0)
                         {
                             var l_Texture = Unity.Texture2D.CreateFromRaw(l_CoverByte);
@@ -352,17 +350,17 @@ namespace BeatSaberPlus.SDK.UI.DataSource
                         else
                         {
                             /// Fetch cover
-                            var l_CoverTask = l_SongEntry.BeatSaver_Map.CoverImageBytes();
-                            _ = l_CoverTask.ContinueWith(p_CoverTaskResult =>
+                            l_SongEntry.BeatSaver_Map.SelectMapVersion().CoverImageBytes((p_Valid, p_CoverTaskResult) =>
                             {
-                                Game.BeatSaver.CacheBeatmapCover(l_SongEntry.BeatSaver_Map, p_CoverTaskResult.Result);
+                                if (p_Valid)
+                                    Game.BeatMapsClient.CacheCoverImage(l_SongEntry.BeatSaver_Map, p_CoverTaskResult);
 
                                 if (l_Cell.idx >= Data.Count || l_SongEntry != Data[l_Cell.idx])
                                     return;
 
                                 Unity.MainThreadInvoker.Enqueue(() =>
                                 {
-                                    var l_Texture = Unity.Texture2D.CreateFromRaw(p_CoverTaskResult.Result);
+                                    var l_Texture = Unity.Texture2D.CreateFromRaw(p_CoverTaskResult);
                                     if (l_Texture != null)
                                     {
                                         l_SongEntry.Cover = UnityEngine.Sprite.Create(l_Texture, new UnityEngine.Rect(0, 0, l_Texture.width, l_Texture.height), new UnityEngine.Vector2(0.5f, 0.5f), 100);
@@ -485,22 +483,16 @@ namespace BeatSaberPlus.SDK.UI.DataSource
             if (l_SongRowData.CustomLevel != null && SongCore.Loader.CustomLevels.ContainsKey(l_SongRowData.CustomLevel.customLevelPath))
             {
                 if (AudioClipCache.TryGetValue(l_SongRowData.GetLevelHash(), out var l_AudioClip))
-                    m_SongPreviewPlayer.CrossfadeTo(l_AudioClip, l_SongRowData.CustomLevel.previewStartTime, l_SongRowData.CustomLevel.previewDuration, false);
+                    m_SongPreviewPlayer.CrossfadeTo(l_AudioClip, PreviewAudioVolume, l_SongRowData.CustomLevel.previewStartTime, l_SongRowData.CustomLevel.previewDuration, () => { });
                 else
                 {
-                    l_SongRowData.CustomLevel.GetPreviewAudioClipAsync(CancellationToken.None).ContinueWith(x =>
+                    if (m_OldCoroutine != null)
                     {
-                        if (x.IsCompleted && x.Status == TaskStatus.RanToCompletion)
-                        {
-                            Unity.MainThreadInvoker.Enqueue(() =>
-                            {
-                                if (!AudioClipCache.ContainsKey(l_SongRowData.GetLevelHash()))
-                                    AudioClipCache.Add(l_SongRowData.GetLevelHash(), x.Result);
+                        StopCoroutine(m_OldCoroutine);
+                        m_OldCoroutine = null;
+                    }
 
-                                m_SongPreviewPlayer.CrossfadeTo(x.Result, l_SongRowData.CustomLevel.previewStartTime, l_SongRowData.CustomLevel.previewDuration, false);
-                            });
-                        }
-                    });
+                    m_OldCoroutine = StartCoroutine(LoadAudioClip(l_SongRowData, l_SongRowData.CustomLevel.songPreviewAudioClipPath));
                 }
             }
             else
@@ -535,6 +527,52 @@ namespace BeatSaberPlus.SDK.UI.DataSource
                 m_DefaultCover = l_Cell.GetField<UnityEngine.UI.Image, LevelListTableCell>("_coverImage").sprite;
 
             return l_Cell;
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        IEnumerator LoadAudioClip(Entry p_SongRowData, string p_Path)
+        {
+            /// Skip if it's not the menu
+            if (SDK.Game.Logic.ActiveScene != SDK.Game.Logic.SceneType.Menu)
+            {
+                m_OldCoroutine = null;
+                yield break;
+            }
+
+            UnityWebRequest l_Song = UnityWebRequestMultimedia.GetAudioClip(p_Path, AudioType.OGGVORBIS);
+            yield return l_Song.SendWebRequest();
+
+            /// Skip if it's not the menu
+            if (SDK.Game.Logic.ActiveScene != SDK.Game.Logic.SceneType.Menu)
+            {
+                m_OldCoroutine = null;
+                yield break;
+            }
+
+            try
+            {
+                ((DownloadHandlerAudioClip)l_Song.downloadHandler).streamAudio = true;
+
+                var l_Clip = DownloadHandlerAudioClip.GetContent(l_Song);
+
+                if (l_Clip != null)
+                {
+                    if (!AudioClipCache.ContainsKey(p_SongRowData.GetLevelHash()))
+                        AudioClipCache.Add(p_SongRowData.GetLevelHash(), l_Clip);
+
+                    m_SongPreviewPlayer.CrossfadeTo(l_Clip, PreviewAudioVolume, p_SongRowData.CustomLevel.previewStartTime, p_SongRowData.CustomLevel.previewDuration, () => { });
+
+                    m_OldCoroutine = null;
+                    yield break;
+                }
+            }
+            catch (Exception)
+            {
+                m_OldCoroutine = null;
+                yield break;
+            }
         }
     }
 }

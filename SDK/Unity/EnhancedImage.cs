@@ -66,38 +66,39 @@ namespace BeatSaberPlus.SDK.Unity
         /// <returns></returns>
         public static void FromRawStatic(string p_ID, byte[] p_Bytes, Action<EnhancedImage> p_Callback, int p_ForcedHeight = -1)
         {
-            SDK.Unity.Sprite.CreateFromRawEx(p_Bytes, (p_Sprite) =>
+            SDK.Unity.Sprite.CreateFromRawEx(p_Bytes, (p_Sprite) => OnRawStaticCallback(p_ID, p_Sprite, p_Callback, p_ForcedHeight));
+        }
+        private static void OnRawStaticCallback(string p_ID, UnityEngine.Sprite p_Sprite, Action<EnhancedImage> p_Callback, int p_ForcedHeight = -1)
+        {
+            int l_SpriteWidth = 0;
+            int l_SpriteHeight = 0;
+
+            if (p_Sprite != null)
             {
-                int l_SpriteWidth = 0;
-                int l_SpriteHeight = 0;
+                l_SpriteWidth   = p_Sprite.texture.width;
+                l_SpriteHeight  = p_Sprite.texture.height;
+            }
 
-                if (p_Sprite != null)
+            Unity.EnhancedImage l_Result = null;
+            if (p_Sprite != null)
+            {
+                if (p_ForcedHeight != -1)
+                    ComputeImageSizeForHeight(ref l_SpriteWidth, ref l_SpriteHeight, p_ForcedHeight);
+
+                l_Result = new Unity.EnhancedImage()
                 {
-                    l_SpriteWidth   = p_Sprite.texture.width;
-                    l_SpriteHeight  = p_Sprite.texture.height;
-                }
+                    ImageID = p_ID,
+                    Sprite  = p_Sprite,
+                    Width   = l_SpriteWidth,
+                    Height  = l_SpriteHeight,
+                    AnimControllerData = null
+                };
 
-                Unity.EnhancedImage l_Result = null;
-                if (p_Sprite != null)
-                {
-                    if (p_ForcedHeight != -1)
-                        ComputeImageSizeForHeight(ref l_SpriteWidth, ref l_SpriteHeight, p_ForcedHeight);
+                if (p_ForcedHeight != -1)
+                    l_Result.EnsureValidForHeight(p_ForcedHeight);
+            }
 
-                    l_Result = new Unity.EnhancedImage()
-                    {
-                        ImageID             = p_ID,
-                        Sprite              = p_Sprite,
-                        Width               = l_SpriteWidth,
-                        Height              = l_SpriteHeight,
-                        AnimControllerData  = null
-                    };
-
-                    if (p_ForcedHeight != -1)
-                        l_Result.EnsureValidForHeight(p_ForcedHeight);
-                }
-
-                p_Callback?.Invoke(l_Result);
-            });
+            p_Callback?.Invoke(l_Result);
         }
         /// <summary>
         /// From raw animated
@@ -134,7 +135,8 @@ namespace BeatSaberPlus.SDK.Unity
                 }
 
                 p_Callback?.Invoke(l_AnimResult);
-            });
+            },
+            (p_Sprite) => OnRawStaticCallback(p_ID, p_Sprite, p_Callback, p_ForcedHeight));
         }
         /// <summary>
         /// From sprite sheet

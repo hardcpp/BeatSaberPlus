@@ -353,6 +353,11 @@ namespace BeatSaberPlus.Modules.MenuMusic
                 Vector3 l_PlayerPosition = new Vector3(-140f, 55f, 0f);
                 Vector3 l_PlayerRotation = new Vector3(   0f,  0f, 0f);
 
+                if (IPA.Loader.PluginManager.GetPluginFromId("BetterSongSearch") != null)
+                {
+                    l_PlayerPosition.y = 62;
+                }
+
                 /// Create floating screen
                 m_PlayerFloatingScreen = FloatingScreen.CreateFloatingScreen(l_PlayerSize, false, Vector3.zero, Quaternion.identity);
                 m_PlayerFloatingScreen.GetComponent<Canvas>().sortingOrder = 3;
@@ -626,7 +631,7 @@ namespace BeatSaberPlus.Modules.MenuMusic
 
                         float l_StartTime = (Config.MenuMusic.StartSongFromBeginning || m_CurrentMusic.length < 60) ? 0f : Mathf.Max(UnityEngine.Random.Range(m_CurrentMusic.length * 0.2f, m_CurrentMusic.length * 0.8f), 0.0f);
 
-                        m_PreviewPlayer.CrossfadeTo(m_CurrentMusic, l_StartTime, -1f, true);
+                        m_PreviewPlayer.CrossfadeTo(m_CurrentMusic, Config.MenuMusic.PlaybackVolume, l_StartTime, -1f, () => { });
 
                         m_BackupTimeClip    = m_CurrentMusic;
                         m_BackupTime        = l_StartTime;
@@ -668,8 +673,9 @@ namespace BeatSaberPlus.Modules.MenuMusic
         /// <returns></returns>
         private IEnumerator WaitAndPlayNextMusic(float p_EndTime)
         {
-            var l_Field = typeof(SongPreviewPlayer).GetField("_audioSourceControllers", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-            var l_AudioSourceField = null as FieldInfo;
+            var l_Field             = typeof(SongPreviewPlayer).GetField("_audioSourceControllers", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            var l_AudioSourceField  = null as FieldInfo;
+            var l_Waiter            = new WaitForSeconds(1f / 4f);
 
             do
             {
@@ -710,6 +716,11 @@ namespace BeatSaberPlus.Modules.MenuMusic
 
                             if (m_IsPaused)
                                 l_Channel.Pause();
+                            else
+                            {
+                                m_PreviewPlayer.SetField("_ambientVolumeScale", Config.MenuMusic.PlaybackVolume);
+                                m_PreviewPlayer.SetField("_volumeScale",        Config.MenuMusic.PlaybackVolume);
+                            }
 
                             if (Mathf.Abs(p_EndTime - l_Channel.time) < 3f)
                             {
@@ -725,7 +736,7 @@ namespace BeatSaberPlus.Modules.MenuMusic
                 }
 
                 /// Update 4 time a second
-                yield return new WaitForSeconds(1f / 4f);
+                yield return l_Waiter;
 
             } while (true);
         }

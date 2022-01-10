@@ -116,10 +116,10 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Events
         /// <param name="p_Context">Event context</param>
         protected override sealed void BuildProvidedValues(Models.EventContext p_Context)
         {
-            Int64  l_NoteCount  = p_Context.LevelCompletionData.Data.difficultyBeatmap.beatmapData.cuttableNotesType;
+            Int64  l_NoteCount  = p_Context.LevelCompletionData.Data.difficultyBeatmap.beatmapData.cuttableNotesCount;
             Int64  l_HitCount   = p_Context.LevelCompletionData.Results.goodCutsCount;
             Int64  l_MissCount  = l_NoteCount - l_HitCount;
-            float  l_Accuracy   = (float)System.Math.Round(100.0f * SDK.Game.Level.GetScorePercentage(SDK.Game.Level.GetMaxScore((int)l_NoteCount), p_Context.LevelCompletionData.Results.rawScore), 2);
+            float  l_Accuracy   = (float)System.Math.Round(100.0f * SDK.Game.Levels.GetScorePercentage(SDK.Game.Levels.GetMaxScore((int)l_NoteCount), p_Context.LevelCompletionData.Results.rawScore), 2);
             string l_GameMode   = p_Context.LevelCompletionData.Data.difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName;
             string l_Difficulty = p_Context.LevelCompletionData.Data.difficultyBeatmap.difficulty.Name();
 

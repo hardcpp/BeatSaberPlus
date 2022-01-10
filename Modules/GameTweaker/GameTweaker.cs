@@ -153,11 +153,6 @@ namespace BeatSaberPlus.Modules.GameTweaker
             try {
                 Patches.PMainMenuViewController.SetBeatMapEditorButtonDisabled(!p_ForceDisable && Config.GameTweaker.DisableBeatMapEditorButtonOnMainMenu);
                 Patches.PMainMenuViewController.SetRemovePackMusicPromoBanner(!p_ForceDisable && Config.GameTweaker.RemoveNewContentPromotional);
-
-                var l_Manager = UnityEngine.Resources.FindObjectsOfTypeAll<AnniversaryManager>().FirstOrDefault();
-                if (l_Manager)
-                    l_Manager.gameObject.SetActive(p_ForceDisable || !Config.GameTweaker.RemoveAnniversaryEvent);
-
             } catch (System.Exception p_PatchException) { Logger.Instance.Error("[GameTweaker] Error on updating PMainMenuViewController"); Logger.Instance.Error(p_PatchException); }
             /// Apply new content promotional settings
             try {

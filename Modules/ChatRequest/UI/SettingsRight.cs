@@ -67,29 +67,29 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
         protected override sealed void OnViewCreation()
         {
             var l_Event       = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged),            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic));
-            var l_NewRectMin  = new Vector2(0.71f, -0.05f);
-            var l_NewRectMax  = new Vector2(0.90f, 1.05f);
+            var l_NewRectMin  = new Vector2(0.10f, -0.05f);
+            var l_NewRectMax  = new Vector2(0.92f, 1.05f);
 
             /// Left
-            SDK.UI.ToggleSetting.Setup(m_NoBeatSageToggle,      l_Event,                                                    Config.ChatRequest.NoBeatSage,      true);
-            SDK.UI.ToggleSetting.Setup(m_NPSMinToggle,          l_Event,                                                    Config.ChatRequest.NPSMin,          true);
-            SDK.UI.ToggleSetting.Setup(m_NPSMaxToggle,          l_Event,                                                    Config.ChatRequest.NPSMax,          true);
-            SDK.UI.ToggleSetting.Setup(m_NJSMinToggle,          l_Event,                                                    Config.ChatRequest.NJSMin,          true);
-            SDK.UI.ToggleSetting.Setup(m_NJSMaxToggle,          l_Event,                                                    Config.ChatRequest.NJSMax,          true);
-            SDK.UI.ToggleSetting.Setup(m_DurationMaxToggle,     l_Event,                                                    Config.ChatRequest.DurationMax,     true);
-            SDK.UI.ToggleSetting.Setup(m_VoteMinToggle,         l_Event,                                                    Config.ChatRequest.VoteMin,         true);
-            SDK.UI.ToggleSetting.Setup(m_DateMinToggle,         l_Event,                                                    Config.ChatRequest.DateMin,         true);
-            SDK.UI.ToggleSetting.Setup(m_DateMaxToggle,         l_Event,                                                    Config.ChatRequest.DateMax,         true);
+            SDK.UI.ToggleSetting.Setup(m_NoBeatSageToggle,      l_Event,                                                    CRConfig.Instance.Filters.NoBeatSage,      true);
+            SDK.UI.ToggleSetting.Setup(m_NPSMinToggle,          l_Event,                                                    CRConfig.Instance.Filters.NPSMin,          true);
+            SDK.UI.ToggleSetting.Setup(m_NPSMaxToggle,          l_Event,                                                    CRConfig.Instance.Filters.NPSMax,          true);
+            SDK.UI.ToggleSetting.Setup(m_NJSMinToggle,          l_Event,                                                    CRConfig.Instance.Filters.NJSMin,          true);
+            SDK.UI.ToggleSetting.Setup(m_NJSMaxToggle,          l_Event,                                                    CRConfig.Instance.Filters.NJSMax,          true);
+            SDK.UI.ToggleSetting.Setup(m_DurationMaxToggle,     l_Event,                                                    CRConfig.Instance.Filters.DurationMax,     true);
+            SDK.UI.ToggleSetting.Setup(m_VoteMinToggle,         l_Event,                                                    CRConfig.Instance.Filters.VoteMin,         true);
+            SDK.UI.ToggleSetting.Setup(m_DateMinToggle,         l_Event,                                                    CRConfig.Instance.Filters.DateMin,         true);
+            SDK.UI.ToggleSetting.Setup(m_DateMaxToggle,         l_Event,                                                    CRConfig.Instance.Filters.DateMax,         true);
 
             /// Right
-            SDK.UI.SliderSetting.Setup(m_NPSMin,                l_Event, null,                                              Config.ChatRequest.NPSMinV,         true, true, l_NewRectMin, l_NewRectMax);
-            SDK.UI.SliderSetting.Setup(m_NPSMax,                l_Event, null,                                              Config.ChatRequest.NPSMaxV,         true, true, l_NewRectMin, l_NewRectMax);
-            SDK.UI.SliderSetting.Setup(m_NJSMin,                l_Event, null,                                              Config.ChatRequest.NJSMinV,         true, true, l_NewRectMin, l_NewRectMax);
-            SDK.UI.SliderSetting.Setup(m_NJSMax,                l_Event, null,                                              Config.ChatRequest.NJSMaxV,         true, true, l_NewRectMin, l_NewRectMax);
-            SDK.UI.SliderSetting.Setup(m_DurationMax,           l_Event, SDK.UI.BSMLSettingFormartter.Minutes,              Config.ChatRequest.DurationMaxV,    true, true, l_NewRectMin, l_NewRectMax);
-            SDK.UI.SliderSetting.Setup(m_VoteMin,               l_Event, SDK.UI.BSMLSettingFormartter.Percentage,           Config.ChatRequest.VoteMinV,        true, true, l_NewRectMin, l_NewRectMax);
-            SDK.UI.SliderSetting.Setup(m_DateMin,               l_Event, SDK.UI.BSMLSettingFormartter.DateMonthFrom2018,    Config.ChatRequest.DateMinV,        true, true, l_NewRectMin, l_NewRectMax);
-            SDK.UI.SliderSetting.Setup(m_DateMax,               l_Event, SDK.UI.BSMLSettingFormartter.DateMonthFrom2018,    Config.ChatRequest.DateMaxV,        true, true, l_NewRectMin, l_NewRectMax);
+            SDK.UI.SliderSetting.Setup(m_NPSMin,                l_Event, null,                                              CRConfig.Instance.Filters.NPSMinV,         true, true, l_NewRectMin, l_NewRectMax);
+            SDK.UI.SliderSetting.Setup(m_NPSMax,                l_Event, null,                                              CRConfig.Instance.Filters.NPSMaxV,         true, true, l_NewRectMin, l_NewRectMax);
+            SDK.UI.SliderSetting.Setup(m_NJSMin,                l_Event, null,                                              CRConfig.Instance.Filters.NJSMinV,         true, true, l_NewRectMin, l_NewRectMax);
+            SDK.UI.SliderSetting.Setup(m_NJSMax,                l_Event, null,                                              CRConfig.Instance.Filters.NJSMaxV,         true, true, l_NewRectMin, l_NewRectMax);
+            SDK.UI.SliderSetting.Setup(m_DurationMax,           l_Event, SDK.UI.BSMLSettingFormartter.Minutes,              CRConfig.Instance.Filters.DurationMaxV,    true, true, l_NewRectMin, l_NewRectMax);
+            SDK.UI.SliderSetting.Setup(m_VoteMin,               l_Event, SDK.UI.BSMLSettingFormartter.Percentage,           CRConfig.Instance.Filters.VoteMinV,        true, true, l_NewRectMin, l_NewRectMax);
+            SDK.UI.SliderSetting.Setup(m_DateMin,               l_Event, SDK.UI.BSMLSettingFormartter.DateMonthFrom2018,    CRConfig.Instance.Filters.DateMinV,        true, true, l_NewRectMin, l_NewRectMax);
+            SDK.UI.SliderSetting.Setup(m_DateMax,               l_Event, SDK.UI.BSMLSettingFormartter.DateMonthFrom2018,    CRConfig.Instance.Filters.DateMaxV,        true, true, l_NewRectMin, l_NewRectMax);
 
             /// Update interactable
             SDK.UI.SliderSetting.SetInteractable(m_NPSMin,        m_NPSMinToggle.Value);
@@ -125,25 +125,25 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
             SDK.UI.SliderSetting.SetInteractable(m_DateMax,      m_DateMaxToggle.Value);
 
             /// Left
-            Config.ChatRequest.NoBeatSage   = m_NoBeatSageToggle.Value;
-            Config.ChatRequest.NPSMin       = m_NPSMinToggle.Value;
-            Config.ChatRequest.NPSMax       = m_NPSMaxToggle.Value;
-            Config.ChatRequest.NJSMin       = m_NJSMinToggle.Value;
-            Config.ChatRequest.NJSMax       = m_NJSMaxToggle.Value;
-            Config.ChatRequest.DurationMax  = m_DurationMaxToggle.Value;
-            Config.ChatRequest.VoteMin      = m_VoteMinToggle.Value;
-            Config.ChatRequest.DateMin      = m_DateMinToggle.Value;
-            Config.ChatRequest.DateMax      = m_DateMaxToggle.Value;
+            CRConfig.Instance.Filters.NoBeatSage   = m_NoBeatSageToggle.Value;
+            CRConfig.Instance.Filters.NPSMin       = m_NPSMinToggle.Value;
+            CRConfig.Instance.Filters.NPSMax       = m_NPSMaxToggle.Value;
+            CRConfig.Instance.Filters.NJSMin       = m_NJSMinToggle.Value;
+            CRConfig.Instance.Filters.NJSMax       = m_NJSMaxToggle.Value;
+            CRConfig.Instance.Filters.DurationMax  = m_DurationMaxToggle.Value;
+            CRConfig.Instance.Filters.VoteMin      = m_VoteMinToggle.Value;
+            CRConfig.Instance.Filters.DateMin      = m_DateMinToggle.Value;
+            CRConfig.Instance.Filters.DateMax      = m_DateMaxToggle.Value;
 
             /// Right
-            Config.ChatRequest.NPSMinV       = (int)m_NPSMin.slider.value;
-            Config.ChatRequest.NPSMaxV       = (int)m_NPSMax.slider.value;
-            Config.ChatRequest.NJSMinV       = (int)m_NJSMin.slider.value;
-            Config.ChatRequest.NJSMaxV       = (int)m_NJSMax.slider.value;
-            Config.ChatRequest.DurationMaxV  = (int)m_DurationMax.slider.value;
-            Config.ChatRequest.VoteMinV      = m_VoteMin.slider.value;
-            Config.ChatRequest.DateMinV      = (int)m_DateMin.slider.value;
-            Config.ChatRequest.DateMaxV      = (int)m_DateMax.slider.value;
+            CRConfig.Instance.Filters.NPSMinV       = (int)m_NPSMin.slider.value;
+            CRConfig.Instance.Filters.NPSMaxV       = (int)m_NPSMax.slider.value;
+            CRConfig.Instance.Filters.NJSMinV       = (int)m_NJSMin.slider.value;
+            CRConfig.Instance.Filters.NJSMaxV       = (int)m_NJSMax.slider.value;
+            CRConfig.Instance.Filters.DurationMaxV  = (int)m_DurationMax.slider.value;
+            CRConfig.Instance.Filters.VoteMinV      = m_VoteMin.slider.value;
+            CRConfig.Instance.Filters.DateMinV      = (int)m_DateMin.slider.value;
+            CRConfig.Instance.Filters.DateMaxV      = (int)m_DateMax.slider.value;
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -157,25 +157,25 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
             m_PreventChanges = true;
 
             /// Left
-            m_NoBeatSageToggle.Value    = Config.ChatRequest.NoBeatSage;
-            m_NPSMinToggle.Value        = Config.ChatRequest.NPSMin;
-            m_NPSMaxToggle.Value        = Config.ChatRequest.NPSMax;
-            m_NJSMinToggle.Value        = Config.ChatRequest.NJSMin;
-            m_NJSMaxToggle.Value        = Config.ChatRequest.NJSMax;
-            m_DurationMaxToggle.Value   = Config.ChatRequest.DurationMax;
-            m_VoteMinToggle.Value       = Config.ChatRequest.VoteMin;
-            m_DateMinToggle.Value       = Config.ChatRequest.DateMin;
-            m_DateMaxToggle.Value       = Config.ChatRequest.DateMax;
+            m_NoBeatSageToggle.Value    = CRConfig.Instance.Filters.NoBeatSage;
+            m_NPSMinToggle.Value        = CRConfig.Instance.Filters.NPSMin;
+            m_NPSMaxToggle.Value        = CRConfig.Instance.Filters.NPSMax;
+            m_NJSMinToggle.Value        = CRConfig.Instance.Filters.NJSMin;
+            m_NJSMaxToggle.Value        = CRConfig.Instance.Filters.NJSMax;
+            m_DurationMaxToggle.Value   = CRConfig.Instance.Filters.DurationMax;
+            m_VoteMinToggle.Value       = CRConfig.Instance.Filters.VoteMin;
+            m_DateMinToggle.Value       = CRConfig.Instance.Filters.DateMin;
+            m_DateMaxToggle.Value       = CRConfig.Instance.Filters.DateMax;
 
             /// Right
-            m_NPSMin.slider.value       = Config.ChatRequest.NPSMinV;
-            m_NPSMax.slider.value       = Config.ChatRequest.NPSMaxV;
-            m_NJSMin.slider.value       = Config.ChatRequest.NJSMinV;
-            m_NJSMax.slider.value       = Config.ChatRequest.NJSMaxV;
-            m_DurationMax.slider.value  = Config.ChatRequest.DurationMaxV;
-            m_VoteMin.slider.value      = Config.ChatRequest.VoteMinV;
-            m_DateMin.slider.value      = Config.ChatRequest.DateMinV;
-            m_DateMax.slider.value      = Config.ChatRequest.DateMaxV;
+            m_NPSMin.slider.value       = CRConfig.Instance.Filters.NPSMinV;
+            m_NPSMax.slider.value       = CRConfig.Instance.Filters.NPSMaxV;
+            m_NJSMin.slider.value       = CRConfig.Instance.Filters.NJSMinV;
+            m_NJSMax.slider.value       = CRConfig.Instance.Filters.NJSMaxV;
+            m_DurationMax.slider.value  = CRConfig.Instance.Filters.DurationMaxV;
+            m_VoteMin.slider.value      = CRConfig.Instance.Filters.VoteMinV;
+            m_DateMin.slider.value      = CRConfig.Instance.Filters.DateMinV;
+            m_DateMax.slider.value      = CRConfig.Instance.Filters.DateMaxV;
 
             m_PreventChanges = false;
 

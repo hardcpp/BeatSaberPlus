@@ -82,7 +82,7 @@ namespace BSP_WebSocketSharp.Net.WebSockets
     /// </summary>
     /// <value>
     ///   <para>
-    ///   A <see cref="BSP_WebSocketSharp.Net.CookieCollection"/> that contains
+    ///   A <see cref="WebSocketSharp.Net.CookieCollection"/> that contains
     ///   the cookies.
     ///   </para>
     ///   <para>
@@ -351,7 +351,7 @@ namespace BSP_WebSocketSharp.Net.WebSockets
     /// the client and server.
     /// </summary>
     /// <value>
-    /// A <see cref="BSP_WebSocketSharp.WebSocket"/>.
+    /// A <see cref="WebSocketSharp.WebSocket"/>.
     /// </value>
     public override WebSocket WebSocket {
       get {

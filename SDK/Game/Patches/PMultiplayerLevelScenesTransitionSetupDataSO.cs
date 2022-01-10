@@ -59,7 +59,7 @@ namespace BeatSaberPlus.SDK.Game.Patches
             if (m_LevelData == null)
                 return;
 
-            Logic.FireLevelEnded(new LevelCompletionData() { Type = LevelType.Multiplayer, Data = m_LevelData.Data, Results = p_MultiplayerResultsData.localPlayerResultData.levelCompletionResults });
+            Logic.FireLevelEnded(new LevelCompletionData() { Type = LevelType.Multiplayer, Data = m_LevelData.Data, Results = p_MultiplayerResultsData?.localPlayerResultData?.multiplayerLevelCompletionResults?.levelCompletionResults ?? null });
             m_LevelData = null;
         }
     }

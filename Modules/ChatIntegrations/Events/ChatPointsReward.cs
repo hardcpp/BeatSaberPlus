@@ -103,6 +103,8 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Events
         private IncrementSetting m_MaxPerUserPerStreamIncrement = null;
         [UIComponent("CooldownIncrement")]
         private IncrementSetting m_CooldownIncrement = null;
+        [UIComponent("AutoFullfillRefund")]
+        private ToggleSetting m_AutoFullfillRefund = null;
 #pragma warning restore CS0414
 
         ////////////////////////////////////////////////////////////////////////////
@@ -133,12 +135,13 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Events
             SDK.UI.Backgroundable.SetOpacity(m_InfoBackground, 0.5f);
 
             /// Setup fields
-            SDK.UI.SliderSetting.Setup(m_CostIncrement, l_Event, null, Model.Cost, true, true, new Vector2(0.41f, 0f), new Vector2(0.94f, 1.0f));
+            SDK.UI.SliderSetting.Setup(m_CostIncrement, l_Event, null, Model.Cost, true, true, new Vector2(0.07f, 0f), new Vector2(0.95f, 1.0f));
 
             SDK.UI.ToggleSetting.Setup(m_RequireInputToggle,                l_Event,                      Model.RequireInput,          true);
             SDK.UI.IncrementSetting.Setup(m_MaxPerStreamIncrement,          l_Event, l_QuantityFormatter, Model.MaxPerStream,          true);
             SDK.UI.IncrementSetting.Setup(m_MaxPerUserPerStreamIncrement,   l_Event, l_QuantityFormatter, Model.MaxPerUserPerStream,   true);
             SDK.UI.IncrementSetting.Setup(m_CooldownIncrement,              l_Event, l_CooldownFormatter, Model.Cooldown,              true);
+            SDK.UI.ToggleSetting.Setup(m_AutoFullfillRefund,                l_Event,                      Model.AutoFullfillRefund,    true);
 
             m_PromptText.fontSizeMax = m_PromptText.fontSize;
             m_PromptText.fontSizeMin = 1;
@@ -158,6 +161,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Events
             Model.MaxPerStream          = (int)m_MaxPerStreamIncrement.Value;
             Model.MaxPerUserPerStream   = (int)m_MaxPerUserPerStreamIncrement.Value;
             Model.Cooldown              = (int)m_CooldownIncrement.Value;
+            Model.AutoFullfillRefund    = m_AutoFullfillRefund.Value;
         }
         /// <summary>
         /// Update UI component values
@@ -263,6 +267,9 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Events
         /// <param name="p_Context">Event context</param>
         public override void OnSuccess(EventContext p_Context)
         {
+            if (!Model.AutoFullfillRefund)
+                return;
+
             var l_Channel = SDK.Chat.Service.Multiplexer.Channels.First();
             if (l_Channel.Item2 is SDK.Chat.Models.Twitch.TwitchChannel l_TwitchChannel)
             {
@@ -288,6 +295,9 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Events
         /// <param name="p_Context">Event context</param>
         public override sealed void OnEventFailed(Models.EventContext p_Context)
         {
+            if (!Model.AutoFullfillRefund)
+                return;
+
             var l_Channel = SDK.Chat.Service.Multiplexer.Channels.First();
             if (l_Channel.Item2 is SDK.Chat.Models.Twitch.TwitchChannel l_TwitchChannel)
             {
@@ -316,6 +326,9 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Events
         /// </summary>
         public override sealed void OnDisable()
         {
+            if (SDK.Chat.Service.Multiplexer.Channels.Count == 0)
+                return;
+
             var l_Channel = SDK.Chat.Service.Multiplexer.Channels.First();
             if (l_Channel.Item2 is SDK.Chat.Models.Twitch.TwitchChannel l_TwitchChannel)
             {
@@ -381,6 +394,9 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Events
         /// </summary>
         private void CreateOrUpdateReward()
         {
+            if (SDK.Chat.Service.Multiplexer.Channels.Count == 0)
+                return;
+
             var l_Channel = SDK.Chat.Service.Multiplexer.Channels.First();
             if (l_Channel.Item2 is SDK.Chat.Models.Twitch.TwitchChannel l_TwitchChannel)
             {

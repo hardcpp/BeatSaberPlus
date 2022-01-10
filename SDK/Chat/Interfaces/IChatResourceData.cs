@@ -3,7 +3,7 @@
     public interface IChatResourceData
     {
         string Uri { get; }
-        bool IsAnimated { get; }
+        Animation.AnimationType Animation { get; }
         string Type { get; }
     }
 }

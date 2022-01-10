@@ -9,7 +9,7 @@ namespace BeatSaberPlus.SDK.Chat.Interfaces
         string Uri { get; }
         int StartIndex { get; }
         int EndIndex { get; }
-        bool IsAnimated { get; }
+        Animation.AnimationType Animation { get; }
         /// <summary>
         /// The type of resource associated with this chat emote
         /// </summary>

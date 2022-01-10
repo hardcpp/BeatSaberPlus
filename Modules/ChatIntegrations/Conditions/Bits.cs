@@ -33,7 +33,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Conditions
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
 
             SDK.UI.ListSetting.Setup(m_CheckTypeList,               l_Event,                                    false);
-            SDK.UI.SliderSetting.Setup(m_CountSlider,               l_Event, null, Model.Count,                 true, true, new Vector2(0.51f, 0.10f), new Vector2(0.93f, 0.90f));
+            SDK.UI.SliderSetting.Setup(m_CountSlider,               l_Event, null, Model.Count,                 true, true, new Vector2(0.08f, 0.10f), new Vector2(0.93f, 0.90f));
 
             OnSettingChanged(null);
         }

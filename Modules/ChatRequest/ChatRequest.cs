@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Linq;
 using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -31,7 +32,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
         /// <summary>
         /// Is enabled
         /// </summary>
-        public override bool IsEnabled { get => Config.ChatRequest.Enabled; set => Config.ChatRequest.Enabled = value; }
+        public override bool IsEnabled { get => CRConfig.Instance.Enabled; set { CRConfig.Instance.Enabled = value; CRConfig.Instance.Save(); } }
         /// <summary>
         /// Activation kind
         /// </summary>
@@ -69,10 +70,6 @@ namespace BeatSaberPlus.Modules.ChatRequest
         /// </summary>
         private UI.SettingsRight m_SettingsRightView = null;
         /// <summary>
-        /// BeatSaver API
-        /// </summary>
-        private BeatSaverSharp.BeatSaver m_BeatSaver = null;
-        /// <summary>
         /// Chat core instance
         /// </summary>
         private bool m_ChatCoreAcquired = false;
@@ -85,12 +82,59 @@ namespace BeatSaberPlus.Modules.ChatRequest
         /// </summary>
         protected override void OnEnable()
         {
-            /// Create BeatSaver instance
-            m_BeatSaver = new BeatSaverSharp.BeatSaver(new BeatSaverSharp.HttpOptions("bsp_chat_request", Plugin.Version.Major + "." + Plugin.Version.Minor + "." + Plugin.Version.Patch, handleRateLimits: true));
+            /// Create directory
+            try
+            {
+                var l_Path = System.IO.Path.GetDirectoryName(m_DBFilePath);
+                if (!System.IO.Directory.Exists(l_Path))
+                    System.IO.Directory.CreateDirectory(l_Path);
+            }
+            catch (System.Exception l_Exception)
+            {
+                Logger.Instance.Critical($"[ChatRequest][ChatRequest.OnEnable] Failed to create directory \"{System.IO.Path.GetDirectoryName(m_DBFilePath)}\"");
+                Logger.Instance.Critical(l_Exception);
+            }
+
+            /// Move old file
+            try
+            {
+                if (System.IO.File.Exists(m_DBFilePathOld))
+                {
+                    if (System.IO.File.Exists(m_DBFilePath))
+                        System.IO.File.Delete(m_DBFilePathOld);
+                    else
+                        System.IO.File.Move(m_DBFilePathOld, m_DBFilePath);
+                }
+            }
+            catch (System.Exception l_Exception)
+            {
+                Logger.Instance.Critical($"[ChatRequest][ChatRequest.OnEnable] Failed to move database \"{m_DBFilePathOld}\"");
+                Logger.Instance.Critical(l_Exception);
+            }
+
+            /// Move old file
+            try
+            {
+                if (System.IO.File.Exists(m_SimpleQueueFilePathOld))
+                {
+                    if (System.IO.File.Exists(m_SimpleQueueFilePath))
+                        System.IO.File.Delete(m_SimpleQueueFilePathOld);
+                    else
+                        System.IO.File.Move(m_SimpleQueueFilePathOld, m_SimpleQueueFilePath);
+                }
+            }
+            catch (System.Exception l_Exception)
+            {
+                Logger.Instance.Critical($"[ChatRequest][ChatRequest.OnEnable] Failed to move database \"{m_DBFilePathOld}\"");
+                Logger.Instance.Critical(l_Exception);
+            }
 
             /// Try to load DB
             LoadDatabase();
             UpdateSimpleQueueFile();
+
+            /// Build command table
+            BuildCommandTable();
 
             /// Bind events
             SDK.Game.Logic.OnMenuSceneLoaded += OnMenuSceneLoaded;
@@ -111,7 +155,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
                 m_CreateButtonCoroutine = SharedCoroutineStarter.instance.StartCoroutine(CreateButtonCoroutine());
 
             /// Set queue status
-            QueueOpen = Config.ChatRequest.QueueOpen;
+            QueueOpen = CRConfig.Instance.QueueOpen;
         }
         /// <summary>
         /// Disable the Module
@@ -135,10 +179,6 @@ namespace BeatSaberPlus.Modules.ChatRequest
                 SDK.Chat.Service.Release();
                 m_ChatCoreAcquired = false;
             }
-
-            /// Destroy BeatSaver
-            if (m_BeatSaver != null)
-                m_BeatSaver = null;
 
             /// Stop coroutine
             if (m_CreateButtonCoroutine != null)
@@ -265,23 +305,22 @@ namespace BeatSaberPlus.Modules.ChatRequest
                                     SongEntry l_CachedEntry = null;
 
                                     lock (SongHistory)
-                                        l_CachedEntry = SongHistory.Where(x => x.BeatMap != null && x.BeatMap.Hash != null && x.BeatMap.Hash.ToLower() == l_Hash).FirstOrDefault();
+                                        l_CachedEntry = SongHistory.Where(x => x.BeatMap != null && x.BeatMap.SelectMapVersion().hash.ToLower() == l_Hash).FirstOrDefault();
 
                                     if (l_CachedEntry == null)
                                     {
-                                        m_BeatSaver.Hash(l_Hash).ContinueWith((x) =>
+                                        SDK.Game.BeatMapsClient.GetOnlineByHash(l_Hash, (p_Valid, p_BeatMap) =>
                                         {
-                                            if (   x.Status != TaskStatus.RanToCompletion
-                                                || x.Result == null
+                                            if (   !p_Valid
                                                 || l_CurrentMap.level != (SDK.Game.Logic.LevelData?.Data?.difficultyBeatmap?.level ?? null))
                                                 return;
 
-                                            m_LastPlayingLevelResponse += " https://beatsaver.com/beatmap/" + x.Result.Key;
+                                            m_LastPlayingLevelResponse += " https://beatsaver.com/maps/" + p_BeatMap.id;
                                         });
                                     }
                                     else
                                     {
-                                        m_LastPlayingLevelResponse += " https://beatsaver.com/beatmap/" + l_CachedEntry.BeatMap.Key;
+                                        m_LastPlayingLevelResponse += " https://beatsaver.com/maps/" + l_CachedEntry.BeatMap.id;
                                     }
                                 }
                             }
@@ -317,17 +356,18 @@ namespace BeatSaberPlus.Modules.ChatRequest
                 yield return new WaitForSeconds(0.25f);
             }
 
-            m_ManagerButtonP = SDK.UI.Button.CreatePrimary(p_LevelSelectionNavigationController.transform, "Chat Request", () => UI.ManagerViewFlowCoordinator.Instance().Present(), null);
-            m_ManagerButtonP.transform.localPosition = new Vector3(62.50f, 41.50f, 2.6f);
-            m_ManagerButtonP.transform.localScale    = new Vector3(1.0f, 0.8f, 1.0f);
-            m_ManagerButtonP.transform.SetAsLastSibling();
+            m_ManagerButtonP = SDK.UI.Button.CreatePrimary(p_LevelSelectionNavigationController.transform, "Chat\nRequest", () => UI.ManagerViewFlowCoordinator.Instance().Present(), null);
+            m_ManagerButtonP.transform.localPosition = new Vector3(72.50f, 41.50f - 3, 2.6f);
+            m_ManagerButtonP.transform.localScale    = new Vector3(0.8f, 0.6f, 0.8f);
+            m_ManagerButtonP.transform.SetAsFirstSibling();
             m_ManagerButtonP.gameObject.SetActive(false);
 
-            m_ManagerButtonS = SDK.UI.Button.Create(p_LevelSelectionNavigationController.transform, "Chat Request", () => UI.ManagerViewFlowCoordinator.Instance().Present(), null);
-            m_ManagerButtonS.transform.localPosition = new Vector3(62.50f, 38.50f, 2.6f);
-            m_ManagerButtonS.transform.localScale    = new Vector3(1.0f, 0.8f, 1.0f);
-            m_ManagerButtonS.transform.SetAsLastSibling();
+            m_ManagerButtonS = SDK.UI.Button.Create(p_LevelSelectionNavigationController.transform, "Chat\nRequest", () => UI.ManagerViewFlowCoordinator.Instance().Present(), null);
+            m_ManagerButtonS.transform.localPosition = new Vector3(72.50f, 38.50f - 3, 2.6f);
+            m_ManagerButtonS.transform.localScale    = new Vector3(0.8f, 0.6f, 0.8f);
+            m_ManagerButtonS.transform.SetAsFirstSibling();
             m_ManagerButtonS.gameObject.SetActive(true);
+            m_ManagerButtonS.GetComponentInChildren<TextMeshProUGUI>().margin = new Vector4(0, 4, 0, 0);
 
             UpdateButton();
 
@@ -341,11 +381,11 @@ namespace BeatSaberPlus.Modules.ChatRequest
             if (m_ManagerButtonP == null || m_ManagerButtonS == null)
                 return;
 
-            m_ManagerButtonP.transform.localPosition = new Vector3(62.50f, 41.50f, 2.6f);
-            m_ManagerButtonP.transform.localScale = new Vector3(1.0f, 0.8f, 1.0f);
+            m_ManagerButtonP.transform.localPosition = new Vector3(72.50f, 41.50f - 3, 2.6f);
+            m_ManagerButtonP.transform.localScale = new Vector3(0.8f, 0.6f, 0.8f);
 
-            m_ManagerButtonS.transform.localPosition = new Vector3(62.50f, 38.50f, 2.6f);
-            m_ManagerButtonS.transform.localScale = new Vector3(1.0f, 0.8f, 1.0f);
+            m_ManagerButtonS.transform.localPosition = new Vector3(72.50f, 38.50f - 3, 2.6f);
+            m_ManagerButtonS.transform.localScale = new Vector3(0.8f, 0.6f, 0.8f);
 
             m_ManagerButtonP.gameObject.SetActive(SongQueue.Count != 0);
             m_ManagerButtonS.gameObject.SetActive(SongQueue.Count == 0);

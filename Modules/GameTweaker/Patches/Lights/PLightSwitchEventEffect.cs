@@ -160,8 +160,8 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches.Lights
 
             if (!m_FauxStaticLight && p_Enabled)
             {
-                var l_EventA = new BeatmapEventData(0.0f, BeatmapEventType.Event0, 1);
-                var l_EventB = new BeatmapEventData(0.0f, BeatmapEventType.Event4, 1);
+                var l_EventA = new BeatmapEventData(0.0f, BeatmapEventType.Event0, 1, 1);
+                var l_EventB = new BeatmapEventData(0.0f, BeatmapEventType.Event4, 1, 1);
 
                 foreach (var l_KVP in m_InitialData)
                 {
@@ -180,7 +180,7 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches.Lights
                     l_Light.SetField<LightSwitchEventEffect, bool>(     "_initialized",         false);
 
                     /// Force update to restore initial state
-                    l_Light.Update();
+                    //l_Light.Update();
 
                     /// Ingest static light initial event
                     l_Light.HandleBeatmapObjectCallbackControllerBeatmapEventDidTrigger(l_EventA);
@@ -208,7 +208,7 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches.Lights
                     l_Light.SetField<LightSwitchEventEffect, bool>(     "_initialized",         false);
 
                     /// Force update to restore initial state
-                    l_Light.Update();
+                    //l_Light.Update();
                 }
 
                 m_FauxStaticLight = false;

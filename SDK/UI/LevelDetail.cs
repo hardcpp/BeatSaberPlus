@@ -1,4 +1,4 @@
-﻿using BeatSaverSharp;
+﻿using BeatmapEditor;
 using IPA.Utilities;
 using Polyglot;
 using System;
@@ -19,7 +19,7 @@ namespace BeatSaberPlus.SDK.UI
         /// <summary>
         /// Song detail view template
         /// </summary>
-        private static UnityEngine.GameObject m_SongDetailViewTemplate = null;
+        private static GameObject m_SongDetailViewTemplate = null;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -30,7 +30,10 @@ namespace BeatSaberPlus.SDK.UI
         internal static void Init()
         {
             if (m_SongDetailViewTemplate == null)
-                m_SongDetailViewTemplate = UnityEngine.GameObject.Instantiate(UnityEngine.Resources.FindObjectsOfTypeAll<StandardLevelDetailView>().First(x => x.gameObject.name == "LevelDetail").gameObject);
+            {
+                m_SongDetailViewTemplate = GameObject.Instantiate(Resources.FindObjectsOfTypeAll<StandardLevelDetailView>().First(x => x.gameObject.name == "LevelDetail").gameObject);
+                GameObject.DestroyImmediate(m_SongDetailViewTemplate.GetComponent<StandardLevelDetailView>());
+            }
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -55,7 +58,7 @@ namespace BeatSaberPlus.SDK.UI
         private UnityEngine.UI.Button m_PracticeButton = null;
         private UnityEngine.UI.Button m_PlayButton = null;
         private UnityEngine.GameObject m_FavoriteToggle = null;
-        private Beatmap m_BeatMap = null;
+        private Game.BeatMaps.MapDetail m_BeatMap = null;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -182,7 +185,7 @@ namespace BeatSaberPlus.SDK.UI
 
         public BeatmapCharacteristicSO SelectedBeatmapCharacteristicSO = null;
         public BeatmapDifficulty SelecteBeatmapDifficulty = BeatmapDifficulty.Easy;
-        public BeatmapCharacteristicDifficulty SelectedBeatmapCharacteristicDifficulty = default;
+        public Game.BeatMaps.MapDifficulty SelectedBeatmapCharacteristicDifficulty = default;
         public event Action<IDifficultyBeatmap> OnActiveDifficultyChanged;
 
         ////////////////////////////////////////////////////////////////////////////
@@ -196,9 +199,6 @@ namespace BeatSaberPlus.SDK.UI
         {
             /// Close music preview details panel
             m_GameObject = UnityEngine.GameObject.Instantiate(m_SongDetailViewTemplate, p_Parent);
-
-            /// Clean unused elements
-            UnityEngine.GameObject.Destroy(m_GameObject.GetComponent<StandardLevelDetailView>());
 
             var l_BSMLObjects     = m_GameObject.GetComponentsInChildren<UnityEngine.RectTransform>().Where(x => x.gameObject.name.StartsWith("BSML"));
             var l_HoverHints      = m_GameObject.GetComponentsInChildren<HMUI.HoverHint>();
@@ -247,7 +247,12 @@ namespace BeatSaberPlus.SDK.UI
             m_AuthorNameText.richText = true;
             m_SongCoverImage    = l_LevelBarBig.Find("SongArtwork").GetComponent<HMUI.ImageView>();
 
+            /// Disable multiline
+            l_LevelBarBig.Find("MultipleLineTextContainer").gameObject.SetActive(false);
+
             var l_BeatmapParamsPanel = m_GameObject.transform.Find("BeatmapParamsPanel");
+            l_BeatmapParamsPanel.transform.localPosition = l_BeatmapParamsPanel.transform.localPosition + (2 * Vector3.up);
+
             l_BeatmapParamsPanel.gameObject.AddComponent<UnityEngine.UI.HorizontalLayoutGroup>().childControlHeight=false;
             l_BeatmapParamsPanel.gameObject.AddComponent<UnityEngine.UI.LayoutElement>();
 
@@ -301,6 +306,8 @@ namespace BeatSaberPlus.SDK.UI
             /// Bind events
             m_SongCharacteristicSegmentedControl.didSelectCellEvent += OnCharacteristicChanged;
             m_SongDiffSegmentedControl.didSelectCellEvent           += OnDifficultyChanged;
+
+            m_GameObject.SetActive(true);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -403,17 +410,17 @@ namespace BeatSaberPlus.SDK.UI
             }
 
             /// Display difficulty
-            Difficulty = Game.Level.SerializedToDifficultyName(p_DifficultyRaw);
+            Difficulty = Game.Levels.SerializedToDifficultyName(p_DifficultyRaw);
 
             Name            = p_BeatMap.songName;
             AuthorNameText  = "Mapped by <b><u><i>" + p_BeatMap.levelAuthorName + "</b></u></i>";
             Cover           = p_Cover ?? SongCore.Loader.defaultCoverImage;
             Time            = p_BeatMap.songDuration;
             BPM             = p_BeatMap.standardLevelInfoSaveData.beatsPerMinute;
-            NPS             = ((float)l_SelectedDifficulty.cuttableNotesType / (float)p_BeatMap.standardLevelInfoSaveData.beatsPerMinute);
+            NPS             = ((float)l_SelectedDifficulty.cuttableNotesCount / (float)p_BeatMap.standardLevelInfoSaveData.beatsPerMinute);
             NJS             = (int)l_DifficultyBeatMap.noteJumpMovementSpeed;
             Offset          = l_DifficultyBeatMap.noteJumpStartBeatOffset;
-            Notes           = l_SelectedDifficulty.cuttableNotesType;
+            Notes           = l_SelectedDifficulty.cuttableNotesCount;
             Obstacles       = l_SelectedDifficulty.obstaclesCount;
             Bombs           = l_SelectedDifficulty.bombsCount;
 
@@ -428,7 +435,7 @@ namespace BeatSaberPlus.SDK.UI
         /// <param name="p_DifficultyRaw">Difficulty raw</param>
         /// <param name="p_CharacteristicSO">Out SO characteristic</param>
         /// <returns></returns>
-        public bool FromBeatSaver(Beatmap p_BeatMap, UnityEngine.Sprite p_Cover, string p_Characteristic, string p_DifficultyRaw, out BeatmapCharacteristicSO p_CharacteristicSO)
+        public bool FromBeatSaver(Game.BeatMaps.MapDetail p_BeatMap, UnityEngine.Sprite p_Cover, string p_Characteristic, string p_DifficultyRaw, out BeatmapCharacteristicSO p_CharacteristicSO)
         {
             m_BeatMap = null;
             p_CharacteristicSO = null;
@@ -439,29 +446,23 @@ namespace BeatSaberPlus.SDK.UI
                 return false;
             }
 
-            /// Select characteristic
-            BeatmapCharacteristic l_SelectedCharacteristic = default;
-            bool l_CharacteristicFound = false;
-
-            foreach (var l_Current in p_BeatMap.Metadata.Characteristics)
+            var l_Version = p_BeatMap.SelectMapVersion();
+            if (l_Version == null)
             {
-                if (l_Current.Name.ToLower() != Game.BeatSaver.SanitizeGameMode(p_Characteristic).ToLower())
-                    continue;
-
-                l_SelectedCharacteristic    = l_Current;
-                l_CharacteristicFound       = true;
-                break;
+                Logger.Instance.Error($"[SDK.UI][LevelDetail.FromBeatSaver1] Null version provided!");
+                return false;
             }
 
-            if (l_CharacteristicFound == default)
+            var l_Difficulties = l_Version.GetDifficultiesPerCharacteristic(Game.Levels.SanitizeCharacteristic(p_Characteristic).ToLower());
+            if (l_Difficulties.Count == 0)
                 return false;
 
             /// Display mode
-            BeatmapCharacteristicSO l_CharacteristicDetails = SongCore.Loader.beatmapCharacteristicCollection.GetBeatmapCharacteristicBySerializedName(l_SelectedCharacteristic.Name);
+            BeatmapCharacteristicSO l_CharacteristicDetails = Game.Levels.GetCharacteristicSOBySerializedName(p_Characteristic);
 
             if (l_CharacteristicDetails == null)
             {
-                Logger.Instance.Error($"[SDK.UI][LevelDetail.FromBeatSaver1] Characteristic \"{l_SelectedCharacteristic.Name}\" not found in song core");
+                Logger.Instance.Error($"[SDK.UI][LevelDetail.FromBeatSaver1] Characteristic \"{p_Characteristic}\" not found in song core");
                 return false;
             }
 
@@ -469,37 +470,35 @@ namespace BeatSaberPlus.SDK.UI
             p_CharacteristicSO  = l_CharacteristicDetails;
 
             /// Select difficulty
-            BeatmapCharacteristicDifficulty l_SelectedDifficulty = default;
-            bool l_DifficultyFound = false;
+            Game.BeatMaps.MapDifficulty l_SelectedDifficulty = null;
 
-            foreach (var l_Current in l_SelectedCharacteristic.Difficulties.Where(x => l_SelectedCharacteristic.Difficulties[x.Key] != null).ToList())
+            foreach (var l_Current in l_Difficulties)
             {
-                if (l_Current.Value == null || l_Current.Key.ToLower() != p_DifficultyRaw.ToLower())
+                if (l_Current.difficulty.ToLower() != p_DifficultyRaw.ToLower())
                     continue;
 
-                l_SelectedDifficulty    = l_Current.Value;
-                l_DifficultyFound       = true;
+                l_SelectedDifficulty    = l_Current;
                 break;
             }
 
-            if (l_DifficultyFound == default)
+            if (l_SelectedDifficulty == null)
                 return false;
 
             /// Display difficulty
-            Difficulty = Game.Level.SerializedToDifficultyName(p_DifficultyRaw);
+            Difficulty = Game.Levels.SerializedToDifficultyName(p_DifficultyRaw);
 
             /// Display informations
-            Name            = p_BeatMap.Metadata.SongName;
-            AuthorNameText  = "Mapped by <b><u><i>" + p_BeatMap.Metadata.LevelAuthorName + "</b></u></i>";
+            Name            = p_BeatMap.metadata.songName;
+            AuthorNameText  = "Mapped by <b><u><i>" + p_BeatMap.metadata.levelAuthorName + "</b></u></i>";
             Cover           = p_Cover ?? SongCore.Loader.defaultCoverImage;
-            Time            = (double)l_SelectedDifficulty.Length;
-            BPM             = p_BeatMap.Metadata.BPM;
-            NPS             = (float)l_SelectedDifficulty.Notes / (float)l_SelectedDifficulty.Length;
-            NJS             = (int)l_SelectedDifficulty.NoteJumpSpeed;
-            Offset          = l_SelectedDifficulty.NoteJumpSpeedOffset;
-            Notes           = l_SelectedDifficulty.Notes;
-            Obstacles       = l_SelectedDifficulty.Obstacles;
-            Bombs           = l_SelectedDifficulty.Bombs;
+            Time            = (double)p_BeatMap.metadata.duration;
+            BPM             = p_BeatMap.metadata.bpm;
+            NPS             = l_SelectedDifficulty.nps;
+            NJS             = (int)l_SelectedDifficulty.njs;
+            Offset          = l_SelectedDifficulty.offset;
+            Notes           = l_SelectedDifficulty.notes;
+            Obstacles       = l_SelectedDifficulty.obstacles;
+            Bombs           = l_SelectedDifficulty.bombs;
 
             return true;
         }
@@ -509,7 +508,7 @@ namespace BeatSaberPlus.SDK.UI
         /// <param name="p_BeatMap">BeatMap</param>
         /// <param name="p_Cover">Cover texture</param>
         /// <returns></returns>
-        public bool FromBeatSaver(Beatmap p_BeatMap, UnityEngine.Sprite p_Cover)
+        public bool FromBeatSaver(Game.BeatMaps.MapDetail p_BeatMap, UnityEngine.Sprite p_Cover)
         {
             m_BeatMap = null;
 
@@ -519,25 +518,26 @@ namespace BeatSaberPlus.SDK.UI
                 return false;
             }
 
-            if (p_BeatMap.Metadata.Characteristics == null)
+            var l_Version = p_BeatMap.SelectMapVersion();
+            if (l_Version == null)
             {
-                Logger.Instance.Error($"[SDK.UI][LevelDetail.FromBeatSaver2] Invalid characteristics!");
+                Logger.Instance.Error($"[SDK.UI][LevelDetail.FromBeatSaver2] Invalid version!");
                 return false;
             }
 
             /// Display modes
             var l_Characteristics = new List<HMUI.IconSegmentedControl.DataItem>();
-            foreach (var l_Current in p_BeatMap.Metadata.Characteristics.OrderBy(x => GetCharacteristicOrdering(x)))
+            foreach (var l_Current in l_Version.GetCharacteristicsInOrder())
             {
-                var l_SerializedName = Game.BeatSaver.SanitizeGameMode(l_Current.Name);
+                var l_SerializedName = Game.Levels.SanitizeCharacteristic(l_Current);
 
                 if (string.IsNullOrEmpty(l_SerializedName))
                 {
-                    Logger.Instance.Error($"[SDK.UI][LevelDetail.FromBeatSaver2] Invalid characteristic \"{l_Current.Name}\"!");
+                    Logger.Instance.Error($"[SDK.UI][LevelDetail.FromBeatSaver2] Invalid characteristic \"{l_Current}\"!");
                     return false;
                 }
 
-                BeatmapCharacteristicSO l_CharacteristicDetails = SongCore.Loader.beatmapCharacteristicCollection.GetBeatmapCharacteristicBySerializedName(l_SerializedName);
+                BeatmapCharacteristicSO l_CharacteristicDetails = Game.Levels.GetCharacteristicSOBySerializedName(l_SerializedName);
 
                 if (l_CharacteristicDetails != null)
                     l_Characteristics.Add(new HMUI.IconSegmentedControl.DataItem(l_CharacteristicDetails.icon, Polyglot.Localization.Get(l_CharacteristicDetails.descriptionLocalizationKey)));
@@ -545,7 +545,7 @@ namespace BeatSaberPlus.SDK.UI
 
             if (l_Characteristics.Count == 0)
             {
-                Logger.Instance.Error($"[SDK.UI][LevelDetail.FromBeatSaver2] No valid characteristics found for map \"{p_BeatMap.Hash}\"!");
+                Logger.Instance.Error($"[SDK.UI][LevelDetail.FromBeatSaver2] No valid characteristics found for map \"{p_BeatMap.id}\"!");
                 return false;
             }
 
@@ -557,10 +557,10 @@ namespace BeatSaberPlus.SDK.UI
             OnCharacteristicChanged(null, 0);
 
             /// Display informations
-            Name            = p_BeatMap.Metadata.SongName;
-            AuthorNameText  = "Mapped by <b><u><i>" + p_BeatMap.Metadata.LevelAuthorName + "</b></u></i>";
+            Name            = p_BeatMap.metadata.songName;
+            AuthorNameText  = "Mapped by <b><u><i>" + p_BeatMap.metadata.levelAuthorName + "</b></u></i>";
             Cover           = p_Cover ?? SongCore.Loader.defaultCoverImage;
-            BPM             = p_BeatMap.Metadata.BPM;
+            BPM             = p_BeatMap.metadata.bpm;
 
             return true;
         }
@@ -722,15 +722,20 @@ namespace BeatSaberPlus.SDK.UI
         /// <param name="p_Index">New selected index</param>
         private void OnCharacteristicChanged(HMUI.SegmentedControl p_SegmentControl, int p_Index)
         {
-            if (m_BeatMap == null || p_Index >= m_BeatMap.Metadata.Characteristics.Count)
+            if (m_BeatMap == null)
                 return;
 
-            var l_SortedCharacteristics = m_BeatMap.Metadata.Characteristics.OrderBy(x => GetCharacteristicOrdering(x)).ToList();
-            SelectedBeatmapCharacteristicSO = SongCore.Loader.beatmapCharacteristicCollection.GetBeatmapCharacteristicBySerializedName(l_SortedCharacteristics[p_Index].Name);
+            var l_Version = m_BeatMap.SelectMapVersion();
+            var l_Characs = l_Version.GetCharacteristicsInOrder();
+
+            if (p_Index > l_Characs.Count)
+                return;
+
+            SelectedBeatmapCharacteristicSO = Game.Levels.GetCharacteristicSOBySerializedName(Game.Levels.SanitizeCharacteristic(l_Characs[p_Index]));
 
             List<string> l_Difficulties = new List<string>();
-            foreach (var l_Current in GetBeatMapDifficultiesPerCharacteristicInOrder(l_SortedCharacteristics[p_Index]))
-                l_Difficulties.Add(Game.Level.SerializedToDifficultyName(l_Current.Key.ToString()));
+            foreach (var l_Current in l_Version.GetDifficultiesPerCharacteristic(l_Characs[p_Index]))
+                l_Difficulties.Add(Game.Levels.SerializedToDifficultyName(l_Current.difficulty.ToString()));
 
             m_SongDiffSegmentedControl.SetTexts(l_Difficulties.ToArray());
             m_SongDiffSegmentedControl.SelectCellWithNumber(l_Difficulties.Count - 1);
@@ -746,13 +751,13 @@ namespace BeatSaberPlus.SDK.UI
             if (m_BeatMap == null)
                 return;
 
-            var l_CharacIndex = m_SongCharacteristicSegmentedControl.selectedCellNumber;
-            if (l_CharacIndex >= m_BeatMap.Metadata.Characteristics.Count)
+            var l_Version = m_BeatMap.SelectMapVersion();
+            var l_Characs = l_Version.GetCharacteristicsInOrder();
+
+            if (m_SongCharacteristicSegmentedControl.selectedCellNumber > l_Characs.Count)
                 return;
 
-            var l_SortedCharacteristics = m_BeatMap.Metadata.Characteristics.OrderBy(x => GetCharacteristicOrdering(x)).ToList();
-
-            var l_Difficulties = GetBeatMapDifficultiesPerCharacteristicInOrder(l_SortedCharacteristics[l_CharacIndex]);
+            var l_Difficulties = l_Version.GetDifficultiesPerCharacteristic(l_Characs[m_SongCharacteristicSegmentedControl.selectedCellNumber]);
             if (p_Index < 0 || p_Index >= l_Difficulties.Count)
             {
                 Time        = -1f;
@@ -765,17 +770,17 @@ namespace BeatSaberPlus.SDK.UI
                 return;
             }
 
-            SelectedBeatmapCharacteristicDifficulty = l_Difficulties.ElementAt(p_Index).Value;
-            SelecteBeatmapDifficulty                = l_Difficulties.ElementAt(p_Index).Key;
+            SelectedBeatmapCharacteristicDifficulty = l_Difficulties.ElementAt(p_Index);
+            SelecteBeatmapDifficulty                = Game.Levels.SerializedToDifficulty(SelectedBeatmapCharacteristicDifficulty.difficulty);
 
             /// Display informations
-            Time        = (double)SelectedBeatmapCharacteristicDifficulty.Length;
-            NPS         = (float)SelectedBeatmapCharacteristicDifficulty.Notes / (float)SelectedBeatmapCharacteristicDifficulty.Length;
-            NJS         = (int)SelectedBeatmapCharacteristicDifficulty.NoteJumpSpeed;
-            Offset      = SelectedBeatmapCharacteristicDifficulty.NoteJumpSpeedOffset;
-            Notes       = SelectedBeatmapCharacteristicDifficulty.Notes;
-            Obstacles   = SelectedBeatmapCharacteristicDifficulty.Obstacles;
-            Bombs       = SelectedBeatmapCharacteristicDifficulty.Bombs;
+            Time        = (double)m_BeatMap.metadata.duration;
+            NPS         = (float)SelectedBeatmapCharacteristicDifficulty.nps;
+            NJS         = (int)SelectedBeatmapCharacteristicDifficulty.njs;
+            Offset      = SelectedBeatmapCharacteristicDifficulty.offset;
+            Notes       = SelectedBeatmapCharacteristicDifficulty.notes;
+            Obstacles   = SelectedBeatmapCharacteristicDifficulty.obstacles;
+            Bombs       = SelectedBeatmapCharacteristicDifficulty.bombs;
 
             if (OnActiveDifficultyChanged != null)
                 OnActiveDifficultyChanged.Invoke(GetIDifficultyBeatMap());
@@ -785,32 +790,14 @@ namespace BeatSaberPlus.SDK.UI
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
-        /// Get difficulties in order for a beatmap characteristic
-        /// </summary>
-        /// <param name="p_Chara">Beatmap characteristic</param>
-        /// <returns></returns>
-        private Dictionary<BeatmapDifficulty, BeatmapCharacteristicDifficulty> GetBeatMapDifficultiesPerCharacteristicInOrder(BeatmapCharacteristic p_Chara)
-        {
-            var l_Difficulties = new Dictionary<BeatmapDifficulty, BeatmapCharacteristicDifficulty>();
-            foreach (var l_Current in p_Chara.Difficulties.Where(x => x.Value != null).ToList())
-            {
-                if (l_Current.Value == null)
-                    continue;
-
-                l_Difficulties.Add(Game.Level.SerializedToDifficulty(l_Current.Key), l_Current.Value);
-            }
-
-            return l_Difficulties.OrderBy(x => x.Key).ToDictionary(x => x.Key, y => y.Value);
-        }
-        /// <summary>
         /// Get IDifficultyBeatmap
         /// </summary>
         /// <returns></returns>
         private IDifficultyBeatmap GetIDifficultyBeatMap()
         {
-            if (m_BeatMap == null)
+            //if (m_BeatMap == null)
                 return null;
-
+            /*
             var l_CharacIndex = m_SongCharacteristicSegmentedControl.selectedCellNumber;
             if (l_CharacIndex >= m_BeatMap.Metadata.Characteristics.Count)
                 return null;
@@ -831,22 +818,7 @@ namespace BeatSaberPlus.SDK.UI
                 var l_BSIDifficultyBeatmapSet   = l_BSBeatmapLevel.beatmapLevelData.difficultyBeatmapSets.Where(x => x.beatmapCharacteristic == SelectedBeatmapCharacteristicSO).FirstOrDefault();
 
                 return l_BSIDifficultyBeatmapSet.difficultyBeatmaps.Where(x => x.difficulty == SelecteBeatmapDifficulty).FirstOrDefault();
-            }
-        }
-        /// <summary>
-        /// Get ordering value for a characteristic
-        /// </summary>
-        /// <param name="p_Characteristic">Input characteristic</param>
-        /// <returns></returns>
-        private int GetCharacteristicOrdering(BeatmapCharacteristic p_Characteristic)
-        {
-            var l_SerializedName    = Game.BeatSaver.SanitizeGameMode(p_Characteristic.Name);
-            var l_CharacteristicSO  = SongCore.Loader.beatmapCharacteristicCollection.GetBeatmapCharacteristicBySerializedName(l_SerializedName);
-
-            if (l_CharacteristicSO == null)
-                return 1000;
-
-            return l_CharacteristicSO.sortingOrder;
+            }*/
         }
     }
 }

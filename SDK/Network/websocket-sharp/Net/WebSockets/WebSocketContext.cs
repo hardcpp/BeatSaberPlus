@@ -58,7 +58,7 @@ namespace BSP_WebSocketSharp.Net.WebSockets
     /// Gets the HTTP cookies included in the handshake request.
     /// </summary>
     /// <value>
-    /// A <see cref="BSP_WebSocketSharp.Net.CookieCollection"/> that contains
+    /// A <see cref="WebSocketSharp.Net.CookieCollection"/> that contains
     /// the cookies.
     /// </value>
     public abstract CookieCollection CookieCollection { get; }
@@ -215,7 +215,7 @@ namespace BSP_WebSocketSharp.Net.WebSockets
     /// the client and server.
     /// </summary>
     /// <value>
-    /// A <see cref="BSP_WebSocketSharp.WebSocket"/>.
+    /// A <see cref="WebSocketSharp.WebSocket"/>.
     /// </value>
     public abstract WebSocket WebSocket { get; }
 

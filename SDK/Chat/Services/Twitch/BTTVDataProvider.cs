@@ -69,7 +69,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                         Resources.TryAdd(l_Identifier, new ChatResourceData()
                         {
                             Uri         = l_URI,
-                            IsAnimated  = l_Object["imageType"].Value == "gif",
+                            Animation   = l_Object["imageType"].Value == "gif" ? Animation.AnimationType.GIF : Animation.AnimationType.NONE,
                             Type        = l_IsGlobal ? "BTTVGlobalEmote" : "BTTVChannelEmote"
                         });
                         l_Count++;
@@ -87,7 +87,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                             Resources.TryAdd(l_Identifier, new ChatResourceData()
                             {
                                 Uri         = l_URI,
-                                IsAnimated  = l_Object["imageType"].Value == "gif",
+                                Animation   = l_Object["imageType"].Value == "gif" ? Animation.AnimationType.GIF : Animation.AnimationType.NONE,
                                 Type        = "BTTVChannelEmote"
                             });
                             l_Count++;

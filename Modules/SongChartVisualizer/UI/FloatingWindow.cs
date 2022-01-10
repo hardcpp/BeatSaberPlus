@@ -33,6 +33,18 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer.UI
                 var l_FloatingScreen = transform.parent.GetComponent<FloatingScreen>();
                 l_FloatingScreen.ShowHandle = value;
 
+                if (l_FloatingScreen.handle)
+                {
+                    l_FloatingScreen.handle.transform.localScale    = new Vector2(105, 65);
+                    l_FloatingScreen.handle.transform.localPosition = Vector3.zero;
+                    l_FloatingScreen.handle.transform.localRotation = Quaternion.identity;
+
+                    /// Update handle material
+                    var l_ChartFloatingScreenHandleMaterial = GameObject.Instantiate(SDK.Unity.Material.UINoGlowMaterial);
+                    l_ChartFloatingScreenHandleMaterial.color = Color.clear;
+                    l_FloatingScreen.handle.gameObject.GetComponent<Renderer>().material = l_ChartFloatingScreenHandleMaterial;
+                }
+
                 if (value)
                 {
                     /// Refresh VR pointer due to bug
