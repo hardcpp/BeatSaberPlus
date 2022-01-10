@@ -73,7 +73,7 @@ IMPORTANT When you enable Chat module, it will open a page in your browser for c
 - **redegg89#9290** For Documentation syntax/grammar
 
 ## **Discord & Download/Update**
-https://discord.gg/K4X94Ea
+https://discord.gg/63ebPMC 
 
 ## **Credits / Copyright**
 * [EnhancedStreamChat-v3](https://github.com/brian91292/EnhancedStreamChat-v3)
