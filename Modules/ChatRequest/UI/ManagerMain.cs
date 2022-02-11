@@ -11,12 +11,12 @@ using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace BeatSaberPlus.Modules.ChatRequest.UI
+namespace BeatSaberPlus_ChatRequest.UI
 {
     /// <summary>
     /// Chat request main view controller
     /// </summary>
-    internal class ManagerMain : SDK.UI.ResourceViewController<ManagerMain>, IProgress<double>
+    internal class ManagerMain : BeatSaberPlus.SDK.UI.ResourceViewController<ManagerMain>, IProgress<double>
     {
         /// <summary>
         /// Amount of song to display per page
@@ -37,7 +37,7 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
         private Button m_SongUpButton;
         [UIObject("SongList")]
         private GameObject m_SongListView = null;
-        private SDK.UI.DataSource.SongList m_SongList = null;
+        private BeatSaberPlus.SDK.UI.DataSource.SongList m_SongList = null;
         [UIComponent("SongDownButton")]
         private Button m_SongDownButton;
 
@@ -46,7 +46,7 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
 
         [UIObject("SongInfoPanel")]
         private GameObject m_SongInfoPanel;
-        private SDK.UI.LevelDetail m_SongInfo_Detail;
+        private BeatSaberPlus.SDK.UI.LevelDetail m_SongInfo_Detail;
 #pragma warning restore CS0649
 
         ////////////////////////////////////////////////////////////////////////////
@@ -90,7 +90,7 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
             m_SongDownButton.transform.localScale   = Vector3.one * 0.6f;
 
             /// Create type selector
-            m_TypeSegmentControl = SDK.UI.TextSegmentedControl.Create(m_TypeSegmentPanel.transform as RectTransform, false);
+            m_TypeSegmentControl = BeatSaberPlus.SDK.UI.TextSegmentedControl.Create(m_TypeSegmentPanel.transform as RectTransform, false);
             m_TypeSegmentControl.SetTexts(new string[] { "Requests", "History", "Blacklist" });
             m_TypeSegmentControl.ReloadData();
             m_TypeSegmentControl.didSelectCellEvent += OnQueueTypeChanged;
@@ -99,7 +99,7 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
             var l_BSMLTableView = m_SongListView.GetComponentInChildren<BSMLTableView>();
             l_BSMLTableView.SetDataSource(null, false);
             GameObject.DestroyImmediate(m_SongListView.GetComponentInChildren<CustomListTableData>());
-            m_SongList = l_BSMLTableView.gameObject.AddComponent<SDK.UI.DataSource.SongList>();
+            m_SongList = l_BSMLTableView.gameObject.AddComponent<BeatSaberPlus.SDK.UI.DataSource.SongList>();
             m_SongList.PlayPreviewAudio     = CRConfig.Instance.PlayPreviewMusic;
             m_SongList.PreviewAudioVolume   = 1.0f;
             m_SongList.TableViewInstance    = l_BSMLTableView;
@@ -113,11 +113,11 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
             m_SongDownButton.onClick.AddListener(OnSongPageDownPressed);
 
             /// Show song info panel
-            m_SongInfo_Detail = new SDK.UI.LevelDetail(m_SongInfoPanel.transform);
+            m_SongInfo_Detail = new BeatSaberPlus.SDK.UI.LevelDetail(m_SongInfoPanel.transform);
             UnselectSong();
 
             m_SongInfo_Detail.SetFavoriteToggleEnabled(true);
-            m_SongInfo_Detail.SetFavoriteToggleImage("BeatSaberPlus.Modules.ChatRequest.Resources.Blacklist.png", "BeatSaberPlus.Modules.ChatRequest.Resources.Unblacklist.png");
+            m_SongInfo_Detail.SetFavoriteToggleImage("BeatSaberPlus_ChatRequest.Resources.Blacklist.png", "BeatSaberPlus_ChatRequest.Resources.Unblacklist.png");
             m_SongInfo_Detail.SetFavoriteToggleHoverHint("Add/Remove to blacklist");
             m_SongInfo_Detail.SetFavoriteToggleCallback(OnBlacklistButtonPressed);
 
@@ -233,7 +233,7 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
                         if (!string.IsNullOrEmpty(l_Current.Message))
                             l_HoverHint += "\n" + l_Current.Message;
 
-                        m_SongList.Data.Add(new SDK.UI.DataSource.SongList.Entry() {
+                        m_SongList.Data.Add(new BeatSaberPlus.SDK.UI.DataSource.SongList.Entry() {
                             BeatSaver_Map       = l_Current.BeatMap,
                             TitlePrefix         = l_Current.NamePrefix + (l_Current.BeatMap.ranked ? "<#F8E600><b>⭐</b>" : ""),
                             HoverHint           = l_HoverHint,
@@ -321,7 +321,7 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
         /// On song cover fetched
         /// </summary>
         /// <param name="p_RowData">Row data</param>
-        private void OnSongCoverFetched(int p_Index, SDK.UI.DataSource.SongList.Entry p_RowData)
+        private void OnSongCoverFetched(int p_Index, BeatSaberPlus.SDK.UI.DataSource.SongList.Entry p_RowData)
         {
             if (m_SelectedSongIndex != p_Index)
                 return;
@@ -384,7 +384,7 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
                 {
                     ChatRequest.Instance.DequeueSong(m_SelectedSong, true);
 
-                    SDK.Game.LevelSelection.FilterToSpecificSong(l_LocalSong);
+                    BeatSaberPlus.SDK.Game.LevelSelection.FilterToSpecificSong(l_LocalSong);
 
                     ManagerViewFlowCoordinator.Instance().Dismiss();
                     UnselectSong();
@@ -395,7 +395,7 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
                     ShowLoadingModal("Downloading", true);
 
                     /// Start downloading
-                    SDK.Game.BeatMapsClient.DownloadSong(m_SelectedSong.BeatMap, m_SelectedSong.BeatMap.SelectMapVersion(), CancellationToken.None, this).ContinueWith((x) =>
+                    BeatSaberPlus.SDK.Game.BeatMapsClient.DownloadSong(m_SelectedSong.BeatMap, m_SelectedSong.BeatMap.SelectMapVersion(), CancellationToken.None, this).ContinueWith((x) =>
                     {
                         if (x.Result.Item1)
                         {
@@ -409,7 +409,7 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
                         else
                         {
                             /// Show error message
-                            SDK.Unity.MainThreadInvoker.Enqueue(() => {
+                            BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() => {
                                 HideLoadingModal();
                                 ShowMessageModal("Download failed!");
                             });

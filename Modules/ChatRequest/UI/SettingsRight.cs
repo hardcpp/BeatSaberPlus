@@ -2,12 +2,12 @@
 using BeatSaberMarkupLanguage.Components.Settings;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.ChatRequest.UI
+namespace BeatSaberPlus_ChatRequest.UI
 {
     /// <summary>
     /// Chat request settings filters right screen
     /// </summary>
-    internal class SettingsRight : SDK.UI.ResourceViewController<SettingsRight>
+    internal class SettingsRight : BeatSaberPlus.SDK.UI.ResourceViewController<SettingsRight>
     {
 #pragma warning disable CS0649
         [UIComponent("nobeatsage-toggle")]
@@ -71,35 +71,35 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
             var l_NewRectMax  = new Vector2(0.92f, 1.05f);
 
             /// Left
-            SDK.UI.ToggleSetting.Setup(m_NoBeatSageToggle,      l_Event,                                                    CRConfig.Instance.Filters.NoBeatSage,      true);
-            SDK.UI.ToggleSetting.Setup(m_NPSMinToggle,          l_Event,                                                    CRConfig.Instance.Filters.NPSMin,          true);
-            SDK.UI.ToggleSetting.Setup(m_NPSMaxToggle,          l_Event,                                                    CRConfig.Instance.Filters.NPSMax,          true);
-            SDK.UI.ToggleSetting.Setup(m_NJSMinToggle,          l_Event,                                                    CRConfig.Instance.Filters.NJSMin,          true);
-            SDK.UI.ToggleSetting.Setup(m_NJSMaxToggle,          l_Event,                                                    CRConfig.Instance.Filters.NJSMax,          true);
-            SDK.UI.ToggleSetting.Setup(m_DurationMaxToggle,     l_Event,                                                    CRConfig.Instance.Filters.DurationMax,     true);
-            SDK.UI.ToggleSetting.Setup(m_VoteMinToggle,         l_Event,                                                    CRConfig.Instance.Filters.VoteMin,         true);
-            SDK.UI.ToggleSetting.Setup(m_DateMinToggle,         l_Event,                                                    CRConfig.Instance.Filters.DateMin,         true);
-            SDK.UI.ToggleSetting.Setup(m_DateMaxToggle,         l_Event,                                                    CRConfig.Instance.Filters.DateMax,         true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_NoBeatSageToggle,      l_Event,                                                                  CRConfig.Instance.Filters.NoBeatSage,      true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_NPSMinToggle,          l_Event,                                                                  CRConfig.Instance.Filters.NPSMin,          true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_NPSMaxToggle,          l_Event,                                                                  CRConfig.Instance.Filters.NPSMax,          true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_NJSMinToggle,          l_Event,                                                                  CRConfig.Instance.Filters.NJSMin,          true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_NJSMaxToggle,          l_Event,                                                                  CRConfig.Instance.Filters.NJSMax,          true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_DurationMaxToggle,     l_Event,                                                                  CRConfig.Instance.Filters.DurationMax,     true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_VoteMinToggle,         l_Event,                                                                  CRConfig.Instance.Filters.VoteMin,         true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_DateMinToggle,         l_Event,                                                                  CRConfig.Instance.Filters.DateMin,         true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_DateMaxToggle,         l_Event,                                                                  CRConfig.Instance.Filters.DateMax,         true);
 
             /// Right
-            SDK.UI.SliderSetting.Setup(m_NPSMin,                l_Event, null,                                              CRConfig.Instance.Filters.NPSMinV,         true, true, l_NewRectMin, l_NewRectMax);
-            SDK.UI.SliderSetting.Setup(m_NPSMax,                l_Event, null,                                              CRConfig.Instance.Filters.NPSMaxV,         true, true, l_NewRectMin, l_NewRectMax);
-            SDK.UI.SliderSetting.Setup(m_NJSMin,                l_Event, null,                                              CRConfig.Instance.Filters.NJSMinV,         true, true, l_NewRectMin, l_NewRectMax);
-            SDK.UI.SliderSetting.Setup(m_NJSMax,                l_Event, null,                                              CRConfig.Instance.Filters.NJSMaxV,         true, true, l_NewRectMin, l_NewRectMax);
-            SDK.UI.SliderSetting.Setup(m_DurationMax,           l_Event, SDK.UI.BSMLSettingFormartter.Minutes,              CRConfig.Instance.Filters.DurationMaxV,    true, true, l_NewRectMin, l_NewRectMax);
-            SDK.UI.SliderSetting.Setup(m_VoteMin,               l_Event, SDK.UI.BSMLSettingFormartter.Percentage,           CRConfig.Instance.Filters.VoteMinV,        true, true, l_NewRectMin, l_NewRectMax);
-            SDK.UI.SliderSetting.Setup(m_DateMin,               l_Event, SDK.UI.BSMLSettingFormartter.DateMonthFrom2018,    CRConfig.Instance.Filters.DateMinV,        true, true, l_NewRectMin, l_NewRectMax);
-            SDK.UI.SliderSetting.Setup(m_DateMax,               l_Event, SDK.UI.BSMLSettingFormartter.DateMonthFrom2018,    CRConfig.Instance.Filters.DateMaxV,        true, true, l_NewRectMin, l_NewRectMax);
+            BeatSaberPlus.SDK.UI.SliderSetting.Setup(m_NPSMin,                l_Event, null,                                                            CRConfig.Instance.Filters.NPSMinV,         true, true, l_NewRectMin, l_NewRectMax);
+            BeatSaberPlus.SDK.UI.SliderSetting.Setup(m_NPSMax,                l_Event, null,                                                            CRConfig.Instance.Filters.NPSMaxV,         true, true, l_NewRectMin, l_NewRectMax);
+            BeatSaberPlus.SDK.UI.SliderSetting.Setup(m_NJSMin,                l_Event, null,                                                            CRConfig.Instance.Filters.NJSMinV,         true, true, l_NewRectMin, l_NewRectMax);
+            BeatSaberPlus.SDK.UI.SliderSetting.Setup(m_NJSMax,                l_Event, null,                                                            CRConfig.Instance.Filters.NJSMaxV,         true, true, l_NewRectMin, l_NewRectMax);
+            BeatSaberPlus.SDK.UI.SliderSetting.Setup(m_DurationMax,           l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Minutes,              CRConfig.Instance.Filters.DurationMaxV,    true, true, l_NewRectMin, l_NewRectMax);
+            BeatSaberPlus.SDK.UI.SliderSetting.Setup(m_VoteMin,               l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Percentage,           CRConfig.Instance.Filters.VoteMinV,        true, true, l_NewRectMin, l_NewRectMax);
+            BeatSaberPlus.SDK.UI.SliderSetting.Setup(m_DateMin,               l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.DateMonthFrom2018,    CRConfig.Instance.Filters.DateMinV,        true, true, l_NewRectMin, l_NewRectMax);
+            BeatSaberPlus.SDK.UI.SliderSetting.Setup(m_DateMax,               l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.DateMonthFrom2018,    CRConfig.Instance.Filters.DateMaxV,        true, true, l_NewRectMin, l_NewRectMax);
 
             /// Update interactable
-            SDK.UI.SliderSetting.SetInteractable(m_NPSMin,        m_NPSMinToggle.Value);
-            SDK.UI.SliderSetting.SetInteractable(m_NPSMax,        m_NPSMaxToggle.Value);
-            SDK.UI.SliderSetting.SetInteractable(m_NJSMin,        m_NJSMinToggle.Value);
-            SDK.UI.SliderSetting.SetInteractable(m_NJSMax,        m_NJSMaxToggle.Value);
-            SDK.UI.SliderSetting.SetInteractable(m_DurationMax,   m_DurationMaxToggle.Value);
-            SDK.UI.SliderSetting.SetInteractable(m_VoteMin,       m_VoteMinToggle.Value);
-            SDK.UI.SliderSetting.SetInteractable(m_DateMin,       m_DateMinToggle.Value);
-            SDK.UI.SliderSetting.SetInteractable(m_DateMax,       m_DateMaxToggle.Value);
+            BeatSaberPlus.SDK.UI.SliderSetting.SetInteractable(m_NPSMin,        m_NPSMinToggle.Value);
+            BeatSaberPlus.SDK.UI.SliderSetting.SetInteractable(m_NPSMax,        m_NPSMaxToggle.Value);
+            BeatSaberPlus.SDK.UI.SliderSetting.SetInteractable(m_NJSMin,        m_NJSMinToggle.Value);
+            BeatSaberPlus.SDK.UI.SliderSetting.SetInteractable(m_NJSMax,        m_NJSMaxToggle.Value);
+            BeatSaberPlus.SDK.UI.SliderSetting.SetInteractable(m_DurationMax,   m_DurationMaxToggle.Value);
+            BeatSaberPlus.SDK.UI.SliderSetting.SetInteractable(m_VoteMin,       m_VoteMinToggle.Value);
+            BeatSaberPlus.SDK.UI.SliderSetting.SetInteractable(m_DateMin,       m_DateMinToggle.Value);
+            BeatSaberPlus.SDK.UI.SliderSetting.SetInteractable(m_DateMax,       m_DateMaxToggle.Value);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -115,14 +115,14 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
                 return;
 
             /// Update interactable
-            SDK.UI.SliderSetting.SetInteractable(m_NPSMin,       m_NPSMinToggle.Value);
-            SDK.UI.SliderSetting.SetInteractable(m_NPSMax,       m_NPSMaxToggle.Value);
-            SDK.UI.SliderSetting.SetInteractable(m_NJSMin,       m_NJSMinToggle.Value);
-            SDK.UI.SliderSetting.SetInteractable(m_NJSMax,       m_NJSMaxToggle.Value);
-            SDK.UI.SliderSetting.SetInteractable(m_DurationMax,  m_DurationMaxToggle.Value);
-            SDK.UI.SliderSetting.SetInteractable(m_VoteMin,      m_VoteMinToggle.Value);
-            SDK.UI.SliderSetting.SetInteractable(m_DateMin,      m_DateMinToggle.Value);
-            SDK.UI.SliderSetting.SetInteractable(m_DateMax,      m_DateMaxToggle.Value);
+            BeatSaberPlus.SDK.UI.SliderSetting.SetInteractable(m_NPSMin,       m_NPSMinToggle.Value);
+            BeatSaberPlus.SDK.UI.SliderSetting.SetInteractable(m_NPSMax,       m_NPSMaxToggle.Value);
+            BeatSaberPlus.SDK.UI.SliderSetting.SetInteractable(m_NJSMin,       m_NJSMinToggle.Value);
+            BeatSaberPlus.SDK.UI.SliderSetting.SetInteractable(m_NJSMax,       m_NJSMaxToggle.Value);
+            BeatSaberPlus.SDK.UI.SliderSetting.SetInteractable(m_DurationMax,  m_DurationMaxToggle.Value);
+            BeatSaberPlus.SDK.UI.SliderSetting.SetInteractable(m_VoteMin,      m_VoteMinToggle.Value);
+            BeatSaberPlus.SDK.UI.SliderSetting.SetInteractable(m_DateMin,      m_DateMinToggle.Value);
+            BeatSaberPlus.SDK.UI.SliderSetting.SetInteractable(m_DateMax,      m_DateMaxToggle.Value);
 
             /// Left
             CRConfig.Instance.Filters.NoBeatSage   = m_NoBeatSageToggle.Value;

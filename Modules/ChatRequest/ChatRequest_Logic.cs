@@ -5,23 +5,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BeatSaberPlus.Modules.ChatRequest
+namespace BeatSaberPlus_ChatRequest
 {
     /// <summary>
     /// Chat request logic handler
     /// </summary>
-    internal partial class ChatRequest
+    public partial class ChatRequest
     {
         /// <summary>
         /// Song entry
         /// </summary>
         internal class SongEntry
         {
-            internal SDK.Game.BeatMaps.MapDetail  BeatMap         = null;
-            internal DateTime?                  RequestTime     = null;
-            internal string                     RequesterName   = "";
-            internal string                     NamePrefix      = "";
-            internal string                     Message         = "";
+            internal BeatSaberPlus.SDK.Game.BeatMaps.MapDetail  BeatMap         = null;
+            internal DateTime?                                  RequestTime     = null;
+            internal string                                     RequesterName   = "";
+            internal string                                     NamePrefix      = "";
+            internal string                                     Message         = "";
         }
 
         /// <summary>
@@ -55,11 +55,20 @@ namespace BeatSaberPlus.Modules.ChatRequest
         /// <summary>
         /// Is the queue open
         /// </summary>
-        internal bool QueueOpen = false;
+        public bool QueueOpen { get; private set; } = false;
         /// <summary>
         /// Total queue duration
         /// </summary>
-        internal int QueueDuration { get; private set; } = 0;
+        public int QueueDuration { get; private set; } = 0;
+        /// <summary>
+        /// Song queue count
+        /// </summary>
+        public int SongQueueCount { get
+            {
+                lock (SongQueue)
+                    return SongQueue.Count;
+            }
+        }
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -116,9 +125,9 @@ namespace BeatSaberPlus.Modules.ChatRequest
             }
 
             /// Avoid saving during play
-            if (SDK.Game.Logic.ActiveScene != SDK.Game.Logic.SceneType.Playing)
+            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene != BeatSaberPlus.SDK.Game.Logic.SceneType.Playing)
             {
-                SDK.Unity.MainThreadInvoker.Enqueue(() =>
+                BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() =>
                 {
                     UpdateButton();
 
@@ -143,9 +152,9 @@ namespace BeatSaberPlus.Modules.ChatRequest
                     SongBlackList.RemoveAll(z => z == p_Entry);
                 } } }
 
-                SDK.Game.BeatMapsClient.ClearCache(p_Entry.BeatMap.id);
+                BeatSaberPlus.SDK.Game.BeatMapsClient.ClearCache(p_Entry.BeatMap.id);
 
-                SDK.Unity.MainThreadInvoker.Enqueue(() =>
+                BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() =>
                 {
                     UpdateButton();
 
@@ -159,7 +168,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
             if (!p_Valid)
                 return;
 
-            SDK.Game.BeatMapsClient.Cache(p_Entry.BeatMap);
+            BeatSaberPlus.SDK.Game.BeatMapsClient.Cache(p_Entry.BeatMap);
 
             /// Update request manager
             OnQueueChanged();
@@ -174,7 +183,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
         /// <param name="p_Message">Messages to send</param>
         /// <param name="p_ContextUser">Context user</param>
         /// <param name="p_ContextMap">Context map</param>
-        internal void SendChatMessage(string p_Message, IChatUser p_ContextUser = null, SDK.Game.BeatMaps.MapDetail p_ContextMap = null)
+        internal void SendChatMessage(string p_Message, IChatUser p_ContextUser = null, BeatSaberPlus.SDK.Game.BeatMaps.MapDetail p_ContextMap = null)
         {
             if (p_ContextUser != null)
                 p_Message = p_Message.Replace("$UserName", p_ContextUser.DisplayName);
@@ -182,11 +191,11 @@ namespace BeatSaberPlus.Modules.ChatRequest
             if (p_ContextMap != null)
             {
                 p_Message = p_Message.Replace("$BSRKey",            p_ContextMap.id);
-                p_Message = p_Message.Replace("$SongName",          p_ContextMap.metadata.songName);
-                p_Message = p_Message.Replace("$LevelAuthorName",   p_ContextMap.metadata.levelAuthorName);
+                p_Message = p_Message.Replace("$SongName",          p_ContextMap.metadata.songName.Replace(".", " . "));
+                p_Message = p_Message.Replace("$LevelAuthorName",   p_ContextMap.metadata.levelAuthorName.Replace(".", " . "));
             }
 
-            SDK.Chat.Service.BroadcastMessage("! " + p_Message);
+            BeatSaberPlus.SDK.Chat.Service.BroadcastMessage("! " + p_Message);
         }
         /// <summary>
         /// Is user banned
@@ -205,9 +214,9 @@ namespace BeatSaberPlus.Modules.ChatRequest
         /// <returns></returns>
         private bool HasPower(IChatUser p_User)
         {
-            if (p_User is SDK.Chat.Models.Twitch.TwitchUser)
+            if (p_User is BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchUser)
             {
-                var l_TwitchUser = p_User as SDK.Chat.Models.Twitch.TwitchUser;
+                var l_TwitchUser = p_User as BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchUser;
                 return l_TwitchUser.IsBroadcaster || (CRConfig.Instance.ModeratorPower && l_TwitchUser.IsModerator);
             }
 
@@ -229,7 +238,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
 
             QueueOpen = !QueueOpen;
 
-            SDK.Unity.MainThreadInvoker.Enqueue(() =>
+            BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() =>
             {
                 CRConfig.Instance.QueueOpen = QueueOpen;
                 CRConfig.Instance.Save();
@@ -296,7 +305,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
 
                             /// Clear cache
                             if (SongBlackList.Count(x => x.BeatMap.id == l_ToRemove.BeatMap.id) == 0)
-                                SDK.Game.BeatMapsClient.ClearCache(l_ToRemove.BeatMap.id);
+                                BeatSaberPlus.SDK.Game.BeatMapsClient.ClearCache(l_ToRemove.BeatMap.id);
 
                             SongHistory.RemoveAt(SongHistory.Count - 1);
                         }
@@ -412,7 +421,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
         /// <param name="p_SenderName">Requester name</param>
         /// <param name="p_Reply">Output reply</param>
         /// <returns></returns>
-        private bool FilterBeatMap(SDK.Game.BeatMaps.MapDetail p_BeatMap, string p_SenderName, out string p_Reply)
+        private bool FilterBeatMap(BeatSaberPlus.SDK.Game.BeatMaps.MapDetail p_BeatMap, string p_SenderName, out string p_Reply)
         {
             p_Reply = "";
 

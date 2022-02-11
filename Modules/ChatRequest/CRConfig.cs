@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json;
 
-namespace BeatSaberPlus.Modules.ChatRequest
+namespace BeatSaberPlus_ChatRequest
 {
-    internal class CRConfig : SDK.Config.JsonConfig<CRConfig>
+    internal class CRConfig : BeatSaberPlus.SDK.Config.JsonConfig<CRConfig>
     {
         internal class _Filters
         {
@@ -125,7 +125,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
             [JsonProperty] internal string Moderator_BlockCommand           = "block";
         }
 
-        [JsonProperty] internal bool Enabled = false;
+        [JsonProperty] internal bool Enabled = true;
 
         [JsonProperty] internal bool QueueOpen = true;
 
@@ -170,53 +170,53 @@ namespace BeatSaberPlus.Modules.ChatRequest
         /// <param name="p_OnCreation">On creation</param>
         protected override void OnInit(bool p_OnCreation)
         {
-            if (Config.ChatRequest.OldConfigMigrated)
+            if (BeatSaberPlus.Config.ChatRequest.OldConfigMigrated)
             {
                 Save();
                 return;
             }
 
-            Enabled = Config.ChatRequest.Enabled;
+            Enabled = BeatSaberPlus.Config.ChatRequest.Enabled;
 
-            QueueOpen = Config.ChatRequest.QueueOpen;
+            QueueOpen = BeatSaberPlus.Config.ChatRequest.QueueOpen;
 
-            UserMaxRequest          = Config.ChatRequest.UserMaxRequest;
-            VIPBonusRequest         = Config.ChatRequest.VIPBonusRequest;
-            SubscriberBonusRequest  = Config.ChatRequest.SubscriberBonusRequest;
+            UserMaxRequest          = BeatSaberPlus.Config.ChatRequest.UserMaxRequest;
+            VIPBonusRequest         = BeatSaberPlus.Config.ChatRequest.VIPBonusRequest;
+            SubscriberBonusRequest  = BeatSaberPlus.Config.ChatRequest.SubscriberBonusRequest;
 
-            HistorySize = Config.ChatRequest.HistorySize;
+            HistorySize = BeatSaberPlus.Config.ChatRequest.HistorySize;
 
-            PlayPreviewMusic = Config.ChatRequest.PlayPreviewMusic;
+            PlayPreviewMusic = BeatSaberPlus.Config.ChatRequest.PlayPreviewMusic;
 
-            ModeratorPower = Config.ChatRequest.ModeratorPower;
+            ModeratorPower = BeatSaberPlus.Config.ChatRequest.ModeratorPower;
 
-            QueueCommandShowSize = Config.ChatRequest.QueueCommandShowSize;
-            QueueCommandCooldown = Config.ChatRequest.QueueCommandCooldown;
+            QueueCommandShowSize = BeatSaberPlus.Config.ChatRequest.QueueCommandShowSize;
+            QueueCommandCooldown = BeatSaberPlus.Config.ChatRequest.QueueCommandCooldown;
 
-            Filters.NoBeatSage      = Config.ChatRequest.NoBeatSage;
-            Filters.NPSMin          = Config.ChatRequest.NPSMin;
-            Filters.NPSMinV         = Config.ChatRequest.NPSMinV;
-            Filters.NPSMax          = Config.ChatRequest.NPSMax;
-            Filters.NPSMaxV         = Config.ChatRequest.NPSMaxV;
-            Filters.NJSMin          = Config.ChatRequest.NJSMin;
-            Filters.NJSMinV         = Config.ChatRequest.NJSMinV;
-            Filters.NJSMax          = Config.ChatRequest.NJSMax;
-            Filters.NJSMaxV         = Config.ChatRequest.NJSMaxV;
-            Filters.DurationMax     = Config.ChatRequest.DurationMax;
-            Filters.DurationMaxV    = Config.ChatRequest.DurationMaxV;
-            Filters.VoteMin         = Config.ChatRequest.VoteMin;
-            Filters.VoteMinV        = Config.ChatRequest.VoteMinV;
-            Filters.DateMin         = Config.ChatRequest.DateMin;
-            Filters.DateMinV        = Config.ChatRequest.DateMinV;
-            Filters.DateMax         = Config.ChatRequest.DateMax;
-            Filters.DateMaxV        = Config.ChatRequest.DateMaxV;
+            Filters.NoBeatSage      = BeatSaberPlus.Config.ChatRequest.NoBeatSage;
+            Filters.NPSMin          = BeatSaberPlus.Config.ChatRequest.NPSMin;
+            Filters.NPSMinV         = BeatSaberPlus.Config.ChatRequest.NPSMinV;
+            Filters.NPSMax          = BeatSaberPlus.Config.ChatRequest.NPSMax;
+            Filters.NPSMaxV         = BeatSaberPlus.Config.ChatRequest.NPSMaxV;
+            Filters.NJSMin          = BeatSaberPlus.Config.ChatRequest.NJSMin;
+            Filters.NJSMinV         = BeatSaberPlus.Config.ChatRequest.NJSMinV;
+            Filters.NJSMax          = BeatSaberPlus.Config.ChatRequest.NJSMax;
+            Filters.NJSMaxV         = BeatSaberPlus.Config.ChatRequest.NJSMaxV;
+            Filters.DurationMax     = BeatSaberPlus.Config.ChatRequest.DurationMax;
+            Filters.DurationMaxV    = BeatSaberPlus.Config.ChatRequest.DurationMaxV;
+            Filters.VoteMin         = BeatSaberPlus.Config.ChatRequest.VoteMin;
+            Filters.VoteMinV        = BeatSaberPlus.Config.ChatRequest.VoteMinV;
+            Filters.DateMin         = BeatSaberPlus.Config.ChatRequest.DateMin;
+            Filters.DateMinV        = BeatSaberPlus.Config.ChatRequest.DateMinV;
+            Filters.DateMax         = BeatSaberPlus.Config.ChatRequest.DateMax;
+            Filters.DateMaxV        = BeatSaberPlus.Config.ChatRequest.DateMaxV;
 
-            OverlayIntegration.SimpleQueueFileCount     = Config.ChatRequest.SimpleQueueFileCount;
-            OverlayIntegration.SimpleQueueFileFormat    = Config.ChatRequest.SimpleQueueFileFormat;
+            OverlayIntegration.SimpleQueueFileCount     = BeatSaberPlus.Config.ChatRequest.SimpleQueueFileCount;
+            OverlayIntegration.SimpleQueueFileFormat    = BeatSaberPlus.Config.ChatRequest.SimpleQueueFileFormat;
 
             ////////////////////////////////////////////////////////////////////////////
 
-            Config.ChatRequest.OldConfigMigrated = true;
+            BeatSaberPlus.Config.ChatRequest.OldConfigMigrated = true;
             Save();
         }
     }

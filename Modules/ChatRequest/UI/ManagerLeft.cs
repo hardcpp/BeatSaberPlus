@@ -2,12 +2,12 @@
 using HMUI;
 using UnityEngine.UI;
 
-namespace BeatSaberPlus.Modules.ChatRequest.UI
+namespace BeatSaberPlus_ChatRequest.UI
 {
     /// <summary>
     /// Manager left window
     /// </summary>
-    internal class ManagerLeft : SDK.UI.ResourceViewController<ManagerLeft>
+    internal class ManagerLeft : BeatSaberPlus.SDK.UI.ResourceViewController<ManagerLeft>
     {
 #pragma warning disable CS0649
         [UIComponent("QueueButton")]

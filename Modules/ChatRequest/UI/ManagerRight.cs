@@ -4,12 +4,12 @@ using System.Diagnostics;
 using TMPro;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.ChatRequest.UI
+namespace BeatSaberPlus_ChatRequest.UI
 {
     /// <summary>
     /// Manager view detail
     /// </summary>
-    internal class ManagerRight : SDK.UI.ResourceViewController<ManagerRight>
+    internal class ManagerRight : BeatSaberPlus.SDK.UI.ResourceViewController<ManagerRight>
     {
         /// <summary>
         /// Month list
@@ -36,11 +36,11 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
         /// <summary>
         /// Pending detail
         /// </summary>
-        private SDK.Game.BeatMaps.MapDetail m_PendingDetail = null;
+        private BeatSaberPlus.SDK.Game.BeatMaps.MapDetail m_PendingDetail = null;
         /// <summary>
         /// Last detail
         /// </summary>
-        private SDK.Game.BeatMaps.MapDetail m_LastDetail = null;
+        private BeatSaberPlus.SDK.Game.BeatMaps.MapDetail m_LastDetail = null;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -51,8 +51,8 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
         protected override sealed void OnViewCreation()
         {
             /// Update background color
-            SDK.UI.Backgroundable.SetOpacity(m_DetailBackground, 0.5f);
-            SDK.UI.Backgroundable.SetOpacity(m_SubDetailBackground, 0.5f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_DetailBackground, 0.5f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_SubDetailBackground, 0.5f);
 
             m_SubDetailText.GetComponent<TextMeshProUGUI>().alignment = TextAlignmentOptions.Center;
         }
@@ -97,7 +97,7 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
         /// Set details
         /// </summary>
         /// <param name="p_Detail">p_Detail</param>
-        internal void SetDetail(SDK.Game.BeatMaps.MapDetail p_Detail, bool p_SecondTime = false)
+        internal void SetDetail(BeatSaberPlus.SDK.Game.BeatMaps.MapDetail p_Detail, bool p_SecondTime = false)
         {
             if (!CanBeUpdated)
             {

@@ -2,12 +2,12 @@
 using System.Diagnostics;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.ChatRequest.UI
+namespace BeatSaberPlus_ChatRequest.UI
 {
     /// <summary>
     /// Chat request settings left screen
     /// </summary>
-    internal class SettingsLeft : SDK.UI.ResourceViewController<SettingsLeft>
+    internal class SettingsLeft : BeatSaberPlus.SDK.UI.ResourceViewController<SettingsLeft>
     {
         private static readonly string s_InformationsStr = "<line-height=125%><b><u>Commands</u></b>"
             + "\n" + "- <b>!bsr #KEY/#NAME</b>\n<i><color=#CCCCCCFF>Request a song by BSR code or search by name</color></i>"
@@ -61,7 +61,7 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
         /// </summary>
         protected override sealed void OnViewCreation()
         {
-            SDK.UI.Backgroundable.SetOpacity(m_Background, 0.5f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_Background, 0.5f);
             m_Informations.SetText(s_InformationsStr);
             m_Informations.UpdateVerticalScrollIndicator(0);
         }
@@ -88,6 +88,8 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
             {
                 /// Reset config
                 CRConfig.Instance.Reset();
+                CRConfig.Instance.Enabled = true;
+                CRConfig.Instance.Save();
 
                 /// Refresh values
                 Settings.Instance.RefreshSettings();
@@ -101,7 +103,7 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
         private void OnWebConfigurationButton()
         {
             ShowMessageModal("URL opened in your desktop browser.");
-            SDK.Chat.Service.OpenWebConfigurator();
+            BeatSaberPlus.SDK.Chat.Service.OpenWebConfigurator();
         }
 
         ////////////////////////////////////////////////////////////////////////////

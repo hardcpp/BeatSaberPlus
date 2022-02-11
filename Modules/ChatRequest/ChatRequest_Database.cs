@@ -3,12 +3,12 @@ using Newtonsoft.Json.Linq;
 using System.Globalization;
 using System.Text;
 
-namespace BeatSaberPlus.Modules.ChatRequest
+namespace BeatSaberPlus_ChatRequest
 {
     /// <summary>
     /// Chat request database handler
     /// </summary>
-    internal partial class ChatRequest
+    public partial class ChatRequest
     {
         /// <summary>
         /// DB File path
@@ -48,7 +48,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
                     foreach (JObject l_Current in (JArray)l_JSON["queue"])
                     {
                         var l_Key       = l_Current["key"]?.Value<string>()     ?? "";
-                        var l_Time      = l_Current["rqt"]?.Value<long>()       ?? SDK.Misc.Time.UnixTimeNow();
+                        var l_Time      = l_Current["rqt"]?.Value<long>()       ?? BeatSaberPlus.SDK.Misc.Time.UnixTimeNow();
                         var l_Requester = l_Current["rqn"]?.Value<string>()     ?? "";
                         var l_Prefix    = l_Current["npr"]?.Value<string>()     ?? "";
                         var l_Message   = l_Current["msg"]?.Value<string>()     ?? "";
@@ -61,8 +61,8 @@ namespace BeatSaberPlus.Modules.ChatRequest
 
                         SongEntry l_Entry = new SongEntry()
                         {
-                            BeatMap         = SDK.Game.BeatMapsClient.GetFromCacheByKey(l_Key) ?? SDK.Game.BeatMaps.MapDetail.PartialFromKey(l_Key),
-                            RequestTime     = SDK.Misc.Time.FromUnixTime(l_Time),
+                            BeatMap         = BeatSaberPlus.SDK.Game.BeatMapsClient.GetFromCacheByKey(l_Key) ?? BeatSaberPlus.SDK.Game.BeatMaps.MapDetail.PartialFromKey(l_Key),
+                            RequestTime     = BeatSaberPlus.SDK.Misc.Time.FromUnixTime(l_Time),
                             RequesterName   = l_Requester,
                             NamePrefix      = l_Prefix,
                             Message         = l_Message
@@ -80,7 +80,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
                     foreach (JObject l_Current in (JArray)l_JSON["history"])
                     {
                         var l_Key       = l_Current["key"]?.Value<string>()     ?? "";
-                        var l_Time      = l_Current["rqt"]?.Value<long>()       ?? SDK.Misc.Time.UnixTimeNow();
+                        var l_Time      = l_Current["rqt"]?.Value<long>()       ?? BeatSaberPlus.SDK.Misc.Time.UnixTimeNow();
                         var l_Requester = l_Current["rqn"]?.Value<string>()     ?? "";
                         var l_Prefix    = l_Current["npr"]?.Value<string>()     ?? "";
                         var l_Message   = l_Current["msg"]?.Value<string>()     ?? "";
@@ -93,8 +93,8 @@ namespace BeatSaberPlus.Modules.ChatRequest
 
                         SongEntry l_Entry = new SongEntry()
                         {
-                            BeatMap         = SDK.Game.BeatMapsClient.GetFromCacheByKey(l_Key) ?? SDK.Game.BeatMaps.MapDetail.PartialFromKey(l_Key),
-                            RequestTime     = SDK.Misc.Time.FromUnixTime(l_Time),
+                            BeatMap         = BeatSaberPlus.SDK.Game.BeatMapsClient.GetFromCacheByKey(l_Key) ?? BeatSaberPlus.SDK.Game.BeatMaps.MapDetail.PartialFromKey(l_Key),
+                            RequestTime     = BeatSaberPlus.SDK.Misc.Time.FromUnixTime(l_Time),
                             RequesterName   = l_Requester,
                             NamePrefix      = l_Prefix,
                             Message         = l_Message
@@ -112,7 +112,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
                     foreach (JObject l_Current in (JArray)l_JSON["blacklist"])
                     {
                         var l_Key       = l_Current["key"]?.Value<string>()     ?? "";
-                        var l_Time      = l_Current["rqt"]?.Value<long>()       ?? SDK.Misc.Time.UnixTimeNow();
+                        var l_Time      = l_Current["rqt"]?.Value<long>()       ?? BeatSaberPlus.SDK.Misc.Time.UnixTimeNow();
                         var l_Requester = l_Current["rqn"]?.Value<string>()     ?? "";
                         var l_Prefix    = l_Current["npr"]?.Value<string>()     ?? "";
                         var l_Message   = l_Current["msg"]?.Value<string>()     ?? "";
@@ -125,8 +125,8 @@ namespace BeatSaberPlus.Modules.ChatRequest
 
                         SongEntry l_Entry = new SongEntry()
                         {
-                            BeatMap         = SDK.Game.BeatMapsClient.GetFromCacheByKey(l_Key) ?? SDK.Game.BeatMaps.MapDetail.PartialFromKey(l_Key),
-                            RequestTime     = SDK.Misc.Time.FromUnixTime(l_Time),
+                            BeatMap         = BeatSaberPlus.SDK.Game.BeatMapsClient.GetFromCacheByKey(l_Key) ?? BeatSaberPlus.SDK.Game.BeatMaps.MapDetail.PartialFromKey(l_Key),
+                            RequestTime     = BeatSaberPlus.SDK.Misc.Time.FromUnixTime(l_Time),
                             RequesterName   = l_Requester,
                             NamePrefix      = l_Prefix,
                             Message         = l_Message
@@ -190,7 +190,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
                     {
                         var l_Object = new JObject();
                         l_Object["key"]  = l_Current.BeatMap.id;
-                        l_Object["rqt"] = l_Current.RequestTime.HasValue ? SDK.Misc.Time.ToUnixTime(l_Current.RequestTime.Value) : SDK.Misc.Time.UnixTimeNow();
+                        l_Object["rqt"] = l_Current.RequestTime.HasValue ? BeatSaberPlus.SDK.Misc.Time.ToUnixTime(l_Current.RequestTime.Value) : BeatSaberPlus.SDK.Misc.Time.UnixTimeNow();
                         l_Object["rqn"] = l_Current.RequesterName;
                         l_Object["npr"] = l_Current.NamePrefix;
                         l_Object["msg"] = l_Current.Message;
@@ -202,7 +202,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
                     {
                         var l_Object = new JObject();
                         l_Object["key"]  = l_Current.BeatMap.id;
-                        l_Object["rqt"] = l_Current.RequestTime.HasValue ? SDK.Misc.Time.ToUnixTime(l_Current.RequestTime.Value) : SDK.Misc.Time.UnixTimeNow();
+                        l_Object["rqt"] = l_Current.RequestTime.HasValue ? BeatSaberPlus.SDK.Misc.Time.ToUnixTime(l_Current.RequestTime.Value) : BeatSaberPlus.SDK.Misc.Time.UnixTimeNow();
                         l_Object["rqn"] = l_Current.RequesterName;
                         l_Object["npr"] = l_Current.NamePrefix;
                         l_Object["msg"] = l_Current.Message;
@@ -214,7 +214,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
                     {
                         var l_Object = new JObject();
                         l_Object["key"]  = l_Current.BeatMap.id;
-                        l_Object["rqt"] = l_Current.RequestTime.HasValue ? SDK.Misc.Time.ToUnixTime(l_Current.RequestTime.Value) : SDK.Misc.Time.UnixTimeNow();
+                        l_Object["rqt"] = l_Current.RequestTime.HasValue ? BeatSaberPlus.SDK.Misc.Time.ToUnixTime(l_Current.RequestTime.Value) : BeatSaberPlus.SDK.Misc.Time.UnixTimeNow();
                         l_Object["rqn"] = l_Current.RequesterName;
                         l_Object["npr"] = l_Current.NamePrefix;
                         l_Object["msg"] = l_Current.Message;

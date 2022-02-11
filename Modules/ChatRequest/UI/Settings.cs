@@ -1,12 +1,12 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components.Settings;
 
-namespace BeatSaberPlus.Modules.ChatRequest.UI
+namespace BeatSaberPlus_ChatRequest.UI
 {
     /// <summary>
     /// Chat request settings view
     /// </summary>
-    internal class Settings : SDK.UI.ResourceViewController<Settings>
+    internal class Settings : BeatSaberPlus.SDK.UI.ResourceViewController<Settings>
     {
 #pragma warning disable CS0649
         [UIComponent("use-request")]
@@ -50,16 +50,16 @@ namespace BeatSaberPlus.Modules.ChatRequest.UI
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic));
 
             /// Left
-            SDK.UI.IncrementSetting.Setup(m_UserRequest,            l_Event, null,                                  CRConfig.Instance.UserMaxRequest,          true);
-            SDK.UI.IncrementSetting.Setup(m_VIPBonusRequest,        l_Event, null,                                  CRConfig.Instance.VIPBonusRequest,         true);
-            SDK.UI.IncrementSetting.Setup(m_SubscriberBonusRequest, l_Event, null,                                  CRConfig.Instance.SubscriberBonusRequest,  true);
-            SDK.UI.IncrementSetting.Setup(m_HistorySize,            l_Event, null,                                  CRConfig.Instance.HistorySize,             true);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_UserRequest,            l_Event, null,                                                CRConfig.Instance.UserMaxRequest,          true);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_VIPBonusRequest,        l_Event, null,                                                CRConfig.Instance.VIPBonusRequest,         true);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_SubscriberBonusRequest, l_Event, null,                                                CRConfig.Instance.SubscriberBonusRequest,  true);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_HistorySize,            l_Event, null,                                                CRConfig.Instance.HistorySize,             true);
 
             /// Right
-            SDK.UI.ToggleSetting.Setup(m_PlayPreviewMusic,          l_Event,                                        CRConfig.Instance.PlayPreviewMusic,        true);
-            SDK.UI.ToggleSetting.Setup(m_ModeratorPower,            l_Event,                                        CRConfig.Instance.ModeratorPower,          true);
-            SDK.UI.IncrementSetting.Setup(m_QueueSize,              l_Event, null,                                  CRConfig.Instance.QueueCommandShowSize,    true);
-            SDK.UI.IncrementSetting.Setup(m_QueueCooldown,          l_Event, SDK.UI.BSMLSettingFormartter.Seconds,  CRConfig.Instance.QueueCommandCooldown,    true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_PlayPreviewMusic,          l_Event,                                                      CRConfig.Instance.PlayPreviewMusic,        true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_ModeratorPower,            l_Event,                                                      CRConfig.Instance.ModeratorPower,          true);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_QueueSize,              l_Event, null,                                                CRConfig.Instance.QueueCommandShowSize,    true);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_QueueCooldown,          l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Seconds,  CRConfig.Instance.QueueCommandCooldown,    true);
         }
         /// <summary>
         /// On view deactivation

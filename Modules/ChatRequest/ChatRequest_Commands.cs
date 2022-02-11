@@ -5,12 +5,12 @@ using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace BeatSaberPlus.Modules.ChatRequest
+namespace BeatSaberPlus_ChatRequest
 {
     /// <summary>
     /// Chat request command handler
     /// </summary>
-    internal partial class ChatRequest
+    public partial class ChatRequest
     {
         /// <summary>
         /// Command table
@@ -45,7 +45,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
             if (l_Config.Moderator_BsrBanCommandEnabled)        RegisterCommand(l_Config.Moderator_BsrBanCommand,           Command_BanUser);
             if (l_Config.Moderator_BsrBanMapperCommandEnabled)  RegisterCommand(l_Config.Moderator_BsrBanMapperCommand,     Command_BanMapper);
             if (l_Config.Moderator_BsrUnbanCommandEnabled)      RegisterCommand(l_Config.Moderator_BsrUnbanCommand,         Command_UnBanUser);
-            if (l_Config.Moderator_BsrUnbanMapperCommandEnabled) RegisterCommand(l_Config.Moderator_BsrUnbanMapperCommand,  Command_UnBanMapper);
+            if (l_Config.Moderator_BsrUnbanMapperCommandEnabled)RegisterCommand(l_Config.Moderator_BsrUnbanMapperCommand,   Command_UnBanMapper);
             if (l_Config.Moderator_CloseCommandEnabled)         RegisterCommand(l_Config.Moderator_CloseCommand,            Command_Close);
             if (l_Config.Moderator_ModAddCommandEnabled)        RegisterCommand(l_Config.Moderator_ModAddCommand,           (x, y, z) => Command_BSR(x, y, z, true, false));
             if (l_Config.Moderator_MoveToTopCommandEnabled)     RegisterCommand(l_Config.Moderator_MoveToTopCommand,        Command_MoveToTop);
@@ -123,7 +123,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
 
             if (!OnlyHexInString(l_Key))
             {
-                SDK.Game.BeatMapsClient.GetOnlineBySearch(l_Key, (p_Valid, p_SearchTaskResult) =>
+                BeatSaberPlus.SDK.Game.BeatMapsClient.GetOnlineBySearch(l_Key, (p_Valid, p_SearchTaskResult) =>
                 {
                     if (!p_Valid || p_SearchTaskResult.Length == 0)
                     {
@@ -155,6 +155,8 @@ namespace BeatSaberPlus.Modules.ChatRequest
 
                 return;
             }
+            else
+                l_Key = l_Key.TrimStart('0');
 
             /// Look for remaps
             lock (Remaps)
@@ -195,9 +197,9 @@ namespace BeatSaberPlus.Modules.ChatRequest
             string l_NamePrefix = "";
 
             /// Handle request limits
-            if (p_Service is SDK.Chat.Services.Twitch.TwitchService)
+            if (p_Service is BeatSaberPlus.SDK.Chat.Services.Twitch.TwitchService)
             {
-                var l_TwitchUser = p_Message.Sender as SDK.Chat.Models.Twitch.TwitchUser;
+                var l_TwitchUser = p_Message.Sender as BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchUser;
 
                 (int, string) l_Limit = (CRConfig.Instance.UserMaxRequest, "Users");
 
@@ -239,7 +241,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
             }
 
             /// Fetch beatmap
-            SDK.Game.BeatMapsClient.GetOnlineByKey(l_Key, (p_Valid, p_BeatMap) =>
+            BeatSaberPlus.SDK.Game.BeatMapsClient.GetOnlineByKey(l_Key, (p_Valid, p_BeatMap) =>
             {
                 try
                 {
@@ -315,9 +317,9 @@ namespace BeatSaberPlus.Modules.ChatRequest
         private void Command_Link(IChatService p_Service, IChatMessage p_Message, string[] p_Params)
         {
             string l_Response = "";
-            if (SDK.Game.Logic.LevelData == null
-                || SDK.Game.Logic.LevelData?.Data == null
-                || SDK.Game.Logic.LevelData?.Data.difficultyBeatmap == null)
+            if (BeatSaberPlus.SDK.Game.Logic.LevelData == null
+                || BeatSaberPlus.SDK.Game.Logic.LevelData?.Data == null
+                || BeatSaberPlus.SDK.Game.Logic.LevelData?.Data.difficultyBeatmap == null)
             {
                 if (m_LastPlayingLevelResponse == "")
                     l_Response = CRConfig.Instance.Commands.LinkCommand_NoSong;
@@ -759,7 +761,7 @@ namespace BeatSaberPlus.Modules.ChatRequest
             }
 
             /// Fetch beatmap
-            SDK.Game.BeatMapsClient.GetOnlineByKey(l_Key, (p_Valid, p_BeatMap) =>
+            BeatSaberPlus.SDK.Game.BeatMapsClient.GetOnlineByKey(l_Key, (p_Valid, p_BeatMap) =>
             {
                 try
                 {
