@@ -7,7 +7,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace BeatSaberPlus.Modules.ChatIntegrations.UI
+namespace BeatSaberPlus_ChatIntegrations.UI
 {
     /// <summary>
     /// Chat integrations main settings view
@@ -29,7 +29,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.UI
         private Button m_AddActionFrame_CategoryUpButton = null;
         [UIObject("AddActionFrame_CategoryList")]
         private GameObject m_AddActionFrame_CategoryListView = null;
-        private SDK.UI.DataSource.SimpleTextList m_AddActionFrame_CategoryList = null;
+        private BeatSaberPlus.SDK.UI.DataSource.SimpleTextList m_AddActionFrame_CategoryList = null;
         [UIComponent("AddActionFrame_CategoryDownButton")]
         private Button m_AddActionFrame_CategoryDownButton = null;
 
@@ -39,7 +39,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.UI
         private Button m_AddActionFrame_TypeUpButton = null;
         [UIObject("AddActionFrame_TypeList")]
         private GameObject m_AddActionFrame_TypeListView = null;
-        private SDK.UI.DataSource.SimpleTextList m_AddActionFrame_TypeList = null;
+        private BeatSaberPlus.SDK.UI.DataSource.SimpleTextList m_AddActionFrame_TypeList = null;
         [UIComponent("AddActionFrame_TypeDownButton")]
         private Button m_AddActionFrame_TypeDownButton = null;
 
@@ -57,8 +57,8 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.UI
 
         private void SetupAddActionFrame()
         {
-            SDK.UI.Backgroundable.SetOpacity(m_AddActionFrame_LeftBackground,   0.50f);
-            SDK.UI.Backgroundable.SetOpacity(m_AddActionFrame_RightBackground,  0.50f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_AddActionFrame_LeftBackground,   0.50f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_AddActionFrame_RightBackground,  0.50f);
 
             m_AddActionFrame_CategoryUpButton.transform.localScale      = Vector3.one * 0.6f;
             m_AddActionFrame_CategoryDownButton.transform.localScale    = Vector3.one * 0.6f;
@@ -73,7 +73,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.UI
                 var l_BSMLTableView = m_AddActionFrame_CategoryListView.GetComponentInChildren<BSMLTableView>();
                 l_BSMLTableView.SetDataSource(null, false);
                 GameObject.DestroyImmediate(m_AddActionFrame_CategoryListView.GetComponentInChildren<CustomListTableData>());
-                m_AddActionFrame_CategoryList                   = l_BSMLTableView.gameObject.AddComponent<SDK.UI.DataSource.SimpleTextList>();
+                m_AddActionFrame_CategoryList                   = l_BSMLTableView.gameObject.AddComponent<BeatSaberPlus.SDK.UI.DataSource.SimpleTextList>();
                 m_AddActionFrame_CategoryList.TableViewInstance = l_BSMLTableView;
                 m_AddActionFrame_CategoryList.CellSizeValue     = 5f;
                 l_BSMLTableView.didSelectCellWithIdxEvent       += AddActionFrame_CategorySelected;
@@ -97,7 +97,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.UI
                 var l_BSMLTableView = m_AddActionFrame_TypeListView.GetComponentInChildren<BSMLTableView>();
                 l_BSMLTableView.SetDataSource(null, false);
                 GameObject.DestroyImmediate(m_AddActionFrame_TypeListView.GetComponentInChildren<CustomListTableData>());
-                m_AddActionFrame_TypeList                    = l_BSMLTableView.gameObject.AddComponent<SDK.UI.DataSource.SimpleTextList>();
+                m_AddActionFrame_TypeList                    = l_BSMLTableView.gameObject.AddComponent<BeatSaberPlus.SDK.UI.DataSource.SimpleTextList>();
                 m_AddActionFrame_TypeList.TableViewInstance  = l_BSMLTableView;
                 m_AddActionFrame_TypeList.CellSizeValue      = 5f;
                 l_BSMLTableView.didSelectCellWithIdxEvent   += AddActionFrame_TypeSelected;

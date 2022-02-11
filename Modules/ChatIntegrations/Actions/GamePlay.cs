@@ -1,7 +1,7 @@
 ﻿using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components.Settings;
-using BeatSaberPlus.Modules.ChatIntegrations.Models;
+using BeatSaberPlus_ChatIntegrations.Models;
 using IPA.Utilities;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
+namespace BeatSaberPlus_ChatIntegrations.Actions
 {
     internal class GamePlayBuilder
     {
@@ -35,8 +35,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
                 new GamePlay_Restart(),
                 new GamePlay_SpawnBombPatterns(),
                 new GamePlay_SpawnSquatWalls(),
-                new GamePlay_ToggleHUD(),
-                //new GamePlay_ToggleLights()
+                new GamePlay_ToggleHUD()
             };
         }
     }
@@ -60,9 +59,12 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
 
-            SDK.UI.ToggleSetting.Setup(m_DebrisToggle, l_Event, Model.Debris, false);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_DebrisToggle, l_Event, Model.Debris, false);
 
             OnSettingChanged(null);
+
+            if (!ModulePresence.GameTweaker)
+                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: GameTweaker module is missing!");
         }
         private void OnSettingChanged(object p_Value)
         {
@@ -71,8 +73,15 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
 
         public override IEnumerator Eval(EventContext p_Context)
         {
-            if (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Playing)
-                GameTweaker.Patches.PNoteDebrisSpawner.SetTemp(!Model.Debris);
+            if (!ModulePresence.GameTweaker)
+            {
+                p_Context.HasActionFailed = true;
+                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, GameTweaker module is missing!");
+                yield break;
+            }
+
+            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Playing)
+                BeatSaberPlus_GameTweaker.Patches.PNoteDebrisSpawner.SetTemp(!Model.Debris);
             else
                 p_Context.HasActionFailed = true;
 
@@ -110,13 +119,16 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
 
-            SDK.UI.ListSetting.Setup(m_TypeList,            l_Event,                                                                    false);
-            SDK.UI.IncrementSetting.Setup(m_UserIncrement,  l_Event, SDK.UI.BSMLSettingFormartter.Percentage,   Model.UserValue,        false);
-            SDK.UI.IncrementSetting.Setup(m_MinIncrement,   l_Event, SDK.UI.BSMLSettingFormartter.Percentage,   Model.Min,              false);
-            SDK.UI.IncrementSetting.Setup(m_MaxIncrement,   l_Event, SDK.UI.BSMLSettingFormartter.Percentage,   Model.Max,              false);
-            SDK.UI.ToggleSetting.Setup(m_SendMessageToggle, l_Event,                                            Model.SendChatMessage,  false);
+            BeatSaberPlus.SDK.UI.ListSetting.Setup(m_TypeList,            l_Event,                                                                                  false);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_UserIncrement,  l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Percentage,   Model.UserValue,        false);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_MinIncrement,   l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Percentage,   Model.Min,              false);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_MaxIncrement,   l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Percentage,   Model.Max,              false);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_SendMessageToggle, l_Event,                                                          Model.SendChatMessage,  false);
 
             OnSettingChanged(null);
+
+            if (!ModulePresence.GameTweaker)
+                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: GameTweaker module is missing!");
         }
         private void OnSettingChanged(object p_Value)
         {
@@ -133,19 +145,25 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
 
         public override IEnumerator Eval(Models.EventContext p_Context)
         {
-            bool l_Failed = true;
-            if (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Playing)
+            if (!ModulePresence.GameTweaker)
             {
-                var l_Level     = SDK.Game.Logic.LevelData?.Data?.difficultyBeatmap?.difficulty;
+                p_Context.HasActionFailed = true;
+                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, GameTweaker module is missing!");
+            }
+
+            bool l_Failed = true;
+            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Playing)
+            {
+                var l_Level     = BeatSaberPlus.SDK.Game.Logic.LevelData?.Data?.difficultyBeatmap?.difficulty;
                 var l_Effects   = l_Level == BeatmapDifficulty.ExpertPlus
-                    ? SDK.Game.Logic.LevelData?.Data?.playerSpecificSettings?.environmentEffectsFilterExpertPlusPreset
-                    : SDK.Game.Logic.LevelData?.Data?.playerSpecificSettings?.environmentEffectsFilterDefaultPreset;
+                    ? BeatSaberPlus.SDK.Game.Logic.LevelData?.Data?.playerSpecificSettings?.environmentEffectsFilterExpertPlusPreset
+                    : BeatSaberPlus.SDK.Game.Logic.LevelData?.Data?.playerSpecificSettings?.environmentEffectsFilterDefaultPreset;
 
                 if (l_Effects != EnvironmentEffectsFilterPreset.NoEffects)
                 {
                     if (Model.ValueType == 3)
                     {
-                        GameTweaker.Patches.Lights.PLightSwitchEventEffect.SetFromConfig();
+                        BeatSaberPlus_GameTweaker.Patches.Lights.PLightsPatches.SetFromConfig();
 
                         if (Model.SendChatMessage && p_Context.ChatService != null && p_Context.Channel != null && p_Context.User != null)
                             p_Context.ChatService.SendTextMessage(p_Context.Channel, $"! @{p_Context.User.DisplayName} lights was set to default");
@@ -176,7 +194,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
                             l_NewValue = l_EventInput;
                         }
 
-                        GameTweaker.Patches.Lights.PLightSwitchEventEffect.SetTempLightIntensity(l_NewValue);
+                        BeatSaberPlus_GameTweaker.Patches.Lights.PLightsPatches.SetTempLightIntensity(l_NewValue);
 
                         if (Model.SendChatMessage && p_Context.ChatService != null && p_Context.Channel != null && p_Context.User != null)
                             p_Context.ChatService.SendTextMessage(p_Context.Channel, $"! @{p_Context.User.DisplayName} lights was set to {Mathf.RoundToInt(l_NewValue * 100f)}]%");
@@ -228,11 +246,11 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
 
-            SDK.UI.ListSetting.Setup(m_TypeList,            l_Event,                                                                     false);
-            SDK.UI.IncrementSetting.Setup(m_UserIncrement,  l_Event, SDK.UI.BSMLSettingFormartter.Percentage,    Model.UserValue,        false);
-            SDK.UI.IncrementSetting.Setup(m_MinIncrement,   l_Event, SDK.UI.BSMLSettingFormartter.Percentage,    Model.Min,              false);
-            SDK.UI.IncrementSetting.Setup(m_MaxIncrement,   l_Event, SDK.UI.BSMLSettingFormartter.Percentage,    Model.Max,              false);
-            SDK.UI.ToggleSetting.Setup(m_SendMessageToggle, l_Event,                                             Model.SendChatMessage,  false);
+            BeatSaberPlus.SDK.UI.ListSetting.Setup(m_TypeList,            l_Event,                                                                                   false);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_UserIncrement,  l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Percentage,    Model.UserValue,        false);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_MinIncrement,   l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Percentage,    Model.Min,              false);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_MaxIncrement,   l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Percentage,    Model.Max,              false);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_SendMessageToggle, l_Event,                                                           Model.SendChatMessage,  false);
 
             OnSettingChanged(null);
         }
@@ -251,7 +269,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
 
         public override IEnumerator Eval(Models.EventContext p_Context)
         {
-            if (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Playing)
+            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Playing)
             {
                 var l_NewValue                  = 0f;
                 var l_AudioTimeSyncController   = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().FirstOrDefault();
@@ -332,12 +350,15 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
 
-            SDK.UI.ListSetting.Setup(m_TypeList,            l_Event,                                false);
-            SDK.UI.ColorSetting.Setup(m_LeftColor,          l_Event,    m_LeftColorCache.Value,     false);
-            SDK.UI.ColorSetting.Setup(m_RightColor,         l_Event,    m_RightColorCache.Value,    false);
-            SDK.UI.ToggleSetting.Setup(m_SendMessageToggle, l_Event,    Model.SendChatMessage,      false);
+            BeatSaberPlus.SDK.UI.ListSetting.Setup(m_TypeList,            l_Event,                                false);
+            BeatSaberPlus.SDK.UI.ColorSetting.Setup(m_LeftColor,          l_Event,    m_LeftColorCache.Value,     false);
+            BeatSaberPlus.SDK.UI.ColorSetting.Setup(m_RightColor,         l_Event,    m_RightColorCache.Value,    false);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_SendMessageToggle, l_Event,    Model.SendChatMessage,      false);
 
             OnSettingChanged(null);
+
+            if (!ModulePresence.NoteTweaker)
+                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: NoteTweaker module is missing!");
         }
         private void OnSettingChanged(object p_Value)
         {
@@ -355,12 +376,19 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
 
         public override IEnumerator Eval(Models.EventContext p_Context)
         {
+            if (!ModulePresence.NoteTweaker)
+            {
+                p_Context.HasActionFailed = true;
+                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, NoteTweaker module is missing!");
+                yield break;
+            }
+
             bool l_Failed = true;
-            if (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Playing)
+            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Playing)
             {
                 if (Model.ValueType == 0)
                 {
-                    NoteTweaker.Patches.PColorNoteVisuals.SetBlockColorOverride(false, Color.black, Color.black);
+                    BeatSaberPlus_NoteTweaker.Patches.PColorNoteVisuals.SetBlockColorOverride(false, Color.black, Color.black);
                     PatchSabers(true);
 
                     if (Model.SendChatMessage && p_Context.ChatService != null && p_Context.Channel != null && p_Context.User != null)
@@ -400,7 +428,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
 
                     if (!l_Failed)
                     {
-                        NoteTweaker.Patches.PColorNoteVisuals.SetBlockColorOverride(true, m_LeftColorCache.Value, m_RightColorCache.Value);
+                        BeatSaberPlus_NoteTweaker.Patches.PColorNoteVisuals.SetBlockColorOverride(true, m_LeftColorCache.Value, m_RightColorCache.Value);
                         PatchSabers(false);
 
                         if (Model.SendChatMessage && p_Context.ChatService != null && p_Context.Channel != null && p_Context.User != null)
@@ -422,14 +450,14 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
                 if (ColorUtility.TryParseHtmlString(Model.Left, out var l_LeftColor))
                     m_LeftColorCache = l_LeftColor;
                 else
-                    m_LeftColorCache = SDK.Game.Logic.LevelData?.Data?.colorScheme?.saberAColor ?? Color.red;
+                    m_LeftColorCache = BeatSaberPlus.SDK.Game.Logic.LevelData?.Data?.colorScheme?.saberAColor ?? Color.red;
             }
             if (!m_RightColorCache.HasValue)
             {
                 if (ColorUtility.TryParseHtmlString(Model.Right, out var l_RightColor))
                     m_RightColorCache = l_RightColor;
                 else
-                    m_RightColorCache = SDK.Game.Logic.LevelData?.Data?.colorScheme?.saberBColor ?? Color.blue;
+                    m_RightColorCache = BeatSaberPlus.SDK.Game.Logic.LevelData?.Data?.colorScheme?.saberBColor ?? Color.blue;
             }
         }
         private void PatchSabers(bool p_UseDefault)
@@ -501,7 +529,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
 
         public override IEnumerator Eval(Models.EventContext p_Context)
         {
-            if (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Playing)
+            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Playing)
             {
                 var l_PauseController = Resources.FindObjectsOfTypeAll<PauseController>().FirstOrDefault();
                 if (l_PauseController != null && l_PauseController)
@@ -522,7 +550,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
 
         public override IEnumerator Eval(Models.EventContext p_Context)
         {
-            if (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Playing)
+            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Playing)
             {
                 var l_PauseMenuManager = Resources.FindObjectsOfTypeAll<PauseMenuManager>().FirstOrDefault();
                 if (l_PauseMenuManager != null && l_PauseMenuManager)
@@ -543,7 +571,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
 
         public override IEnumerator Eval(Models.EventContext p_Context)
         {
-            if (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Playing)
+            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Playing)
             {
                 var l_PauseMenuManager = Resources.FindObjectsOfTypeAll<PauseMenuManager>().FirstOrDefault();
                 if (l_PauseMenuManager)
@@ -601,21 +629,21 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
 
-            SDK.UI.IncrementSetting.Setup(m_IntervalIncrement, l_Event, null, Model.Interval, false);
-            SDK.UI.IncrementSetting.Setup(m_CountIncrement, l_Event, null, Model.Count, false);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_IntervalIncrement, l_Event, null, Model.Interval, false);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_CountIncrement, l_Event, null, Model.Count, false);
 
-            SDK.UI.ToggleSetting.Setup(m_L0R2, l_Event, (Model.L0 & (1 << 0)) != 0, true);
-            SDK.UI.ToggleSetting.Setup(m_L1R2, l_Event, (Model.L1 & (1 << 0)) != 0, true);
-            SDK.UI.ToggleSetting.Setup(m_L2R2, l_Event, (Model.L2 & (1 << 0)) != 0, true);
-            SDK.UI.ToggleSetting.Setup(m_L3R2, l_Event, (Model.L3 & (1 << 0)) != 0, true);
-            SDK.UI.ToggleSetting.Setup(m_L0R1, l_Event, (Model.L0 & (1 << 1)) != 0, true);
-            SDK.UI.ToggleSetting.Setup(m_L1R1, l_Event, (Model.L1 & (1 << 1)) != 0, true);
-            SDK.UI.ToggleSetting.Setup(m_L2R1, l_Event, (Model.L2 & (1 << 1)) != 0, true);
-            SDK.UI.ToggleSetting.Setup(m_L3R1, l_Event, (Model.L3 & (1 << 1)) != 0, true);
-            SDK.UI.ToggleSetting.Setup(m_L0R0, l_Event, (Model.L0 & (1 << 2)) != 0, true);
-            SDK.UI.ToggleSetting.Setup(m_L1R0, l_Event, (Model.L1 & (1 << 2)) != 0, true);
-            SDK.UI.ToggleSetting.Setup(m_L2R0, l_Event, (Model.L2 & (1 << 2)) != 0, true);
-            SDK.UI.ToggleSetting.Setup(m_L3R0, l_Event, (Model.L3 & (1 << 2)) != 0, true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_L0R2, l_Event, (Model.L0 & (1 << 0)) != 0, true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_L1R2, l_Event, (Model.L1 & (1 << 0)) != 0, true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_L2R2, l_Event, (Model.L2 & (1 << 0)) != 0, true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_L3R2, l_Event, (Model.L3 & (1 << 0)) != 0, true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_L0R1, l_Event, (Model.L0 & (1 << 1)) != 0, true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_L1R1, l_Event, (Model.L1 & (1 << 1)) != 0, true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_L2R1, l_Event, (Model.L2 & (1 << 1)) != 0, true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_L3R1, l_Event, (Model.L3 & (1 << 1)) != 0, true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_L0R0, l_Event, (Model.L0 & (1 << 2)) != 0, true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_L1R0, l_Event, (Model.L1 & (1 << 2)) != 0, true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_L2R0, l_Event, (Model.L2 & (1 << 2)) != 0, true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_L3R0, l_Event, (Model.L3 & (1 << 2)) != 0, true);
 
             m_L0R2.transform.localScale = 0.8f * Vector3.one;
             m_L1R2.transform.localScale = 0.8f * Vector3.one;
@@ -643,10 +671,10 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
 
         public override IEnumerator Eval(Models.EventContext p_Context)
         {
-            if (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Playing
-                && SDK.Game.Logic.LevelData != null
-                && !SDK.Game.Logic.LevelData.IsNoodle
-                && !SDK.Game.Logic.IsInReplay)
+            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Playing
+                && BeatSaberPlus.SDK.Game.Logic.LevelData != null
+                && !BeatSaberPlus.SDK.Game.Logic.LevelData.IsNoodle
+                && !BeatSaberPlus.SDK.Game.Logic.IsInReplay)
             {
                 var l_AudioTimeSyncController = UnityEngine.Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().FirstOrDefault();
                 var l_BeatmapObjectSpawnController = UnityEngine.Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().FirstOrDefault();
@@ -718,8 +746,8 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
 
-            SDK.UI.IncrementSetting.Setup(m_IntervalIncrement,  l_Event, null, Model.Interval,  false);
-            SDK.UI.IncrementSetting.Setup(m_CountIncrement,     l_Event, null, Model.Count,     false);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_IntervalIncrement,  l_Event, null, Model.Interval,  false);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_CountIncrement,     l_Event, null, Model.Count,     false);
         }
         private void OnSettingChanged(object p_Value)
         {
@@ -729,10 +757,10 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
 
         public override IEnumerator Eval(Models.EventContext p_Context)
         {
-            if (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Playing
-                && SDK.Game.Logic.LevelData != null
-                && !SDK.Game.Logic.LevelData.IsNoodle
-                && !SDK.Game.Logic.IsInReplay)
+            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Playing
+                && BeatSaberPlus.SDK.Game.Logic.LevelData != null
+                && !BeatSaberPlus.SDK.Game.Logic.LevelData.IsNoodle
+                && !BeatSaberPlus.SDK.Game.Logic.IsInReplay)
             {
                 var l_AudioTimeSyncController       = UnityEngine.Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().FirstOrDefault();
                 var l_BeatmapObjectSpawnController  = UnityEngine.Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().FirstOrDefault();
@@ -763,63 +791,11 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
 
         public override IEnumerator Eval(Models.EventContext p_Context)
         {
-            if (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Playing)
+            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Playing)
             {
                 var l_CoreGameHUDController = Resources.FindObjectsOfTypeAll<CoreGameHUDController>().FirstOrDefault();
                 if (l_CoreGameHUDController != null && l_CoreGameHUDController)
                     l_CoreGameHUDController.gameObject.SetActive(!l_CoreGameHUDController.gameObject.activeSelf);
-            }
-            else
-                p_Context.HasActionFailed = true;
-
-            yield return null;
-        }
-    }
-
-    public class GamePlay_ToggleLights : Interfaces.IAction<GamePlay_ToggleLights, Models.Actions.GamePlay_ToggleLights>
-    {
-        public override string Description => "Toggle lights";
-
-#pragma warning disable CS0414
-        [UIComponent("TypeList")]
-        private ListSetting m_TypeList = null;
-        [UIValue("TypeList_Choices")]
-        private List<object> m_TypeListList_Choices = new List<object>() { "Toggle", "Enable", "Disable" };
-        [UIValue("TypeList_Value")]
-        private string m_TypeList_Value;
-        [UIObject("InfoPanel_Background")]
-        private GameObject m_InfoPanel_Background = null;
-#pragma warning restore CS0414
-
-        public override sealed void BuildUI(Transform p_Parent)
-        {
-            m_TypeList_Value = (string)m_TypeListList_Choices.ElementAt(Model.ChangeType % m_TypeListList_Choices.Count);
-
-            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
-            BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
-
-            /// Change opacity
-            SDK.UI.Backgroundable.SetOpacity(m_InfoPanel_Background, 0.75f);
-
-            var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
-
-            SDK.UI.ListSetting.Setup(m_TypeList, l_Event, false);
-        }
-        private void OnSettingChanged(object p_Value)
-        {
-            Model.ChangeType = m_TypeListList_Choices.Select(x => (string)x).ToList().IndexOf(m_TypeList.Value);
-        }
-
-        public override IEnumerator Eval(EventContext p_Context)
-        {
-            if (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Playing && Config.GameTweaker.Enabled)
-            {
-                if (Model.ChangeType == 0)
-                    GameTweaker.Patches.Lights.PLightSwitchEventEffect.SetTempFauxStaticLight(!GameTweaker.Patches.Lights.PLightSwitchEventEffect.FauxStaticLight);
-                else if (Model.ChangeType == 1)
-                    GameTweaker.Patches.Lights.PLightSwitchEventEffect.SetTempFauxStaticLight(true);
-                else
-                    GameTweaker.Patches.Lights.PLightSwitchEventEffect.SetTempFauxStaticLight(false);
             }
             else
                 p_Context.HasActionFailed = true;

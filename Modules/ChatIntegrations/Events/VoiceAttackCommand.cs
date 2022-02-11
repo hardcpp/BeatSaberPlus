@@ -1,14 +1,14 @@
 ﻿using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Parser;
-using BeatSaberPlus.Modules.ChatIntegrations.Interfaces;
+using BeatSaberPlus_ChatIntegrations.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using TMPro;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.ChatIntegrations.Events
+namespace BeatSaberPlus_ChatIntegrations.Events
 {
     /// <summary>
     /// VoiceAttack command event
@@ -59,12 +59,12 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Events
             {
 
             }
-            .Union(Modules.ChatIntegrations.Actions.ChatBuilder.BuildFor(this))
-            .Union(Modules.ChatIntegrations.Actions.EmoteRainBuilder.BuildFor(this))
-            .Union(Modules.ChatIntegrations.Actions.EventBuilder.BuildFor(this))
-            .Union(Modules.ChatIntegrations.Actions.GamePlayBuilder.BuildFor(this))
-            .Union(Modules.ChatIntegrations.Actions.MiscBuilder.BuildFor(this))
-            .Union(Modules.ChatIntegrations.Actions.TwitchBuilder.BuildFor(this))
+            .Union(BeatSaberPlus_ChatIntegrations.Actions.ChatBuilder.BuildFor(this))
+            .Union(BeatSaberPlus_ChatIntegrations.Actions.EmoteRainBuilder.BuildFor(this))
+            .Union(BeatSaberPlus_ChatIntegrations.Actions.EventBuilder.BuildFor(this))
+            .Union(BeatSaberPlus_ChatIntegrations.Actions.GamePlayBuilder.BuildFor(this))
+            .Union(BeatSaberPlus_ChatIntegrations.Actions.MiscBuilder.BuildFor(this))
+            .Union(BeatSaberPlus_ChatIntegrations.Actions.TwitchBuilder.BuildFor(this))
             .Union(GetInstanciatedCustomActionList())
             .Distinct().ToList().AsReadOnly();
         }
@@ -106,8 +106,8 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Events
             m_ParserParams = BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             /// Change opacity
-            SDK.UI.Backgroundable.SetOpacity(m_InfoBackground, 0.5f);
-            SDK.UI.ModalView.SetOpacity(m_RebindModal, 0.5f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_InfoBackground, 0.5f);
+            BeatSaberPlus.SDK.UI.ModalView.SetOpacity(m_RebindModal, 0.5f);
 
             /// Update UI
             UpdateUI();

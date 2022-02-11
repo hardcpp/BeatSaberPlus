@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace BeatSaberPlus.Modules.ChatIntegrations.Models.Events
+namespace BeatSaberPlus_ChatIntegrations.Models.Events
 {
     /// <summary>
     /// VoiceAttack command event model

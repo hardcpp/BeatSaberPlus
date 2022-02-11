@@ -2,9 +2,9 @@
 using System.Diagnostics;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.ChatIntegrations.UI
+namespace BeatSaberPlus_ChatIntegrations.UI
 {
-    internal class SettingsLeft : SDK.UI.ResourceViewController<SettingsLeft>
+    internal class SettingsLeft : BeatSaberPlus.SDK.UI.ResourceViewController<SettingsLeft>
     {
         private static readonly string s_InformationsStr = "<line-height=125%>"
             + "\n<b>Special thanks to HypersonicSharkz#3301 for help on TwitchAPI and some Actions code!"
@@ -41,7 +41,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.UI
         /// </summary>
         protected override sealed void OnViewCreation()
         {
-            SDK.UI.Backgroundable.SetOpacity(m_Background, 0.5f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_Background, 0.5f);
             m_Informations.SetText(s_InformationsStr);
             m_Informations.UpdateVerticalScrollIndicator(0);
         }
@@ -56,7 +56,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.UI
         private void OnWebConfigurationButton()
         {
             ShowMessageModal("URL opened in your desktop browser.");
-            SDK.Chat.Service.OpenWebConfigurator();
+            BeatSaberPlus.SDK.Chat.Service.OpenWebConfigurator();
         }
 
         ////////////////////////////////////////////////////////////////////////////

@@ -1,4 +1,4 @@
-﻿namespace BeatSaberPlus.Modules.ChatIntegrations.Models.Events
+﻿namespace BeatSaberPlus_ChatIntegrations.Models.Events
 {
     /// <summary>
     /// Chat follow event model

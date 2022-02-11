@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace BeatSaberPlus.Modules.ChatIntegrations.Models.Actions
+namespace BeatSaberPlus_ChatIntegrations.Models.Actions
 {
     public class EmoteRain_CustomRain : Action
     {

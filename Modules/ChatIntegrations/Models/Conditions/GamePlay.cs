@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace BeatSaberPlus.Modules.ChatIntegrations.Models.Conditions
+namespace BeatSaberPlus_ChatIntegrations.Models.Conditions
 {
     public class GamePlay_LevelEndType : Condition
     {

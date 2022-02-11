@@ -3,7 +3,7 @@ using BeatSaberMarkupLanguage.Attributes;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.ChatIntegrations.Interfaces
+namespace BeatSaberPlus_ChatIntegrations.Interfaces
 {
     /// <summary>
     /// ICondition generic class

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BeatSaberPlus.Modules.ChatIntegrations.Interfaces
+namespace BeatSaberPlus_ChatIntegrations.Interfaces
 {
     /// <summary>
     /// Value type

@@ -7,7 +7,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace BeatSaberPlus.Modules.ChatIntegrations.UI
+namespace BeatSaberPlus_ChatIntegrations.UI
 {
     /// <summary>
     /// Chat integrations main settings view
@@ -29,7 +29,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.UI
         private Button m_AddConditionFrame_CategoryUpButton = null;
         [UIObject("AddConditionFrame_CategoryList")]
         private GameObject m_AddConditionFrame_CategoryListView = null;
-        private SDK.UI.DataSource.SimpleTextList m_AddConditionFrame_CategoryList = null;
+        private BeatSaberPlus.SDK.UI.DataSource.SimpleTextList m_AddConditionFrame_CategoryList = null;
         [UIComponent("AddConditionFrame_CategoryDownButton")]
         private Button m_AddConditionFrame_CategoryDownButton = null;
 
@@ -39,7 +39,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.UI
         private Button m_AddConditionFrame_TypeUpButton = null;
         [UIObject("AddConditionFrame_TypeList")]
         private GameObject m_AddConditionFrame_TypeListView = null;
-        private SDK.UI.DataSource.SimpleTextList m_AddConditionFrame_TypeList = null;
+        private BeatSaberPlus.SDK.UI.DataSource.SimpleTextList m_AddConditionFrame_TypeList = null;
         [UIComponent("AddConditionFrame_TypeDownButton")]
         private Button m_AddConditionFrame_TypeDownButton = null;
 
@@ -57,8 +57,8 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.UI
 
         private void SetupAddConditionFrame()
         {
-            SDK.UI.Backgroundable.SetOpacity(m_AddConditionFrame_LeftBackground,   0.50f);
-            SDK.UI.Backgroundable.SetOpacity(m_AddConditionFrame_RightBackground,  0.50f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_AddConditionFrame_LeftBackground,   0.50f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_AddConditionFrame_RightBackground,  0.50f);
 
             m_AddConditionFrame_CategoryUpButton.transform.localScale      = Vector3.one * 0.6f;
             m_AddConditionFrame_CategoryDownButton.transform.localScale    = Vector3.one * 0.6f;
@@ -73,7 +73,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.UI
                 var l_BSMLTableView = m_AddConditionFrame_CategoryListView.GetComponentInChildren<BSMLTableView>();
                 l_BSMLTableView.SetDataSource(null, false);
                 GameObject.DestroyImmediate(m_AddConditionFrame_CategoryListView.GetComponentInChildren<CustomListTableData>());
-                m_AddConditionFrame_CategoryList                   = l_BSMLTableView.gameObject.AddComponent<SDK.UI.DataSource.SimpleTextList>();
+                m_AddConditionFrame_CategoryList                   = l_BSMLTableView.gameObject.AddComponent<BeatSaberPlus.SDK.UI.DataSource.SimpleTextList>();
                 m_AddConditionFrame_CategoryList.TableViewInstance = l_BSMLTableView;
                 m_AddConditionFrame_CategoryList.CellSizeValue     = 5f;
                 l_BSMLTableView.didSelectCellWithIdxEvent         += AddConditionFrame_CategorySelected;
@@ -97,7 +97,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.UI
                 var l_BSMLTableView = m_AddConditionFrame_TypeListView.GetComponentInChildren<BSMLTableView>();
                 l_BSMLTableView.SetDataSource(null, false);
                 GameObject.DestroyImmediate(m_AddConditionFrame_TypeListView.GetComponentInChildren<CustomListTableData>());
-                m_AddConditionFrame_TypeList                    = l_BSMLTableView.gameObject.AddComponent<SDK.UI.DataSource.SimpleTextList>();
+                m_AddConditionFrame_TypeList                    = l_BSMLTableView.gameObject.AddComponent<BeatSaberPlus.SDK.UI.DataSource.SimpleTextList>();
                 m_AddConditionFrame_TypeList.TableViewInstance  = l_BSMLTableView;
                 m_AddConditionFrame_TypeList.CellSizeValue      = 5f;
                 l_BSMLTableView.didSelectCellWithIdxEvent   += AddConditionFrame_TypeSelected;

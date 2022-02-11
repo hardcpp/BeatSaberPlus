@@ -2,8 +2,8 @@
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components.Settings;
 using BeatSaberMarkupLanguage.Parser;
-using BeatSaberPlus.Modules.ChatIntegrations.Interfaces;
-using BeatSaberPlus.Modules.ChatIntegrations.Models;
+using BeatSaberPlus_ChatIntegrations.Interfaces;
+using BeatSaberPlus_ChatIntegrations.Models;
 using BeatSaberPlus.SDK.Chat.Interfaces;
 using System;
 using System.Collections;
@@ -13,7 +13,7 @@ using System.Reflection;
 using TMPro;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
+namespace BeatSaberPlus_ChatIntegrations.Actions
 {
     internal class ChatBuilder
     {
@@ -60,10 +60,10 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
             m_ParserParams = BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
-            SDK.UI.ToggleSetting.Setup(m_AddTTSPrefixToggle, l_Event, Model.AddTTSPefix, false);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_AddTTSPrefixToggle, l_Event, Model.AddTTSPefix, false);
 
             /// Change opacity
-            SDK.UI.ModalView.SetOpacity(m_ChatInputModal, 0.75f);
+            BeatSaberPlus.SDK.UI.ModalView.SetOpacity(m_ChatInputModal, 0.75f);
 
             /// Update UI
             UpdateUI();
@@ -153,7 +153,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
             if (p_Context.ChatService != null && p_Context.Channel != null)
                 p_Context.ChatService.SendTextMessage(p_Context.Channel, l_Message);
             else
-                SDK.Chat.Service.BroadcastMessage(l_Message);
+                BeatSaberPlus.SDK.Chat.Service.BroadcastMessage(l_Message);
 
             yield return null;
         }
@@ -167,8 +167,8 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
 
         public override IEnumerator Eval(EventContext p_Context)
         {
-            var l_Channel = SDK.Chat.Service.Multiplexer.Channels.First();
-            if (l_Channel.Item2 is SDK.Chat.Models.Twitch.TwitchChannel l_TwitchChannel)
+            var l_Channel = BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels.First();
+            if (l_Channel.Item2 is BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchChannel l_TwitchChannel)
             {
                 if (l_TwitchChannel.Roomstate.EmoteOnly)
                     l_Channel.Item1.SendTextMessage(l_Channel.Item2, "/emoteonlyoff");

@@ -7,7 +7,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.ChatIntegrations.Interfaces
+namespace BeatSaberPlus_ChatIntegrations.Interfaces
 {
     /// <summary>
     /// IEvent generic class
@@ -79,7 +79,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Interfaces
                     }
                 }
 
-                SDK.Unity.MainThreadInvoker.Enqueue(() => SharedCoroutineStarter.instance.StartCoroutine(DoActions(p_Context)));
+                BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() => SharedCoroutineStarter.instance.StartCoroutine(DoActions(p_Context)));
             }
             catch (System.Exception l_Exception)
             {
@@ -173,7 +173,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Interfaces
             if (p_IsClone)
                 GenericModel.Name += " (Clone)";
 
-            GenericModel.CreationDate   = SDK.Misc.Time.UnixTimeNow();
+            GenericModel.CreationDate   = BeatSaberPlus.SDK.Misc.Time.UnixTimeNow();
             GenericModel.LastUsageDate  = 0;
             GenericModel.UsageCount     = 0;
         }
@@ -309,7 +309,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Interfaces
         /// <summary>
         /// Model
         /// </summary>
-        public M Model { get; protected set; } = new M() { GUID = Guid.NewGuid().ToString(), Enabled = true, CreationDate = SDK.Misc.Time.UnixTimeNow() };
+        public M Model { get; protected set; } = new M() { GUID = Guid.NewGuid().ToString(), Enabled = true, CreationDate = BeatSaberPlus.SDK.Misc.Time.UnixTimeNow() };
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -398,9 +398,18 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Interfaces
                 return false;
             }
 
-            if (!(p_Serialized["Event"] as JObject).ContainsKey("Type") || p_Serialized["Event"]["Type"].Value<string>() != GetTypeName())
+            if (!(p_Serialized["Event"] as JObject).ContainsKey("Type"))
             {
-                p_Error = "Invalid event format";
+                p_Error = "Invalid event format for type " + GetTypeName();
+                return false;
+            }
+
+            if (p_Serialized["Event"]["Type"].Value<string>().StartsWith("BeatSaberPlus.Modules.ChatIntegrations."))
+                p_Serialized["Event"]["Type"] = p_Serialized["Event"]["Type"].Value<string>().Replace("BeatSaberPlus.Modules.ChatIntegrations.", "BeatSaberPlus_ChatIntegrations.");
+
+            if (p_Serialized["Event"]["Type"].Value<string>() != GetTypeName())
+            {
+                p_Error = "Invalid event format for type " + GetTypeName();
                 return false;
             }
 
@@ -413,7 +422,14 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Interfaces
                     if (!l_SerializedCondition.ContainsKey(nameof(Models.Condition.Type)))
                         continue;
 
-                    var l_ConditionType = l_SerializedCondition[nameof(Models.Action.Type)].Value<string>();
+                    var l_ConditionType = l_SerializedCondition[nameof(Models.Condition.Type)].Value<string>();
+
+                    if (l_ConditionType.StartsWith("BeatSaberPlus.Modules.ChatIntegrations."))
+                    {
+                        l_ConditionType = l_ConditionType.Replace("BeatSaberPlus.Modules.ChatIntegrations.", "BeatSaberPlus_ChatIntegrations.");
+                        l_SerializedCondition[nameof(Models.Condition.Type)] = l_ConditionType;
+                    }
+
                     var l_MatchingType  = AvailableConditions.Where(x => x.GetTypeName() == l_ConditionType).FirstOrDefault();
 
                     if (l_MatchingType == null)
@@ -446,7 +462,14 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Interfaces
                     if (!l_SerializedAction.ContainsKey(nameof(Models.Condition.Type)))
                         continue;
 
-                    var l_ActionType    = l_SerializedAction[nameof(Models.Action.Type)].Value<string>();
+                    var l_ActionType = l_SerializedAction[nameof(Models.Action.Type)].Value<string>();
+
+                    if (l_ActionType.StartsWith("BeatSaberPlus.Modules.ChatIntegrations."))
+                    {
+                        l_ActionType = l_ActionType.Replace("BeatSaberPlus.Modules.ChatIntegrations.", "BeatSaberPlus_ChatIntegrations.");
+                        l_SerializedAction[nameof(Models.Action.Type)] = l_ActionType;
+                    }
+
                     var l_MatchingType  = AvailableActions.Where(x => x.GetTypeName() == l_ActionType).FirstOrDefault();
 
                     if (l_MatchingType == null)

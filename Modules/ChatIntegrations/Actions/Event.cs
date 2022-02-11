@@ -1,14 +1,14 @@
 ﻿using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components.Settings;
-using BeatSaberPlus.Modules.ChatIntegrations.Models;
+using BeatSaberPlus_ChatIntegrations.Models;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
+namespace BeatSaberPlus_ChatIntegrations.Actions
 {
     internal class EventBuilder
     {
@@ -52,12 +52,12 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
             BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             /// Change opacity
-            SDK.UI.Backgroundable.SetOpacity(m_InfoPanel_Background, 0.75f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_InfoPanel_Background, 0.75f);
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
 
-            SDK.UI.DropDownListSetting.Setup(m_Event_DropDown, l_Event, true);
-            SDK.UI.ToggleSetting.Setup(m_ContinueToggle, l_Event, Model.Continue, false);
+            BeatSaberPlus.SDK.UI.DropDownListSetting.Setup(m_Event_DropDown, l_Event, true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_ContinueToggle, l_Event, Model.Continue, false);
 
             int l_ChoiceIndex = 0;
             var l_Choices = new List<object>();
@@ -135,9 +135,9 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
 
-            SDK.UI.DropDownListSetting.Setup(m_Event_DropDown, l_Event, true);
-            SDK.UI.ListSetting.Setup(m_TypeList, l_Event, false);
-            SDK.UI.ToggleSetting.Setup(m_ContinueToggle, l_Event, Model.Continue, false);
+            BeatSaberPlus.SDK.UI.DropDownListSetting.Setup(m_Event_DropDown, l_Event, true);
+            BeatSaberPlus.SDK.UI.ListSetting.Setup(m_TypeList, l_Event, false);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_ContinueToggle, l_Event, Model.Continue, false);
 
             int l_ChoiceIndex = 0;
             var l_Choices = new List<object>();

@@ -9,12 +9,12 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace BeatSaberPlus.Modules.ChatIntegrations.UI
+namespace BeatSaberPlus_ChatIntegrations.UI
 {
     /// <summary>
     /// Chat integrations main settings view
     /// </summary>
-    internal partial class Settings : SDK.UI.ResourceViewController<Settings>
+    internal partial class Settings : BeatSaberPlus.SDK.UI.ResourceViewController<Settings>
     {
         /// <summary>
         /// Maximum item on a list page
@@ -60,7 +60,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.UI
         private Button m_EventFrame_ConditionsTab_UpButton = null;
         [UIObject("EventFrame_ConditionsTab_List")]
         private GameObject m_EventFrame_ConditionsTab_ListView = null;
-        private SDK.UI.DataSource.SimpleTextList m_EventFrame_ConditionsTab_List = null;
+        private BeatSaberPlus.SDK.UI.DataSource.SimpleTextList m_EventFrame_ConditionsTab_List = null;
         [UIComponent("EventFrame_ConditionsTab_DownButton")]
         private Button m_EventFrame_ConditionsTab_DownButton = null;
 
@@ -77,7 +77,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.UI
         private Button m_EventFrame_ActionsTab_UpButton = null;
         [UIObject("EventFrame_ActionsTab_List")]
         private GameObject m_EventFrame_ActionsTab_ListView = null;
-        private SDK.UI.DataSource.SimpleTextList m_EventFrame_ActionsTab_List = null;
+        private BeatSaberPlus.SDK.UI.DataSource.SimpleTextList m_EventFrame_ActionsTab_List = null;
         [UIComponent("EventFrame_ActionsTab_DownButton")]
         private Button m_EventFrame_ActionsTab_DownButton = null;
 
@@ -122,13 +122,13 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.UI
         protected override void OnViewCreation()
         {
             /// Update opacity
-            SDK.UI.Backgroundable.SetOpacity(m_MessageFrame_Background,                     0.50f);
-            SDK.UI.Backgroundable.SetOpacity(m_EventFrame_TriggerTab,                       0.50f);
-            SDK.UI.Backgroundable.SetOpacity(m_EventFrame_ConditionsTab,                    0.50f);
-            SDK.UI.Backgroundable.SetOpacity(m_EventFrame_ConditionsTab_ConditionContent,   0.50f);
-            SDK.UI.Backgroundable.SetOpacity(m_EventFrame_ActionsTab,                       0.50f);
-            SDK.UI.Backgroundable.SetOpacity(m_EventFrame_ActionsTab_ActionContent,         0.50f);
-            SDK.UI.ModalView.SetOpacity(m_InputKeyboard.modalView,                          0.75f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_MessageFrame_Background,                     0.50f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_EventFrame_TriggerTab,                       0.50f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_EventFrame_ConditionsTab,                    0.50f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_EventFrame_ConditionsTab_ConditionContent,   0.50f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_EventFrame_ActionsTab,                       0.50f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_EventFrame_ActionsTab_ActionContent,         0.50f);
+            BeatSaberPlus.SDK.UI.ModalView.SetOpacity(m_InputKeyboard.modalView,                          0.75f);
 
             /// Scale down up & down button
             m_EventFrame_ConditionsTab_UpButton.transform.localScale    = Vector3.one * 0.6f;
@@ -146,7 +146,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.UI
                 var l_BSMLTableView = m_EventFrame_ConditionsTab_ListView.GetComponentInChildren<BSMLTableView>();
                 l_BSMLTableView.SetDataSource(null, false);
                 GameObject.DestroyImmediate(m_EventFrame_ConditionsTab_ListView.GetComponentInChildren<CustomListTableData>());
-                m_EventFrame_ConditionsTab_List = l_BSMLTableView.gameObject.AddComponent<SDK.UI.DataSource.SimpleTextList>();
+                m_EventFrame_ConditionsTab_List = l_BSMLTableView.gameObject.AddComponent<BeatSaberPlus.SDK.UI.DataSource.SimpleTextList>();
                 m_EventFrame_ConditionsTab_List.TableViewInstance = l_BSMLTableView;
                 m_EventFrame_ConditionsTab_List.CellSizeValue = 5f;
                 l_BSMLTableView.didSelectCellWithIdxEvent += OnConditionSelected;
@@ -167,7 +167,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.UI
                 var l_BSMLTableView = m_EventFrame_ActionsTab_ListView.GetComponentInChildren<BSMLTableView>();
                 l_BSMLTableView.SetDataSource(null, false);
                 GameObject.DestroyImmediate(m_EventFrame_ActionsTab_ListView.GetComponentInChildren<CustomListTableData>());
-                m_EventFrame_ActionsTab_List = l_BSMLTableView.gameObject.AddComponent<SDK.UI.DataSource.SimpleTextList>();
+                m_EventFrame_ActionsTab_List = l_BSMLTableView.gameObject.AddComponent<BeatSaberPlus.SDK.UI.DataSource.SimpleTextList>();
                 m_EventFrame_ActionsTab_List.TableViewInstance = l_BSMLTableView;
                 m_EventFrame_ActionsTab_List.CellSizeValue = 5f;
                 l_BSMLTableView.didSelectCellWithIdxEvent += OnActionSelected;
@@ -182,7 +182,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.UI
             SetupAddActionFrame();
 
             /// Create type selector
-            m_EventFrame_TabSelectorControl = SDK.UI.TextSegmentedControl.Create(m_EventFrame_TabSelector.transform as RectTransform, false);
+            m_EventFrame_TabSelectorControl = BeatSaberPlus.SDK.UI.TextSegmentedControl.Create(m_EventFrame_TabSelector.transform as RectTransform, false);
             m_EventFrame_TabSelectorControl.SetTexts(new string[] { "Trigger", "Conditions", "Actions" });
             m_EventFrame_TabSelectorControl.ReloadData();
             m_EventFrame_TabSelectorControl.didSelectCellEvent += OnTabSelected;

@@ -1,7 +1,7 @@
 ﻿using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Parser;
-using BeatSaberPlus.Modules.ChatIntegrations.Interfaces;
+using BeatSaberPlus_ChatIntegrations.Interfaces;
 using BeatSaberPlus.SDK.Chat.Interfaces;
 using Newtonsoft.Json.Linq;
 using System;
@@ -15,7 +15,7 @@ using System.Threading;
 using TMPro;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
+namespace BeatSaberPlus_ChatIntegrations.Actions
 {
     internal class TwitchBuilder
     {
@@ -60,7 +60,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
             m_ParserParams = BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             /// Change opacity
-            SDK.UI.ModalView.SetOpacity(m_ChatInputModal, 0.75f);
+            BeatSaberPlus.SDK.UI.ModalView.SetOpacity(m_ChatInputModal, 0.75f);
 
             /// Update UI
             UpdateUI();
@@ -140,12 +140,12 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
                 l_Message = l_Message.Replace(l_Key, l_ReplaceValue);
             }
 
-            var l_Channel = SDK.Chat.Service.Multiplexer.Channels.First();
-            if (l_Channel.Item2 is SDK.Chat.Models.Twitch.TwitchChannel l_TwitchChannel)
+            var l_Channel = BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels.First();
+            if (l_Channel.Item2 is BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchChannel l_TwitchChannel)
             {
                 var l_URL           = $"https://api.twitch.tv/helix/streams/markers";
-                var l_APIClient     = new SDK.Network.APIClient("", TimeSpan.FromSeconds(10), false);
-                var l_OAuthToken    = (l_Channel.Item1 as SDK.Chat.Services.Twitch.TwitchService).OAuthToken.Replace("oauth:", "");
+                var l_APIClient     = new BeatSaberPlus.SDK.Network.APIClient("", TimeSpan.FromSeconds(10), false);
+                var l_OAuthToken    = (l_Channel.Item1 as BeatSaberPlus.SDK.Chat.Services.Twitch.TwitchService).OAuthToken.Replace("oauth:", "");
 
                 l_APIClient.InternalClient.DefaultRequestHeaders.Add("client-id",       ChatIntegrations.s_BEATSABERPLUS_CLIENT_ID);
                 l_APIClient.InternalClient.DefaultRequestHeaders.Add("Authorization",   "Bearer " + l_OAuthToken);
@@ -179,12 +179,12 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
 
         public override IEnumerator Eval(Models.EventContext p_Context)
         {
-            var l_Channel = SDK.Chat.Service.Multiplexer.Channels.First();
-            if (l_Channel.Item2 is SDK.Chat.Models.Twitch.TwitchChannel l_TwitchChannel)
+            var l_Channel = BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels.First();
+            if (l_Channel.Item2 is BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchChannel l_TwitchChannel)
             {
                 var l_URL = $"https://api.twitch.tv/helix/clips?broadcaster_id=" + l_TwitchChannel.Roomstate.RoomId;
-                var l_APIClient = new SDK.Network.APIClient("", TimeSpan.FromSeconds(10), false);
-                var l_OAuthToken = (l_Channel.Item1 as SDK.Chat.Services.Twitch.TwitchService).OAuthToken.Replace("oauth:", "");
+                var l_APIClient = new BeatSaberPlus.SDK.Network.APIClient("", TimeSpan.FromSeconds(10), false);
+                var l_OAuthToken = (l_Channel.Item1 as BeatSaberPlus.SDK.Chat.Services.Twitch.TwitchService).OAuthToken.Replace("oauth:", "");
 
                 l_APIClient.InternalClient.DefaultRequestHeaders.Add("client-id",       ChatIntegrations.s_BEATSABERPLUS_CLIENT_ID);
                 l_APIClient.InternalClient.DefaultRequestHeaders.Add("Authorization",   "Bearer " + l_OAuthToken);

@@ -1,4 +1,4 @@
-﻿namespace BeatSaberPlus.Modules.ChatIntegrations.Conditions
+﻿namespace BeatSaberPlus_ChatIntegrations.Conditions
 {
     public class Event_AlwaysFail : Interfaces.ICondition<Event_AlwaysFail, Models.Condition>
     {

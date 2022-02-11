@@ -1,7 +1,7 @@
 ﻿using BeatSaberPlus.SDK.Chat.Interfaces;
 using System.Threading.Tasks;
 
-namespace BeatSaberPlus.Modules.ChatIntegrations
+namespace BeatSaberPlus_ChatIntegrations
 {
     /// <summary>
     /// ChatIntegrations instance
@@ -15,9 +15,9 @@ namespace BeatSaberPlus.Modules.ChatIntegrations
         /// <param name="p_Channel">Channel instance</param>
         private void ChatCoreMutiplixer_OnJoinChannel(IChatService p_ChatService, IChatChannel p_Channel)
         {
-            if (p_ChatService is SDK.Chat.Services.Twitch.TwitchService)
+            if (p_ChatService is BeatSaberPlus.SDK.Chat.Services.Twitch.TwitchService)
             {
-                SDK.Unity.MainThreadInvoker.Enqueue(() =>
+                BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() =>
                 {
                     m_Events.ForEach(x =>
                     {
@@ -83,7 +83,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations
             try
             {
                 if (p_Message.Sender.IsBroadcaster && OnBroadcasterChatMessage != null)
-                    SDK.Unity.MainThreadInvoker.Enqueue(() => OnBroadcasterChatMessage?.Invoke(p_Message));
+                    BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() => OnBroadcasterChatMessage?.Invoke(p_Message));
                 else
                     HandleEvents(new Models.EventContext() { Type = Interfaces.TriggerType.ChatMessage, ChatService = p_ChatService, Channel = p_Message.Channel, User = p_Message.Sender, Message = p_Message });
             }
@@ -101,7 +101,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations
         /// On level started
         /// </summary>
         /// <param name="p_Data">Level data</param>
-        private void Game_OnLevelStarted(SDK.Game.LevelData p_Data)
+        private void Game_OnLevelStarted(BeatSaberPlus.SDK.Game.LevelData p_Data)
         {
             if (p_Data.IsReplay)
                 return;
@@ -112,7 +112,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations
         /// On level ended
         /// </summary>
         /// <param name="p_Data">Completion data</param>
-        private void Game_OnLevelEnded(SDK.Game.LevelCompletionData p_Data)
+        private void Game_OnLevelEnded(BeatSaberPlus.SDK.Game.LevelCompletionData p_Data)
         {
             if (p_Data.IsReplay)
                 return;
@@ -131,7 +131,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations
         private void VoiceAttack_OnCommandExecuted(string p_GUID, string p_Name)
         {
             if (OnVoiceAttackCommandExecuted != null)
-                SDK.Unity.MainThreadInvoker.Enqueue(() => OnVoiceAttackCommandExecuted?.Invoke(p_GUID, p_Name));
+                BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() => OnVoiceAttackCommandExecuted?.Invoke(p_GUID, p_Name));
             else
                 Task.Run(() => HandleEvents(new Models.EventContext() { Type = Interfaces.TriggerType.VoiceAttackCommand, VoiceAttackCommandGUID = p_GUID, VoiceAttackCommandName = p_GUID }));
         }

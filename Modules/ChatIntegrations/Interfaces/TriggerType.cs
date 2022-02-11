@@ -1,4 +1,4 @@
-﻿namespace BeatSaberPlus.Modules.ChatIntegrations.Interfaces
+﻿namespace BeatSaberPlus_ChatIntegrations.Interfaces
 {
     /// <summary>
     /// Trigger type

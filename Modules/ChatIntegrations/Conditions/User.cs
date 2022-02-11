@@ -4,7 +4,7 @@ using BeatSaberMarkupLanguage.Components.Settings;
 using System.Reflection;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.ChatIntegrations.Conditions
+namespace BeatSaberPlus_ChatIntegrations.Conditions
 {
     public class User_Permissions : Interfaces.ICondition<User_Permissions, Models.Conditions.User_Permissions>
     {
@@ -28,10 +28,10 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Conditions
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
 
-            SDK.UI.ToggleSetting.Setup(m_SubscriberToggle,  l_Event, Model.Subscriber,              false);
-            SDK.UI.ToggleSetting.Setup(m_VIPToggle,         l_Event, Model.VIP,                     false);
-            SDK.UI.ToggleSetting.Setup(m_ModeratorToggle,   l_Event, Model.Moderator,               false);
-            SDK.UI.ToggleSetting.Setup(m_NotifyToggle,      l_Event, Model.NotifyWhenNoPermission,  false);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_SubscriberToggle,  l_Event, Model.Subscriber,              false);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_VIPToggle,         l_Event, Model.VIP,                     false);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_ModeratorToggle,   l_Event, Model.Moderator,               false);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_NotifyToggle,      l_Event, Model.NotifyWhenNoPermission,  false);
         }
         private void OnSettingChanged(object p_Value)
         {
@@ -47,7 +47,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Conditions
             bool l_IsVIP        = false;
             bool l_IsModerator  = p_Context.User.IsBroadcaster || p_Context.User.IsModerator;
 
-            if (p_Context.User is SDK.Chat.Models.Twitch.TwitchUser l_TwitchUser)
+            if (p_Context.User is BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchUser l_TwitchUser)
             {
                 l_IsSuscriber   = l_TwitchUser.IsSubscriber;
                 l_IsVIP         = l_TwitchUser.IsVip;

@@ -1,13 +1,13 @@
 ﻿using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components.Settings;
-using BeatSaberPlus.Modules.ChatIntegrations.Models;
+using BeatSaberPlus_ChatIntegrations.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.ChatIntegrations.Conditions
+namespace BeatSaberPlus_ChatIntegrations.Conditions
 {
     public class GamePlay_InMenu : Interfaces.ICondition<GamePlay_InMenu, Models.Condition>
     {
@@ -17,7 +17,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Conditions
 
         public override bool Eval(Models.EventContext p_Context)
         {
-            return SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Menu;
+            return BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Menu;
         }
     }
 
@@ -43,10 +43,10 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Conditions
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
 
-            SDK.UI.ToggleSetting.Setup(m_QuitToggle,    l_Event, Model.Quit,    false);
-            SDK.UI.ToggleSetting.Setup(m_RestartToggle, l_Event, Model.Restart, false);
-            SDK.UI.ToggleSetting.Setup(m_PassToggle,    l_Event, Model.Pass,    false);
-            SDK.UI.ToggleSetting.Setup(m_FailToggle,    l_Event, Model.Fail,    false);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_QuitToggle,    l_Event, Model.Quit,    false);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_RestartToggle, l_Event, Model.Restart, false);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_PassToggle,    l_Event, Model.Pass,    false);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_FailToggle,    l_Event, Model.Fail,    false);
 
             OnSettingChanged(null);
         }
@@ -60,10 +60,10 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Conditions
 
         public override bool Eval(EventContext p_Context)
         {
-            bool l_IsQuit       = SDK.Game.Logic.LevelCompletionData.Results.levelEndAction     == LevelCompletionResults.LevelEndAction.Quit;
-            bool l_IsRestart    = SDK.Game.Logic.LevelCompletionData.Results.levelEndAction     == LevelCompletionResults.LevelEndAction.Restart;
-            bool l_IsPass       = SDK.Game.Logic.LevelCompletionData.Results.levelEndStateType  == LevelCompletionResults.LevelEndStateType.Cleared;
-            bool l_IsFail       = SDK.Game.Logic.LevelCompletionData.Results.levelEndStateType  == LevelCompletionResults.LevelEndStateType.Failed;
+            bool l_IsQuit       = BeatSaberPlus.SDK.Game.Logic.LevelCompletionData.Results.levelEndAction     == LevelCompletionResults.LevelEndAction.Quit;
+            bool l_IsRestart    = BeatSaberPlus.SDK.Game.Logic.LevelCompletionData.Results.levelEndAction     == LevelCompletionResults.LevelEndAction.Restart;
+            bool l_IsPass       = BeatSaberPlus.SDK.Game.Logic.LevelCompletionData.Results.levelEndStateType  == LevelCompletionResults.LevelEndStateType.Cleared;
+            bool l_IsFail       = BeatSaberPlus.SDK.Game.Logic.LevelCompletionData.Results.levelEndStateType  == LevelCompletionResults.LevelEndStateType.Failed;
 
             return (Model.Quit && l_IsQuit) || (Model.Restart && l_IsRestart) || (Model.Pass && l_IsPass) || (Model.Fail && l_IsFail);
         }
@@ -98,10 +98,10 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Conditions
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
 
-            SDK.UI.ToggleSetting.Setup(m_SoloToggle,    l_Event, Model.Solo,    false);
-            SDK.UI.ToggleSetting.Setup(m_MultiToggle,   l_Event, Model.Multi,   false);
-            SDK.UI.ToggleSetting.Setup(m_ReplayToggle,  l_Event, Model.Replay,  false);
-            SDK.UI.ListSetting.Setup(m_TypeList,        l_Event,                false);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_SoloToggle,    l_Event, Model.Solo,    false);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_MultiToggle,   l_Event, Model.Multi,   false);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_ReplayToggle,  l_Event, Model.Replay,  false);
+            BeatSaberPlus.SDK.UI.ListSetting.Setup(m_TypeList,        l_Event,                false);
 
             OnSettingChanged(null);
         }
@@ -115,11 +115,11 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Conditions
 
         public override bool Eval(Models.EventContext p_Context)
         {
-            if (SDK.Game.Logic.ActiveScene != SDK.Game.Logic.SceneType.Playing)
+            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene != BeatSaberPlus.SDK.Game.Logic.SceneType.Playing)
                 return false;
 
-            var l_LevelData         = SDK.Game.Logic.LevelData;
-            var l_ReplayCond        = Model.Replay == SDK.Game.Logic.IsInReplay;
+            var l_LevelData         = BeatSaberPlus.SDK.Game.Logic.LevelData;
+            var l_ReplayCond        = Model.Replay == BeatSaberPlus.SDK.Game.Logic.IsInReplay;
             var l_BeatMapTypeCond   = Model.BeatmapType == 0; /* ALL */
 
             if (l_LevelData == null)
@@ -138,9 +138,9 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Conditions
             else if (Model.BeatmapType == 4 && l_LevelData.IsNoodle && l_LevelData.IsChroma)
                 l_BeatMapTypeCond = true;
 
-            if (Model.Solo && l_LevelData.Type == SDK.Game.LevelType.Solo)
+            if (Model.Solo && l_LevelData.Type == BeatSaberPlus.SDK.Game.LevelType.Solo)
                 return l_ReplayCond && l_BeatMapTypeCond;
-            else if (Model.Multi && l_LevelData.Type == SDK.Game.LevelType.Multiplayer)
+            else if (Model.Multi && l_LevelData.Type == BeatSaberPlus.SDK.Game.LevelType.Multiplayer)
                 return l_ReplayCond && l_BeatMapTypeCond;
 
             return false;

@@ -4,7 +4,7 @@ using Newtonsoft.Json.Linq;
 using System.Collections;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.ChatIntegrations.Interfaces
+namespace BeatSaberPlus_ChatIntegrations.Interfaces
 {
     /// <summary>
     /// IAction generic class

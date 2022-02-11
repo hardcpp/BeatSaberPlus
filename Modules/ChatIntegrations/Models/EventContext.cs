@@ -1,10 +1,10 @@
-﻿using BeatSaberPlus.Modules.ChatIntegrations.Interfaces;
+﻿using BeatSaberPlus_ChatIntegrations.Interfaces;
 using BeatSaberPlus.SDK.Chat.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace BeatSaberPlus.Modules.ChatIntegrations.Models
+namespace BeatSaberPlus_ChatIntegrations.Models
 {
     /// <summary>
     /// Event context
@@ -54,11 +54,11 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Models
         /// <summary>
         /// Level data
         /// </summary>
-        public SDK.Game.LevelData LevelData = null;
+        public BeatSaberPlus.SDK.Game.LevelData LevelData = null;
         /// <summary>
         /// Level completion results
         /// </summary>
-        public SDK.Game.LevelCompletionData LevelCompletionData = null;
+        public BeatSaberPlus.SDK.Game.LevelCompletionData LevelCompletionData = null;
         /// <summary>
         /// VoiceAttack command GUID
         /// </summary>
@@ -113,33 +113,33 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Models
             var l_Key = (p_Type, p_Name);
 
             if (m_Values.ContainsKey(l_Key))
-                throw new System.Exception($"[BeatSaberPlus.Modules.ChatIntegrations.Models][EventContext.AddValue] Duplicate for {p_Type}.{p_Name}!");
+                throw new System.Exception($"[BeatSaberPlus_ChatIntegrations.Models][EventContext.AddValue] Duplicate for {p_Type}.{p_Name}!");
 
             switch (p_Type)
             {
                 case IValueType.Boolean:
                     if (p_Value != null && !(p_Value is bool?))
-                        throw new System.Exception($"[BeatSaberPlus.Modules.ChatIntegrations.Models][EventContext.AddValue] Wrong value type for {p_Type}.{p_Name}, bool? excepted, got {p_Value.GetType()}!");
+                        throw new System.Exception($"[BeatSaberPlus_ChatIntegrations.Models][EventContext.AddValue] Wrong value type for {p_Type}.{p_Name}, bool? excepted, got {p_Value.GetType()}!");
                     break;
 
                 case IValueType.Integer:
                     if (p_Value != null && !(p_Value is Int64?))
-                        throw new System.Exception($"[BeatSaberPlus.Modules.ChatIntegrations.Models][EventContext.AddValue] Wrong value type for {p_Type}.{p_Name}, Int64? excepted, got {p_Value.GetType()}!");
+                        throw new System.Exception($"[BeatSaberPlus_ChatIntegrations.Models][EventContext.AddValue] Wrong value type for {p_Type}.{p_Name}, Int64? excepted, got {p_Value.GetType()}!");
                     break;
 
                 case IValueType.Floating:
                     if (p_Value != null && !(p_Value is float?))
-                        throw new System.Exception($"[BeatSaberPlus.Modules.ChatIntegrations.Models][EventContext.AddValue] Wrong value type for {p_Type}.{p_Name}, float? excepted, got {p_Value.GetType()}!");
+                        throw new System.Exception($"[BeatSaberPlus_ChatIntegrations.Models][EventContext.AddValue] Wrong value type for {p_Type}.{p_Name}, float? excepted, got {p_Value.GetType()}!");
                     break;
 
                 case IValueType.String:
                     if (p_Value != null && !(p_Value is string))
-                        throw new System.Exception($"[BeatSaberPlus.Modules.ChatIntegrations.Models][EventContext.AddValue] Wrong value type for {p_Type}.{p_Name}, string excepted, got {p_Value.GetType()}!");
+                        throw new System.Exception($"[BeatSaberPlus_ChatIntegrations.Models][EventContext.AddValue] Wrong value type for {p_Type}.{p_Name}, string excepted, got {p_Value.GetType()}!");
                     break;
 
                 case IValueType.Emotes:
                     if (p_Value != null && !(p_Value is List<IChatEmote>))
-                        throw new System.Exception($"[BeatSaberPlus.Modules.ChatIntegrations.Models][EventContext.AddValue] Wrong value type for {p_Type}.{p_Name}, List<IChatEmote> excepted, got {p_Value.GetType()}!");
+                        throw new System.Exception($"[BeatSaberPlus_ChatIntegrations.Models][EventContext.AddValue] Wrong value type for {p_Type}.{p_Name}, List<IChatEmote> excepted, got {p_Value.GetType()}!");
                     break;
 
             }

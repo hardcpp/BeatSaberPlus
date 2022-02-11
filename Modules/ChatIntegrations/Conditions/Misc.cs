@@ -5,7 +5,7 @@ using System.Collections.Concurrent;
 using System.Reflection;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.ChatIntegrations.Conditions
+namespace BeatSaberPlus_ChatIntegrations.Conditions
 {
     public class Misc_Cooldown : Interfaces.ICondition<Misc_Cooldown, Models.Conditions.Misc_Cooldown>
     {
@@ -27,9 +27,9 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Conditions
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
 
-            SDK.UI.SliderSetting.Setup(m_CooldownSlider,    l_Event, SDK.UI.BSMLSettingFormartter.Time, Model.CooldownTime, true, true, new Vector2(0.08f, 0f), new Vector2(0.93f, 1f));
-            SDK.UI.ToggleSetting.Setup(m_PerUserToggle,     l_Event,                                    Model.PerUser,      false);
-            SDK.UI.ToggleSetting.Setup(m_NotifyUserToggle,  l_Event,                                    Model.NotifyUser,   false);
+            BeatSaberPlus.SDK.UI.SliderSetting.Setup(m_CooldownSlider,    l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Time, Model.CooldownTime, true, true, new Vector2(0.08f, 0f), new Vector2(0.93f, 1f));
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_PerUserToggle,     l_Event,                                                  Model.PerUser,      false);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_NotifyUserToggle,  l_Event,                                                  Model.NotifyUser,   false);
         }
         private void OnSettingChanged(object p_Value)
         {
@@ -50,7 +50,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Conditions
 
                 if (m_Cooldowns.TryGetValue(p_Context.User.UserName, out var l_LastTime))
                 {
-                    var l_Remaining = (l_LastTime + Model.CooldownTime) - SDK.Misc.Time.UnixTimeNow();
+                    var l_Remaining = (l_LastTime + Model.CooldownTime) - BeatSaberPlus.SDK.Misc.Time.UnixTimeNow();
                     if (l_Remaining > 0)
                     {
                         if (Model.NotifyUser && p_Context.ChatService != null && p_Context.Channel != null)
@@ -58,14 +58,14 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Conditions
                         return false;
                     }
 
-                    m_Cooldowns.TryUpdate(p_Context.User.UserName, SDK.Misc.Time.UnixTimeNow(), l_LastTime);
+                    m_Cooldowns.TryUpdate(p_Context.User.UserName, BeatSaberPlus.SDK.Misc.Time.UnixTimeNow(), l_LastTime);
                 }
                 else
-                    m_Cooldowns.TryAdd(p_Context.User.UserName, SDK.Misc.Time.UnixTimeNow());
+                    m_Cooldowns.TryAdd(p_Context.User.UserName, BeatSaberPlus.SDK.Misc.Time.UnixTimeNow());
             }
             else
             {
-                var l_Remaining = (m_LastTime + Model.CooldownTime) - SDK.Misc.Time.UnixTimeNow();
+                var l_Remaining = (m_LastTime + Model.CooldownTime) - BeatSaberPlus.SDK.Misc.Time.UnixTimeNow();
                 if (l_Remaining > 0)
                 {
                     if (Model.NotifyUser && p_Context.ChatService != null && p_Context.Channel != null && p_Context.User != null)
@@ -73,7 +73,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Conditions
                     return false;
                 }
 
-                m_LastTime = SDK.Misc.Time.UnixTimeNow();
+                m_LastTime = BeatSaberPlus.SDK.Misc.Time.UnixTimeNow();
             }
 
             return true;

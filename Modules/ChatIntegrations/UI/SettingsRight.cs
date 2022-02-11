@@ -9,12 +9,12 @@ using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace BeatSaberPlus.Modules.ChatIntegrations.UI
+namespace BeatSaberPlus_ChatIntegrations.UI
 {
     /// <summary>
     /// Settings right event list view
     /// </summary>
-    internal class SettingsRight : SDK.UI.ResourceViewController<SettingsRight>
+    internal class SettingsRight : BeatSaberPlus.SDK.UI.ResourceViewController<SettingsRight>
     {
         /// <summary>
         /// Event line per page
@@ -52,7 +52,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.UI
         private GameObject m_EventListFrame_Background = null;
         [UIObject("EventsList")]
         private GameObject m_EventsListView = null;
-        private SDK.UI.DataSource.SimpleTextList m_EventsList = null;
+        private BeatSaberPlus.SDK.UI.DataSource.SimpleTextList m_EventsList = null;
 
         [UIComponent("EventsUpButton")]
         private Button m_EventsUpButton = null;
@@ -145,17 +145,17 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.UI
         protected override void OnViewCreation()
         {
             /// Update background color
-            SDK.UI.Backgroundable.SetOpacity(m_EventListFrame_Background, 0.5f);
-            SDK.UI.Backgroundable.SetOpacity(m_AddEventFrame_Background, 0.75f);
-            SDK.UI.Backgroundable.SetOpacity(m_ImportEventFrame_Background, 0.75f);
-            SDK.UI.Backgroundable.SetOpacity(m_TemplateEventFrame_Background, 0.75f);
-            SDK.UI.ModalView.SetOpacity(m_NewEventNameKeyboard.modalView, 0.75f);
-            SDK.UI.ModalView.SetOpacity(m_RenameKeyboard.modalView, 0.75f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_EventListFrame_Background, 0.5f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_AddEventFrame_Background, 0.75f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_ImportEventFrame_Background, 0.75f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_TemplateEventFrame_Background, 0.75f);
+            BeatSaberPlus.SDK.UI.ModalView.SetOpacity(m_NewEventNameKeyboard.modalView, 0.75f);
+            BeatSaberPlus.SDK.UI.ModalView.SetOpacity(m_RenameKeyboard.modalView, 0.75f);
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnFilterChanged), BindingFlags.Instance | BindingFlags.NonPublic));
 
             /// Setup filters
-            SDK.UI.DropDownListSetting.Setup(m_FilterFrame_DropDown, l_Event, true, 1f);
+            BeatSaberPlus.SDK.UI.DropDownListSetting.Setup(m_FilterFrame_DropDown, l_Event, true, 1f);
 
             /// Scale down up & down button
             m_EventsUpButton.transform.localScale = Vector3.one * 0.5f;
@@ -165,7 +165,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.UI
             var l_BSMLTableView = m_EventsListView.GetComponentInChildren<BSMLTableView>();
             l_BSMLTableView.SetDataSource(null, false);
             GameObject.DestroyImmediate(m_EventsListView.GetComponentInChildren<CustomListTableData>());
-            m_EventsList = l_BSMLTableView.gameObject.AddComponent<SDK.UI.DataSource.SimpleTextList>();
+            m_EventsList = l_BSMLTableView.gameObject.AddComponent<BeatSaberPlus.SDK.UI.DataSource.SimpleTextList>();
             m_EventsList.TableViewInstance  = l_BSMLTableView;
             m_EventsList.CellSizeValue      = 4.8f;
             l_BSMLTableView.didSelectCellWithIdxEvent += OnEventSelected;
@@ -176,13 +176,13 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.UI
             m_EventsDownButton.onClick.AddListener(OnPageDownPressed);
 
             /// Remove new event type selector label
-            SDK.UI.DropDownListSetting.Setup(m_AddEventFrame_DropDown, null, true, 0.95f);
+            BeatSaberPlus.SDK.UI.DropDownListSetting.Setup(m_AddEventFrame_DropDown, null, true, 0.95f);
 
             /// Remove import event type selector label
-            SDK.UI.DropDownListSetting.Setup(m_ImportEventFrame_DropDown, null, true, 0.95f);
+            BeatSaberPlus.SDK.UI.DropDownListSetting.Setup(m_ImportEventFrame_DropDown, null, true, 0.95f);
 
             /// Remove template event type selector label
-            SDK.UI.DropDownListSetting.Setup(m_TemplateEventFrame_DropDown, null, true, 0.95f);
+            BeatSaberPlus.SDK.UI.DropDownListSetting.Setup(m_TemplateEventFrame_DropDown, null, true, 0.95f);
 
             OnFilterChanged(null);
         }
@@ -479,7 +479,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.UI
             if (l_EventName.Length > 20)
                 l_EventName = l_EventName.Substring(0, 20);
 
-            var l_FileName = SDK.Misc.Time.UnixTimeNow() + "_" + l_Event.GetTypeNameShort() + "_" + l_EventName + ".bspci";
+            var l_FileName = BeatSaberPlus.SDK.Misc.Time.UnixTimeNow() + "_" + l_Event.GetTypeNameShort() + "_" + l_EventName + ".bspci";
             l_FileName = string.Concat(l_FileName.Split(System.IO.Path.GetInvalidFileNameChars()));
 
             System.IO.File.WriteAllText(ChatIntegrations.s_EXPORT_PATH + l_FileName, l_Serialized.ToString(Newtonsoft.Json.Formatting.Indented), System.Text.Encoding.Unicode);

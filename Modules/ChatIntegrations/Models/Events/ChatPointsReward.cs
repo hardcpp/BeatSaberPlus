@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace BeatSaberPlus.Modules.ChatIntegrations.Models.Events
+namespace BeatSaberPlus_ChatIntegrations.Models.Events
 {
     /// <summary>
     /// Chat points reward event model
@@ -37,7 +37,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Models.Events
         public ChatPointsReward()
         {
             Name = "New chat points reward event";
-            Title = "New reward " + SDK.Misc.Time.UnixTimeNow();
+            Title = "New reward " + BeatSaberPlus.SDK.Misc.Time.UnixTimeNow();
         }
     }
 }

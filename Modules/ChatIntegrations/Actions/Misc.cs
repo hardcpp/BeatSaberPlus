@@ -1,7 +1,7 @@
 ﻿using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components.Settings;
-using BeatSaberPlus.Modules.ChatIntegrations.Models;
+using BeatSaberPlus_ChatIntegrations.Models;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,7 +11,7 @@ using System.Reflection;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
+namespace BeatSaberPlus_ChatIntegrations.Actions
 {
     internal class MiscBuilder
     {
@@ -53,12 +53,12 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
             string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
-            SDK.UI.Backgroundable.SetOpacity(m_InfoPanel_Background, 0.75f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_InfoPanel_Background, 0.75f);
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
 
-            SDK.UI.SliderSetting.Setup(m_DelaySlider,           l_Event, SDK.UI.BSMLSettingFormartter.Time, Model.Delay,                    true, true, new Vector2(0.08f, 0.10f), new Vector2(0.93f, 0.90f));
-            SDK.UI.ToggleSetting.Setup(m_PreventFailureToggle,  l_Event,                                    Model.PreventNextActionFailure, false);
+            BeatSaberPlus.SDK.UI.SliderSetting.Setup(m_DelaySlider,           l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Time, Model.Delay,                    true, true, new Vector2(0.08f, 0.10f), new Vector2(0.93f, 0.90f));
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_PreventFailureToggle,  l_Event,                                                  Model.PreventNextActionFailure, false);
         }
         private void OnSettingChanged(object p_Value)
         {
@@ -103,13 +103,13 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Actions
             string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
-            SDK.UI.Backgroundable.SetOpacity(m_InfoPanel_Background, 0.75f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_InfoPanel_Background, 0.75f);
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
 
-            SDK.UI.DropDownListSetting.Setup(m_File_DropDown, l_Event, true);
-            SDK.UI.IncrementSetting.Setup(m_VolumeIncrement, l_Event, SDK.UI.BSMLSettingFormartter.Percentage, Model.Volume, false);
-            SDK.UI.IncrementSetting.Setup(m_PitchIncrement, l_Event, SDK.UI.BSMLSettingFormartter.Percentage, Model.Pitch, false);
+            BeatSaberPlus.SDK.UI.DropDownListSetting.Setup(m_File_DropDown, l_Event, true);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_VolumeIncrement, l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Percentage, Model.Volume, false);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_PitchIncrement, l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Percentage, Model.Pitch, false);
 
             var l_Files = Directory.GetFiles(ChatIntegrations.s_SOUND_CLIPS_ASSETS_PATH, "*.ogg").ToArray();
 

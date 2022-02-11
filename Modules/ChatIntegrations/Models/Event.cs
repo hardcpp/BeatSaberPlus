@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 
-namespace BeatSaberPlus.Modules.ChatIntegrations.Models
+namespace BeatSaberPlus_ChatIntegrations.Models
 {
     /// <summary>
     /// Event data modal

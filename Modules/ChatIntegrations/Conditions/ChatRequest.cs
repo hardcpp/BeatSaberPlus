@@ -6,7 +6,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.ChatIntegrations.Conditions
+namespace BeatSaberPlus_ChatIntegrations.Conditions
 {
     public class ChatRequest_QueueDuration : Interfaces.ICondition<ChatRequest_QueueDuration, Models.Conditions.ChatRequest_QueueDuration>
     {
@@ -34,11 +34,14 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Conditions
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
 
-            SDK.UI.ListSetting.Setup(m_CheckTypeList,               l_Event,                                                                    false);
-            SDK.UI.SliderSetting.Setup(m_DurationSlider,            l_Event, SDK.UI.BSMLSettingFormartter.Time, Model.Duration,                 true, true, new Vector2(0.08f, 0.10f), new Vector2(0.93f, 0.90f));
-            SDK.UI.ToggleSetting.Setup(m_SendMessageOnFailToggle,   l_Event,                                    Model.SendChatMessageOnFail,    false);
+            BeatSaberPlus.SDK.UI.ListSetting.Setup(m_CheckTypeList,               l_Event,                                                                                  false);
+            BeatSaberPlus.SDK.UI.SliderSetting.Setup(m_DurationSlider,            l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Time, Model.Duration,                 true, true, new Vector2(0.08f, 0.10f), new Vector2(0.93f, 0.90f));
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_SendMessageOnFailToggle,   l_Event,                                                  Model.SendChatMessageOnFail,    false);
 
             OnSettingChanged(null);
+
+            if (!ModulePresence.ChatRequest)
+                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: ChatRequest module is missing!");
         }
         private void OnSettingChanged(object p_Value)
         {
@@ -49,7 +52,13 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Conditions
 
         public override bool Eval(Models.EventContext p_Context)
         {
-            var l_ChatRequest = Modules.ChatRequest.ChatRequest.Instance;
+            if (!ModulePresence.ChatRequest)
+            {
+                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, ChatRequest module is missing!");
+                return false;
+            }
+
+            var l_ChatRequest = BeatSaberPlus_ChatRequest.ChatRequest.Instance;
 
             if (l_ChatRequest == null || !l_ChatRequest.IsEnabled)
             {
@@ -106,11 +115,14 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Conditions
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
 
-            SDK.UI.ListSetting.Setup(m_CheckTypeList,               l_Event,                                    false);
-            SDK.UI.SliderSetting.Setup(m_CountSlider,               l_Event, null, Model.Count,                 true, true, new Vector2(0.08f, 0.10f), new Vector2(0.93f, 0.90f));
-            SDK.UI.ToggleSetting.Setup(m_SendMessageOnFailToggle,   l_Event,       Model.SendChatMessageOnFail, false);
+            BeatSaberPlus.SDK.UI.ListSetting.Setup(m_CheckTypeList,               l_Event,                                    false);
+            BeatSaberPlus.SDK.UI.SliderSetting.Setup(m_CountSlider,               l_Event, null, Model.Count,                 true, true, new Vector2(0.08f, 0.10f), new Vector2(0.93f, 0.90f));
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_SendMessageOnFailToggle,   l_Event,       Model.SendChatMessageOnFail, false);
 
             OnSettingChanged(null);
+
+            if (!ModulePresence.ChatRequest)
+                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: ChatRequest module is missing!");
         }
         private void OnSettingChanged(object p_Value)
         {
@@ -121,7 +133,13 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Conditions
 
         public override bool Eval(Models.EventContext p_Context)
         {
-            var l_ChatRequest = Modules.ChatRequest.ChatRequest.Instance;
+            if (!ModulePresence.ChatRequest)
+            {
+                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, ChatRequest module is missing!");
+                return false;
+            }
+
+            var l_ChatRequest = BeatSaberPlus_ChatRequest.ChatRequest.Instance;
 
             if (l_ChatRequest == null || !l_ChatRequest.IsEnabled)
             {
@@ -131,10 +149,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Conditions
                 return false;
             }
 
-            int l_QueueSize = 0;
-
-            lock (l_ChatRequest.SongQueue)
-                l_QueueSize = l_ChatRequest.SongQueue.Count;
+            int l_QueueSize = l_ChatRequest.SongQueueCount;
 
             if (Model.IsGreaterThan)
             {
@@ -181,10 +196,13 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Conditions
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
 
-            SDK.UI.ListSetting.Setup(m_StatusList,                  l_Event,                                false);
-            SDK.UI.ToggleSetting.Setup(m_SendMessageOnFailToggle,   l_Event, Model.SendChatMessageOnFail,   false);
+            BeatSaberPlus.SDK.UI.ListSetting.Setup(m_StatusList,                  l_Event,                                false);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_SendMessageOnFailToggle,   l_Event, Model.SendChatMessageOnFail,   false);
 
             OnSettingChanged(null);
+
+            if (!ModulePresence.ChatRequest)
+                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: ChatRequest module is missing!");
         }
         private void OnSettingChanged(object p_Value)
         {
@@ -194,7 +212,13 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Conditions
 
         public override bool Eval(Models.EventContext p_Context)
         {
-            var l_ChatRequest = Modules.ChatRequest.ChatRequest.Instance;
+            if (!ModulePresence.ChatRequest)
+            {
+                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, ChatRequest module is missing!");
+                return false;
+            }
+
+            var l_ChatRequest = BeatSaberPlus_ChatRequest.ChatRequest.Instance;
 
             if (l_ChatRequest == null || !l_ChatRequest.IsEnabled)
             {

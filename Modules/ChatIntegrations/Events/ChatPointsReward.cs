@@ -2,8 +2,8 @@
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components.Settings;
 using BeatSaberMarkupLanguage.Parser;
-using BeatSaberPlus.Modules.ChatIntegrations.Interfaces;
-using BeatSaberPlus.Modules.ChatIntegrations.Models;
+using BeatSaberPlus_ChatIntegrations.Interfaces;
+using BeatSaberPlus_ChatIntegrations.Models;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -16,7 +16,7 @@ using System.Threading;
 using TMPro;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.ChatIntegrations.Events
+namespace BeatSaberPlus_ChatIntegrations.Events
 {
     /// <summary>
     /// Chat command event
@@ -71,12 +71,12 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Events
             {
 
             }
-            .Union(Modules.ChatIntegrations.Actions.ChatBuilder.BuildFor(this))
-            .Union(Modules.ChatIntegrations.Actions.EmoteRainBuilder.BuildFor(this))
-            .Union(Modules.ChatIntegrations.Actions.EventBuilder.BuildFor(this))
-            .Union(Modules.ChatIntegrations.Actions.GamePlayBuilder.BuildFor(this))
-            .Union(Modules.ChatIntegrations.Actions.MiscBuilder.BuildFor(this))
-            .Union(Modules.ChatIntegrations.Actions.TwitchBuilder.BuildFor(this))
+            .Union(BeatSaberPlus_ChatIntegrations.Actions.ChatBuilder.BuildFor(this))
+            .Union(BeatSaberPlus_ChatIntegrations.Actions.EmoteRainBuilder.BuildFor(this))
+            .Union(BeatSaberPlus_ChatIntegrations.Actions.EventBuilder.BuildFor(this))
+            .Union(BeatSaberPlus_ChatIntegrations.Actions.GamePlayBuilder.BuildFor(this))
+            .Union(BeatSaberPlus_ChatIntegrations.Actions.MiscBuilder.BuildFor(this))
+            .Union(BeatSaberPlus_ChatIntegrations.Actions.TwitchBuilder.BuildFor(this))
             .Union(GetInstanciatedCustomActionList())
             .Distinct().ToList().AsReadOnly();
         }
@@ -132,16 +132,16 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Events
             var l_CooldownFormatter = new BSMLAction(this, this.GetType().GetMethod(nameof(CooldownFormatter), BindingFlags.Instance | BindingFlags.NonPublic));
 
             /// Change opacity
-            SDK.UI.Backgroundable.SetOpacity(m_InfoBackground, 0.5f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_InfoBackground, 0.5f);
 
             /// Setup fields
-            SDK.UI.SliderSetting.Setup(m_CostIncrement, l_Event, null, Model.Cost, true, true, new Vector2(0.07f, 0f), new Vector2(0.95f, 1.0f));
+            BeatSaberPlus.SDK.UI.SliderSetting.Setup(m_CostIncrement, l_Event, null, Model.Cost, true, true, new Vector2(0.07f, 0f), new Vector2(0.95f, 1.0f));
 
-            SDK.UI.ToggleSetting.Setup(m_RequireInputToggle,                l_Event,                      Model.RequireInput,          true);
-            SDK.UI.IncrementSetting.Setup(m_MaxPerStreamIncrement,          l_Event, l_QuantityFormatter, Model.MaxPerStream,          true);
-            SDK.UI.IncrementSetting.Setup(m_MaxPerUserPerStreamIncrement,   l_Event, l_QuantityFormatter, Model.MaxPerUserPerStream,   true);
-            SDK.UI.IncrementSetting.Setup(m_CooldownIncrement,              l_Event, l_CooldownFormatter, Model.Cooldown,              true);
-            SDK.UI.ToggleSetting.Setup(m_AutoFullfillRefund,                l_Event,                      Model.AutoFullfillRefund,    true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_RequireInputToggle,                l_Event,                      Model.RequireInput,          true);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_MaxPerStreamIncrement,          l_Event, l_QuantityFormatter, Model.MaxPerStream,          true);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_MaxPerUserPerStreamIncrement,   l_Event, l_QuantityFormatter, Model.MaxPerUserPerStream,   true);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_CooldownIncrement,              l_Event, l_CooldownFormatter, Model.Cooldown,              true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_AutoFullfillRefund,                l_Event,                      Model.AutoFullfillRefund,    true);
 
             m_PromptText.fontSizeMax = m_PromptText.fontSize;
             m_PromptText.fontSizeMin = 1;
@@ -270,12 +270,12 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Events
             if (!Model.AutoFullfillRefund)
                 return;
 
-            var l_Channel = SDK.Chat.Service.Multiplexer.Channels.First();
-            if (l_Channel.Item2 is SDK.Chat.Models.Twitch.TwitchChannel l_TwitchChannel)
+            var l_Channel = BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels.First();
+            if (l_Channel.Item2 is BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchChannel l_TwitchChannel)
             {
                 var l_URL           = $"https://api.twitch.tv/helix/channel_points/custom_rewards/redemptions?broadcaster_id={l_TwitchChannel.Roomstate.RoomId}&reward_id={Model.RewardID}&id={p_Context.PointsEvent.TransactionID}";
-                var l_APIClient     = new SDK.Network.APIClient("", TimeSpan.FromSeconds(10), false);
-                var l_OAuthToken    = (l_Channel.Item1 as SDK.Chat.Services.Twitch.TwitchService).OAuthTokenAPI.Replace("oauth:", "");
+                var l_APIClient     = new BeatSaberPlus.SDK.Network.APIClient("", TimeSpan.FromSeconds(10), false);
+                var l_OAuthToken    = (l_Channel.Item1 as BeatSaberPlus.SDK.Chat.Services.Twitch.TwitchService).OAuthTokenAPI.Replace("oauth:", "");
 
                 l_APIClient.InternalClient.DefaultRequestHeaders.Add("client-id", ChatIntegrations.s_BEATSABERPLUS_CLIENT_ID);
                 l_APIClient.InternalClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + l_OAuthToken);
@@ -298,12 +298,12 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Events
             if (!Model.AutoFullfillRefund)
                 return;
 
-            var l_Channel = SDK.Chat.Service.Multiplexer.Channels.First();
-            if (l_Channel.Item2 is SDK.Chat.Models.Twitch.TwitchChannel l_TwitchChannel)
+            var l_Channel = BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels.First();
+            if (l_Channel.Item2 is BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchChannel l_TwitchChannel)
             {
                 var l_URL           = $"https://api.twitch.tv/helix/channel_points/custom_rewards/redemptions?broadcaster_id={l_TwitchChannel.Roomstate.RoomId}&reward_id={Model.RewardID}&id={p_Context.PointsEvent.TransactionID}";
-                var l_APIClient     = new SDK.Network.APIClient("", TimeSpan.FromSeconds(10), false);
-                var l_OAuthToken    = (l_Channel.Item1 as SDK.Chat.Services.Twitch.TwitchService).OAuthTokenAPI.Replace("oauth:", "");
+                var l_APIClient     = new BeatSaberPlus.SDK.Network.APIClient("", TimeSpan.FromSeconds(10), false);
+                var l_OAuthToken    = (l_Channel.Item1 as BeatSaberPlus.SDK.Chat.Services.Twitch.TwitchService).OAuthTokenAPI.Replace("oauth:", "");
 
                 l_APIClient.InternalClient.DefaultRequestHeaders.Add("client-id", ChatIntegrations.s_BEATSABERPLUS_CLIENT_ID);
                 l_APIClient.InternalClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + l_OAuthToken);
@@ -326,15 +326,15 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Events
         /// </summary>
         public override sealed void OnDisable()
         {
-            if (SDK.Chat.Service.Multiplexer.Channels.Count == 0)
+            if (BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels.Count == 0)
                 return;
 
-            var l_Channel = SDK.Chat.Service.Multiplexer.Channels.First();
-            if (l_Channel.Item2 is SDK.Chat.Models.Twitch.TwitchChannel l_TwitchChannel)
+            var l_Channel = BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels.First();
+            if (l_Channel.Item2 is BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchChannel l_TwitchChannel)
             {
                 var l_URL           = $"https://api.twitch.tv/helix/channel_points/custom_rewards?broadcaster_id={l_TwitchChannel.Roomstate.RoomId}&id={Model.RewardID}";
-                var l_APIClient     = new SDK.Network.APIClient("", TimeSpan.FromSeconds(10), false);
-                var l_OAuthToken    = (l_Channel.Item1 as SDK.Chat.Services.Twitch.TwitchService).OAuthTokenAPI.Replace("oauth:", "");
+                var l_APIClient     = new BeatSaberPlus.SDK.Network.APIClient("", TimeSpan.FromSeconds(10), false);
+                var l_OAuthToken    = (l_Channel.Item1 as BeatSaberPlus.SDK.Chat.Services.Twitch.TwitchService).OAuthTokenAPI.Replace("oauth:", "");
 
                 l_APIClient.InternalClient.DefaultRequestHeaders.Add("client-id", ChatIntegrations.s_BEATSABERPLUS_CLIENT_ID);
                 l_APIClient.InternalClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + l_OAuthToken);
@@ -394,17 +394,17 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Events
         /// </summary>
         private void CreateOrUpdateReward()
         {
-            if (SDK.Chat.Service.Multiplexer.Channels.Count == 0)
+            if (BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels.Count == 0)
                 return;
 
-            var l_Channel = SDK.Chat.Service.Multiplexer.Channels.First();
-            if (l_Channel.Item2 is SDK.Chat.Models.Twitch.TwitchChannel l_TwitchChannel)
+            var l_Channel = BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels.First();
+            if (l_Channel.Item2 is BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchChannel l_TwitchChannel)
             {
                 bool l_ShouldCreate = string.IsNullOrEmpty(Model.RewardID);
 
                 var l_URL           = $"https://api.twitch.tv/helix/channel_points/custom_rewards?broadcaster_id={l_TwitchChannel.Roomstate.RoomId}&id={Model.RewardID}";
-                var l_APIClient     = new SDK.Network.APIClient("", TimeSpan.FromSeconds(10), false);
-                var l_OAuthToken    = (l_Channel.Item1 as SDK.Chat.Services.Twitch.TwitchService).OAuthTokenAPI.Replace("oauth:", "");
+                var l_APIClient     = new BeatSaberPlus.SDK.Network.APIClient("", TimeSpan.FromSeconds(10), false);
+                var l_OAuthToken    = (l_Channel.Item1 as BeatSaberPlus.SDK.Chat.Services.Twitch.TwitchService).OAuthTokenAPI.Replace("oauth:", "");
 
                 l_APIClient.InternalClient.DefaultRequestHeaders.Add("client-id", ChatIntegrations.s_BEATSABERPLUS_CLIENT_ID);
                 l_APIClient.InternalClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + l_OAuthToken);
@@ -450,7 +450,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Events
                             {
                                 if (UI.Settings.Instance != null)
                                 {
-                                    SDK.Unity.MainThreadInvoker.Enqueue(() =>
+                                    BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() =>
                                     {
                                         UI.Settings.Instance.UISetPendingMessage("<color=red>Twitch error,\n"+ p_SecondReply.Result.BodyString);
                                         UI.Settings.Instance.UIHideLoading();
@@ -474,7 +474,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Events
 
                                     if (UI.Settings.Instance != null)
                                     {
-                                        SDK.Unity.MainThreadInvoker.Enqueue(() =>
+                                        BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() =>
                                         {
                                             UI.Settings.Instance.UISetPendingMessage("<color=red>Internal error,\nplease contact BS+ support!");
                                             UI.Settings.Instance.UIHideLoading();
@@ -487,7 +487,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Events
                             }
 
                             if (UI.Settings.Instance != null)
-                                SDK.Unity.MainThreadInvoker.Enqueue(() => UI.Settings.Instance.UIHideLoading());
+                                BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() => UI.Settings.Instance.UIHideLoading());
                         }
                         else
                         {
@@ -496,7 +496,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Events
 
                             if (UI.Settings.Instance != null)
                             {
-                                SDK.Unity.MainThreadInvoker.Enqueue(() =>
+                                BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() =>
                                 {
                                     UI.Settings.Instance.UISetPendingMessage("<color=red>Internal error,\nplease contact BS+ support!");
                                     UI.Settings.Instance.UIHideLoading();
@@ -512,12 +512,12 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Events
         /// </summary>
         private void DeleteReward()
         {
-            var l_Channel = SDK.Chat.Service.Multiplexer.Channels.First();
-            if (l_Channel.Item2 is SDK.Chat.Models.Twitch.TwitchChannel l_TwitchChannel)
+            var l_Channel = BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels.First();
+            if (l_Channel.Item2 is BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchChannel l_TwitchChannel)
             {
                 var l_URL           = $"https://api.twitch.tv/helix/channel_points/custom_rewards?broadcaster_id={l_TwitchChannel.Roomstate.RoomId}&id={Model.RewardID}";
-                var l_APIClient     = new SDK.Network.APIClient("", TimeSpan.FromSeconds(10), false);
-                var l_OAuthToken    = (l_Channel.Item1 as SDK.Chat.Services.Twitch.TwitchService).OAuthTokenAPI.Replace("oauth:", "");
+                var l_APIClient     = new BeatSaberPlus.SDK.Network.APIClient("", TimeSpan.FromSeconds(10), false);
+                var l_OAuthToken    = (l_Channel.Item1 as BeatSaberPlus.SDK.Chat.Services.Twitch.TwitchService).OAuthTokenAPI.Replace("oauth:", "");
 
                 l_APIClient.InternalClient.DefaultRequestHeaders.Add("client-id", ChatIntegrations.s_BEATSABERPLUS_CLIENT_ID);
                 l_APIClient.InternalClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + l_OAuthToken);

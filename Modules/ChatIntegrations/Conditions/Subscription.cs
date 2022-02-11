@@ -6,7 +6,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.ChatIntegrations.Conditions
+namespace BeatSaberPlus_ChatIntegrations.Conditions
 {
     public class Subscription_IsGift : Interfaces.ICondition<Subscription_IsGift, Models.Condition>
     {
@@ -42,7 +42,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Conditions
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
 
-            SDK.UI.ListSetting.Setup(m_PlanTypeList, l_Event, false);
+            BeatSaberPlus.SDK.UI.ListSetting.Setup(m_PlanTypeList, l_Event, false);
 
             OnSettingChanged(null);
         }
@@ -77,7 +77,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Conditions
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
 
-            SDK.UI.SliderSetting.Setup(m_CountSlider, l_Event, null, Model.Count, false);
+            BeatSaberPlus.SDK.UI.SliderSetting.Setup(m_CountSlider, l_Event, null, Model.Count, false);
 
             OnSettingChanged(null);
         }

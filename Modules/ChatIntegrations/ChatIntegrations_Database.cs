@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace BeatSaberPlus.Modules.ChatIntegrations
+namespace BeatSaberPlus_ChatIntegrations
 {
     /// <summary>
     /// ChatIntegrations database logic
@@ -43,7 +43,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations
                 Logger.Instance?.Error("[Modules.ChatIntegrations][ChatIntegrations.LoadDatabase] Failed");
                 Logger.Instance?.Error(l_Exception);
 
-                try { File.Move(s_DATABASE_PATH, s_DATABASE_PATH + SDK.Misc.Time.UnixTimeNow()); }
+                try { File.Move(s_DATABASE_PATH, s_DATABASE_PATH + BeatSaberPlus.SDK.Misc.Time.UnixTimeNow()); }
                 catch { }
             }
 
@@ -81,7 +81,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations
 
                 if (!string.IsNullOrEmpty(l_OldJSONContent))
                 {
-                    try { File.WriteAllText(s_DATABASE_PATH + SDK.Misc.Time.UnixTimeNow(), l_OldJSONContent, Encoding.Unicode); }
+                    try { File.WriteAllText(s_DATABASE_PATH + BeatSaberPlus.SDK.Misc.Time.UnixTimeNow(), l_OldJSONContent, Encoding.Unicode); }
                     catch { }
                 }
             }

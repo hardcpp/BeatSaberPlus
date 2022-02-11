@@ -1,13 +1,13 @@
 ﻿using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
-using BeatSaberPlus.Modules.ChatIntegrations.Interfaces;
+using BeatSaberPlus_ChatIntegrations.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.ChatIntegrations.Events
+namespace BeatSaberPlus_ChatIntegrations.Events
 {
     /// <summary>
     /// Level ended event
@@ -64,12 +64,12 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Events
             {
 
             }
-            .Union(Modules.ChatIntegrations.Actions.ChatBuilder.BuildFor(this))
-            .Union(Modules.ChatIntegrations.Actions.EmoteRainBuilder.BuildFor(this))
-            .Union(Modules.ChatIntegrations.Actions.EventBuilder.BuildFor(this))
-            .Union(Modules.ChatIntegrations.Actions.GamePlayBuilder.BuildFor(this))
-            .Union(Modules.ChatIntegrations.Actions.MiscBuilder.BuildFor(this))
-            .Union(Modules.ChatIntegrations.Actions.TwitchBuilder.BuildFor(this))
+            .Union(BeatSaberPlus_ChatIntegrations.Actions.ChatBuilder.BuildFor(this))
+            .Union(BeatSaberPlus_ChatIntegrations.Actions.EmoteRainBuilder.BuildFor(this))
+            .Union(BeatSaberPlus_ChatIntegrations.Actions.EventBuilder.BuildFor(this))
+            .Union(BeatSaberPlus_ChatIntegrations.Actions.GamePlayBuilder.BuildFor(this))
+            .Union(BeatSaberPlus_ChatIntegrations.Actions.MiscBuilder.BuildFor(this))
+            .Union(BeatSaberPlus_ChatIntegrations.Actions.TwitchBuilder.BuildFor(this))
             .Union(GetInstanciatedCustomActionList())
             .Distinct().ToList().AsReadOnly();
         }
@@ -92,7 +92,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Events
             BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             /// Change opacity
-            SDK.UI.Backgroundable.SetOpacity(m_InfoBackground, 0.5f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_InfoBackground, 0.5f);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -119,7 +119,7 @@ namespace BeatSaberPlus.Modules.ChatIntegrations.Events
             Int64  l_NoteCount  = p_Context.LevelCompletionData.Data.difficultyBeatmap.beatmapData.cuttableNotesCount;
             Int64  l_HitCount   = p_Context.LevelCompletionData.Results.goodCutsCount;
             Int64  l_MissCount  = l_NoteCount - l_HitCount;
-            float  l_Accuracy   = (float)System.Math.Round(100.0f * SDK.Game.Levels.GetScorePercentage(SDK.Game.Levels.GetMaxScore((int)l_NoteCount), p_Context.LevelCompletionData.Results.rawScore), 2);
+            float  l_Accuracy   = (float)System.Math.Round(100.0f * BeatSaberPlus.SDK.Game.Levels.GetScorePercentage(BeatSaberPlus.SDK.Game.Levels.GetMaxScore((int)l_NoteCount), p_Context.LevelCompletionData.Results.rawScore), 2);
             string l_GameMode   = p_Context.LevelCompletionData.Data.difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName;
             string l_Difficulty = p_Context.LevelCompletionData.Data.difficultyBeatmap.difficulty.Name();
 
