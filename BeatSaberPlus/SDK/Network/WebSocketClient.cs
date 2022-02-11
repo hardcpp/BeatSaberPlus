@@ -188,7 +188,7 @@ namespace BeatSaberPlus.SDK.Network
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        private async void TryHandleReconnect()
+        public async void TryHandleReconnect()
         {
             var l_DiffTime = DateTime.UtcNow - m_StartTime;
             Logger.Instance.Info($"Connection was closed after " + string.Format("{0:00}:{1:00}:{2:00}", Math.Floor(l_DiffTime.TotalHours), l_DiffTime.Minutes, l_DiffTime.Seconds) + ".");

@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("HardCPP")]
 [assembly: AssemblyProduct("BeatSaberPlus")]
-[assembly: AssemblyCopyright("Copyright © HardCPP 2021")]
+[assembly: AssemblyCopyright("Copyright © HardCPP 2022")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("en")]
 
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("3.4.3")]
-[assembly: AssemblyFileVersion("3.4.3")]
+[assembly: AssemblyVersion("4.1.0")]
+[assembly: AssemblyFileVersion("4.1.0")]

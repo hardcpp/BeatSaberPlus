@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -59,6 +60,10 @@ namespace BeatSaberPlus.SDK.Chat
         /// </summary>
         private static ConcurrentDictionary<string, Unity.EnhancedImage> m_CachedImageInfo = new ConcurrentDictionary<string, Unity.EnhancedImage>();
         /// <summary>
+        /// Cached emote info
+        /// </summary>
+        private static ConcurrentDictionary<string, Unity.EnhancedImage> m_CachedEmoteInfo = new ConcurrentDictionary<string, Unity.EnhancedImage>();
+        /// <summary>
         /// Download queue
         /// </summary>
         private static ConcurrentDictionary<string, Action<byte[]>> m_ActiveDownloads = new ConcurrentDictionary<string, Action<byte[]>>();
@@ -70,6 +75,10 @@ namespace BeatSaberPlus.SDK.Chat
         /// Cached images info
         /// </summary>
         private static ReadOnlyDictionary<string, Unity.EnhancedImage> m_CachedImageInfoProxy = null;
+        /// <summary>
+        /// Cached emotes info
+        /// </summary>
+        private static ReadOnlyDictionary<string, Unity.EnhancedImage> m_CachedEmoteInfoProxy = null;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -82,6 +91,15 @@ namespace BeatSaberPlus.SDK.Chat
                 m_CachedImageInfoProxy = new ReadOnlyDictionary<string, Unity.EnhancedImage>(m_CachedImageInfo);
 
             return m_CachedImageInfoProxy;
+        } }
+        /// <summary>
+        /// Cached emotes info
+        /// </summary>
+        public static ReadOnlyDictionary<string, Unity.EnhancedImage> CachedEmoteInfo { get {
+            if (m_CachedEmoteInfoProxy == null)
+                m_CachedEmoteInfoProxy = new ReadOnlyDictionary<string, Unity.EnhancedImage>(m_CachedEmoteInfo);
+
+            return m_CachedEmoteInfoProxy;
         } }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -107,12 +125,14 @@ namespace BeatSaberPlus.SDK.Chat
         /// <summary>
         /// Pre-cache animated image
         /// </summary>
+        /// <param name="p_Category">Category</param>
         /// <param name="p_URI">URI of the image</param>
         /// <param name="p_ID">ID of the image</param>
+        /// <param name="p_Finally">A callback that occurs after the resource is retrieved. This will always occur even if the resource is already cached.</param>
         /// <returns></returns>
-        public static void PrecacheAnimatedImage(string p_URI, string p_ID, Animation.AnimationType p_Animation)
+        public static void PrecacheAnimatedImage(Interfaces.EChatResourceCategory p_Category, string p_URI, string p_ID, Animation.AnimationType p_Animation, Action<Unity.EnhancedImage> p_Finally = null)
         {
-            TryCacheSingleImage(p_ID, p_URI, p_Animation, null);
+            TryCacheSingleImage(p_Category, p_ID, p_URI, p_Animation, p_Finally);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -121,12 +141,13 @@ namespace BeatSaberPlus.SDK.Chat
         /// <summary>
         /// Try to cache single image
         /// </summary>
+        /// <param name="p_Category">Category</param>
         /// <param name="p_ID">ID of the image</param>
         /// <param name="p_URI">The resource location</param>
-        /// <param name="p_IsAnimated">Is and animation image</param>
+        /// <param name="p_Animation">Is and animated image</param>
         /// <param name="p_Finally">A callback that occurs after the resource is retrieved. This will always occur even if the resource is already cached.</param>
         /// <returns></returns>
-        public static void TryCacheSingleImage(string p_ID, string p_URI, Animation.AnimationType p_Animation, Action<Unity.EnhancedImage> p_Finally = null)
+        public static void TryCacheSingleImage(Interfaces.EChatResourceCategory p_Category, string p_ID, string p_URI, Animation.AnimationType p_Animation, Action<Unity.EnhancedImage> p_Finally = null)
         {
             if (m_CachedImageInfo.TryGetValue(p_ID, out var p_Info))
             {
@@ -150,12 +171,23 @@ namespace BeatSaberPlus.SDK.Chat
 
             Task.Run(() => LoadFromCacheOrDownload(p_URI, l_CacheID, (p_Bytes) =>
             {
+                if (p_Animation == Animation.AnimationType.MAYBE_GIF)
+                {
+                    if (p_Bytes.Length > (0x310 + 12) && System.Text.Encoding.ASCII.GetString(p_Bytes.Skip(0x310).Take(11).ToArray()) == "NETSCAPE2.0")
+                        p_Animation = Animation.AnimationType.GIF;
+                    else
+                        p_Animation = Animation.AnimationType.NONE;
+                }
+
                 if (p_Animation != Animation.AnimationType.NONE)
                 {
                     SDK.Unity.EnhancedImage.FromRawAnimated(p_ID, p_Animation, p_Bytes, (p_Result) =>
                     {
                         if (p_Result != null)
+                        {
                             m_CachedImageInfo[p_ID] = p_Result;
+                            if (p_Category == Interfaces.EChatResourceCategory.Emote) m_CachedEmoteInfo[p_ID] = p_Result;
+                        }
 
                         p_Finally?.Invoke(p_Result);
                     }, m_ForcedHeight);
@@ -165,7 +197,10 @@ namespace BeatSaberPlus.SDK.Chat
                     SDK.Unity.EnhancedImage.FromRawStatic(p_ID, p_Bytes, (p_Result) =>
                     {
                         if (p_Result != null)
+                        {
                             m_CachedImageInfo[p_ID] = p_Result;
+                            if (p_Category == Interfaces.EChatResourceCategory.Emote) m_CachedEmoteInfo[p_ID] = p_Result;
+                        }
 
                         p_Finally?.Invoke(p_Result);
                     }, m_ForcedHeight);
@@ -180,7 +215,7 @@ namespace BeatSaberPlus.SDK.Chat
         /// <param name="p_Rect">Sheet rect</param>
         /// <param name="p_Finally">A callback that occurs after the resource is retrieved. This will always occur even if the resource is already cached.</param>
         /// <returns></returns>
-        public static void TryCacheSpriteSheetImage(string p_ID, string p_URI, ImageRect p_Rect, Action<Unity.EnhancedImage> p_Finally = null)
+        public static void TryCacheSpriteSheetImage(Interfaces.EChatResourceCategory p_Category, string p_ID, string p_URI, ImageRect p_Rect, Action<Unity.EnhancedImage> p_Finally = null)
         {
             if (m_CachedImageInfo.TryGetValue(p_ID, out var l_Info))
             {

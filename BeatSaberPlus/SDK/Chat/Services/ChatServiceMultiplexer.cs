@@ -100,12 +100,21 @@ namespace BeatSaberPlus.SDK.Chat.Services
         /// <summary>
         /// Sends a text message to the specified IChatp_Channel
         /// </summary>
-        /// <param name="p_p_Channel">The chat p_Channel to send the message to</param>
+        /// <param name="p_Channel">The chat p_Channel to send the message to</param>
         /// <param name="p_Message">The text message to be sent</param>
-        public void SendTextMessage(IChatChannel p_p_Channel, string p_Message)
+        public void SendTextMessage(IChatChannel p_Channel, string p_Message)
         {
             foreach (var l_Service in m_Services)
-                l_Service.SendTextMessage(p_p_Channel, p_Message);
+                l_Service.SendTextMessage(p_Channel, p_Message);
+        }
+        /// <summary>
+        /// Broadcast internal system message
+        /// </summary>
+        /// <param name="p_Message">System message to broadcast</param>
+        public void InternalBroadcastSystemMessage(string p_Message)
+        {
+            foreach (var l_Service in m_Services)
+                Service_OnSystemMessage(l_Service, p_Message);
         }
 
         ////////////////////////////////////////////////////////////////////////////

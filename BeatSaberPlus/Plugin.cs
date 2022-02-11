@@ -187,7 +187,7 @@ namespace BeatSaberPlus
         /// <summary>
         /// Plugin version
         /// </summary>
-        internal static SemVer.Version Version => IPA.Loader.PluginManager.GetPluginFromId("BeatSaberPlus").Version;
+        internal static SemVer.Version Version => IPA.Loader.PluginManager.GetPluginFromId("BeatSaberPlusCORE").Version;
         /// <summary>
         /// Plugin name
         /// </summary>
@@ -237,7 +237,14 @@ namespace BeatSaberPlus
 
                 if (File.Exists("Libs/BeatSaberPlusChatCore.dll"))
                     File.Delete("Libs/BeatSaberPlusChatCore.dll");
+            }
+            catch (System.Exception l_Exception)
+            {
+                Logger.Instance.Error(l_Exception);
+            }
 
+            try
+            {
                 /// Installing WEBP codec
                 if (!Directory.Exists("Libs/Natives/"))
                     Directory.CreateDirectory("Libs/Natives/");
@@ -262,7 +269,6 @@ namespace BeatSaberPlus
         [OnEnable]
         public void OnEnable()
         {
-            //new GameObject().AddComponent<test>();
             try
             {
                 Logger.Instance.Debug("Applying Harmony patches.");

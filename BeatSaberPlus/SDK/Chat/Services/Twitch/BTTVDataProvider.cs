@@ -34,7 +34,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
         /// </summary>
         /// <param name="p_Category">Category / Channel</param>
         /// <returns></returns>
-        public async Task<bool> TryRequestResources(string p_Category)
+        public async Task TryRequestResources(string p_Category)
         {
             bool l_IsGlobal = string.IsNullOrEmpty(p_Category);
 
@@ -48,14 +48,14 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                     if (!l_Response.IsSuccessStatusCode)
                     {
                         Logger.Instance.Error($"Unsuccessful status code when requesting BTTV {(l_IsGlobal ? "global " : "")}emotes{(l_IsGlobal ? "." : " for channel " + p_Category)}. {l_Response.ReasonPhrase}");
-                        return false;
+                        return;
                     }
 
                     JSONNode l_JSON = JSON.Parse(await l_Response.Content.ReadAsStringAsync());
                     if ((l_IsGlobal && !l_JSON.IsArray) || (!l_IsGlobal && !l_JSON["channelEmotes"].IsArray))
                     {
                         Logger.Instance.Error("emotes was not an array.");
-                        return false;
+                        return;
                     }
 
                     JSONArray l_JSONEmotes = l_IsGlobal ? l_JSON.AsArray : l_JSON["channelEmotes"].AsArray;
@@ -70,6 +70,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                         {
                             Uri         = l_URI,
                             Animation   = l_Object["imageType"].Value == "gif" ? Animation.AnimationType.GIF : Animation.AnimationType.NONE,
+                            Category    = EChatResourceCategory.Emote,
                             Type        = l_IsGlobal ? "BTTVGlobalEmote" : "BTTVChannelEmote"
                         });
                         l_Count++;
@@ -95,7 +96,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                     }
 
                     Logger.Instance.Debug($"Success caching {l_Count} BTTV {(l_IsGlobal ? "global " : "")}emotes{(l_IsGlobal ? "." : " for channel " + p_Category)}.");
-                    return true;
+                    return;
                 }
             }
             catch (Exception l_Exception)
@@ -104,7 +105,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                 Logger.Instance.Error(l_Exception);
             }
 
-            return false;
+            return;
         }
 
         ////////////////////////////////////////////////////////////////////////////

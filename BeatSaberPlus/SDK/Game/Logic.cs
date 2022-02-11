@@ -239,6 +239,8 @@ namespace BeatSaberPlus.SDK.Game
                 if (OnMenuSceneLoaded != null)
                     OnMenuSceneLoaded.Invoke();
 
+                UI.LoadingProgressBar.TouchInstance();
+
                 OnMenuSceneActive();
             }
             catch (Exception p_Exception)

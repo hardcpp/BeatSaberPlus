@@ -35,7 +35,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
         /// </summary>
         /// <param name="p_Category">Category / Channel</param>
         /// <returns></returns>
-        public async Task<bool> TryRequestResources(string p_Category)
+        public async Task TryRequestResources(string p_Category)
         {
             bool l_IsGlobal = string.IsNullOrEmpty(p_Category);
             try
@@ -47,14 +47,14 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                     if (!l_Response.IsSuccessStatusCode)
                     {
                         Logger.Instance.Error($"Unsuccessful status code when requesting Twitch {(l_IsGlobal ? "global " : "")}cheermotes{(l_IsGlobal ? "." : " for channel " + p_Category)}. {l_Response.ReasonPhrase}");
-                        return false;
+                        return;
                     }
 
                     JSONNode l_JSON = JSON.Parse(await l_Response.Content.ReadAsStringAsync());
                     if (!l_JSON["actions"].IsArray)
                     {
                         Logger.Instance.Error("badge_sets was not an object.");
-                        return false;
+                        return;
                     }
 
                     int l_Count = 0;
@@ -83,7 +83,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                     }
 
                     Logger.Instance.Debug($"Success caching {l_Count} Twitch {(l_IsGlobal ? "global " : "")}cheermotes{(l_IsGlobal ? "." : " for channel " + p_Category)}.");
-                    return true;
+                    return;
                 }
             }
             catch (Exception l_Exception)
@@ -92,7 +92,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                 Logger.Instance.Error(l_Exception);
             }
 
-            return false;
+            return;
         }
 
         ////////////////////////////////////////////////////////////////////////////

@@ -7,6 +7,7 @@ namespace BeatSaberPlus.SDK.Chat.Models.Twitch
         public string Id { get; internal set; }
         public string UserName { get; internal set; }
         public string DisplayName { get; internal set; }
+        public string PaintedName { get; internal set; }
         public string Color { get; internal set; }
         public bool IsModerator { get; internal set; }
         public bool IsBroadcaster { get; internal set; }

@@ -34,6 +34,9 @@ namespace BeatSaberPlus.SDK.UI
         /// <returns></returns>
         protected override sealed string GetViewContentDescription()
         {
+#if DEBUG
+            Logger.Instance.Debug("Loading " + string.Join(".", typeof(T).Namespace, typeof(T).Name));
+#endif
             return Utilities.GetResourceContent(Assembly.GetAssembly(typeof(T)), string.Join(".", typeof(T).Namespace, typeof(T).Name));
         }
     }

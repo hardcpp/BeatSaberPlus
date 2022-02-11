@@ -131,12 +131,12 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                     {
                         if (l_MessageText.Length > 0)
                         {
-                            if (SettingsConfig.Twitch.ParseTwitchEmotes && l_MessageMeta.TryGetValue("emotes", out var emoteStr))
+                            if (SettingsConfig.Twitch.ParseTwitchEmotes && l_MessageMeta.TryGetValue("emotes", out var p_EmoteStr))
                             {
                                 /// Parse all the normal Twitch emotes
-                                l_MessageEmotes = emoteStr.Split('/').Aggregate(new List<IChatEmote>(), (l_EmoteList, emoteInstanceString) =>
+                                l_MessageEmotes = p_EmoteStr.Split('/').Aggregate(new List<IChatEmote>(), (l_EmoteList, p_EmoteInstanceString) =>
                                 {
-                                    var l_EmoteParts = emoteInstanceString.Split(':');
+                                    var l_EmoteParts = p_EmoteInstanceString.Split(':');
                                     foreach (var l_InstanceString in l_EmoteParts[1].Split(','))
                                     {
                                         var l_InstanceParts = l_InstanceString.Split('-');
@@ -144,7 +144,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                                         int l_EndIndex      = int.Parse(l_InstanceParts[1]);
 
                                         if (l_StartIndex >= l_MessageText.Length)
-                                            Logger.Instance.Warn($"Start index is greater than message length! RawMessage: {l_Match.Value}, InstanceString: {l_InstanceString}, EmoteStr: {emoteStr}, StartIndex: {l_StartIndex}, MessageLength: {l_MessageText.Length}, IsActionMessage: {l_IsActionMessage}");
+                                            Logger.Instance.Warn($"Start index is greater than message length! RawMessage: {l_Match.Value}, InstanceString: {l_InstanceString}, EmoteStr: {p_EmoteStr}, StartIndex: {l_StartIndex}, MessageLength: {l_MessageText.Length}, IsActionMessage: {l_IsActionMessage}");
 
                                         string l_EmoteName = l_MessageText.Substring(l_StartIndex, l_EndIndex - l_StartIndex + 1);
                                         l_FoundTwitchEmotes.Add(l_EmoteName);
@@ -153,10 +153,10 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                                         {
                                             Id          = $"TwitchEmote_{l_EmoteParts[0]}",
                                             Name        = l_EmoteName,///endIndex >= messageText.Length ? messageText.Substring(startIndex) : ,
-                                            Uri         = $"https://static-cdn.jtvnw.net/emoticons/v1/{l_EmoteParts[0]}/3.0",
+                                            Uri         = $"https://static-cdn.jtvnw.net/emoticons/v2/{l_EmoteParts[0]}/default/dark/3.0",
                                             StartIndex  = l_StartIndex,
                                             EndIndex    = l_EndIndex,
-                                            Animation   = Animation.AnimationType.NONE,
+                                            Animation   = Animation.AnimationType.MAYBE_GIF,
                                             Bits        = 0,
                                             Color       = ""
                                         });
@@ -259,10 +259,11 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                             SubscribersOnly     = l_MessageMeta.TryGetValue("subs-only",        out var l_SubsOnly)                                                 ? l_SubsOnly == "1"       : (l_OldRoomState?.SubscribersOnly  ?? false)
                         };
 
-                        if (l_Channel is TwitchChannel twitchChannel)
-                            twitchChannel.Roomstate = l_MessageRoomstate;
+                        if (l_Channel is TwitchChannel l_TwitchChannel)
+                            l_TwitchChannel.Roomstate = l_MessageRoomstate;
                     }
 
+                    string l_UserID       = l_MessageMeta.TryGetValue("user-id", out var l_UID) ? l_UID : "";
                     string l_UserName     = l_Match.Groups["HostName"].Success ? l_Match.Groups["HostName"].Value.Split('!')[0] : "";
                     string l_DisplayName  = l_MessageMeta.TryGetValue("display-name", out var l_Name) ? l_Name : l_UserName;
 
@@ -271,9 +272,10 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                         Id      = l_MessageMeta.TryGetValue("id", out var l_MessageId) ? l_MessageId : "", /// TODO: default id of some sort?
                         Sender  = new TwitchUser()
                         {
-                            Id              = l_MessageMeta.TryGetValue("user-id", out var l_UID) ? l_UID : "",
+                            Id              = l_UserID,
                             UserName        = l_UserName,
                             DisplayName     = l_DisplayName,
+                            PaintedName     = m_TwitchDataProvider._7TVDataProvider.TryGetUserDisplayName(l_UserID, l_DisplayName),
                             Color           = l_MessageMeta.TryGetValue("color", out var l_Color) ? l_Color : ChatUtils.GetNameColor(l_UserName),
                             IsModerator     = l_BadgeStr != null && l_BadgeStr.Contains("moderator/"),
                             IsBroadcaster   = l_BadgeStr != null && l_BadgeStr.Contains("broadcaster/"),

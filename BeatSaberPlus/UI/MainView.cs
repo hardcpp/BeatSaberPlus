@@ -32,6 +32,10 @@ namespace BeatSaberPlus.UI
         /// </summary>
         protected override sealed void OnViewCreation()
         {
+            var l_Layout = m_ButtonGrid.GetComponent<UnityEngine.UI.GridLayoutGroup>();
+            l_Layout.constraint         = UnityEngine.UI.GridLayoutGroup.Constraint.FixedColumnCount;
+            l_Layout.constraintCount    = 3;
+
             foreach (var l_Module in Plugin.Instance.Modules.Where(x => x.Type == SDK.IModuleBaseType.Integrated))
             {
                 var l_Button = SDK.UI.Button.Create(m_ButtonGrid.transform, l_Module.Name, () => {

@@ -160,6 +160,10 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
         /// </summary>
         private ConcurrentDictionary<string, bool> m_SentMessageIDs = new ConcurrentDictionary<string, bool>();
         /// <summary>
+        /// Last IRC ping
+        /// </summary>
+        private DateTime m_LastIRCSubPing = DateTime.UtcNow;
+        /// <summary>
         /// Last PubSub ping
         /// </summary>
         private DateTime m_LastPubSubPing = DateTime.UtcNow;
@@ -294,6 +298,9 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                         JoinChannel(l_ChannelToJoin);
                 }
 
+                if (l_ChannelList.Count == 0)
+                    m_OnSystemMessageCallbacks?.InvokeAll(this, "<b><color=red>No channel configured, messages won't be displayed</color></b>");
+
                 foreach (var l_Channel in m_Channels)
                 {
                     if (!l_ChannelList.Contains(l_Channel.Key))
@@ -338,6 +345,21 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
         {
             while (m_IsStarted)
             {
+                if ((DateTime.UtcNow - m_LastIRCSubPing).TotalSeconds >= 60)
+                {
+                    if (m_IRCWebSocket.IsConnected)
+                    {
+                        m_IRCWebSocket.SendMessage("PING");
+#if DEBUG
+                        m_OnSystemMessageCallbacks?.InvokeAll(this, "[Debug] Sent Ping");
+#endif
+                    }
+                    else
+                        m_IRCWebSocket.TryHandleReconnect();
+
+                    m_LastIRCSubPing = DateTime.UtcNow;
+                }
+
                 if ((DateTime.UtcNow - m_LastPubSubPing).TotalSeconds >= 60)
                 {
                     if (m_PubSubSocket.IsConnected)
@@ -600,6 +622,11 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
         private void IRCSocket_OnClose()
         {
             Logger.Instance.Info("Twitch connection closed");
+
+            m_OnSystemMessageCallbacks?.InvokeAll(this, "Disconnected from twitch");
+#if DEBUG
+            m_OnSystemMessageCallbacks?.InvokeAll(this, "[Debug] IRCSocket_OnClose");
+#endif
         }
         /// <summary>
         /// Twitch IRC socket error
@@ -607,6 +634,11 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
         private void IRCSocket_OnError()
         {
             Logger.Instance.Error("An error occurred in Twitch connection");
+
+            m_OnSystemMessageCallbacks?.InvokeAll(this, "Disconnected from twitch, error");
+#if DEBUG
+            m_OnSystemMessageCallbacks?.InvokeAll(this, "[Debug] IRCSocket_OnError");
+#endif
         }
         /// <summary>
         /// When a twitch IRC message is received
@@ -632,6 +664,21 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                         {
                             case "PING":
                                 SendRawMessage("PONG :tmi.twitch.tv");
+#if DEBUG
+                                m_OnSystemMessageCallbacks?.InvokeAll(this, "[Debug] Received Ping");
+#endif
+                                continue;
+
+                            case "PONG":
+#if DEBUG
+                                m_OnSystemMessageCallbacks?.InvokeAll(this, "[Debug] Received Pong");
+#endif
+                                continue;
+
+                            case "RECONNECT":
+#if DEBUG
+                                m_OnSystemMessageCallbacks?.InvokeAll(this, "[Debug] Received Reconnect");
+#endif
                                 continue;
 
                             /// Successful login
@@ -647,6 +694,9 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                                 var l_ChannelList = AuthConfig.Twitch.Channels.Trim().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
                                 foreach (var l_ChannelToJoin in l_ChannelList)
                                     JoinChannel(l_ChannelToJoin);
+
+                                if (l_ChannelList.Count == 0)
+                                    m_OnSystemMessageCallbacks?.InvokeAll(this, "<b><color=red>No channel configured, messages won't be displayed</color></b>");
 
                                 continue;
 
@@ -722,6 +772,8 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                                     m_LoggedInUserID = m_LoggedInUser.Id;
                                 else
                                     m_LoggedInUser.Id = m_LoggedInUserID;
+
+                                m_LoggedInUser.PaintedName = m_DataProvider._7TVDataProvider.TryGetUserDisplayName(m_LoggedInUser.Id, m_LoggedInUser.DisplayName);
 
                                 continue;
 
@@ -807,6 +859,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                                     Id              = l_SubscriptionMessage.UserId,
                                     UserName        = l_SubscriptionMessage.Username,
                                     DisplayName     = l_SubscriptionMessage.DisplayName,
+                                    PaintedName     = m_DataProvider._7TVDataProvider.TryGetUserDisplayName(l_SubscriptionMessage.UserId,  l_SubscriptionMessage.DisplayName),
                                     Color           = "#FFFFFFFF",
                                     Badges          = new IChatBadge[] { },
                                     IsBroadcaster   = false,
@@ -836,6 +889,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                                     Id              = !l_ChannelBitsMessage.IsAnonymous ? l_ChannelBitsMessage.UserId   : "AnAnonymousCheerer",
                                     UserName        = !l_ChannelBitsMessage.IsAnonymous ? l_ChannelBitsMessage.Username : "AnAnonymousCheerer",
                                     DisplayName     = !l_ChannelBitsMessage.IsAnonymous ? l_ChannelBitsMessage.Username : "AnAnonymousCheerer",
+                                    PaintedName     = !l_ChannelBitsMessage.IsAnonymous ?  m_DataProvider._7TVDataProvider.TryGetUserDisplayName(l_ChannelBitsMessage.UserId, l_ChannelBitsMessage.Username) : "AnAnonymousCheerer",
                                     Color           = "#FFFFFFFF",
                                     Badges          = new IChatBadge[] { },
                                     IsBroadcaster   = false,
@@ -857,6 +911,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                                     Id              = l_ChannelPointsMessage.UserId,
                                     UserName        = l_ChannelPointsMessage.UserName,
                                     DisplayName     = l_ChannelPointsMessage.UserDisplayName,
+                                    PaintedName     = m_DataProvider._7TVDataProvider.TryGetUserDisplayName(l_ChannelPointsMessage.UserId, l_ChannelPointsMessage.UserDisplayName),
                                     Color           = "#FFFFFFFF",
                                     Badges          = new IChatBadge[] { },
                                     IsBroadcaster   = l_ChannelPointsMessage.UserId == m_LoggedInUser.Id,
@@ -890,6 +945,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                                     Id              = l_FollowMessage.UserId,
                                     UserName        = l_FollowMessage.Username,
                                     DisplayName     = l_FollowMessage.DisplayName,
+                                    PaintedName     = m_DataProvider._7TVDataProvider.TryGetUserDisplayName(l_FollowMessage.UserId, l_FollowMessage.DisplayName),
                                     Color           = "#FFFFFFFF",
                                     Badges          = new IChatBadge[] { },
                                     IsBroadcaster   = false,

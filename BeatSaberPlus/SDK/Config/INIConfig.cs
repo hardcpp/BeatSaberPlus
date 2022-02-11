@@ -49,6 +49,8 @@ namespace BeatSaberPlus.SDK.Config
         /// <returns></returns>
         public string GetString(string p_Section, string p_Name, string p_DefaultValue = "", bool p_AutoSave = false)
         {
+            p_AutoSave = false;
+
             if (m_StringCache.TryGetValue((p_Section, p_Name), out var l_Cache))
                 return l_Cache;
 
@@ -92,6 +94,8 @@ namespace BeatSaberPlus.SDK.Config
         /// <returns></returns>
         public int GetInt(string p_Section, string p_Name, int p_DefaultValue = 0, bool p_AutoSave = false)
         {
+            p_AutoSave = false;
+
             if (m_IntCache.TryGetValue((p_Section, p_Name), out var l_Cache))
                 return l_Cache;
 
@@ -135,6 +139,8 @@ namespace BeatSaberPlus.SDK.Config
         /// <returns></returns>
         public float GetFloat(string p_Section, string p_Name, float p_DefaultValue = 0f, bool p_AutoSave = false)
         {
+            p_AutoSave = false;
+
             if (m_FloatCache.TryGetValue((p_Section, p_Name), out var l_Cache))
                 return l_Cache;
 
@@ -178,6 +184,8 @@ namespace BeatSaberPlus.SDK.Config
         /// <returns></returns>
         public bool GetBool(string p_Section, string p_Name, bool p_DefaultValue = false, bool p_AutoSave = false)
         {
+            p_AutoSave = false;
+
             if (m_BoolCache.TryGetValue((p_Section, p_Name), out var l_Cache))
                 return l_Cache;
 

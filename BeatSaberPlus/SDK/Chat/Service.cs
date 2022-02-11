@@ -27,6 +27,14 @@ namespace BeatSaberPlus.SDK.Chat
         /// Lock object
         /// </summary>
         private static object m_Object = new object();
+        /// <summary>
+        /// Is using fast load
+        /// </summary>
+        private static bool m_UsingFastLoad = false;
+        /// <summary>
+        /// Was warned about fastload
+        /// </summary>
+        private static bool m_FastLoadWarned = false;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -38,6 +46,8 @@ namespace BeatSaberPlus.SDK.Chat
         {
             AuthConfig.Init();
             SettingsConfig.Init();
+
+            m_UsingFastLoad = System.Environment.CommandLine.ToLower().Contains("-fastload");
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -99,6 +109,14 @@ namespace BeatSaberPlus.SDK.Chat
         /// Discrete OnTextMessageReceived
         /// </summary>
         public static event Action<IChatService, IChatMessage> Discrete_OnTextMessageReceived;
+        /// <summary>
+        /// On channel resource loading state changed
+        /// </summary>
+        public static event Action<bool> OnLoadingStateChanged;
+        /// <summary>
+        /// On channel resource loading progress changed
+        /// </summary>
+        public static event Action<float, int> OnLoadingProgressChanged;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -188,20 +206,56 @@ namespace BeatSaberPlus.SDK.Chat
         /// <param name="p_Resources">Resources</param>
         private static void ChatCoreMutiplixer_OnChannelResourceDataCached(IChatService p_ChatService, IChatChannel p_Channel, Dictionary<string, IChatResourceData> p_Resources)
         {
-            SDK.Unity.MainThreadInvoker.Enqueue(() =>
+            if (m_UsingFastLoad)
             {
-                int l_Count = 0;
-                foreach (var l_Current in p_Resources)
+                if (!m_FastLoadWarned)
                 {
-                    if (l_Current.Value.Animation != Animation.AnimationType.NONE)
-                    {
-                        ImageProvider.PrecacheAnimatedImage(l_Current.Value.Uri, l_Current.Key, l_Current.Value.Animation);
-                        l_Count++;
-                    }
+                    Multiplexer.InternalBroadcastSystemMessage("<b><color=red>You are running the game with -fastload, you might encounter frame drops when animated emotes are used</color></b>");
+                    m_FastLoadWarned = true;
                 }
 
-                Logger.Instance.Info($"Pre-cached {l_Count} animated emotes.");
-            });
+                return;
+            }
+
+            int l_Count = 0;
+            int l_Loaded = 0;
+
+            OnLoadingStateChanged?.Invoke(true);
+            UI.LoadingProgressBar.instance.ShowLoadingProgressBar("Loading animated emotes...", 0f);
+
+            foreach (var l_Current in p_Resources)
+            {
+                if (l_Current.Value.Animation != Animation.AnimationType.NONE && l_Current.Value.Category == EChatResourceCategory.Emote)
+                {
+                    l_Count++;
+                    ImageProvider.PrecacheAnimatedImage(l_Current.Value.Category, l_Current.Value.Uri, l_Current.Key, l_Current.Value.Animation, (x) =>
+                    {
+                        var l_CurrentLoaded = System.Threading.Interlocked.Increment(ref l_Loaded);
+                        var l_Progress      = (float)l_CurrentLoaded / (float)l_Count;
+
+                        OnLoadingProgressChanged?.Invoke(l_Progress, l_Count);
+                        UI.LoadingProgressBar.instance.SetProgress("Loading emotes...", l_Progress);
+
+                        if (l_CurrentLoaded == l_Count)
+                        {
+                            OnLoadingStateChanged?.Invoke(false);
+                            UI.LoadingProgressBar.instance.SetProgress($"Loaded {l_Count} emotes", 1f);
+                            UI.LoadingProgressBar.instance.HideTimed(4f);
+
+                            Multiplexer.InternalBroadcastSystemMessage($"Pre-cached {l_Count} animated emotes for {p_Channel.Name}.");
+                            Logger.Instance.Info($"Pre-cached {l_Count} animated emotes for {p_Channel.Name}.");
+                        }
+                    });
+                }
+            }
+
+            if (l_Count == 0)
+            {
+                OnLoadingStateChanged?.Invoke(false);
+
+                UI.LoadingProgressBar.instance.SetProgress("Loaded 0 animated emotes...", 1f);
+                UI.LoadingProgressBar.instance.HideTimed(4f);
+            }
         }
         /// <summary>
         /// On text message received

@@ -97,7 +97,7 @@ namespace BeatSaberPlus.UI
                 System.IO.File.WriteAllText("UserData/Camera2/Cameras/BSP_LIV.json", l_Profile, System.Text.Encoding.UTF8);
                 ShowMessageModal("Camera \"BSP_LIV\" created in camera2!");
             }
-            catch (System.Exception l_Exception)
+            catch (System.Exception)
             {
                 ShowMessageModal("Error!");
             }

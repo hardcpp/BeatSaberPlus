@@ -33,6 +33,10 @@ namespace BeatSaberPlus.UI
         /// </summary>
         protected override sealed void OnViewCreation()
         {
+            var l_Layout = m_SettingGrid.GetComponent<UnityEngine.UI.GridLayoutGroup>();
+            l_Layout.constraint         = UnityEngine.UI.GridLayoutGroup.Constraint.FixedColumnCount;
+            l_Layout.constraintCount    = 3;
+
             foreach (var l_Module in Plugin.Instance.Modules.Where(x => x.Type == SDK.IModuleBaseType.Integrated))
             {
                 var l_Setting = SDK.UI.ToggleSetting.Create(m_SettingGrid.transform, l_Module.Name, l_Module.IsEnabled, (x) => {

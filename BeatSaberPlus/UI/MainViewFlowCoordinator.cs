@@ -8,7 +8,7 @@
         /// <summary>
         /// Title
         /// </summary>
-        public override string Title => "Beat Saber Plus v3.4.3";
+        public override string Title => "Beat Saber Plus V4.1.0-Preview";
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -24,7 +24,7 @@
         /// <summary>
         /// ChangeLog view
         /// </summary>
-        private ChangeLogView m_ChangeLogView;
+        //private ChangeLogView m_ChangeLogView;
         /// <summary>
         /// Settings view
         /// </summary>
@@ -79,7 +79,7 @@
         /// <summary>
         /// Switch to main view
         /// </summary>
-        public void SwitchToMainView() => ChangeView(m_MainView, m_InfoView, m_ChangeLogView);
+        public void SwitchToMainView() => ChangeView(m_MainView, m_InfoView, null);
         /// <summary>
         /// Switch to settings view
         /// </summary>

@@ -6,7 +6,7 @@ namespace BeatSaberPlus.SDK.Animation
 {
     public enum AnimationType
     {
-        NONE, GIF, APNG, WEBP
+        NONE, GIF, APNG, WEBP, MAYBE_GIF
     }
 
     public class AnimationLoader

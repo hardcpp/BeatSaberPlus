@@ -6,7 +6,7 @@ namespace BeatSaberPlus.SDK.Chat.Interfaces
     internal interface IChatResourceProvider<T>
     {
         ConcurrentDictionary<string, T> Resources { get; }
-        Task<bool> TryRequestResources(string category);
+        Task TryRequestResources(string category);
         bool TryGetResource(string identifier, string category, out T data);
     }
 }

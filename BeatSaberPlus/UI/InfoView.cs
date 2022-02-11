@@ -15,7 +15,7 @@ namespace BeatSaberPlus.UI
         [UIValue("Line1")]
         private readonly string m_Line1 = "<u><b>Welcome to BeatSaberPlus by HardCPP#1985</b></u>";
         [UIValue("Line2")]
-        private readonly string m_Line2 = "Version 3.4.3";
+        private readonly string m_Line2 = "Version 4.1.0-Preview";
         [UIValue("Line3")]
         private readonly string m_Line3 = " ";
         [UIValue("Line4")]
@@ -54,7 +54,7 @@ namespace BeatSaberPlus.UI
         private void OnDiscordButton()
         {
             ShowMessageModal("URL opened in your desktop browser.");
-            Process.Start("https://discord.gg/K4X94Ea");
+            Process.Start("https://discord.gg/63ebPMC");
         }
 
         ////////////////////////////////////////////////////////////////////////////

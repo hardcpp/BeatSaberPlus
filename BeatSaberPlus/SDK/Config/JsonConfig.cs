@@ -24,7 +24,10 @@ namespace BeatSaberPlus.SDK.Config
         /// </summary>
         protected List<JsonConverter> m_JsonConverters = new List<JsonConverter>()
         {
-            new JsonConverters.Vector3Converter()
+            new JsonConverters.Vector2Converter(),
+            new JsonConverters.Vector3Converter(),
+            new JsonConverters.ColorConverter(),
+            new JsonConverters.Color32Converter()
         };
 
         ////////////////////////////////////////////////////////////////////////////

@@ -1,9 +1,9 @@
 ﻿{
   "$schema": "https://raw.githubusercontent.com/beat-saber-modding-group/BSIPA-MetadataFileSchema/master/Schema.json",
-  "id": "BeatSaberPlus",
+  "id": "BeatSaberPlusCORE",
   "name": "BeatSaberPlus",
   "author": "HardCPP#1985",
-  "version": "3.4.3",
+  "version": "4.1.0",
   "description": "",
   "gameVersion": "1.19.0",
   "dependsOn": {
@@ -11,7 +11,7 @@
     "BeatSaberMarkupLanguage": "^1.3.4"
   },
   "links": {
-    "project-home": "https://discord.gg/K4X94Ea",
+    "project-home": "https://discord.gg/63ebPMC",
     "donate": "https://www.patreon.com/BeatSaberPlus"
   }
 }
