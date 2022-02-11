@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace BeatSaberPlus.Modules.ChatEmoteRain.Components
+namespace BeatSaberPlus_ChatEmoteRain.Components
 {
     /// <summary>
     /// Emitter instance component
@@ -23,6 +23,10 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain.Components
         /// Preview material template
         /// </summary>
         internal Material PreviewMaterialTemplate = null;
+        /// <summary>
+        /// Life time
+        /// </summary>
+        internal float LifeTime = 0f;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -50,7 +54,7 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain.Components
         /// <summary>
         /// Update from emitter config
         /// </summary>
-        internal void UpdateFromEmitter(SDK.Game.Logic.SceneType p_Scene)
+        internal void UpdateFromEmitter(BeatSaberPlus.SDK.Game.Logic.SceneType p_Scene)
         {
             if (Emitter == null)
                 return;
@@ -68,15 +72,17 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain.Components
                 m_Preview.transform.localEulerAngles    = l_Shape.rotation;
             }
 
-            var l_IsMenu    = p_Scene == SDK.Game.Logic.SceneType.Menu;
-            var l_Size      = (l_IsMenu ? CERConfig.Instance.MenuSize : CERConfig.Instance.SongSize) * Emitter.Size;
+            var l_IsMenu    = p_Scene == BeatSaberPlus.SDK.Game.Logic.SceneType.Menu;
+            var l_Size      = (l_IsMenu ? CERConfig.Instance.MenuSize  : CERConfig.Instance.SongSize)  * Emitter.Size;
             var l_Speed     = (l_IsMenu ? CERConfig.Instance.MenuSpeed : CERConfig.Instance.SongSpeed) * Emitter.Speed;
 
             var l_Main = PS.main;
             l_Main.startSize3D      = false;
             l_Main.startSize        = l_Size;
             l_Main.startSpeed       = l_Speed;
-            l_Main.startLifetime    = (8 / (Mathf.Max(l_Speed - 1, 0.01f))) + 1;
+            l_Main.startLifetime    = Mathf.Min((8 / (Mathf.Max(l_Speed - 1, 0.01f))) + 1, 7f);
+
+            LifeTime = l_Main.startLifetime.constant;
         }
         /// <summary>
         /// Set preview enabled

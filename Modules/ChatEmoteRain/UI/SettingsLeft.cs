@@ -2,12 +2,12 @@
 using System.Diagnostics;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.ChatEmoteRain.UI
+namespace BeatSaberPlus_ChatEmoteRain.UI
 {
     /// <summary>
     /// Emote rain settings credits view
     /// </summary>
-    internal class SettingsLeft : SDK.UI.ResourceViewController<SettingsLeft>
+    internal class SettingsLeft : BeatSaberPlus.SDK.UI.ResourceViewController<SettingsLeft>
     {
         private static readonly string s_InformationsStr = "<line-height=125%>Original mod made by <b>Cr4</b> and <b>Uialeth</b>"
             + "\n"
@@ -38,7 +38,7 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain.UI
         /// </summary>
         protected override sealed void OnViewCreation()
         {
-            SDK.UI.Backgroundable.SetOpacity(m_Background, 0.5f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_Background, 0.5f);
             m_Informations.SetText(s_InformationsStr);
             m_Informations.UpdateVerticalScrollIndicator(0);
         }
@@ -56,6 +56,8 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain.UI
             {
                 /// Reset settings
                 CERConfig.Instance.Reset();
+                CERConfig.Instance.Enabled = true;
+                CERConfig.Instance.Save();
 
                 /// Refresh values
                 Settings.Instance.RefreshSettings();
@@ -69,7 +71,7 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain.UI
         private void OnWebConfigurationButton()
         {
             ShowMessageModal("URL opened in your desktop browser.");
-            SDK.Chat.Service.OpenWebConfigurator();
+            BeatSaberPlus.SDK.Chat.Service.OpenWebConfigurator();
         }
 
         ////////////////////////////////////////////////////////////////////////////

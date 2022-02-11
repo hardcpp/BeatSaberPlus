@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace BeatSaberPlus.Modules.ChatEmoteRain.Components
+namespace BeatSaberPlus_ChatEmoteRain.Components
 {
     /// <summary>
     /// Emitter instance manager

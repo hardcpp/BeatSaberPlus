@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.ChatEmoteRain.Components
+namespace BeatSaberPlus_ChatEmoteRain.Components
 {
     /// <summary>
     /// Emitter group
@@ -21,7 +21,7 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain.Components
         /// <summary>
         /// Scene for the group
         /// </summary>
-        internal SDK.Game.Logic.SceneType Scene;
+        internal BeatSaberPlus.SDK.Game.Logic.SceneType Scene;
         /// <summary>
         /// Timeout in seconds
         /// </summary>
@@ -88,18 +88,20 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain.Components
             while (transform.childCount > 0)
                 GameObject.DestroyImmediate(transform.GetChild(0).gameObject);
 
-            Emitters = new EmitterInstance[p_Emitters.Count];
             for (var l_I = 0; l_I < p_Emitters.Count; ++l_I)
             {
+                if (!p_Emitters[l_I].Enabled)
+                    continue;
+
                 var l_Instance = GameObject.Instantiate(p_ParticleSystemTemplate, transform).AddComponent<EmitterInstance>();
                 l_Instance.Emitter                  = p_Emitters[l_I];
                 l_Instance.PreviewMaterialTemplate  = m_PreviewMaterial;
                 l_Instance.Awake();
                 if (m_Material) l_Instance.PSR.material = m_Material;
                 l_Instance.UpdateFromEmitter(Scene);
-
-                Emitters[l_I] = l_Instance;
             }
+
+            Emitters = GetComponentsInChildren<EmitterInstance>();
 
             SetPreview(m_PreviewEnabled, m_PreviewFocus);
         }
@@ -179,6 +181,16 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain.Components
             }
 
             m_EmitQueue = 0;
+        }
+        /// <summary>
+        /// Clear all emotes queued
+        /// </summary>
+        internal void Clear()
+        {
+            m_EmitQueue = 0;
+
+            for (var l_I = 0; l_I < Emitters.Length; ++l_I)
+                Emitters[l_I].PS.Clear();
         }
         /// <summary>
         /// Set preview enabled

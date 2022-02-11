@@ -1,9 +1,9 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
 
-namespace BeatSaberPlus.Modules.ChatEmoteRain
+namespace BeatSaberPlus_ChatEmoteRain
 {
-    internal class CERConfig : SDK.Config.JsonConfig<CERConfig>
+    internal class CERConfig : BeatSaberPlus.SDK.Config.JsonConfig<CERConfig>
     {
         internal class _Emitter
         {
@@ -31,7 +31,7 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain
             [JsonProperty] internal bool SubscriberPower = false;
         }
 
-        [JsonProperty] internal bool Enabled = false;
+        [JsonProperty] internal bool Enabled = true;
 
         [JsonProperty] internal bool EnableMenu = true;
         [JsonProperty] internal float MenuSize = 0.4f;
@@ -79,7 +79,7 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain
         protected override void OnInit(bool p_OnCreation)
         {
             if (p_OnCreation)
-                Enabled = Config.ChatEmoteRain.Enabled;
+                Enabled = BeatSaberPlus.Config.ChatEmoteRain.Enabled;
 
             if (p_OnCreation)
             {

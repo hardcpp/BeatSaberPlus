@@ -7,12 +7,12 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace BeatSaberPlus.Modules.ChatEmoteRain.UI
+namespace BeatSaberPlus_ChatEmoteRain.UI
 {
     /// <summary>
     /// Chat Emote Rain settings main view
     /// </summary>
-    internal class Settings : SDK.UI.ResourceViewController<Settings>
+    internal class Settings : BeatSaberPlus.SDK.UI.ResourceViewController<Settings>
     {
         private static int s_EMITTER_PER_PAGE = 8;
 
@@ -52,7 +52,7 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain.UI
         private Button m_MenuEmittersTab_UpButton = null;
         [UIObject("MenuEmittersTab_List")]
         private GameObject m_MenuEmittersTab_ListView = null;
-        private SDK.UI.DataSource.SimpleTextList m_MenuEmittersTab_List = null;
+        private BeatSaberPlus.SDK.UI.DataSource.SimpleTextList m_MenuEmittersTab_List = null;
         [UIComponent("MenuEmittersTab_DownButton")]
         private Button m_MenuEmittersTab_DownButton = null;
 
@@ -69,7 +69,7 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain.UI
         private Button m_SongEmittersTab_UpButton = null;
         [UIObject("SongEmittersTab_List")]
         private GameObject m_SongEmittersTab_ListView = null;
-        private SDK.UI.DataSource.SimpleTextList m_SongEmittersTab_List = null;
+        private BeatSaberPlus.SDK.UI.DataSource.SimpleTextList m_SongEmittersTab_List = null;
         [UIComponent("SongEmittersTab_DownButton")]
         private Button m_SongEmittersTab_DownButton = null;
 
@@ -125,17 +125,17 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain.UI
         /// </summary>
         protected override sealed void OnViewCreation()
         {
-            SDK.UI.Backgroundable.SetOpacity(m_GeneralTab,              0.50f);
-            SDK.UI.Backgroundable.SetOpacity(m_MenuEmittersTab,         0.50f);
-            SDK.UI.Backgroundable.SetOpacity(m_MenuEmittersTab_Content, 0.50f);
-            SDK.UI.Backgroundable.SetOpacity(m_SongEmittersTab,         0.50f);
-            SDK.UI.Backgroundable.SetOpacity(m_SongEmittersTab_Content, 0.50f);
-            SDK.UI.Backgroundable.SetOpacity(m_CommandsTab,             0.50f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_GeneralTab,              0.50f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_MenuEmittersTab,         0.50f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_MenuEmittersTab_Content, 0.50f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_SongEmittersTab,         0.50f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_SongEmittersTab_Content, 0.50f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_CommandsTab,             0.50f);
 
             var l_Event = new BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic));
 
             /// Create type selector
-            m_TabSelector_TabSelectorControl = SDK.UI.TextSegmentedControl.Create(m_TabSelector.transform as RectTransform, false);
+            m_TabSelector_TabSelectorControl = BeatSaberPlus.SDK.UI.TextSegmentedControl.Create(m_TabSelector.transform as RectTransform, false);
             m_TabSelector_TabSelectorControl.SetTexts(new string[] { "General", "Menu Emitters", "Song Emitters", "Chat Commands" });
             m_TabSelector_TabSelectorControl.ReloadData();
             m_TabSelector_TabSelectorControl.didSelectCellEvent += OnTabSelected;
@@ -147,14 +147,14 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain.UI
                 var l_AnchorMax = new Vector2(0.86f, 1.05f);
 
                 /// First row
-                SDK.UI.ToggleSetting.Setup(m_GeneralTab_MenuRain,              l_Event,         CERConfig.Instance.EnableMenu,    true);
-                SDK.UI.SliderSetting.Setup(m_GeneralTab_MenuRainSizeSlider,    l_Event, null,   CERConfig.Instance.MenuSize,      true, true, l_AnchorMin, l_AnchorMax);
-                SDK.UI.SliderSetting.Setup(m_GeneralTab_MenuFallSpeedSlider,   l_Event, null,   CERConfig.Instance.MenuSpeed,     true, true, l_AnchorMin, l_AnchorMax);
+                BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_GeneralTab_MenuRain,              l_Event,         CERConfig.Instance.EnableMenu,    true);
+                BeatSaberPlus.SDK.UI.SliderSetting.Setup(m_GeneralTab_MenuRainSizeSlider,    l_Event, null,   CERConfig.Instance.MenuSize,      true, true, l_AnchorMin, l_AnchorMax);
+                BeatSaberPlus.SDK.UI.SliderSetting.Setup(m_GeneralTab_MenuFallSpeedSlider,   l_Event, null,   CERConfig.Instance.MenuSpeed,     true, true, l_AnchorMin, l_AnchorMax);
 
                 /// Second row
-                SDK.UI.ToggleSetting.Setup(m_GeneralTab_SongRain,              l_Event,         CERConfig.Instance.EnableSong,   true);
-                SDK.UI.SliderSetting.Setup(m_GeneralTab_SongRainSizeSlider,    l_Event, null,   CERConfig.Instance.SongSize,     true, true, l_AnchorMin, l_AnchorMax);
-                SDK.UI.SliderSetting.Setup(m_GeneralTab_SongFallSpeedSlider,   l_Event, null,   CERConfig.Instance.SongSpeed,    true, true, l_AnchorMin, l_AnchorMax);
+                BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_GeneralTab_SongRain,              l_Event,         CERConfig.Instance.EnableSong,   true);
+                BeatSaberPlus.SDK.UI.SliderSetting.Setup(m_GeneralTab_SongRainSizeSlider,    l_Event, null,   CERConfig.Instance.SongSize,     true, true, l_AnchorMin, l_AnchorMax);
+                BeatSaberPlus.SDK.UI.SliderSetting.Setup(m_GeneralTab_SongFallSpeedSlider,   l_Event, null,   CERConfig.Instance.SongSpeed,    true, true, l_AnchorMin, l_AnchorMax);
             }
 
             /// Menu emitters
@@ -171,7 +171,7 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain.UI
                 var l_BSMLTableView = m_MenuEmittersTab_ListView.GetComponentInChildren<BSMLTableView>();
                 l_BSMLTableView.SetDataSource(null, false);
                 GameObject.DestroyImmediate(m_MenuEmittersTab_ListView.GetComponentInChildren<CustomListTableData>());
-                m_MenuEmittersTab_List = l_BSMLTableView.gameObject.AddComponent<SDK.UI.DataSource.SimpleTextList>();
+                m_MenuEmittersTab_List = l_BSMLTableView.gameObject.AddComponent<BeatSaberPlus.SDK.UI.DataSource.SimpleTextList>();
                 m_MenuEmittersTab_List.TableViewInstance        = l_BSMLTableView;
                 m_MenuEmittersTab_List.CellSizeValue            = 5f;
                 l_BSMLTableView.didSelectCellWithIdxEvent      += OnEmitterSelected;
@@ -196,7 +196,7 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain.UI
                 var l_BSMLTableView = m_SongEmittersTab_ListView.GetComponentInChildren<BSMLTableView>();
                 l_BSMLTableView.SetDataSource(null, false);
                 GameObject.DestroyImmediate(m_SongEmittersTab_ListView.GetComponentInChildren<CustomListTableData>());
-                m_SongEmittersTab_List = l_BSMLTableView.gameObject.AddComponent<SDK.UI.DataSource.SimpleTextList>();
+                m_SongEmittersTab_List = l_BSMLTableView.gameObject.AddComponent<BeatSaberPlus.SDK.UI.DataSource.SimpleTextList>();
                 m_SongEmittersTab_List.TableViewInstance        = l_BSMLTableView;
                 m_SongEmittersTab_List.CellSizeValue            = 5f;
                 l_BSMLTableView.didSelectCellWithIdxEvent      += OnEmitterSelected;
@@ -210,9 +210,9 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain.UI
             /// Commands tab
             if (true)
             {
-                SDK.UI.ToggleSetting.Setup(m_CommandsTab_ModeratorPowerToggle,  l_Event,        CERConfig.Instance.ChatCommands.ModeratorPower,    true);
-                SDK.UI.ToggleSetting.Setup(m_CommandsTab_VIPPowerToggle,        l_Event,        CERConfig.Instance.ChatCommands.VIPPower,          true);
-                SDK.UI.ToggleSetting.Setup(m_CommandsTab_SubscriberPowerToggle, l_Event,        CERConfig.Instance.ChatCommands.SubscriberPower,   true);
+                BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_CommandsTab_ModeratorPowerToggle,  l_Event,        CERConfig.Instance.ChatCommands.ModeratorPower,    true);
+                BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_CommandsTab_VIPPowerToggle,        l_Event,        CERConfig.Instance.ChatCommands.VIPPower,          true);
+                BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_CommandsTab_SubscriberPowerToggle, l_Event,        CERConfig.Instance.ChatCommands.SubscriberPower,   true);
             }
 
             /// Show first tab by default
@@ -223,8 +223,8 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain.UI
         /// </summary>
         protected override sealed void OnViewDeactivation()
         {
-            ChatEmoteRain.Instance.SetTemplatesPreview(SDK.Game.Logic.SceneType.Menu,       false, null);
-            ChatEmoteRain.Instance.SetTemplatesPreview(SDK.Game.Logic.SceneType.Playing,    false, null);
+            ChatEmoteRain.Instance.SetTemplatesPreview(BeatSaberPlus.SDK.Game.Logic.SceneType.Menu,       false, null);
+            ChatEmoteRain.Instance.SetTemplatesPreview(BeatSaberPlus.SDK.Game.Logic.SceneType.Playing,    false, null);
 
             CERConfig.Instance.Save();
         }
@@ -251,8 +251,8 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain.UI
                 m_MenuEmittersCurrentPage = 1;
                 m_SongEmittersSelected = -1;
 
-                ChatEmoteRain.Instance.SetTemplatesPreview(SDK.Game.Logic.SceneType.Menu,       p_TabIndex == 1, null);
-                ChatEmoteRain.Instance.SetTemplatesPreview(SDK.Game.Logic.SceneType.Playing,    p_TabIndex == 2, null);
+                ChatEmoteRain.Instance.SetTemplatesPreview(BeatSaberPlus.SDK.Game.Logic.SceneType.Menu,       p_TabIndex == 1, null);
+                ChatEmoteRain.Instance.SetTemplatesPreview(BeatSaberPlus.SDK.Game.Logic.SceneType.Playing,    p_TabIndex == 2, null);
 
                 RebuildEmitterList(null);
             }
@@ -389,12 +389,12 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain.UI
             if (m_MenuEmittersTab.activeSelf)
             {
                 m_EmitterWidget.BuildUI(m_MenuEmittersTab_Content.transform, l_Emitter);
-                ChatEmoteRain.Instance.SetTemplatesPreview(SDK.Game.Logic.SceneType.Menu, true, l_Emitter);
+                ChatEmoteRain.Instance.SetTemplatesPreview(BeatSaberPlus.SDK.Game.Logic.SceneType.Menu, true, l_Emitter);
             }
             else
             {
                 m_EmitterWidget.BuildUI(m_SongEmittersTab_Content.transform, l_Emitter);
-                ChatEmoteRain.Instance.SetTemplatesPreview(SDK.Game.Logic.SceneType.Playing, true, l_Emitter);
+                ChatEmoteRain.Instance.SetTemplatesPreview(BeatSaberPlus.SDK.Game.Logic.SceneType.Playing, true, l_Emitter);
             }
         }
         /// <summary>
@@ -429,12 +429,12 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain.UI
             if (m_MenuEmittersTab.activeSelf)
             {
                 CERConfig.Instance.MenuEmitters.Add(l_Emitter);
-                ChatEmoteRain.Instance.UpdateTemplateFor(SDK.Game.Logic.SceneType.Menu);
+                ChatEmoteRain.Instance.UpdateTemplateFor(BeatSaberPlus.SDK.Game.Logic.SceneType.Menu);
             }
             else
             {
                 CERConfig.Instance.SongEmitters.Add(l_Emitter);
-                ChatEmoteRain.Instance.UpdateTemplateFor(SDK.Game.Logic.SceneType.Playing);
+                ChatEmoteRain.Instance.UpdateTemplateFor(BeatSaberPlus.SDK.Game.Logic.SceneType.Playing);
             }
 
             RebuildEmitterList(l_Emitter);
@@ -463,9 +463,9 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain.UI
                     RebuildEmitterList(l_Emitter);
 
                     if (m_MenuEmittersTab.activeSelf)
-                        ChatEmoteRain.Instance.UpdateTemplateFor(SDK.Game.Logic.SceneType.Menu);
+                        ChatEmoteRain.Instance.UpdateTemplateFor(BeatSaberPlus.SDK.Game.Logic.SceneType.Menu);
                     else
-                        ChatEmoteRain.Instance.UpdateTemplateFor(SDK.Game.Logic.SceneType.Playing);
+                        ChatEmoteRain.Instance.UpdateTemplateFor(BeatSaberPlus.SDK.Game.Logic.SceneType.Playing);
                 });
             }
             else
@@ -476,9 +476,9 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain.UI
                     RebuildEmitterList(l_Emitter);
 
                     if (m_MenuEmittersTab.activeSelf)
-                        ChatEmoteRain.Instance.UpdateTemplateFor(SDK.Game.Logic.SceneType.Menu);
+                        ChatEmoteRain.Instance.UpdateTemplateFor(BeatSaberPlus.SDK.Game.Logic.SceneType.Menu);
                     else
-                        ChatEmoteRain.Instance.UpdateTemplateFor(SDK.Game.Logic.SceneType.Playing);
+                        ChatEmoteRain.Instance.UpdateTemplateFor(BeatSaberPlus.SDK.Game.Logic.SceneType.Playing);
                 });
             }
         }
@@ -505,9 +505,9 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain.UI
                 RebuildEmitterList(null);
 
                 if (m_MenuEmittersTab.activeSelf)
-                    ChatEmoteRain.Instance.UpdateTemplateFor(SDK.Game.Logic.SceneType.Menu);
+                    ChatEmoteRain.Instance.UpdateTemplateFor(BeatSaberPlus.SDK.Game.Logic.SceneType.Menu);
                 else
-                    ChatEmoteRain.Instance.UpdateTemplateFor(SDK.Game.Logic.SceneType.Playing);
+                    ChatEmoteRain.Instance.UpdateTemplateFor(BeatSaberPlus.SDK.Game.Logic.SceneType.Playing);
             });
         }
 
@@ -563,13 +563,13 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain.UI
             {
                 /// First row
                 m_GeneralTab_MenuRain.Value = CERConfig.Instance.EnableMenu;
-                SDK.UI.SliderSetting.SetValue(m_GeneralTab_MenuRainSizeSlider,     CERConfig.Instance.MenuSize);
-                SDK.UI.SliderSetting.SetValue(m_GeneralTab_MenuFallSpeedSlider,    CERConfig.Instance.MenuSpeed);
+                BeatSaberPlus.SDK.UI.SliderSetting.SetValue(m_GeneralTab_MenuRainSizeSlider,     CERConfig.Instance.MenuSize);
+                BeatSaberPlus.SDK.UI.SliderSetting.SetValue(m_GeneralTab_MenuFallSpeedSlider,    CERConfig.Instance.MenuSpeed);
 
                 /// Second row
                 m_GeneralTab_SongRain.Value = CERConfig.Instance.EnableSong;
-                SDK.UI.SliderSetting.SetValue(m_GeneralTab_SongRainSizeSlider,     CERConfig.Instance.SongSize);
-                SDK.UI.SliderSetting.SetValue(m_GeneralTab_SongFallSpeedSlider,    CERConfig.Instance.SongSpeed);
+                BeatSaberPlus.SDK.UI.SliderSetting.SetValue(m_GeneralTab_SongRainSizeSlider,     CERConfig.Instance.SongSize);
+                BeatSaberPlus.SDK.UI.SliderSetting.SetValue(m_GeneralTab_SongFallSpeedSlider,    CERConfig.Instance.SongSpeed);
             }
 
             RebuildEmitterList(null);

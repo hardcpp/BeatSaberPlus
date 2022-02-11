@@ -6,7 +6,7 @@ using System;
 using System.Reflection;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.ChatEmoteRain.UI
+namespace BeatSaberPlus_ChatEmoteRain.UI
 {
     class EmitterWidget
     {
@@ -77,23 +77,23 @@ namespace BeatSaberPlus.Modules.ChatEmoteRain.UI
             var l_AnchorMin = new Vector2(0.15f, -0.05f);
             var l_AnchorMax = new Vector2(0.88f, 1.05f);
 
-            SDK.UI.SliderSetting.Setup(m_SpeedSlider, l_Event, null, l_Emitter.Speed, true, true, l_AnchorMin, l_AnchorMax);
-            SDK.UI.SliderSetting.Setup(m_SizeSlider, l_Event, null, l_Emitter.Size, true, true, l_AnchorMin, l_AnchorMax);
+            BeatSaberPlus.SDK.UI.SliderSetting.Setup(m_SpeedSlider, l_Event, null, l_Emitter.Speed, true, true, l_AnchorMin, l_AnchorMax);
+            BeatSaberPlus.SDK.UI.SliderSetting.Setup(m_SizeSlider, l_Event, null, l_Emitter.Size, true, true, l_AnchorMin, l_AnchorMax);
 
             l_AnchorMin = new Vector2(0.20f, -0.05f);
             l_AnchorMax = new Vector2(0.80f, 1.05f);
 
-            SDK.UI.SliderSetting.Setup(m_PosX, l_Event, null, l_Emitter.PosX, true, true, l_AnchorMin, l_AnchorMax);
-            SDK.UI.SliderSetting.Setup(m_PosY, l_Event, null, l_Emitter.PosY, true, true, l_AnchorMin, l_AnchorMax);
-            SDK.UI.SliderSetting.Setup(m_PosZ, l_Event, null, l_Emitter.PosZ, true, true, l_AnchorMin, l_AnchorMax);
+            BeatSaberPlus.SDK.UI.SliderSetting.Setup(m_PosX, l_Event, null, l_Emitter.PosX, true, true, l_AnchorMin, l_AnchorMax);
+            BeatSaberPlus.SDK.UI.SliderSetting.Setup(m_PosY, l_Event, null, l_Emitter.PosY, true, true, l_AnchorMin, l_AnchorMax);
+            BeatSaberPlus.SDK.UI.SliderSetting.Setup(m_PosZ, l_Event, null, l_Emitter.PosZ, true, true, l_AnchorMin, l_AnchorMax);
 
-            SDK.UI.SliderSetting.Setup(m_RotX, l_Event, null, l_Emitter.RotX, true, true, l_AnchorMin, l_AnchorMax);
-            SDK.UI.SliderSetting.Setup(m_RotY, l_Event, null, l_Emitter.RotY, true, true, l_AnchorMin, l_AnchorMax);
-            SDK.UI.SliderSetting.Setup(m_RotZ, l_Event, null, l_Emitter.RotZ, true, true, l_AnchorMin, l_AnchorMax);
+            BeatSaberPlus.SDK.UI.SliderSetting.Setup(m_RotX, l_Event, null, l_Emitter.RotX, true, true, l_AnchorMin, l_AnchorMax);
+            BeatSaberPlus.SDK.UI.SliderSetting.Setup(m_RotY, l_Event, null, l_Emitter.RotY, true, true, l_AnchorMin, l_AnchorMax);
+            BeatSaberPlus.SDK.UI.SliderSetting.Setup(m_RotZ, l_Event, null, l_Emitter.RotZ, true, true, l_AnchorMin, l_AnchorMax);
 
-            SDK.UI.SliderSetting.Setup(m_SizeX, l_Event, null, l_Emitter.SizeX, true, true, l_AnchorMin, l_AnchorMax);
-            SDK.UI.SliderSetting.Setup(m_SizeY, l_Event, null, l_Emitter.SizeY, true, true, l_AnchorMin, l_AnchorMax);
-            SDK.UI.SliderSetting.Setup(m_SizeZ, l_Event, null, l_Emitter.SizeZ, true, true, l_AnchorMin, l_AnchorMax);
+            BeatSaberPlus.SDK.UI.SliderSetting.Setup(m_SizeX, l_Event, null, l_Emitter.SizeX, true, true, l_AnchorMin, l_AnchorMax);
+            BeatSaberPlus.SDK.UI.SliderSetting.Setup(m_SizeY, l_Event, null, l_Emitter.SizeY, true, true, l_AnchorMin, l_AnchorMax);
+            BeatSaberPlus.SDK.UI.SliderSetting.Setup(m_SizeZ, l_Event, null, l_Emitter.SizeZ, true, true, l_AnchorMin, l_AnchorMax);
         }
         /// <summary>
         /// When any value change
