@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using System.Collections.Generic;
 
-namespace BeatSaberPlus.Modules.GameTweaker.Patches
+namespace BeatSaberPlus_GameTweaker.Patches
 {
     /// <summary>
     /// PromoViewController remover
@@ -31,7 +31,7 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches
             if (__instance != m_Instance)
                 m_OriginalStates.Clear();
 
-            if (Config.GameTweaker.Enabled && m_OriginalStates.Count == 0)
+            if (GTConfig.Instance.Enabled && m_OriginalStates.Count == 0)
             {
                 /// Store instance
                 m_Instance = __instance;
@@ -41,7 +41,7 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches
                     m_OriginalStates.Add(m_Instance.transform.GetChild(l_I).gameObject.activeSelf);
 
                 /// Apply
-                SetEnabled(Config.GameTweaker.RemoveNewContentPromotional);
+                SetEnabled(GTConfig.Instance.RemoveNewContentPromotional);
             }
         }
 

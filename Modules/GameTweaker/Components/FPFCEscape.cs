@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace BeatSaberPlus.Modules.GameTweaker.Components
+namespace BeatSaberPlus_GameTweaker.Components
 {
     /// <summary>
     /// FPFC Escape component
@@ -56,7 +56,7 @@ namespace BeatSaberPlus.Modules.GameTweaker.Components
         private void Update()
         {
             /// Don't activate in menu
-            if (SDK.Game.Logic.ActiveScene != SDK.Game.Logic.SceneType.Playing)
+            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene != BeatSaberPlus.SDK.Game.Logic.SceneType.Playing)
                 return;
 
             /// Wait for components

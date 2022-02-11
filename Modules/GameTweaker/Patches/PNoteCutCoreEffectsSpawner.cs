@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
 
-namespace BeatSaberPlus.Modules.GameTweaker.Patches
+namespace BeatSaberPlus_GameTweaker.Patches
 {
     /// <summary>
     /// Cut ribbon remover
@@ -26,10 +26,10 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches
             /// Cache effect instance
             m_NoteCutParticlesEffect = ____noteCutParticlesEffect;
 
-            if (Config.GameTweaker.Enabled)
+            if (GTConfig.Instance.Enabled)
             {
                 /// Apply
-                SetRemoveCutParticles(Config.GameTweaker.RemoveAllCutParticles);
+                SetRemoveCutParticles(GTConfig.Instance.RemoveAllCutParticles);
             }
         }
 

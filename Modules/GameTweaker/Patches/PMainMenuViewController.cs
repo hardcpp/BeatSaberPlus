@@ -3,7 +3,7 @@ using System;
 using System.Linq;
 using UnityEngine.UI;
 
-namespace BeatSaberPlus.Modules.GameTweaker.Patches
+namespace BeatSaberPlus_GameTweaker.Patches
 {
     /// <summary>
     /// MainMenuViewController
@@ -37,11 +37,11 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches
             if (m_MusicPackPromoBanner != ____musicPackPromoBanner)
                 m_MusicPackPromoBanner = ____musicPackPromoBanner;
 
-            if (Config.GameTweaker.Enabled)
+            if (GTConfig.Instance.Enabled)
             {
                 /// Apply
-                SetBeatMapEditorButtonDisabled(Config.GameTweaker.DisableBeatMapEditorButtonOnMainMenu);
-                SetRemovePackMusicPromoBanner(Config.GameTweaker.RemoveNewContentPromotional);
+                SetBeatMapEditorButtonDisabled(GTConfig.Instance.DisableBeatMapEditorButtonOnMainMenu);
+                SetRemovePackMusicPromoBanner(GTConfig.Instance.RemoveNewContentPromotional);
             }
         }
 

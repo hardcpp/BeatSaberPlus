@@ -2,12 +2,12 @@
 using System.Diagnostics;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.GameTweaker.UI
+namespace BeatSaberPlus_GameTweaker.UI
 {
     /// <summary>
     /// Chat request settings left screen
     /// </summary>
-    internal class SettingsLeft : SDK.UI.ResourceViewController<SettingsLeft>
+    internal class SettingsLeft : BeatSaberPlus.SDK.UI.ResourceViewController<SettingsLeft>
     {
         private static readonly string s_InformationsStr = "<line-height=125%><b><u>Game Tweaker</u></b>"
             + "\n" + "<i><color=#CCCCCCFF>This module allow you to customize your game experience, remove some boring base game features, and add new cool features/tweaks</color></i>"
@@ -38,7 +38,7 @@ namespace BeatSaberPlus.Modules.GameTweaker.UI
         /// </summary>
         protected override sealed void OnViewCreation()
         {
-            SDK.UI.Backgroundable.SetOpacity(m_Background, 0.5f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_Background, 0.5f);
             m_Informations.SetText(s_InformationsStr);
             m_Informations.UpdateVerticalScrollIndicator(0);
         }
@@ -54,12 +54,14 @@ namespace BeatSaberPlus.Modules.GameTweaker.UI
         {
             ShowConfirmationModal("<color=yellow><b>Do you really want to reset\ngame tweaker configuration?", () =>
             {
-               /// Reset config
-               Config.GameTweaker.Reset();
+                /// Reset config
+                GTConfig.Instance.Reset();
+                GTConfig.Instance.Enabled = true;
+                GTConfig.Instance.Save();
 
-               /// Refresh values
-               Settings.Instance.RefreshSettings();
-               SettingsRight.Instance.RefreshSettings();
+                /// Refresh values
+                Settings.Instance.RefreshSettings();
+                SettingsRight.Instance.RefreshSettings();
             });
         }
 

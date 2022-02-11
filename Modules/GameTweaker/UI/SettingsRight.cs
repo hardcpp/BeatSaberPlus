@@ -3,12 +3,12 @@ using BeatSaberMarkupLanguage.Components.Settings;
 using HMUI;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.GameTweaker.UI
+namespace BeatSaberPlus_GameTweaker.UI
 {
     /// <summary>
     /// Settings right view
     /// </summary>
-    internal class SettingsRight : SDK.UI.ResourceViewController<SettingsRight>
+    internal class SettingsRight : BeatSaberPlus.SDK.UI.ResourceViewController<SettingsRight>
     {
 #pragma warning disable CS0649
         [UIObject("TypeSegmentPanel")]
@@ -76,7 +76,7 @@ namespace BeatSaberPlus.Modules.GameTweaker.UI
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(SettingsRight.OnSettingChanged), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic));
 
             /// Create type selector
-            m_TypeSegmentControl = SDK.UI.TextSegmentedControl.Create(m_TypeSegmentPanel.transform as RectTransform, false);
+            m_TypeSegmentControl = BeatSaberPlus.SDK.UI.TextSegmentedControl.Create(m_TypeSegmentPanel.transform as RectTransform, false);
             m_TypeSegmentControl.SetTexts(new string[] { "Menu", "Tools / Dev" });
             m_TypeSegmentControl.ReloadData();
             m_TypeSegmentControl.didSelectCellEvent += OnTypeChanged;
@@ -86,28 +86,28 @@ namespace BeatSaberPlus.Modules.GameTweaker.UI
             ////////////////////////////////////////////////////////////////////////////
 
             /// Main menu
-            SDK.UI.ToggleSetting.Setup(m_DisableBeatMapEditorButtonInMainMenu,  l_Event, Config.GameTweaker.DisableBeatMapEditorButtonOnMainMenu,   true);
-            SDK.UI.ToggleSetting.Setup(m_RemoveNewContentPromotional,           l_Event, Config.GameTweaker.RemoveNewContentPromotional,            true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_DisableBeatMapEditorButtonInMainMenu,  l_Event, GTConfig.Instance.DisableBeatMapEditorButtonOnMainMenu,   true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_RemoveNewContentPromotional,           l_Event, GTConfig.Instance.RemoveNewContentPromotional,            true);
 
             /// Level selection
-            SDK.UI.ToggleSetting.Setup(m_ReorderPlayerSettings,                 l_Event, Config.GameTweaker.ReorderPlayerSettings,                  true);
-            SDK.UI.ToggleSetting.Setup(m_AddOverrideLightIntensityOption,       l_Event, Config.GameTweaker.AddOverrideLightIntensityOption,        true);
-            SDK.UI.ToggleSetting.Setup(m_RemoveBaseGameFilterButton,            l_Event, Config.GameTweaker.RemoveBaseGameFilterButton,             true);
-            SDK.UI.ToggleSetting.Setup(m_MergeLightPressetOptions,              l_Event, Config.GameTweaker.MergeLightPressetOptions,               true);
-            SDK.UI.ToggleSetting.Setup(m_DeleteSongButton,                      l_Event, Config.GameTweaker.DeleteSongButton,                       true);
-            SDK.UI.ToggleSetting.Setup(m_RemoveSongBrowserTrashcan,             l_Event, Config.GameTweaker.DeleteSongBrowserTrashcan,              true);
-            SDK.UI.ToggleSetting.Setup(m_HighlightPlayedSong,                   l_Event, Config.GameTweaker.HighlightPlayedSong,                    true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_ReorderPlayerSettings,                 l_Event, GTConfig.Instance.ReorderPlayerSettings,                  true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_AddOverrideLightIntensityOption,       l_Event, GTConfig.Instance.AddOverrideLightIntensityOption,        true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_RemoveBaseGameFilterButton,            l_Event, GTConfig.Instance.RemoveBaseGameFilterButton,             true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_MergeLightPressetOptions,              l_Event, GTConfig.Instance.MergeLightPressetOptions,               true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_DeleteSongButton,                      l_Event, GTConfig.Instance.DeleteSongButton,                       true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_RemoveSongBrowserTrashcan,             l_Event, GTConfig.Instance.DeleteSongBrowserTrashcan,              true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_HighlightPlayedSong,                   l_Event, GTConfig.Instance.HighlightPlayedSong,                    true);
 
             ////////////////////////////////////////////////////////////////////////////
             /// Dev / Testing
             ////////////////////////////////////////////////////////////////////////////
 
             /// Logs
-            SDK.UI.ToggleSetting.Setup(m_RemoveOldLogsToggle,           l_Event,         Config.GameTweaker.RemoveOldLogs,                          true);
-            SDK.UI.IncrementSetting.Setup(m_LogEntriesToKeepIncrement,  l_Event, null,   Config.GameTweaker.LogEntriesToKeep,                       true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_RemoveOldLogsToggle,           l_Event,         GTConfig.Instance.RemoveOldLogs,                          true);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_LogEntriesToKeepIncrement,  l_Event, null,   GTConfig.Instance.LogEntriesToKeep,                       true);
 
             /// FPFC escape
-            SDK.UI.ToggleSetting.Setup(m_FPFCEscape,                    l_Event,         Config.GameTweaker.FPFCEscape,                             false);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_FPFCEscape,                    l_Event,         GTConfig.Instance.FPFCEscape,                             false);
 
             ////////////////////////////////////////////////////////////////////////////
             ////////////////////////////////////////////////////////////////////////////
@@ -143,28 +143,28 @@ namespace BeatSaberPlus.Modules.GameTweaker.UI
             ////////////////////////////////////////////////////////////////////////////
 
             /// Main menu
-            Config.GameTweaker.DisableBeatMapEditorButtonOnMainMenu = m_DisableBeatMapEditorButtonInMainMenu.Value;
-            Config.GameTweaker.RemoveNewContentPromotional          = m_RemoveNewContentPromotional.Value;
+            GTConfig.Instance.DisableBeatMapEditorButtonOnMainMenu = m_DisableBeatMapEditorButtonInMainMenu.Value;
+            GTConfig.Instance.RemoveNewContentPromotional          = m_RemoveNewContentPromotional.Value;
 
             /// Level selection
-            Config.GameTweaker.ReorderPlayerSettings                = m_ReorderPlayerSettings.Value;
-            Config.GameTweaker.AddOverrideLightIntensityOption      = m_AddOverrideLightIntensityOption.Value;
-            Config.GameTweaker.RemoveBaseGameFilterButton           = m_RemoveBaseGameFilterButton.Value;
-            Config.GameTweaker.MergeLightPressetOptions             = m_MergeLightPressetOptions.Value;
-            Config.GameTweaker.DeleteSongButton                     = m_DeleteSongButton.Value;
-            Config.GameTweaker.DeleteSongBrowserTrashcan            = m_RemoveSongBrowserTrashcan.Value;
-            Config.GameTweaker.HighlightPlayedSong                  = m_HighlightPlayedSong.Value;
+            GTConfig.Instance.ReorderPlayerSettings                = m_ReorderPlayerSettings.Value;
+            GTConfig.Instance.AddOverrideLightIntensityOption      = m_AddOverrideLightIntensityOption.Value;
+            GTConfig.Instance.RemoveBaseGameFilterButton           = m_RemoveBaseGameFilterButton.Value;
+            GTConfig.Instance.MergeLightPressetOptions             = m_MergeLightPressetOptions.Value;
+            GTConfig.Instance.DeleteSongButton                     = m_DeleteSongButton.Value;
+            GTConfig.Instance.DeleteSongBrowserTrashcan            = m_RemoveSongBrowserTrashcan.Value;
+            GTConfig.Instance.HighlightPlayedSong                  = m_HighlightPlayedSong.Value;
 
             ////////////////////////////////////////////////////////////////////////////
             /// Dev / Testing
             ////////////////////////////////////////////////////////////////////////////
 
             /// Logs
-            Config.GameTweaker.RemoveOldLogs                        = m_RemoveOldLogsToggle.Value;
-            Config.GameTweaker.LogEntriesToKeep                     = (int)m_LogEntriesToKeepIncrement.Value;
+            GTConfig.Instance.RemoveOldLogs                        = m_RemoveOldLogsToggle.Value;
+            GTConfig.Instance.LogEntriesToKeep                     = (int)m_LogEntriesToKeepIncrement.Value;
 
             /// FPFC escape
-            Config.GameTweaker.FPFCEscape                           = m_FPFCEscape.Value;
+            GTConfig.Instance.FPFCEscape                           = m_FPFCEscape.Value;
 
             ////////////////////////////////////////////////////////////////////////////
             ////////////////////////////////////////////////////////////////////////////
@@ -188,28 +188,28 @@ namespace BeatSaberPlus.Modules.GameTweaker.UI
             ////////////////////////////////////////////////////////////////////////////
 
             /// Main menu
-            m_DisableBeatMapEditorButtonInMainMenu.Value    = Config.GameTweaker.DisableBeatMapEditorButtonOnMainMenu;
-            m_RemoveNewContentPromotional.Value             = Config.GameTweaker.RemoveNewContentPromotional;
+            m_DisableBeatMapEditorButtonInMainMenu.Value    = GTConfig.Instance.DisableBeatMapEditorButtonOnMainMenu;
+            m_RemoveNewContentPromotional.Value             = GTConfig.Instance.RemoveNewContentPromotional;
 
             /// Level selection
-            m_ReorderPlayerSettings.Value                   = Config.GameTweaker.ReorderPlayerSettings;
-            m_AddOverrideLightIntensityOption.Value         = Config.GameTweaker.AddOverrideLightIntensityOption;
-            m_RemoveBaseGameFilterButton.Value              = Config.GameTweaker.RemoveBaseGameFilterButton;
-            m_MergeLightPressetOptions.Value                = Config.GameTweaker.MergeLightPressetOptions;
-            m_DeleteSongButton.Value                        = Config.GameTweaker.DeleteSongButton;
-            m_RemoveSongBrowserTrashcan.Value               = Config.GameTweaker.DeleteSongBrowserTrashcan;
-            m_HighlightPlayedSong.Value                     = Config.GameTweaker.HighlightPlayedSong;
+            m_ReorderPlayerSettings.Value                   = GTConfig.Instance.ReorderPlayerSettings;
+            m_AddOverrideLightIntensityOption.Value         = GTConfig.Instance.AddOverrideLightIntensityOption;
+            m_RemoveBaseGameFilterButton.Value              = GTConfig.Instance.RemoveBaseGameFilterButton;
+            m_MergeLightPressetOptions.Value                = GTConfig.Instance.MergeLightPressetOptions;
+            m_DeleteSongButton.Value                        = GTConfig.Instance.DeleteSongButton;
+            m_RemoveSongBrowserTrashcan.Value               = GTConfig.Instance.DeleteSongBrowserTrashcan;
+            m_HighlightPlayedSong.Value                     = GTConfig.Instance.HighlightPlayedSong;
 
             ////////////////////////////////////////////////////////////////////////////
             /// Tools / Dev
             ////////////////////////////////////////////////////////////////////////////
 
             /// Logs
-            m_RemoveOldLogsToggle.Value                     = Config.GameTweaker.RemoveOldLogs;
-            m_LogEntriesToKeepIncrement.Value               = Config.GameTweaker.LogEntriesToKeep;
+            m_RemoveOldLogsToggle.Value                     = GTConfig.Instance.RemoveOldLogs;
+            m_LogEntriesToKeepIncrement.Value               = GTConfig.Instance.LogEntriesToKeep;
 
             /// FPFC escape
-            m_FPFCEscape.Value                              = Config.GameTweaker.FPFCEscape;
+            m_FPFCEscape.Value                              = GTConfig.Instance.FPFCEscape;
 
             ////////////////////////////////////////////////////////////////////////////
             ////////////////////////////////////////////////////////////////////////////

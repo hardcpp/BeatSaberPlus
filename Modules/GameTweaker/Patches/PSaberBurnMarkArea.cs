@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
 
-namespace BeatSaberPlus.Modules.GameTweaker.Patches
+namespace BeatSaberPlus_GameTweaker.Patches
 {
     /// <summary>
     /// SaberBurnMarkArea remover
@@ -25,10 +25,10 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches
         {
             m_SaberBurnMarkArea = __instance;
 
-            if (Config.GameTweaker.Enabled)
+            if (GTConfig.Instance.Enabled)
             {
                 /// Apply
-                SetRemoveSaberBurnMarks(Config.GameTweaker.RemoveSaberBurnMarks);
+                SetRemoveSaberBurnMarks(GTConfig.Instance.RemoveSaberBurnMarks);
             }
         }
 

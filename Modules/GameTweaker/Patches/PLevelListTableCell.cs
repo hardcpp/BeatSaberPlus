@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using TMPro;
 
-namespace BeatSaberPlus.Modules.GameTweaker.Patches
+namespace BeatSaberPlus_GameTweaker.Patches
 {
     [HarmonyPatch(typeof(LevelListTableCell))]
     [HarmonyPatch(nameof(LevelListTableCell.SetDataFromLevelAsync))]
@@ -15,10 +15,10 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches
         internal static void Postfix(IPreviewBeatmapLevel level, bool isFavorite,
                                      ref TextMeshProUGUI ____songNameText)
         {
-            if (Config.GameTweaker.HighlightPlayedSong && level.levelID.StartsWith("custom_level_"))
+            if (GTConfig.Instance.HighlightPlayedSong && level.levelID.StartsWith("custom_level_"))
             {
                 var l_LevelHash = level.levelID.Substring("custom_level_".Length);
-                SDK.Game.Levels.GetScoresByHash(l_LevelHash, out var l_HaveAnyScore, out var l_HaveAllScores);
+                BeatSaberPlus.SDK.Game.Levels.GetScoresByHash(l_LevelHash, out var l_HaveAnyScore, out var l_HaveAllScores);
 
                 var l_ColorPrefix = "";
                 if (l_HaveAllScores)

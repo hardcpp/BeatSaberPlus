@@ -1,13 +1,13 @@
 ﻿using HarmonyLib;
 
-namespace BeatSaberPlus.Modules.GameTweaker.Patches
+namespace BeatSaberPlus_GameTweaker.Patches
 {
     /// <summary>
     /// Debris remover
     /// </summary>
     [HarmonyPatch(typeof(NoteDebrisSpawner))]
     [HarmonyPatch(nameof(NoteDebrisSpawner.SpawnDebris))]
-    internal class PNoteDebrisSpawner
+    public class PNoteDebrisSpawner
     {
         /// <summary>
         /// Remove debris cache
@@ -28,15 +28,15 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches
         /// <summary>
         /// Set from configuration
         /// </summary>
-        internal static void SetFromConfig()
+        public static void SetFromConfig()
         {
-            m_RemoveDebris = Config.GameTweaker.Enabled && Config.GameTweaker.RemoveDebris;
+            m_RemoveDebris = GTConfig.Instance.Enabled && GTConfig.Instance.RemoveDebris;
         }
         /// <summary>
         /// Set temp config
         /// </summary>
         /// <param name="p_RemoveDebris">Should remove debris</param>
-        internal static void SetTemp(bool p_RemoveDebris)
+        public static void SetTemp(bool p_RemoveDebris)
         {
             m_RemoveDebris = p_RemoveDebris;
         }

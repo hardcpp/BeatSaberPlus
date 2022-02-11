@@ -9,7 +9,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace BeatSaberPlus.Modules.GameTweaker.Patches
+namespace BeatSaberPlus_GameTweaker.Patches
 {
     internal class SongBrowserDeleteAlias : MonoBehaviour
     {
@@ -43,9 +43,13 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches
         {
             m_StandardLevelDetailView = __instance;
 
+            /// BetterSongSearch already have a trashcan
+            if (IPA.Loader.PluginManager.GetPluginFromId("BetterSongSearch") != null)
+                return;
+
             /// Apply
-            if (Config.GameTweaker.Enabled && Config.GameTweaker.DeleteSongButton)
-                SetDeleteSongButtonEnabled(Config.GameTweaker.DeleteSongButton);
+            if (GTConfig.Instance.Enabled && GTConfig.Instance.DeleteSongButton)
+                SetDeleteSongButtonEnabled(GTConfig.Instance.DeleteSongButton);
 
             Transform l_SongBrowserButton = null;
 
@@ -62,7 +66,7 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches
 
             if (l_SongBrowserButton)
             {
-                if (Config.GameTweaker.Enabled && Config.GameTweaker.DeleteSongBrowserTrashcan)
+                if (GTConfig.Instance.Enabled && GTConfig.Instance.DeleteSongBrowserTrashcan)
                 {
                     l_SongBrowserButton.transform.localScale = Vector3.zero;
                     l_SongBrowserButton.transform.SetParent(null);
@@ -87,6 +91,10 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches
         {
             /// Wait until it's ready
             if (m_StandardLevelDetailView == null)
+                return;
+
+            /// BetterSongSearch already have a trashcan
+            if (IPA.Loader.PluginManager.GetPluginFromId("BetterSongSearch") != null)
                 return;
 
             if (p_Enabled && (m_Patch == null || !m_Patch))
@@ -154,7 +162,7 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches
                 l_View += "   </horizontal>";
                 l_View += "  </vertical>";
                 l_View += " </modal>";
-                l_View += " <icon-button id='delete-button' icon='BeatSaberPlus.Modules.GameTweaker.Resources.Delete.png' active='false' size-delta-x='7.25' size-delta-y='4.4' on-click='delete-button-clicked' pad='2' />";
+                l_View += " <icon-button id='delete-button' icon='BeatSaberPlus_GameTweaker.Resources.Delete.png' active='false' size-delta-x='7.25' size-delta-y='4.4' on-click='delete-button-clicked' pad='2' />";
                 l_View += "</bg>";
 
                 m_ParserParams = BSMLParser.instance.Parse(l_View, standardLevelDetailView.gameObject, this);
@@ -211,7 +219,7 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches
                 IBeatmapLevel l_LevelToDelete = standardLevelDetailView.GetField<IBeatmapLevel, StandardLevelDetailView>("_level");
                 if (l_LevelToDelete != null && l_LevelToDelete is CustomBeatmapLevel customLevel)
                 {
-                    m_DeleteConfirmationText.text = $"Are you sure you would like to delete '<color=#FFFFCC>{SDK.Unity.TextMeshPro.EscapeString(customLevel.songName)}</color>' by {SDK.Unity.TextMeshPro.EscapeString(customLevel.levelAuthorName)}?";
+                    m_DeleteConfirmationText.text = $"Are you sure you would like to delete '<color=#FFFFCC>{BeatSaberPlus.SDK.Unity.TextMeshPro.EscapeString(customLevel.songName)}</color>' by {BeatSaberPlus.SDK.Unity.TextMeshPro.EscapeString(customLevel.levelAuthorName)}?";
                     m_ParserParams.EmitEvent("show-delete-confirmation-modal");
                 }
             }

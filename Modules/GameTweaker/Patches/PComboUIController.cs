@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
 
-namespace BeatSaberPlus.Modules.GameTweaker.Patches
+namespace BeatSaberPlus_GameTweaker.Patches
 {
     /// <summary>
     /// ComboUIController full combo loss animation remover
@@ -15,7 +15,7 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches
         /// <param name="__instance">ComboUIController instance</param>
         internal static bool Prefix(ref ComboUIController __instance, ref bool ____comboLost)
         {
-            if (!Config.GameTweaker.Enabled || !Config.GameTweaker.RemoveFullComboLossAnimation)
+            if (!GTConfig.Instance.Enabled || !GTConfig.Instance.RemoveFullComboLossAnimation)
                 return true; ///< Continue to original function
 
             if (!____comboLost)

@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
 
-namespace BeatSaberPlus.Modules.GameTweaker.Patches
+namespace BeatSaberPlus_GameTweaker.Patches
 {
     /// <summary>
     /// SaberBurnMarkSparkles remover
@@ -25,10 +25,10 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches
         {
             m_SaberBurnMarkSparkles = __instance;
 
-            if (Config.GameTweaker.Enabled)
+            if (GTConfig.Instance.Enabled)
             {
                 /// Apply
-                SetRemoveSaberBurnMarkSparkles(Config.GameTweaker.RemoveSaberBurnMarkSparkles);
+                SetRemoveSaberBurnMarkSparkles(GTConfig.Instance.RemoveSaberBurnMarkSparkles);
             }
         }
 

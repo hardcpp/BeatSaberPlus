@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.GameTweaker.Components
+namespace BeatSaberPlus_GameTweaker.Components
 {
     /// <summary>
     /// Music band logo remover
@@ -35,7 +35,7 @@ namespace BeatSaberPlus.Modules.GameTweaker.Components
             if (m_AudioTimeSyncController == null || !m_AudioTimeSyncController)
                 m_AudioTimeSyncController = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().FirstOrDefault();
 
-            if (SDK.Game.Logic.ActiveScene != SDK.Game.Logic.SceneType.Playing
+            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene != BeatSaberPlus.SDK.Game.Logic.SceneType.Playing
                 || m_AudioTimeSyncController == null
                 || !m_AudioTimeSyncController)
             {
@@ -47,6 +47,13 @@ namespace BeatSaberPlus.Modules.GameTweaker.Components
                 return;
 
             GameObject l_Object = null;
+
+            ///
+            ///l_Object = Resources.FindObjectsOfTypeAll<GameObject>().FirstOrDefault(x => x.name == "EnergyPanel");
+            ///if (l_Object != null && l_Object)
+            ///    l_Object.SetActive(true);
+            ///l_Object = null;
+            ///
 
             /// BTS
             l_Object = Resources.FindObjectsOfTypeAll<GameObject>().FirstOrDefault(x => x.name == "MagicDoorSprite");

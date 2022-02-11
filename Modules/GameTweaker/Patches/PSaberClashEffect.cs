@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.GameTweaker.Patches
+namespace BeatSaberPlus_GameTweaker.Patches
 {
     /// <summary>
     /// SaberClashEffect remover
@@ -33,10 +33,10 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches
             m_SparkleParticleSystem = ____sparkleParticleSystem;
             m_GlowParticleSystem    = ____glowParticleSystem;
 
-            if (Config.GameTweaker.Enabled)
+            if (GTConfig.Instance.Enabled)
             {
                 /// Apply
-                SetRemoveClashEffects(Config.GameTweaker.RemoveSaberClashEffects);
+                SetRemoveClashEffects(GTConfig.Instance.RemoveSaberClashEffects);
             }
         }
 

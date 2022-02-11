@@ -2,7 +2,7 @@
 using TMPro;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.GameTweaker.Patches
+namespace BeatSaberPlus_GameTweaker.Patches
 {
     /// <summary>
     /// Base game filter removing
@@ -28,10 +28,10 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches
             /// Cache filter button instance
             m_FilterButton = (____filterParamsText != null && ____filterParamsText) ? ____filterParamsText.transform.parent.gameObject : null;
 
-            if (Config.GameTweaker.Enabled)
+            if (GTConfig.Instance.Enabled)
             {
                 /// Apply
-                SetRemoveBaseGameFilter(Config.GameTweaker.RemoveBaseGameFilterButton);
+                SetRemoveBaseGameFilter(GTConfig.Instance.RemoveBaseGameFilterButton);
             }
         }
 

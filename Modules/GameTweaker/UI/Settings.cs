@@ -1,12 +1,12 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components.Settings;
 
-namespace BeatSaberPlus.Modules.GameTweaker.UI
+namespace BeatSaberPlus_GameTweaker.UI
 {
     /// <summary>
     /// Saber Tweaker view controller
     /// </summary>
-    internal class Settings : SDK.UI.ResourceViewController<Settings>
+    internal class Settings : BeatSaberPlus.SDK.UI.ResourceViewController<Settings>
     {
 #pragma warning disable CS0649
         [UIComponent("removedebris-toggle")]
@@ -58,18 +58,25 @@ namespace BeatSaberPlus.Modules.GameTweaker.UI
             ////////////////////////////////////////////////////////////////////////////
 
             /// Particles / Effects
-            SDK.UI.ToggleSetting.Setup(m_RemoveDebris,                  l_Event,                                           Config.GameTweaker.RemoveDebris,                 true);
-            SDK.UI.ToggleSetting.Setup(m_RemoveAllCutParticles,         l_Event,                                           Config.GameTweaker.RemoveAllCutParticles,        true);
-            SDK.UI.ToggleSetting.Setup(m_RemoveAllObstacleParticles,    l_Event,                                           Config.GameTweaker.RemoveObstacleParticles,      true);
-            SDK.UI.ToggleSetting.Setup(m_RemoveFloorBurnMarkParticles,  l_Event,                                           Config.GameTweaker.RemoveSaberBurnMarkSparkles,  true);
-            SDK.UI.ToggleSetting.Setup(m_RemoveFloorBurnMarkEffects,    l_Event,                                           Config.GameTweaker.RemoveSaberBurnMarks,         true);
-            SDK.UI.ToggleSetting.Setup(m_RemoveSaberClashEffects,       l_Event,                                           Config.GameTweaker.RemoveSaberClashEffects,      true);
-            SDK.UI.ToggleSetting.Setup(m_RemoveWorldParticles,          l_Event,                                           Config.GameTweaker.RemoveWorldParticles,         true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_RemoveDebris,                  l_Event,                                           GTConfig.Instance.RemoveDebris,                 true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_RemoveAllCutParticles,         l_Event,                                           GTConfig.Instance.RemoveAllCutParticles,        true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_RemoveAllObstacleParticles,    l_Event,                                           GTConfig.Instance.RemoveObstacleParticles,      true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_RemoveFloorBurnMarkParticles,  l_Event,                                           GTConfig.Instance.RemoveSaberBurnMarkSparkles,  true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_RemoveFloorBurnMarkEffects,    l_Event,                                           GTConfig.Instance.RemoveSaberBurnMarks,         true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_RemoveSaberClashEffects,       l_Event,                                           GTConfig.Instance.RemoveSaberClashEffects,      true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_RemoveWorldParticles,          l_Event,                                           GTConfig.Instance.RemoveWorldParticles,         true);
 
             /// Environment
-            SDK.UI.ToggleSetting.Setup(m_RemoveMusicBandLogo,           l_Event,                                           Config.GameTweaker.RemoveMusicBandLogo,          true);
-            SDK.UI.ToggleSetting.Setup(m_RemoveFullComboLossAnimation,  l_Event,                                           Config.GameTweaker.RemoveFullComboLossAnimation, true);
-            SDK.UI.ToggleSetting.Setup(m_NoFake360HUD,                  l_Event,                                           Config.GameTweaker.NoFake360HUD,                 true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_RemoveMusicBandLogo,           l_Event,                                           GTConfig.Instance.RemoveMusicBandLogo,          true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_RemoveFullComboLossAnimation,  l_Event,                                           GTConfig.Instance.RemoveFullComboLossAnimation, true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_NoFake360HUD,                  l_Event,                                           GTConfig.Instance.NoFake360HUD,                 true);
+        }
+        /// <summary>
+        /// On view deactivation
+        /// </summary>
+        protected override sealed void OnViewDeactivation()
+        {
+            GTConfig.Instance.Save();
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -85,18 +92,18 @@ namespace BeatSaberPlus.Modules.GameTweaker.UI
                 return;
 
             /// Particles / Effects
-            Config.GameTweaker.RemoveDebris                     = m_RemoveDebris.Value;
-            Config.GameTweaker.RemoveAllCutParticles            = m_RemoveAllCutParticles.Value;
-            Config.GameTweaker.RemoveObstacleParticles          = m_RemoveAllObstacleParticles.Value;
-            Config.GameTweaker.RemoveSaberBurnMarkSparkles      = m_RemoveFloorBurnMarkParticles.Value;
-            Config.GameTweaker.RemoveSaberBurnMarks             = m_RemoveFloorBurnMarkEffects.Value;
-            Config.GameTweaker.RemoveSaberClashEffects          = m_RemoveSaberClashEffects.Value;
-            Config.GameTweaker.RemoveWorldParticles             = m_RemoveWorldParticles.Value;
+            GTConfig.Instance.RemoveDebris                     = m_RemoveDebris.Value;
+            GTConfig.Instance.RemoveAllCutParticles            = m_RemoveAllCutParticles.Value;
+            GTConfig.Instance.RemoveObstacleParticles          = m_RemoveAllObstacleParticles.Value;
+            GTConfig.Instance.RemoveSaberBurnMarkSparkles      = m_RemoveFloorBurnMarkParticles.Value;
+            GTConfig.Instance.RemoveSaberBurnMarks             = m_RemoveFloorBurnMarkEffects.Value;
+            GTConfig.Instance.RemoveSaberClashEffects          = m_RemoveSaberClashEffects.Value;
+            GTConfig.Instance.RemoveWorldParticles             = m_RemoveWorldParticles.Value;
 
             /// Environment
-            Config.GameTweaker.RemoveMusicBandLogo              = m_RemoveMusicBandLogo.Value;
-            Config.GameTweaker.RemoveFullComboLossAnimation     = m_RemoveFullComboLossAnimation.Value;
-            Config.GameTweaker.NoFake360HUD                     = m_NoFake360HUD.Value;
+            GTConfig.Instance.RemoveMusicBandLogo              = m_RemoveMusicBandLogo.Value;
+            GTConfig.Instance.RemoveFullComboLossAnimation     = m_RemoveFullComboLossAnimation.Value;
+            GTConfig.Instance.NoFake360HUD                     = m_NoFake360HUD.Value;
 
             /// Update patches
             GameTweaker.Instance.UpdatePatches(false);
@@ -113,18 +120,18 @@ namespace BeatSaberPlus.Modules.GameTweaker.UI
             m_PreventChanges = true;
 
             /// Particles / Effects
-            m_RemoveDebris.Value                    = Config.GameTweaker.RemoveDebris;
-            m_RemoveAllCutParticles.Value           = Config.GameTweaker.RemoveAllCutParticles;
-            m_RemoveAllObstacleParticles.Value      = Config.GameTweaker.RemoveObstacleParticles;
-            m_RemoveFloorBurnMarkParticles.Value    = Config.GameTweaker.RemoveSaberBurnMarkSparkles;
-            m_RemoveFloorBurnMarkEffects.Value      = Config.GameTweaker.RemoveSaberBurnMarks;
-            m_RemoveSaberClashEffects.Value         = Config.GameTweaker.RemoveSaberClashEffects;
-            m_RemoveWorldParticles.Value            = Config.GameTweaker.RemoveWorldParticles;
+            m_RemoveDebris.Value                    = GTConfig.Instance.RemoveDebris;
+            m_RemoveAllCutParticles.Value           = GTConfig.Instance.RemoveAllCutParticles;
+            m_RemoveAllObstacleParticles.Value      = GTConfig.Instance.RemoveObstacleParticles;
+            m_RemoveFloorBurnMarkParticles.Value    = GTConfig.Instance.RemoveSaberBurnMarkSparkles;
+            m_RemoveFloorBurnMarkEffects.Value      = GTConfig.Instance.RemoveSaberBurnMarks;
+            m_RemoveSaberClashEffects.Value         = GTConfig.Instance.RemoveSaberClashEffects;
+            m_RemoveWorldParticles.Value            = GTConfig.Instance.RemoveWorldParticles;
 
             /// Environment
-            m_RemoveMusicBandLogo.Value             = Config.GameTweaker.RemoveMusicBandLogo;
-            m_RemoveFullComboLossAnimation.Value    = Config.GameTweaker.RemoveFullComboLossAnimation;
-            m_NoFake360HUD.Value                    = Config.GameTweaker.NoFake360HUD;
+            m_RemoveMusicBandLogo.Value             = GTConfig.Instance.RemoveMusicBandLogo;
+            m_RemoveFullComboLossAnimation.Value    = GTConfig.Instance.RemoveFullComboLossAnimation;
+            m_NoFake360HUD.Value                    = GTConfig.Instance.NoFake360HUD;
 
             m_PreventChanges = false;
 

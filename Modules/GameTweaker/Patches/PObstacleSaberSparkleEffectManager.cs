@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
 
-namespace BeatSaberPlus.Modules.GameTweaker.Patches
+namespace BeatSaberPlus_GameTweaker.Patches
 {
     /// <summary>
     /// ObstacleSaberSparkleEffect remover
@@ -25,10 +25,10 @@ namespace BeatSaberPlus.Modules.GameTweaker.Patches
         {
             m_ObstacleSaberSparkleEffects = ____effects;
 
-            if (Config.GameTweaker.Enabled)
+            if (GTConfig.Instance.Enabled)
             {
                 /// Apply
-                SetRemoveObstacleParticles(Config.GameTweaker.RemoveObstacleParticles);
+                SetRemoveObstacleParticles(GTConfig.Instance.RemoveObstacleParticles);
             }
         }
 
