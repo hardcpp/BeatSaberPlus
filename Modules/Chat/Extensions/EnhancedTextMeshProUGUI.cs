@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace BeatSaberPlus.Modules.Chat.Extensions
+namespace BeatSaberPlus_Chat.Extensions
 {
     /*
        Code from https://github.com/brian91292/EnhancedStreamChat-v3
@@ -61,7 +61,7 @@ namespace BeatSaberPlus.Modules.Chat.Extensions
         /// <summary>
         /// Image pool
         /// </summary>
-        private static SDK.Misc.ObjectPool<EnhancedImage> m_ImagePool = new SDK.Misc.ObjectPool<EnhancedImage>(50,
+        private static BeatSaberPlus.SDK.Misc.ObjectPool<EnhancedImage> m_ImagePool = new BeatSaberPlus.SDK.Misc.ObjectPool<EnhancedImage>(50,
             p_Constructor: () =>
             {
                 var l_Image = new GameObject().AddComponent<EnhancedImage>();
@@ -69,11 +69,11 @@ namespace BeatSaberPlus.Modules.Chat.Extensions
                 l_Image.rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
                 l_Image.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
                 l_Image.rectTransform.pivot     = new Vector2(0, 0);
-                l_Image.AnimStateUpdater        = l_Image.gameObject.AddComponent<SDK.Animation.AnimationStateUpdater>();
+                l_Image.AnimStateUpdater        = l_Image.gameObject.AddComponent<BeatSaberPlus.SDK.Animation.AnimationStateUpdater>();
                 l_Image.AnimStateUpdater.image  = l_Image;
                 l_Image.gameObject.SetActive(false);
 
-                SDK.Unity.GameObject.ChangerLayerRecursive(l_Image.gameObject, LayerMask.NameToLayer("UI"));
+                BeatSaberPlus.SDK.Unity.GameObject.ChangerLayerRecursive(l_Image.gameObject, LayerMask.NameToLayer("UI"));
 
                 DontDestroyOnLoad(l_Image.gameObject);
 
@@ -122,11 +122,11 @@ namespace BeatSaberPlus.Modules.Chat.Extensions
             if (p_UpdateType == CanvasUpdate.LatePreRender)
             {
                 if (m_CurrentImages.Count != 0)
-                    SDK.Unity.MainThreadInvoker.Enqueue(() => ClearImages());
+                    BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() => ClearImages());
 
                 if (!string.IsNullOrEmpty(text))
                 {
-                    var l_ImagesToAdd = new List<(Vector3, SDK.Unity.EnhancedImage)>();
+                    var l_ImagesToAdd = new List<(Vector3, BeatSaberPlus.SDK.Unity.EnhancedImage)>();
 
                     for (int l_I = 0; l_I < textInfo.characterCount; l_I++)
                     {
@@ -149,7 +149,7 @@ namespace BeatSaberPlus.Modules.Chat.Extensions
 
                     if (l_ImagesToAdd.Count != 0)
                     {
-                        SDK.Unity.MainThreadInvoker.Enqueue(() =>
+                        BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() =>
                         {
                             foreach (var l_Pair in l_ImagesToAdd)
                             {
@@ -164,7 +164,7 @@ namespace BeatSaberPlus.Modules.Chat.Extensions
                                     else
                                         l_Image.sprite = l_Pair.Item2.Sprite;
 
-                                    l_Image.material                    = SDK.Unity.Material.UINoGlowMaterial;
+                                    l_Image.material                    = BeatSaberPlus.SDK.Unity.Material.UINoGlowMaterial;
                                     l_Image.rectTransform.localScale    = new Vector3(fontScale * 1.08f, fontScale * 1.08f, fontScale * 1.08f);
                                     l_Image.rectTransform.sizeDelta     = new Vector2(l_Pair.Item2.Width, l_Pair.Item2.Height);
                                     l_Image.rectTransform.SetParent(rectTransform, false);
@@ -189,7 +189,7 @@ namespace BeatSaberPlus.Modules.Chat.Extensions
             base.Rebuild(p_UpdateType);
 
             if (p_UpdateType == CanvasUpdate.LatePreRender)
-                SDK.Unity.MainThreadInvoker.Enqueue(OnLatePreRenderRebuildComplete);
+                BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(OnLatePreRenderRebuildComplete);
         }
     }
 }

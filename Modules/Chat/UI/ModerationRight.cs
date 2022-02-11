@@ -5,12 +5,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace BeatSaberPlus.Modules.Chat.UI
+namespace BeatSaberPlus_Chat.UI
 {
     /// <summary>
     /// Moderation right screen
     /// </summary>
-    internal class ModerationRight : SDK.UI.ResourceViewController<ModerationRight>
+    internal class ModerationRight : BeatSaberPlus.SDK.UI.ResourceViewController<ModerationRight>
     {
         /// <summary>
         /// User line per page
@@ -27,7 +27,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
         private Button m_UsersUpButton = null;
         [UIObject("UsersList")]
         private GameObject m_UsersListView = null;
-        private SDK.UI.DataSource.SimpleTextList m_UsersList = null;
+        private BeatSaberPlus.SDK.UI.DataSource.SimpleTextList m_UsersList = null;
         [UIComponent("UsersDownButton")]
         private Button m_UsersDownButton = null;
 #pragma warning restore CS0649
@@ -56,12 +56,28 @@ namespace BeatSaberPlus.Modules.Chat.UI
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
+        /// Current selected user
+        /// </summary>
+        public IChatUser SelectedUser {
+            get
+            {
+                if (m_SelectedIndex == -1 || m_SelectedIndex >= m_Users.Count)
+                    return null;
+
+                return m_Users[m_SelectedIndex].Item2;
+            }
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
         /// On view creation
         /// </summary>
         protected override void OnViewCreation()
         {
             /// Update background color
-            SDK.UI.Backgroundable.SetOpacity(m_Background, 0.5f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_Background, 0.5f);
 
             /// Scale down up & down button
             m_UsersUpButton.transform.localScale   = Vector3.one * 0.5f;
@@ -71,7 +87,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
             var l_BSMLTableView = m_UsersListView.GetComponentInChildren<BSMLTableView>();
             l_BSMLTableView.SetDataSource(null, false);
             GameObject.DestroyImmediate(m_UsersListView.GetComponentInChildren<CustomListTableData>());
-            m_UsersList = l_BSMLTableView.gameObject.AddComponent<SDK.UI.DataSource.SimpleTextList>();
+            m_UsersList = l_BSMLTableView.gameObject.AddComponent<BeatSaberPlus.SDK.UI.DataSource.SimpleTextList>();
             m_UsersList.TableViewInstance = l_BSMLTableView;
             l_BSMLTableView.SetDataSource(m_UsersList, false);
 
@@ -213,9 +229,9 @@ namespace BeatSaberPlus.Modules.Chat.UI
             }
 
             ShowConfirmationModal($"Do you really want to <b>TimeOut</b> user\n{m_Users[m_SelectedIndex].Item2.DisplayName}?", () => {
-                foreach (var l_Current in SDK.Chat.Service.Multiplexer.Channels)
+                foreach (var l_Current in BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels)
                 {
-                    if (l_Current.Item1 is SDK.Chat.Services.Twitch.TwitchService)
+                    if (l_Current.Item1 is BeatSaberPlus.SDK.Chat.Services.Twitch.TwitchService)
                         l_Current.Item1.SendTextMessage(l_Current.Item2, $"/timeout {m_Users[m_SelectedIndex].Item2.UserName}");
                 }
             });
@@ -233,9 +249,9 @@ namespace BeatSaberPlus.Modules.Chat.UI
             }
 
             ShowConfirmationModal($"Do you really want to <b>Ban</b> user\n{m_Users[m_SelectedIndex].Item2.DisplayName}?", () => {
-                foreach (var l_Current in SDK.Chat.Service.Multiplexer.Channels)
+                foreach (var l_Current in BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels)
                 {
-                    if (l_Current.Item1 is SDK.Chat.Services.Twitch.TwitchService)
+                    if (l_Current.Item1 is BeatSaberPlus.SDK.Chat.Services.Twitch.TwitchService)
                         l_Current.Item1.SendTextMessage(l_Current.Item2, $"/ban {m_Users[m_SelectedIndex].Item2.UserName}");
                 }
             });
@@ -253,9 +269,9 @@ namespace BeatSaberPlus.Modules.Chat.UI
             }
 
             ShowConfirmationModal($"Do you really want to <b>Mod</b> user\n{m_Users[m_SelectedIndex].Item2.DisplayName}?", () => {
-                foreach (var l_Current in SDK.Chat.Service.Multiplexer.Channels)
+                foreach (var l_Current in BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels)
                 {
-                    if (l_Current.Item1 is SDK.Chat.Services.Twitch.TwitchService)
+                    if (l_Current.Item1 is BeatSaberPlus.SDK.Chat.Services.Twitch.TwitchService)
                         l_Current.Item1.SendTextMessage(l_Current.Item2, $"/mod {m_Users[m_SelectedIndex].Item2.UserName}");
                 }
             });
@@ -273,9 +289,9 @@ namespace BeatSaberPlus.Modules.Chat.UI
             }
 
             ShowConfirmationModal($"Do you really want to <b>UnMod</b> user\n{m_Users[m_SelectedIndex].Item2.DisplayName}?", () => {
-                foreach (var l_Current in SDK.Chat.Service.Multiplexer.Channels)
+                foreach (var l_Current in BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels)
                 {
-                    if (l_Current.Item1 is SDK.Chat.Services.Twitch.TwitchService)
+                    if (l_Current.Item1 is BeatSaberPlus.SDK.Chat.Services.Twitch.TwitchService)
                         l_Current.Item1.SendTextMessage(l_Current.Item2, $"/unmod {m_Users[m_SelectedIndex].Item2.UserName}");
                 }
             });
@@ -295,7 +311,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
             string l_Text = "<align=\"left\">[" + p_Item.Item1.DisplayName + "] ";
 
             /// Handle request limits
-            if (p_Item.Item2 is SDK.Chat.Models.Twitch.TwitchUser l_TwitchUser)
+            if (p_Item.Item2 is BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchUser l_TwitchUser)
             {
                 if (l_TwitchUser.IsModerator || l_TwitchUser.IsBroadcaster)
                     l_Text += "🗡 <color=yellow>";

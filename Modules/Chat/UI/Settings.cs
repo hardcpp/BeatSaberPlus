@@ -2,12 +2,12 @@
 using BeatSaberMarkupLanguage.Components.Settings;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.Chat.UI
+namespace BeatSaberPlus_Chat.UI
 {
     /// <summary>
     /// Stream chat settings view
     /// </summary>
-    internal class Settings : SDK.UI.ResourceViewController<Settings>
+    internal class Settings : BeatSaberPlus.SDK.UI.ResourceViewController<Settings>
     {
 #pragma warning disable CS0649
         [UIComponent("chat-width")]
@@ -55,18 +55,25 @@ namespace BeatSaberPlus.Modules.Chat.UI
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic));
 
             /// Left
-            SDK.UI.IncrementSetting.Setup(m_ChatWidth,         l_Event, null,                                   Config.Chat.ChatWidth,          true);
-            SDK.UI.IncrementSetting.Setup(m_ChatHeight,        l_Event, null,                                   Config.Chat.ChatHeight,         true);
-            SDK.UI.ToggleSetting.Setup(m_ChatReverse,          l_Event,                                         Config.Chat.ReverseChatOrder,   true);
-            SDK.UI.IncrementSetting.Setup(m_ChatOpacity,       l_Event, SDK.UI.BSMLSettingFormartter.Percentage, Config.Chat.BackgroundA,        true);
-            SDK.UI.IncrementSetting.Setup(m_ChatFontSize,      l_Event, null,                                   Config.Chat.FontSize,           true);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_ChatWidth,         l_Event, null,                                                     CConfig.Instance.ChatSize.x,         true);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_ChatHeight,        l_Event, null,                                                     CConfig.Instance.ChatSize.y,         true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_ChatReverse,          l_Event,                                                           CConfig.Instance.ReverseChatOrder,   true);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_ChatOpacity,       l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Percentage,    CConfig.Instance.BackgroundColor.a,  true);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_ChatFontSize,      l_Event, null,                                                     CConfig.Instance.FontSize,           true);
 
             /// Right
-            SDK.UI.ColorSetting.Setup(m_ChatBackgroundColor,   l_Event,        Config.Chat.BackgroundColor,    true);
-            SDK.UI.ColorSetting.Setup(m_ChatHighlightColor,    l_Event,        Config.Chat.HighlightColor,     true);
-            SDK.UI.ColorSetting.Setup(m_ChatAccentColor,       l_Event,        Config.Chat.AccentColor,        true);
-            SDK.UI.ColorSetting.Setup(m_ChatTextColor,         l_Event,        Config.Chat.TextColor,          true);
-            SDK.UI.ColorSetting.Setup(m_ChatPingColor,         l_Event,        Config.Chat.PingColor,          true);
+            BeatSaberPlus.SDK.UI.ColorSetting.Setup(m_ChatBackgroundColor,   l_Event,        CConfig.Instance.BackgroundColor,    true);
+            BeatSaberPlus.SDK.UI.ColorSetting.Setup(m_ChatHighlightColor,    l_Event,        CConfig.Instance.HighlightColor,     true);
+            BeatSaberPlus.SDK.UI.ColorSetting.Setup(m_ChatAccentColor,       l_Event,        CConfig.Instance.AccentColor,        true);
+            BeatSaberPlus.SDK.UI.ColorSetting.Setup(m_ChatTextColor,         l_Event,        CConfig.Instance.TextColor,          true);
+            BeatSaberPlus.SDK.UI.ColorSetting.Setup(m_ChatPingColor,         l_Event,        CConfig.Instance.PingColor,          true);
+        }
+        /// <summary>
+        /// On view deactivation
+        /// </summary>
+        protected override sealed void OnViewDeactivation()
+        {
+            CConfig.Instance.Save();
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -82,29 +89,17 @@ namespace BeatSaberPlus.Modules.Chat.UI
                 return;
 
             /// Update config
-            Config.Chat.ChatWidth        = (int)m_ChatWidth.Value;
-            Config.Chat.ChatHeight       = (int)m_ChatHeight.Value;
-            Config.Chat.ReverseChatOrder = m_ChatReverse.Value;
-            Config.Chat.FontSize         = m_ChatFontSize.Value;
-            Config.Chat.BackgroundR      = m_ChatBackgroundColor.CurrentColor.r;
-            Config.Chat.BackgroundG      = m_ChatBackgroundColor.CurrentColor.g;
-            Config.Chat.BackgroundB      = m_ChatBackgroundColor.CurrentColor.b;
-            Config.Chat.BackgroundA      = m_ChatOpacity.Value;
-            Config.Chat.HighlightR       = m_ChatHighlightColor.CurrentColor.r;
-            Config.Chat.HighlightG       = m_ChatHighlightColor.CurrentColor.g;
-            Config.Chat.HighlightB       = m_ChatHighlightColor.CurrentColor.b;
-            Config.Chat.AccentR          = m_ChatAccentColor.CurrentColor.r;
-            Config.Chat.AccentG          = m_ChatAccentColor.CurrentColor.g;
-            Config.Chat.AccentB          = m_ChatAccentColor.CurrentColor.b;
-            Config.Chat.TextR            = m_ChatTextColor.CurrentColor.r;
-            Config.Chat.TextG            = m_ChatTextColor.CurrentColor.g;
-            Config.Chat.TextB            = m_ChatTextColor.CurrentColor.b;
-            Config.Chat.PingR            = m_ChatPingColor.CurrentColor.r;
-            Config.Chat.PingG            = m_ChatPingColor.CurrentColor.g;
-            Config.Chat.PingB            = m_ChatPingColor.CurrentColor.b;
+            CConfig.Instance.ChatSize         = new Vector2((int)m_ChatWidth.Value, (int)m_ChatHeight.Value);
+            CConfig.Instance.ReverseChatOrder = m_ChatReverse.Value;
+            CConfig.Instance.FontSize         = m_ChatFontSize.Value;
+            CConfig.Instance.BackgroundColor  = m_ChatBackgroundColor.CurrentColor.ColorWithAlpha(m_ChatOpacity.Value);
+            CConfig.Instance.HighlightColor   = m_ChatHighlightColor.CurrentColor;
+            CConfig.Instance.AccentColor      = m_ChatAccentColor.CurrentColor;
+            CConfig.Instance.TextColor        = m_ChatTextColor.CurrentColor;
+            CConfig.Instance.PingColor        = m_ChatPingColor.CurrentColor;
 
             /// Update floating view
-            Chat.Instance.UpdateFloatingWindow(SDK.Game.Logic.ActiveScene, false);
+            Chat.Instance.UpdateFloatingWindow(BeatSaberPlus.SDK.Game.Logic.ActiveScene, false);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -118,18 +113,18 @@ namespace BeatSaberPlus.Modules.Chat.UI
             m_PreventChanges = true;
 
             /// Set values
-            m_ChatWidth.Value       = Config.Chat.ChatWidth;
-            m_ChatHeight.Value      = Config.Chat.ChatHeight;
-            m_ChatReverse.Value     = Config.Chat.ReverseChatOrder;
-            m_ChatOpacity.Value     = Config.Chat.BackgroundA;
-            m_ChatFontSize.Value    = Config.Chat.FontSize;
+            m_ChatWidth.Value       = CConfig.Instance.ChatSize.x;
+            m_ChatHeight.Value      = CConfig.Instance.ChatSize.y;
+            m_ChatReverse.Value     = CConfig.Instance.ReverseChatOrder;
+            m_ChatOpacity.Value     = CConfig.Instance.BackgroundColor.a;
+            m_ChatFontSize.Value    = CConfig.Instance.FontSize;
 
             /// Set values
-            m_ChatBackgroundColor.CurrentColor  = new Color(Config.Chat.BackgroundR,    Config.Chat.BackgroundG,    Config.Chat.BackgroundB, 1f);
-            m_ChatHighlightColor.CurrentColor   = new Color(Config.Chat.HighlightR,     Config.Chat.HighlightG,     Config.Chat.HighlightB,  1f);
-            m_ChatAccentColor.CurrentColor      = new Color(Config.Chat.AccentR,        Config.Chat.AccentG,        Config.Chat.AccentB,     1f);
-            m_ChatTextColor.CurrentColor        = new Color(Config.Chat.TextR,          Config.Chat.TextG,          Config.Chat.TextB,       1f);
-            m_ChatPingColor.CurrentColor        = new Color(Config.Chat.PingR,          Config.Chat.PingG,          Config.Chat.PingB,       1f);
+            m_ChatBackgroundColor.CurrentColor  = CConfig.Instance.BackgroundColor.ColorWithAlpha(1f);
+            m_ChatHighlightColor.CurrentColor   = CConfig.Instance.HighlightColor.ColorWithAlpha(1f);
+            m_ChatAccentColor.CurrentColor      = CConfig.Instance.AccentColor.ColorWithAlpha(1f);
+            m_ChatTextColor.CurrentColor        = CConfig.Instance.TextColor.ColorWithAlpha(1f);
+            m_ChatPingColor.CurrentColor        = CConfig.Instance.PingColor.ColorWithAlpha(1f);
 
             m_PreventChanges = false;
         }

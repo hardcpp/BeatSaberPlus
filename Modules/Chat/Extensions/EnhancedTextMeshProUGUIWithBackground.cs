@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace BeatSaberPlus.Modules.Chat.Extensions
+namespace BeatSaberPlus_Chat.Extensions
 {
     /// <summary>
     /// Enhanced text mesh pro UGUI with background support
@@ -99,7 +99,7 @@ namespace BeatSaberPlus.Modules.Chat.Extensions
         {
             /// Prepare highlight
             m_Highlight = gameObject.AddComponent<Image>();
-            m_Highlight.material = SDK.Unity.Material.UINoGlowMaterial;
+            m_Highlight.material = BeatSaberPlus.SDK.Unity.Material.UINoGlowMaterial;
 
             RectTranform.anchorMin  = Vector2.one * 0.5f;
             RectTranform.anchorMax  = Vector2.one * 0.5f;
@@ -128,7 +128,7 @@ namespace BeatSaberPlus.Modules.Chat.Extensions
             /// Accent image
             m_Accent = new GameObject().AddComponent<Image>();
             DontDestroyOnLoad(m_Accent.gameObject);
-            m_Accent.material   = SDK.Unity.Material.UINoGlowMaterial;
+            m_Accent.material   = BeatSaberPlus.SDK.Unity.Material.UINoGlowMaterial;
             m_Accent.color      = Color.white;
 
             /// Disable all sub element by default

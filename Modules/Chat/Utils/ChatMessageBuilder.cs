@@ -9,7 +9,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace BeatSaberPlus.Modules.Chat.Utils
+namespace BeatSaberPlus_Chat.Utils
 {
     /*
        Code from https://github.com/brian91292/EnhancedStreamChat-v3
@@ -49,7 +49,7 @@ namespace BeatSaberPlus.Modules.Chat.Utils
         /// <param name="p_Font">The font to register these images to</param>
         public static bool PrepareImages(IChatMessage p_Message, Extensions.EnhancedFontInfo p_Font)
         {
-            var l_Tasks                 = new List<Task<SDK.Unity.EnhancedImage>>();
+            var l_Tasks                 = new List<Task<BeatSaberPlus.SDK.Unity.EnhancedImage>>();
             var l_PendingEmoteDownloads = new HashSet<string>();
 
             foreach (var l_Emote in p_Message.Emotes)
@@ -61,12 +61,12 @@ namespace BeatSaberPlus.Modules.Chat.Utils
                 {
                     l_PendingEmoteDownloads.Add(l_Emote.Id);
 
-                    var l_TaskCompletionSource = new TaskCompletionSource<SDK.Unity.EnhancedImage>();
+                    var l_TaskCompletionSource = new TaskCompletionSource<BeatSaberPlus.SDK.Unity.EnhancedImage>();
 
                     switch (l_Emote.Type)
                     {
                         case EmoteType.SingleImage:
-                           SDK.Chat.ImageProvider.TryCacheSingleImage(l_Emote.Id, l_Emote.Uri, l_Emote.Animation, (l_Info) => {
+                            BeatSaberPlus.SDK.Chat.ImageProvider.TryCacheSingleImage(EChatResourceCategory.Emote, l_Emote.Id, l_Emote.Uri, l_Emote.Animation, (l_Info) => {
                                 if (l_Info != null && !p_Font.TryRegisterImageInfo(l_Info, out var l_Character))
                                     Logger.Instance.Warn($"Failed to register emote \"{l_Emote.Id}\" in font {p_Font.Font.name}.");
 
@@ -75,7 +75,7 @@ namespace BeatSaberPlus.Modules.Chat.Utils
                             break;
 
                         case EmoteType.SpriteSheet:
-                            SDK.Chat.ImageProvider.TryCacheSpriteSheetImage(l_Emote.Id, l_Emote.Uri, l_Emote.UVs, (l_Info) =>
+                            BeatSaberPlus.SDK.Chat.ImageProvider.TryCacheSpriteSheetImage(EChatResourceCategory.Emote, l_Emote.Id, l_Emote.Uri, l_Emote.UVs, (l_Info) =>
                             {
                                 if (l_Info != null && !p_Font.TryRegisterImageInfo(l_Info, out var l_Character))
                                     Logger.Instance.Warn($"Failed to register emote \"{l_Emote.Id}\" in font {p_Font.Font.name}.");
@@ -101,9 +101,9 @@ namespace BeatSaberPlus.Modules.Chat.Utils
                 if (!p_Font.HasReplaceCharacter(l_Badge.Id))
                 {
                     l_PendingEmoteDownloads.Add(l_Badge.Id);
-                    var l_TaskCompletionSource = new TaskCompletionSource<SDK.Unity.EnhancedImage>();
+                    var l_TaskCompletionSource = new TaskCompletionSource<BeatSaberPlus.SDK.Unity.EnhancedImage>();
 
-                    SDK.Chat.ImageProvider.TryCacheSingleImage(l_Badge.Id, l_Badge.Uri, SDK.Animation.AnimationType.NONE, (p_Info) => {
+                    BeatSaberPlus.SDK.Chat.ImageProvider.TryCacheSingleImage(EChatResourceCategory.Badge, l_Badge.Id, l_Badge.Uri, BeatSaberPlus.SDK.Animation.AnimationType.NONE, (p_Info) => {
                         if (p_Info != null && !p_Font.TryRegisterImageInfo(p_Info, out var l_Character))
                             Logger.Instance.Warn($"Failed to register badge \"{l_Badge.Id}\" in font {p_Font.Font.name}.");
 
@@ -132,10 +132,10 @@ namespace BeatSaberPlus.Modules.Chat.Utils
                 if (!PrepareImages(p_Message, p_Font))
                     Logger.Instance.Warn($"Failed to prepare some/all images for msg \"{p_Message.Message}\"!");
 
-                ConcurrentStack<SDK.Unity.EnhancedImage> l_Badges = new ConcurrentStack<SDK.Unity.EnhancedImage>();
+                ConcurrentStack<BeatSaberPlus.SDK.Unity.EnhancedImage> l_Badges = new ConcurrentStack<BeatSaberPlus.SDK.Unity.EnhancedImage>();
                 foreach (var l_Badge in p_Message.Sender.Badges)
                 {
-                    if (!SDK.Chat.ImageProvider.CachedImageInfo.TryGetValue(l_Badge.Id, out var l_BadgeInfo))
+                    if (!BeatSaberPlus.SDK.Chat.ImageProvider.CachedImageInfo.TryGetValue(l_Badge.Id, out var l_BadgeInfo))
                     {
                         Logger.Instance.Warn($"Failed to find cached image info for badge \"{l_Badge.Id}\"!");
                         continue;
@@ -149,7 +149,7 @@ namespace BeatSaberPlus.Modules.Chat.Utils
 
                 foreach (var l_Emote in p_Message.Emotes)
                 {
-                    if (!SDK.Chat.ImageProvider.CachedImageInfo.TryGetValue(l_Emote.Id, out var l_ImageInfo))
+                    if (!BeatSaberPlus.SDK.Chat.ImageProvider.CachedImageInfo.TryGetValue(l_Emote.Id, out var l_ImageInfo))
                     {
                         Logger.Instance.Warn($"Emote {l_Emote.Name} was missing from the emote dict! The request to {l_Emote.Uri} may have timed out?");
                         continue;
@@ -198,11 +198,11 @@ namespace BeatSaberPlus.Modules.Chat.Utils
                         if (l_IsRtl)
                         {
                             l_StringBuilder.Insert(0, $"<color={p_Message.Sender.Color}>");
-                            l_StringBuilder.Append(" <b>{p_Message.Sender.DisplayName}</b> </color>");
+                            l_StringBuilder.Append($" <b>{p_Message.Sender.PaintedName}</b> </color>");
                         }
                         else
                         {
-                            l_StringBuilder.Insert(0, $"<color={p_Message.Sender.Color}><b>{p_Message.Sender.DisplayName}</b> ");
+                            l_StringBuilder.Insert(0, $"<color={p_Message.Sender.Color}><b>{p_Message.Sender.PaintedName}</b> ");
                             l_StringBuilder.Append("</color>");
                         }
                     }
@@ -210,9 +210,9 @@ namespace BeatSaberPlus.Modules.Chat.Utils
                     else
                     {
                         if (l_IsRtl)
-                            l_StringBuilder.Append($" :<color={p_Message.Sender.Color}><b>{p_Message.Sender.DisplayName}</b></color> ");
+                            l_StringBuilder.Append($" :<color={p_Message.Sender.Color}><b>{p_Message.Sender.PaintedName}</b></color> ");
                         else
-                            l_StringBuilder.Insert(0, $"<color={p_Message.Sender.Color}><b>{p_Message.Sender.DisplayName}</b></color>: ");
+                            l_StringBuilder.Insert(0, $"<color={p_Message.Sender.Color}><b>{p_Message.Sender.PaintedName}</b></color>: ");
                     }
 
                     if (l_IsRtl)

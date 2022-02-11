@@ -8,9 +8,9 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace BeatSaberPlus.Modules.Chat.UI
+namespace BeatSaberPlus_Chat.UI
 {
-    internal class ModerationShortcut : SDK.UI.ResourceViewController<ModerationShortcut>
+    internal class ModerationShortcut : BeatSaberPlus.SDK.UI.ResourceViewController<ModerationShortcut>
     {
         /// <summary>
         /// Event line per page
@@ -27,7 +27,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
         private GameObject m_Shortcut_Background = null;
         [UIObject("ShortcutList")]
         private GameObject m_ShortcutListView = null;
-        private SDK.UI.DataSource.SimpleTextList m_ShortcutList = null;
+        private BeatSaberPlus.SDK.UI.DataSource.SimpleTextList m_ShortcutList = null;
         [UIComponent("ShortcutDownButton")]
         private Button m_ShortcutDownButton = null;
 
@@ -63,8 +63,8 @@ namespace BeatSaberPlus.Modules.Chat.UI
         protected override void OnViewCreation()
         {
             /// Update background color
-            SDK.UI.Backgroundable.SetOpacity(m_Shortcut_Background, 0.5f);
-            SDK.UI.ModalView.SetOpacity(m_NewKeyboard.modalView, 0.75f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_Shortcut_Background, 0.5f);
+            BeatSaberPlus.SDK.UI.ModalView.SetOpacity(m_NewKeyboard.modalView, 0.75f);
 
             /// Scale down up & down button
             m_ShortcutUpButton.transform.localScale   = Vector3.one * 0.5f;
@@ -74,7 +74,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
             var l_BSMLTableView = m_ShortcutListView.GetComponentInChildren<BSMLTableView>();
             l_BSMLTableView.SetDataSource(null, false);
             GameObject.DestroyImmediate(m_ShortcutListView.GetComponentInChildren<CustomListTableData>());
-            m_ShortcutList = l_BSMLTableView.gameObject.AddComponent<SDK.UI.DataSource.SimpleTextList>();
+            m_ShortcutList = l_BSMLTableView.gameObject.AddComponent<BeatSaberPlus.SDK.UI.DataSource.SimpleTextList>();
             m_ShortcutList.TableViewInstance = l_BSMLTableView;
             m_ShortcutList.CellSizeValue = 4.8f;
             l_BSMLTableView.didSelectCellWithIdxEvent += OnShortcutSelected;
@@ -85,7 +85,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
             m_ShortcutDownButton.onClick.AddListener(OnPageDownPressed);
 
             /// Build the shortcut list
-            m_FilteredList = Config.Chat.ModerationKeys.Split(new string[] { Config.Chat.s_ModerationKeyDefault_Split }, System.StringSplitOptions.RemoveEmptyEntries).ToList();
+            m_FilteredList = new List<string>(CConfig.Instance.ModerationKeys);
         }
         /// <summary>
         /// On view activation
@@ -101,7 +101,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
         /// </summary>
         protected override void OnViewDeactivation()
         {
-            Config.Chat.ModerationKeys = string.Join(Config.Chat.s_ModerationKeyDefault_Split, m_FilteredList);
+            CConfig.Instance.ModerationKeys = new List<string>(m_FilteredList);
         }
 
         ////////////////////////////////////////////////////////////////////////////

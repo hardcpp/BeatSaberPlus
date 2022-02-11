@@ -13,12 +13,12 @@ using TMPro;
 using UnityEngine;
 using VRUIControls;
 
-namespace BeatSaberPlus.Modules.Chat.UI
+namespace BeatSaberPlus_Chat.UI
 {
     /// <summary>
     /// Floating window content
     /// </summary>
-    internal partial class FloatingWindow : SDK.UI.ResourceViewController<FloatingWindow>
+    internal partial class FloatingWindow : BeatSaberPlus.SDK.UI.ResourceViewController<FloatingWindow>
     {
         /// <summary>
         /// Backup message queue, keep a track of the messages if the game reload
@@ -35,7 +35,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
         /// <summary>
         /// Message pool
         /// </summary>
-        private SDK.Misc.ObjectPool<Extensions.EnhancedTextMeshProUGUIWithBackground> m_MessagePool;
+        private BeatSaberPlus.SDK.Misc.ObjectPool<Extensions.EnhancedTextMeshProUGUIWithBackground> m_MessagePool;
         /// <summary>
         /// Visible message queue
         /// </summary>
@@ -109,8 +109,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        private int m_ChatWidth;
-        private int m_ChatHeight;
+        private Vector2 m_ChatSize;
         private bool m_ReverseChatOrder;
         private float m_FontSize;
         private Color m_HighlightColor;
@@ -158,13 +157,13 @@ namespace BeatSaberPlus.Modules.Chat.UI
         protected override sealed void OnViewCreation()
         {
             /// Update background color
-            GetComponentInChildren<ImageView>().color = Config.Chat.BackgroundColor;
+            GetComponentInChildren<ImageView>().color = CConfig.Instance.BackgroundColor;
 
             /// Update message position origin
             (transform.GetChild(0).transform as RectTransform).pivot = new Vector2(0.5f, 0f);
 
             /// Setup message pool
-            m_MessagePool = new SDK.Misc.ObjectPool<Extensions.EnhancedTextMeshProUGUIWithBackground>(25,
+            m_MessagePool = new BeatSaberPlus.SDK.Misc.ObjectPool<Extensions.EnhancedTextMeshProUGUIWithBackground>(25,
                 p_Constructor: () =>
                 {
                     var l_GameObject = new GameObject();
@@ -202,10 +201,10 @@ namespace BeatSaberPlus.Modules.Chat.UI
 
                     l_Message.transform.SetParent(transform.GetChild(0).transform, false);
                     l_Message.transform.SetAsFirstSibling();
-                    l_Message.SetWidth(m_ChatWidth);
+                    l_Message.SetWidth(m_ChatSize.x);
                     l_Message.gameObject.SetActive(false);
 
-                    SDK.Unity.GameObject.ChangerLayerRecursive(l_Message.gameObject, LayerMask.NameToLayer("UI"));
+                    BeatSaberPlus.SDK.Unity.GameObject.ChangerLayerRecursive(l_Message.gameObject, LayerMask.NameToLayer("UI"));
 
                     UpdateMessage(l_Message);
 
@@ -245,9 +244,9 @@ namespace BeatSaberPlus.Modules.Chat.UI
             m_AllowMovement = false;
 
             /// Hide/show the lock icon
-            m_LockIcon.gameObject.SetActive(Config.Chat.ShowLockIcon);
+            m_LockIcon.gameObject.SetActive(CConfig.Instance.ShowLockIcon);
 
-            SDK.Unity.GameObject.ChangerLayerRecursive(gameObject, LayerMask.NameToLayer("UI"));
+            BeatSaberPlus.SDK.Unity.GameObject.ChangerLayerRecursive(gameObject, LayerMask.NameToLayer("UI"));
         }
         /// <summary>
         /// On view destruction
@@ -292,7 +291,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
         /// </summary>
         private void Update()
         {
-            if (m_Is360Level && Config.Chat.FollowEnvironementRotation && m_FlyingGameHUDRotation != null && m_FlyingGameHUDRotation)
+            if (m_Is360Level && CConfig.Instance.FollowEnvironementRotation && m_FlyingGameHUDRotation != null && m_FlyingGameHUDRotation)
                 transform.parent.parent.rotation = m_FlyingGameHUDRotation.transform.rotation;
         }
 
@@ -306,29 +305,28 @@ namespace BeatSaberPlus.Modules.Chat.UI
         /// <param name="p_OnSceneChange">Is the scene changed ?</param>
         /// <param name="p_Is360Level">Is a 360 level</param>
         /// <param name="p_FlyingGameHUDRotation">Flying hame HUD rotation</param>
-        internal void UpdateUI(SDK.Game.Logic.SceneType p_Scene, bool p_OnSceneChange, bool p_Is360Level, GameObject p_FlyingGameHUDRotation)
+        internal void UpdateUI(BeatSaberPlus.SDK.Game.Logic.SceneType p_Scene, bool p_OnSceneChange, bool p_Is360Level, GameObject p_FlyingGameHUDRotation)
         {
             /// Disable settings in play mode
-            m_SettingsIcon.gameObject.SetActive(p_Scene != SDK.Game.Logic.SceneType.Playing);
+            m_SettingsIcon.gameObject.SetActive(p_Scene != BeatSaberPlus.SDK.Game.Logic.SceneType.Playing);
 
             /// On scene change, lock movement
             if (p_OnSceneChange)
                 m_AllowMovement = false;
 
             /// Update background color
-            GetComponentInChildren<ImageView>().color = Config.Chat.BackgroundColor;
+            GetComponentInChildren<ImageView>().color = CConfig.Instance.BackgroundColor;
 
-            m_ChatWidth         = Config.Chat.ChatWidth;
-            m_ChatHeight        = Config.Chat.ChatHeight;
-            m_ReverseChatOrder  = Config.Chat.ReverseChatOrder;
-            m_FontSize          = Config.Chat.FontSize;
-            m_HighlightColor    = Config.Chat.HighlightColor;
-            m_AccentColor       = Config.Chat.AccentColor;
-            m_TextColor         = Config.Chat.TextColor;
-            m_PingColor         = Config.Chat.PingColor;
+            m_ChatSize          = CConfig.Instance.ChatSize;
+            m_ReverseChatOrder  = CConfig.Instance.ReverseChatOrder;
+            m_FontSize          = CConfig.Instance.FontSize;
+            m_HighlightColor    = CConfig.Instance.HighlightColor;
+            m_AccentColor       = CConfig.Instance.AccentColor;
+            m_TextColor         = CConfig.Instance.TextColor;
+            m_PingColor         = CConfig.Instance.PingColor;
 
-            m_FilterViewersCommands     = Config.Chat.FilterViewersCommands;
-            m_FilterBroadcasterCommands = Config.Chat.FilterBroadcasterCommands;
+            m_FilterViewersCommands     = CConfig.Instance.FilterViewersCommands;
+            m_FilterBroadcasterCommands = CConfig.Instance.FilterBroadcasterCommands;
 
             m_Is360Level            = p_Is360Level;
             m_FlyingGameHUDRotation = p_FlyingGameHUDRotation;
@@ -339,7 +337,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
             UpdateMessages();
 
             /// Hide/show the lock icon
-            m_LockIcon.gameObject.SetActive(Config.Chat.ShowLockIcon);
+            m_LockIcon.gameObject.SetActive(CConfig.Instance.ShowLockIcon);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -366,7 +364,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
         /// <param name="p_NewMessage">Message to add</param>
         private void AddMessage(Extensions.EnhancedTextMeshProUGUIWithBackground p_NewMessage)
         {
-            p_NewMessage.transform.localPosition = new Vector3(0, m_ReverseChatOrder ? m_ChatHeight : 0);
+            p_NewMessage.transform.localPosition = new Vector3(0, m_ReverseChatOrder ? m_ChatSize.y : 0);
 
             m_Messages.Add(p_NewMessage);
             UpdateMessage(p_NewMessage);
@@ -375,7 +373,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
             {
                 var l_Current = m_Messages[l_I];
                 if ((m_ReverseChatOrder && l_Current.transform.localPosition.y < 0 - (l_Current.transform as RectTransform).sizeDelta.y)
-                    || l_Current.transform.localPosition.y >= m_ChatHeight)
+                    || l_Current.transform.localPosition.y >= m_ChatSize.y)
                 {
                     m_Messages.Remove(l_Current);
                     m_MessagePool.Free(l_Current);
@@ -405,7 +403,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
         /// <param name="p_SetAllDirty">Should flag childs dirty</param>
         private void UpdateMessage(Extensions.EnhancedTextMeshProUGUIWithBackground p_Message, bool p_SetAllDirty = false)
         {
-            p_Message.SetWidth(m_ChatWidth);
+            p_Message.SetWidth(m_ChatSize.x);
 
             p_Message.Text.color        = m_TextColor;
             p_Message.Text.fontSize     = m_FontSize;
@@ -471,7 +469,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
                 yield return m_WaitUntilMessagePositionsNeedUpdate;
                 yield return m_WaitForEndOfFrame;
 
-                float l_PositionY = m_ReverseChatOrder ? m_ChatHeight : 0;
+                float l_PositionY = m_ReverseChatOrder ? m_ChatSize.y : 0;
 
                 for (int l_I = (m_Messages.Count - 1); l_I >= 0; --l_I)
                 {
@@ -517,7 +515,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
             }
 
             TMP_FontAsset   l_Font      = null;
-            string          l_FontName  = Config.Chat.SystemFontName;
+            string          l_FontName  = CConfig.Instance.SystemFontName;
 
             if (!FontManager.TryGetTMPFontByFamily(l_FontName, out l_Font))
             {
@@ -528,7 +526,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
                     Logger.Instance.Error($"Could not find font {l_FontName}!");
             }
 
-            l_Font.material.shader  = SDK.Unity.Shader.TMPNoGlowFontShader;
+            l_Font.material.shader  = BeatSaberPlus.SDK.Unity.Shader.TMPNoGlowFontShader;
             m_ChatFont              = new Extensions.EnhancedFontInfo(BeatSaberUI.CreateFixedUIFontClone(l_Font));
 
             /// Clean reserved characters

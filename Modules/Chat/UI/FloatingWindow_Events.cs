@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.Chat.UI
+namespace BeatSaberPlus_Chat.UI
 {
     /// <summary>
     /// Floating window content
@@ -18,7 +18,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
         {
             var l_MessageStr = $"<color=#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] {p_Message}</color>";
 
-            SDK.Unity.MainThreadInvoker.Enqueue(() =>
+            BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() =>
             {
                 var l_NewMessage = m_MessagePool.Alloc();
                 l_NewMessage.Text.text          = l_MessageStr;
@@ -37,7 +37,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
         {
             var l_MessageStr = $"<color=#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] Success connecting to <b>{p_Service.DisplayName}</b></color>";
 
-            SDK.Unity.MainThreadInvoker.Enqueue(() =>
+            BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() =>
             {
                 var l_NewMessage = m_MessagePool.Alloc();
                 l_NewMessage.Text.text          = l_MessageStr;
@@ -57,7 +57,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
         {
             var l_MessageStr = $"<color=#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] Success joining <b>{p_Channel.Name}</b></color>";
 
-            SDK.Unity.MainThreadInvoker.Enqueue(() =>
+            BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() =>
             {
                 var l_NewMessage = m_MessagePool.Alloc();
                 l_NewMessage.Text.text          = l_MessageStr;
@@ -77,7 +77,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
         {
             var l_MessageStr = $"<color=#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] Success leaving <b>{p_Channel.Name}</b></color>";
 
-            SDK.Unity.MainThreadInvoker.Enqueue(() =>
+            BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() =>
             {
                 var l_NewMessage = m_MessagePool.Alloc();
                 l_NewMessage.Text.text          = l_MessageStr;
@@ -96,12 +96,12 @@ namespace BeatSaberPlus.Modules.Chat.UI
         /// <param name="p_User">User instance</param>
         internal void OnChannelFollow(IChatService p_Service, IChatChannel p_Channel, IChatUser p_User)
         {
-            if (!Config.Chat.ShowFollowEvents)
+            if (!CConfig.Instance.ShowFollowEvents)
                 return;
 
-            var l_MessageStr = $"<color=#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] <b><color={p_User.Color}>@{p_User.DisplayName}</color></b> is now following <b><color={p_User.Color}>{p_Channel.Name}</color></b></color>";
+            var l_MessageStr = $"<color=#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] <b><color={p_User.Color}>@{p_User.PaintedName}</color></b> is now following <b><color={p_User.Color}>{p_Channel.Name}</color></b></color>";
 
-            SDK.Unity.MainThreadInvoker.Enqueue(() =>
+            BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() =>
             {
                 var l_NewMessage = m_MessagePool.Alloc();
                 l_NewMessage.Text.text          = l_MessageStr;
@@ -121,12 +121,12 @@ namespace BeatSaberPlus.Modules.Chat.UI
         /// <param name="p_BitsUsed">Bits used</param>
         internal void OnChannelBits(IChatService p_Service, IChatChannel p_Channel, IChatUser p_User, int p_BitsUsed)
         {
-            if (!Config.Chat.ShowBitsCheeringEvents)
+            if (!CConfig.Instance.ShowBitsCheeringEvents)
                 return;
 
-            var l_MessageStr = $"<color=#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] <b><color={p_User.Color}>@{p_User.DisplayName}</color></b> cheered <b>{p_BitsUsed}</b> bits!</color>";
+            var l_MessageStr = $"<color=#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] <b><color={p_User.Color}>@{p_User.PaintedName}</color></b> cheered <b>{p_BitsUsed}</b> bits!</color>";
 
-            SDK.Unity.MainThreadInvoker.Enqueue(() =>
+            BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() =>
             {
                 var l_NewMessage = m_MessagePool.Alloc();
                 l_NewMessage.Text.text          = l_MessageStr;
@@ -146,14 +146,14 @@ namespace BeatSaberPlus.Modules.Chat.UI
         /// <param name="p_Event">Event</param>
         internal void OnChannelPoints(IChatService p_Service, IChatChannel p_Channel, IChatUser p_User, IChatChannelPointEvent p_Event)
         {
-            if (!Config.Chat.ShowChannelPointsEvent)
+            if (!CConfig.Instance.ShowChannelPointsEvent)
                 return;
 
             if (!m_ChatFont.HasReplaceCharacter("TwitchChannelPoint_" + p_Event.Title))
             {
-                TaskCompletionSource<SDK.Unity.EnhancedImage> l_TaskCompletionSource = new TaskCompletionSource<SDK.Unity.EnhancedImage>();
+                TaskCompletionSource<BeatSaberPlus.SDK.Unity.EnhancedImage> l_TaskCompletionSource = new TaskCompletionSource<BeatSaberPlus.SDK.Unity.EnhancedImage>();
 
-                SDK.Chat.ImageProvider.TryCacheSingleImage("TwitchChannelPoint_" + p_Event.Title, p_Event.Image, SDK.Animation.AnimationType.NONE, (l_Info) =>
+                BeatSaberPlus.SDK.Chat.ImageProvider.TryCacheSingleImage(EChatResourceCategory.Badge, "TwitchChannelPoint_" + p_Event.Title, p_Event.Image, BeatSaberPlus.SDK.Animation.AnimationType.NONE, (l_Info) =>
                 {
                     if (l_Info != null && !m_ChatFont.TryRegisterImageInfo(l_Info, out var l_Character))
                         Logger.Instance.Warn($"Failed to register emote \"{"TwitchChannelPoint_" + p_Event.Title}\" in font {m_ChatFont.Font.name}.");
@@ -169,9 +169,9 @@ namespace BeatSaberPlus.Modules.Chat.UI
             if (m_ChatFont.TryGetReplaceCharacter("TwitchChannelPoint_" + p_Event.Title, out uint p_Character))
                 l_ImagePart = char.ConvertFromUtf32((int)p_Character);
 
-            var l_MessageStr = $"<color=#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] <color={p_User.Color}><b>@{p_User.DisplayName}</b></color> redeemed <color={p_User.Color}><b>{p_Event.Title}</b></color> {l_ImagePart} <color={p_User.Color}><b>{p_Event.Cost}</b></color>!</color>";
+            var l_MessageStr = $"<color=#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] <color={p_User.Color}><b>@{p_User.PaintedName}</b></color> redeemed <color={p_User.Color}><b>{p_Event.Title}</b></color> {l_ImagePart} <color={p_User.Color}><b>{p_Event.Cost}</b></color>!</color>";
 
-            SDK.Unity.MainThreadInvoker.Enqueue(() =>
+            BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() =>
             {
                 var l_NewMessage = m_MessagePool.Alloc();
                 l_NewMessage.Text.text          = l_MessageStr;
@@ -204,16 +204,16 @@ namespace BeatSaberPlus.Modules.Chat.UI
         /// <param name="p_Event">Event</param>
         internal void OnChannelSubsciption(IChatService p_Service, IChatChannel p_Channel, IChatUser p_User, IChatSubscriptionEvent p_Event)
         {
-            if (!Config.Chat.ShowSubscriptionEvents)
+            if (!CConfig.Instance.ShowSubscriptionEvents)
                 return;
 
-            var l_MessageStr = $"<color=#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] <color={p_User.Color}><b>@{p_User.DisplayName}</b></color> ";
+            var l_MessageStr = $"<color=#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] <color={p_User.Color}><b>@{p_User.PaintedName}</b></color> ";
             if (p_Event.IsGift)
                 l_MessageStr += $"gifted <color={p_User.Color}><b>{p_Event.PurchasedMonthCount}</b></color> month of <color={p_User.Color}><b>{p_Event.SubPlan}</b></color> to <color={p_User.Color}><b>@{p_Event.RecipientDisplayName}</b></color>!";
             else
                 l_MessageStr += $"did get a <color={p_User.Color}><b>{p_Event.PurchasedMonthCount}</b></color> month of <color={p_User.Color}><b>{p_Event.SubPlan}</b></color>!";
 
-            SDK.Unity.MainThreadInvoker.Enqueue(() =>
+            BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() =>
             {
                 var l_NewMessage = m_MessagePool.Alloc();
                 l_NewMessage.Text.text          = l_MessageStr;
@@ -233,7 +233,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
             if (p_UserID == null)
                 return;
 
-            SDK.Unity.MainThreadInvoker.Enqueue(() =>
+            BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() =>
             {
                 foreach (var l_Current in m_Messages)
                 {
@@ -254,7 +254,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
             if (p_MessageID == null)
                 return;
 
-            SDK.Unity.MainThreadInvoker.Enqueue(() =>
+            BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() =>
             {
                 foreach (var l_Current in m_Messages)
                 {
@@ -276,8 +276,8 @@ namespace BeatSaberPlus.Modules.Chat.UI
             if (m_FilterViewersCommands || m_FilterBroadcasterCommands)
             {
                 bool l_IsBroadcaster = false;
-                if (p_Message.Sender is SDK.Chat.Models.Twitch.TwitchUser)
-                    l_IsBroadcaster = (p_Message.Sender as SDK.Chat.Models.Twitch.TwitchUser).IsBroadcaster;
+                if (p_Message.Sender is BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchUser)
+                    l_IsBroadcaster = (p_Message.Sender as BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchUser).IsBroadcaster;
 
                 if (m_FilterViewersCommands && !l_IsBroadcaster && p_Message.Message.StartsWith("!"))
                     return;
@@ -288,7 +288,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
 
             string l_ParsedMessage = await Utils.ChatMessageBuilder.BuildMessage(p_Message, m_ChatFont);
 
-            SDK.Unity.MainThreadInvoker.Enqueue(() =>
+            BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() =>
             {
                 if (m_LastMessage != null && !p_Message.IsSystemMessage && m_LastMessage.Text.ChatMessage != null && !string.IsNullOrEmpty(p_Message.Id) && m_LastMessage.Text.ChatMessage.Id == p_Message.Id)
                 {

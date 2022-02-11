@@ -1,12 +1,12 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components.Settings;
 
-namespace BeatSaberPlus.Modules.Chat.UI
+namespace BeatSaberPlus_Chat.UI
 {
     /// <summary>
     /// Chat filters settings
     /// </summary>
-    internal class SettingsRight : SDK.UI.ResourceViewController<SettingsRight>
+    internal class SettingsRight : BeatSaberPlus.SDK.UI.ResourceViewController<SettingsRight>
     {
 #pragma warning disable CS0649
         [UIComponent("alignwithfloor-toggle")]
@@ -54,18 +54,18 @@ namespace BeatSaberPlus.Modules.Chat.UI
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic));
 
             /// Prepare
-            SDK.UI.ToggleSetting.Setup(m_AlignWithFloor,                l_Event, Config.Chat.AlignWithFloor,                true);
-            SDK.UI.ToggleSetting.Setup(m_ShowLockIcon,                  l_Event, Config.Chat.ShowLockIcon,                  true);
-            SDK.UI.ToggleSetting.Setup(m_FollowEnvironementRotations,   l_Event, Config.Chat.FollowEnvironementRotation,    true);
-            SDK.UI.ToggleSetting.Setup(m_ChatViewerCount,               l_Event, Config.Chat.ShowViewerCount,               true);
-            SDK.UI.ToggleSetting.Setup(m_ChatFitlerViewers,             l_Event, Config.Chat.FilterViewersCommands,         true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_AlignWithFloor,                l_Event, CConfig.Instance.AlignWithFloor,                true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_ShowLockIcon,                  l_Event, CConfig.Instance.ShowLockIcon,                  true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_FollowEnvironementRotations,   l_Event, CConfig.Instance.FollowEnvironementRotation,    true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_ChatViewerCount,               l_Event, CConfig.Instance.ShowViewerCount,               true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_ChatFitlerViewers,             l_Event, CConfig.Instance.FilterViewersCommands,         true);
 
             /// Prepare
-            SDK.UI.ToggleSetting.Setup(m_FollowEvents,                  l_Event, Config.Chat.ShowFollowEvents,              true);
-            SDK.UI.ToggleSetting.Setup(m_SubscriptionEvents,            l_Event, Config.Chat.ShowSubscriptionEvents,        true);
-            SDK.UI.ToggleSetting.Setup(m_BitsCheering,                  l_Event, Config.Chat.ShowBitsCheeringEvents,        true);
-            SDK.UI.ToggleSetting.Setup(m_ChannelPoints,                 l_Event, Config.Chat.ShowChannelPointsEvent,        true);
-            SDK.UI.ToggleSetting.Setup(m_ChatFilterBroadcaster,         l_Event, Config.Chat.FilterBroadcasterCommands,     true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_FollowEvents,                  l_Event, CConfig.Instance.ShowFollowEvents,              true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_SubscriptionEvents,            l_Event, CConfig.Instance.ShowSubscriptionEvents,        true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_BitsCheering,                  l_Event, CConfig.Instance.ShowBitsCheeringEvents,        true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_ChannelPoints,                 l_Event, CConfig.Instance.ShowChannelPointsEvent,        true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_ChatFilterBroadcaster,         l_Event, CConfig.Instance.FilterBroadcasterCommands,     true);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -81,21 +81,21 @@ namespace BeatSaberPlus.Modules.Chat.UI
                 return;
 
             /// Update config
-            Config.Chat.AlignWithFloor              = m_AlignWithFloor.Value;
-            Config.Chat.ShowLockIcon                = m_ShowLockIcon.Value;
-            Config.Chat.FollowEnvironementRotation  = m_FollowEnvironementRotations.Value;
-            Config.Chat.ShowViewerCount             = m_ChatViewerCount.Value;
-            Config.Chat.FilterViewersCommands       = m_ChatFitlerViewers.Value;
+            CConfig.Instance.AlignWithFloor              = m_AlignWithFloor.Value;
+            CConfig.Instance.ShowLockIcon                = m_ShowLockIcon.Value;
+            CConfig.Instance.FollowEnvironementRotation  = m_FollowEnvironementRotations.Value;
+            CConfig.Instance.ShowViewerCount             = m_ChatViewerCount.Value;
+            CConfig.Instance.FilterViewersCommands       = m_ChatFitlerViewers.Value;
 
             /// Set values
-            Config.Chat.ShowFollowEvents            = m_FollowEvents.Value;
-            Config.Chat.ShowSubscriptionEvents      = m_SubscriptionEvents.Value;
-            Config.Chat.ShowBitsCheeringEvents      = m_BitsCheering.Value;
-            Config.Chat.ShowChannelPointsEvent      = m_ChannelPoints.Value;
-            Config.Chat.FilterBroadcasterCommands   = m_ChatFilterBroadcaster.Value;
+            CConfig.Instance.ShowFollowEvents            = m_FollowEvents.Value;
+            CConfig.Instance.ShowSubscriptionEvents      = m_SubscriptionEvents.Value;
+            CConfig.Instance.ShowBitsCheeringEvents      = m_BitsCheering.Value;
+            CConfig.Instance.ShowChannelPointsEvent      = m_ChannelPoints.Value;
+            CConfig.Instance.FilterBroadcasterCommands   = m_ChatFilterBroadcaster.Value;
 
             /// Update floating view
-            Chat.Instance.UpdateFloatingWindow(SDK.Game.Logic.ActiveScene, false);
+            Chat.Instance.UpdateFloatingWindow(BeatSaberPlus.SDK.Game.Logic.ActiveScene, false);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -109,18 +109,18 @@ namespace BeatSaberPlus.Modules.Chat.UI
             m_PreventChanges = true;
 
             /// Set values
-            m_AlignWithFloor.Value              = Config.Chat.AlignWithFloor;
-            m_ShowLockIcon.Value                = Config.Chat.ShowLockIcon;
-            m_FollowEnvironementRotations.Value = Config.Chat.FollowEnvironementRotation;
-            m_ChatViewerCount.Value             = Config.Chat.ShowViewerCount;
-            m_ChatFitlerViewers.Value           = Config.Chat.FilterViewersCommands;
+            m_AlignWithFloor.Value              = CConfig.Instance.AlignWithFloor;
+            m_ShowLockIcon.Value                = CConfig.Instance.ShowLockIcon;
+            m_FollowEnvironementRotations.Value = CConfig.Instance.FollowEnvironementRotation;
+            m_ChatViewerCount.Value             = CConfig.Instance.ShowViewerCount;
+            m_ChatFitlerViewers.Value           = CConfig.Instance.FilterViewersCommands;
 
             /// Set values
-            m_FollowEvents.Value                = Config.Chat.ShowFollowEvents;
-            m_SubscriptionEvents.Value          = Config.Chat.ShowSubscriptionEvents;
-            m_BitsCheering.Value                = Config.Chat.ShowBitsCheeringEvents;
-            m_ChannelPoints.Value               = Config.Chat.ShowChannelPointsEvent;
-            m_ChatFilterBroadcaster.Value       = Config.Chat.FilterBroadcasterCommands;
+            m_FollowEvents.Value                = CConfig.Instance.ShowFollowEvents;
+            m_SubscriptionEvents.Value          = CConfig.Instance.ShowSubscriptionEvents;
+            m_BitsCheering.Value                = CConfig.Instance.ShowBitsCheeringEvents;
+            m_ChannelPoints.Value               = CConfig.Instance.ShowChannelPointsEvent;
+            m_ChatFilterBroadcaster.Value       = CConfig.Instance.FilterBroadcasterCommands;
 
             m_PreventChanges = false;
         }

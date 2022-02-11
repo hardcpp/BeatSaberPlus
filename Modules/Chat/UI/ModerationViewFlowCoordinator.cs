@@ -1,12 +1,12 @@
 ﻿using HMUI;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.Chat.UI
+namespace BeatSaberPlus_Chat.UI
 {
     /// <summary>
     /// Moderation UI flow coordinator
     /// </summary>
-    internal class ModerationViewFlowCoordinator : SDK.UI.ViewFlowCoordinator<ModerationViewFlowCoordinator>
+    internal class ModerationViewFlowCoordinator : BeatSaberPlus.SDK.UI.ViewFlowCoordinator<ModerationViewFlowCoordinator>
     {
         /// <summary>
         /// Title

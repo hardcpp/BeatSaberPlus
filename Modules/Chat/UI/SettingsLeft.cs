@@ -2,12 +2,12 @@
 using System.Diagnostics;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.Chat.UI
+namespace BeatSaberPlus_Chat.UI
 {
     /// <summary>
     /// Stream chat credits
     /// </summary>
-    internal class SettingsLeft : SDK.UI.ResourceViewController<SettingsLeft>
+    internal class SettingsLeft : BeatSaberPlus.SDK.UI.ResourceViewController<SettingsLeft>
     {
 #pragma warning disable CS0414
         [UIObject("Background")]
@@ -32,7 +32,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
         /// </summary>
         protected override sealed void OnViewCreation()
         {
-            SDK.UI.Backgroundable.SetOpacity(m_Background, 0.5f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_Background, 0.5f);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -47,14 +47,16 @@ namespace BeatSaberPlus.Modules.Chat.UI
             ShowConfirmationModal("<color=yellow><b>Do you really want to reset all chat settings?", () =>
             {
                 /// Reset settings
-                Config.Chat.Reset();
+                CConfig.Instance.Reset();
+                CConfig.Instance.Enabled = true;
+                CConfig.Instance.Save();
 
                 /// Refresh values
                 Settings.Instance.RefreshSettings();
                 SettingsRight.Instance.RefreshSettings();
 
                 /// Update floating view
-                Chat.Instance.UpdateFloatingWindow(SDK.Game.Logic.ActiveScene, true);
+                Chat.Instance.UpdateFloatingWindow(BeatSaberPlus.SDK.Game.Logic.ActiveScene, true);
             });
         }
         /// <summary>
@@ -66,14 +68,15 @@ namespace BeatSaberPlus.Modules.Chat.UI
             ShowConfirmationModal("<color=yellow><b>Do you really want to reset chat position?", () =>
             {
                 /// Reset position settings
-                Config.Chat.ResetPosition();
+                CConfig.Instance.ResetPosition();
+                CConfig.Instance.Save();
 
                 /// Refresh values
                 Settings.Instance.RefreshSettings();
                 SettingsRight.Instance.RefreshSettings();
 
                 /// Update floating view
-                Chat.Instance.UpdateFloatingWindow(SDK.Game.Logic.ActiveScene, true);
+                Chat.Instance.UpdateFloatingWindow(BeatSaberPlus.SDK.Game.Logic.ActiveScene, true);
             });
         }
         /// <summary>
@@ -83,7 +86,7 @@ namespace BeatSaberPlus.Modules.Chat.UI
         private void OnWebConfigurationButton()
         {
             ShowMessageModal("URL opened in your desktop browser.");
-            SDK.Chat.Service.OpenWebConfigurator();
+            BeatSaberPlus.SDK.Chat.Service.OpenWebConfigurator();
         }
 
         ////////////////////////////////////////////////////////////////////////////

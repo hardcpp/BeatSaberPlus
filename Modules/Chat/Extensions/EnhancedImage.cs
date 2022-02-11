@@ -1,6 +1,6 @@
 ﻿using UnityEngine.UI;
 
-namespace BeatSaberPlus.Modules.Chat.Extensions
+namespace BeatSaberPlus_Chat.Extensions
 {
     /*
        Code from https://github.com/brian91292/EnhancedStreamChat-v3
@@ -36,6 +36,6 @@ namespace BeatSaberPlus.Modules.Chat.Extensions
         /// <summary>
         /// Animation state updater instance
         /// </summary>
-        internal SDK.Animation.AnimationStateUpdater AnimStateUpdater { get; set; } = null;
+        internal BeatSaberPlus.SDK.Animation.AnimationStateUpdater AnimStateUpdater { get; set; } = null;
     }
 }
