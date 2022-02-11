@@ -1,17 +1,17 @@
 ﻿using BeatSaberMarkupLanguage;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.NoteTweaker
+namespace BeatSaberPlus_NoteTweaker
 {
     /// <summary>
     /// NoteTweaker Module
     /// </summary>
-    internal class NoteTweaker : SDK.ModuleBase<NoteTweaker>
+    internal class NoteTweaker : BeatSaberPlus.SDK.ModuleBase<NoteTweaker>
     {
         /// <summary>
         /// Module type
         /// </summary>
-        public override SDK.IModuleBaseType Type => SDK.IModuleBaseType.Integrated;
+        public override BeatSaberPlus.SDK.IModuleBaseType Type => BeatSaberPlus.SDK.IModuleBaseType.Integrated;
         /// <summary>
         /// Name of the Module
         /// </summary>
@@ -27,11 +27,11 @@ namespace BeatSaberPlus.Modules.NoteTweaker
         /// <summary>
         /// Is enabled
         /// </summary>
-        public override bool IsEnabled { get => Config.NoteTweaker.Enabled; set => Config.NoteTweaker.Enabled = value; }
+        public override bool IsEnabled { get => NTConfig.Instance.Enabled; set { NTConfig.Instance.Enabled = value; NTConfig.Instance.Save(); } }
         /// <summary>
         /// Activation kind
         /// </summary>
-        public override SDK.IModuleBaseActivationType ActivationType => SDK.IModuleBaseActivationType.OnMenuSceneLoaded;
+        public override BeatSaberPlus.SDK.IModuleBaseActivationType ActivationType => BeatSaberPlus.SDK.IModuleBaseActivationType.OnMenuSceneLoaded;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -57,17 +57,17 @@ namespace BeatSaberPlus.Modules.NoteTweaker
         /// </summary>
         protected override void OnEnable()
         {
-            SDK.Game.Logic.OnSceneChange += OnSceneChange;
+            BeatSaberPlus.SDK.Game.Logic.OnSceneChange += OnSceneChange;
 
             /// Trigger a Set config
-            OnSceneChange(SDK.Game.Logic.SceneType.Menu);
+            OnSceneChange(BeatSaberPlus.SDK.Game.Logic.SceneType.Menu);
         }
         /// <summary>
         /// Disable the Module
         /// </summary>
         protected override void OnDisable()
         {
-            SDK.Game.Logic.OnSceneChange -= OnSceneChange;
+            BeatSaberPlus.SDK.Game.Logic.OnSceneChange -= OnSceneChange;
 
             /// Restore config
             Patches.PColorNoteVisuals.SetFromConfig(true);
@@ -105,7 +105,7 @@ namespace BeatSaberPlus.Modules.NoteTweaker
         /// When the active scene change
         /// </summary>
         /// <param name="p_Scene">New active scene</param>
-        private void OnSceneChange(SDK.Game.Logic.SceneType p_Scene)
+        private void OnSceneChange(BeatSaberPlus.SDK.Game.Logic.SceneType p_Scene)
         {
             Patches.PColorNoteVisuals.SetFromConfig(true);
             Patches.PColorNoteVisuals.SetBlockColorOverride(false, Color.black, Color.black);

@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.NoteTweaker.Patches
+namespace BeatSaberPlus_NoteTweaker.Patches
 {
     /// <summary>
     /// BombNoteController patch
@@ -49,11 +49,11 @@ namespace BeatSaberPlus.Modules.NoteTweaker.Patches
         internal static void SetFromConfig(bool p_OnSceneSwitch)
         {
             m_Enabled   = true;
-            m_Color     = Config.NoteTweaker.Enabled ? (Config.NoteTweaker.OverrideBombColor ? Config.NoteTweaker.BombColor : DEFAULT_COLOR) : DEFAULT_COLOR;
+            m_Color     = NTConfig.Instance.Enabled ? (NTConfig.Instance.OverrideBombColor ? NTConfig.Instance.BombColor : DEFAULT_COLOR) : DEFAULT_COLOR;
 
             if (m_SharedMaterial)
             {
-                if (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Playing)
+                if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Playing)
                     m_SharedMaterial.SetColor(SIMPLE_COLOR_ID, m_Color);
                 else
                     m_SharedMaterial.SetColor(SIMPLE_COLOR_ID, DEFAULT_COLOR);

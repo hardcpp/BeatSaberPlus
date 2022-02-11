@@ -3,12 +3,12 @@ using System.Linq;
 using BeatSaberMarkupLanguage.Attributes;
 using IPA.Utilities;
 
-namespace BeatSaberPlus.Modules.NoteTweaker.UI
+namespace BeatSaberPlus_NoteTweaker.UI
 {
     /// <summary>
     /// Settings right view
     /// </summary>
-    internal class SettingsRight : SDK.UI.ResourceViewController<SettingsRight>
+    internal class SettingsRight : BeatSaberPlus.SDK.UI.ResourceViewController<SettingsRight>
     {
         private GameObject m_Parent = null;
         private GameObject m_NoteTemplate = null;
@@ -115,7 +115,7 @@ namespace BeatSaberPlus.Modules.NoteTweaker.UI
         /// </summary>
         protected override void OnViewActivation()
         {
-            SDK.UI.Backgroundable.SetOpacity(m_Background, 0.5f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_Background, 0.5f);
 
             if (m_CustomPreviewTL == null || !m_CustomPreviewTL
              || m_CustomPreviewTR == null || !m_CustomPreviewTR)
@@ -184,33 +184,33 @@ namespace BeatSaberPlus.Modules.NoteTweaker.UI
              || m_CustomPreviewDR == null || !m_CustomPreviewDR)
                 return;
 
-            m_CustomPreviewTL.transform.localScale = Vector3.one * Config.NoteTweaker.Scale;
-            m_CustomPreviewTR.transform.localScale = Vector3.one * Config.NoteTweaker.Scale;
-            m_CustomPreviewDL.transform.localScale = Vector3.one * Config.NoteTweaker.Scale;
-            m_CustomPreviewDR.transform.localScale = Vector3.one * Config.NoteTweaker.Scale;
+            m_CustomPreviewTL.transform.localScale = Vector3.one * NTConfig.Instance.Scale;
+            m_CustomPreviewTR.transform.localScale = Vector3.one * NTConfig.Instance.Scale;
+            m_CustomPreviewDL.transform.localScale = Vector3.one * NTConfig.Instance.Scale;
+            m_CustomPreviewDR.transform.localScale = Vector3.one * NTConfig.Instance.Scale;
 
             var l_PlayerData    = Resources.FindObjectsOfTypeAll<PlayerDataModel>().First().playerData;
             var l_ColorScheme   = l_PlayerData.colorSchemesSettings.overrideDefaultColors ? l_PlayerData.colorSchemesSettings.GetSelectedColorScheme() : null;
             var l_LeftColor     = l_ColorScheme != null ? l_ColorScheme.saberAColor : new Color(0.658823549747467f, 0.125490203499794f,  0.125490203499794f);
             var l_RightColor    = l_ColorScheme != null ? l_ColorScheme.saberBColor : new Color(0.125490203499794f, 0.3921568691730499f, 0.658823549747467f);
 
-            var l_ArrowLColor = Config.NoteTweaker.OverrideArrowColors ? Config.NoteTweaker.ArrowLColor : l_LeftColor.ColorWithAlpha(Config.NoteTweaker.ArrowA);
-            var l_ArrowRColor = Config.NoteTweaker.OverrideArrowColors ? Config.NoteTweaker.ArrowRColor : l_RightColor.ColorWithAlpha(Config.NoteTweaker.ArrowA);
+            var l_ArrowLColor = NTConfig.Instance.OverrideArrowColors ? NTConfig.Instance.ArrowLColor : l_LeftColor.ColorWithAlpha(NTConfig.Instance.ArrowLColor.a);
+            var l_ArrowRColor = NTConfig.Instance.OverrideArrowColors ? NTConfig.Instance.ArrowRColor : l_RightColor.ColorWithAlpha(NTConfig.Instance.ArrowRColor.a);
 
-            PatchArrow(m_CustomPreviewTL,  Config.NoteTweaker.ArrowScale,        l_ArrowLColor, true);
-            PatchArrow(m_CustomPreviewTR,  Config.NoteTweaker.ArrowScale,        l_ArrowRColor, true);
-            PatchArrow(m_CustomPreviewDL,  Config.NoteTweaker.ArrowScale,        l_ArrowLColor, false);
-            PatchArrow(m_CustomPreviewDR,  Config.NoteTweaker.ArrowScale,        l_ArrowRColor, false);
+            PatchArrow(m_CustomPreviewTL,  NTConfig.Instance.ArrowScale,        l_ArrowLColor, true);
+            PatchArrow(m_CustomPreviewTR,  NTConfig.Instance.ArrowScale,        l_ArrowRColor, true);
+            PatchArrow(m_CustomPreviewDL,  NTConfig.Instance.ArrowScale,        l_ArrowLColor, false);
+            PatchArrow(m_CustomPreviewDR,  NTConfig.Instance.ArrowScale,        l_ArrowRColor, false);
 
-            var l_DotLColor = Config.NoteTweaker.OverrideDotColors ? Config.NoteTweaker.DotLColor : l_LeftColor.ColorWithAlpha(Config.NoteTweaker.DotA);
-            var l_DotRColor = Config.NoteTweaker.OverrideDotColors ? Config.NoteTweaker.DotRColor : l_RightColor.ColorWithAlpha(Config.NoteTweaker.DotA);
+            var l_DotLColor = NTConfig.Instance.OverrideDotColors ? NTConfig.Instance.DotLColor : l_LeftColor.ColorWithAlpha(NTConfig.Instance.DotLColor.a);
+            var l_DotRColor = NTConfig.Instance.OverrideDotColors ? NTConfig.Instance.DotRColor : l_RightColor.ColorWithAlpha(NTConfig.Instance.DotRColor.a);
 
-            PatchCircle(m_CustomPreviewTL, Config.NoteTweaker.PrecisionDotScale, l_DotLColor,   Config.NoteTweaker.ShowDotsWithArrow);
-            PatchCircle(m_CustomPreviewTR, Config.NoteTweaker.PrecisionDotScale, l_DotRColor,   Config.NoteTweaker.ShowDotsWithArrow);
-            PatchCircle(m_CustomPreviewDL, Config.NoteTweaker.DotScale,          l_DotLColor,   true);
-            PatchCircle(m_CustomPreviewDR, Config.NoteTweaker.DotScale,          l_DotRColor,   true);
+            PatchCircle(m_CustomPreviewTL, NTConfig.Instance.PrecisionDotScale, l_DotLColor,   NTConfig.Instance.ShowDotsWithArrow);
+            PatchCircle(m_CustomPreviewTR, NTConfig.Instance.PrecisionDotScale, l_DotRColor,   NTConfig.Instance.ShowDotsWithArrow);
+            PatchCircle(m_CustomPreviewDL, NTConfig.Instance.DotScale,          l_DotLColor,   true);
+            PatchCircle(m_CustomPreviewDR, NTConfig.Instance.DotScale,          l_DotRColor,   true);
 
-            PatchBomb(m_CustomPreviewBomb, Config.NoteTweaker.OverrideBombColor ? Config.NoteTweaker.BombColor : new Color(0.251f, 0.251f, 0.251f, 0.000f));
+            PatchBomb(m_CustomPreviewBomb, NTConfig.Instance.OverrideBombColor ? NTConfig.Instance.BombColor : new Color(0.251f, 0.251f, 0.251f, 0.000f));
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -263,7 +263,7 @@ namespace BeatSaberPlus.Modules.NoteTweaker.UI
             m_CustomPreviewBomb.transform.localPosition = Vector3.zero - new Vector3(0, 0.75f, 0.75f);
             m_CustomPreviewBomb.SetActive(true);
 
-            PatchBomb(m_CustomPreviewBomb, Config.NoteTweaker.OverrideBombColor ? Config.NoteTweaker.BombColor : new Color(0.251f, 0.251f, 0.251f, 0.000f));
+            PatchBomb(m_CustomPreviewBomb, NTConfig.Instance.OverrideBombColor ? NTConfig.Instance.BombColor : new Color(0.251f, 0.251f, 0.251f, 0.000f));
 
             m_DefaultPreviewTL = GameObject.Instantiate(p_NoteTemplate);
             m_DefaultPreviewTR = GameObject.Instantiate(p_NoteTemplate);

@@ -2,12 +2,12 @@
 using System.Diagnostics;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.NoteTweaker.UI
+namespace BeatSaberPlus_NoteTweaker.UI
 {
     /// <summary>
     /// Chat request settings left screen
     /// </summary>
-    internal class SettingsLeft : SDK.UI.ResourceViewController<SettingsLeft>
+    internal class SettingsLeft : BeatSaberPlus.SDK.UI.ResourceViewController<SettingsLeft>
     {
         private static readonly string s_InformationsStr = "<line-height=125%><b><u>Note Tweaker</u></b>"
             + "\n" + "<i><color=#CCCCCCFF>This module allow you to customize the default notes</color></i>"
@@ -38,7 +38,7 @@ namespace BeatSaberPlus.Modules.NoteTweaker.UI
         /// </summary>
         protected override sealed void OnViewCreation()
         {
-            SDK.UI.Backgroundable.SetOpacity(m_Background, 0.5f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_Background, 0.5f);
             m_Informations.SetText(s_InformationsStr);
             m_Informations.UpdateVerticalScrollIndicator(0);
         }
@@ -55,7 +55,9 @@ namespace BeatSaberPlus.Modules.NoteTweaker.UI
             ShowConfirmationModal("<color=yellow><b>Do you really want to reset\nnote tweaker configuration?", () =>
             {
                 /// Reset config
-                Config.NoteTweaker.Reset();
+                NTConfig.Instance.Reset();
+                NTConfig.Instance.Enabled = true;
+                NTConfig.Instance.Save();
 
                 /// Refresh values
                 Settings.Instance.RefreshSettings();

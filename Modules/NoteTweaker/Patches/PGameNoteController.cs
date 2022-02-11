@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.NoteTweaker.Patches
+namespace BeatSaberPlus_NoteTweaker.Patches
 {
     /// <summary>
     /// GameNoteController Patch
@@ -47,11 +47,11 @@ namespace BeatSaberPlus.Modules.NoteTweaker.Patches
         /// <param name="p_OnSceneSwitch">Reset on scene switch</param>
         internal static void SetFromConfig(bool p_OnSceneSwitch)
         {
-            float l_NoteScale = Config.NoteTweaker.Enabled ? Config.NoteTweaker.Scale : 1.0f;
+            float l_NoteScale = NTConfig.Instance.Enabled ? NTConfig.Instance.Scale : 1.0f;
             l_NoteScale = Mathf.Max(l_NoteScale, 0.1f);
             l_NoteScale = Mathf.Min(l_NoteScale, 1.2f);
 
-            m_Enabled               = IsScaleAllowed() ? Config.NoteTweaker.Enabled : false;
+            m_Enabled               = IsScaleAllowed() ? NTConfig.Instance.Enabled : false;
             m_NoteScale             = (     l_NoteScale) * Vector3.one;
             m_NoteInvScale          = (1f / l_NoteScale) * Vector3.one;
 
@@ -83,9 +83,9 @@ namespace BeatSaberPlus.Modules.NoteTweaker.Patches
         /// <returns></returns>
         private static bool IsScaleAllowed()
         {
-            if ((SDK.Game.Logic.LevelData?.Data?.gameplayModifiers?.proMode ?? false)
-             || (SDK.Game.Logic.LevelData?.Data?.gameplayModifiers?.smallCubes ?? false)
-             || (SDK.Game.Logic.LevelData?.Data?.gameplayModifiers?.strictAngles ?? false))
+            if ((BeatSaberPlus.SDK.Game.Logic.LevelData?.Data?.gameplayModifiers?.proMode ?? false)
+             || (BeatSaberPlus.SDK.Game.Logic.LevelData?.Data?.gameplayModifiers?.smallCubes ?? false)
+             || (BeatSaberPlus.SDK.Game.Logic.LevelData?.Data?.gameplayModifiers?.strictAngles ?? false))
                 return false;
 
             return true;

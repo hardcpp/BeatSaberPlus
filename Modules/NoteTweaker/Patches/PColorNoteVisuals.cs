@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.NoteTweaker.Patches
+namespace BeatSaberPlus_NoteTweaker.Patches
 {
     /// <summary>
     /// ColorNoteVisuals patch
@@ -90,8 +90,8 @@ namespace BeatSaberPlus.Modules.NoteTweaker.Patches
 
             var l_BaseColor = ____colorManager.ColorForType(l_ColorType);
 
-            var l_ArrowColor = m_OverrideArrowColors ? (l_ColorType == ColorType.ColorB ? m_RightArrowColor  : m_LeftArrowColor)  : l_BaseColor.ColorWithAlpha(m_ArrowAlpha);
-            var l_DotColor   = m_OverrideDotColors   ? (l_ColorType == ColorType.ColorB ? m_RightCircleColor : m_LeftCircleColor) : l_BaseColor.ColorWithAlpha(m_DotAlpha);
+            var l_ArrowColor = (m_OverrideArrowColors ? (l_ColorType == ColorType.ColorB ? m_RightArrowColor  : m_LeftArrowColor)  : l_BaseColor).ColorWithAlpha(m_ArrowAlpha);
+            var l_DotColor   = (m_OverrideDotColors   ? (l_ColorType == ColorType.ColorB ? m_RightCircleColor : m_LeftCircleColor) : l_BaseColor).ColorWithAlpha(m_DotAlpha);
 
             if (m_BlockColorsEnabled)
                 l_ArrowColor = (l_ColorType == ColorType.ColorA ? m_LeftBlockColor : m_RightBlockColor).ColorWithAlpha(0.6f);
@@ -135,41 +135,41 @@ namespace BeatSaberPlus.Modules.NoteTweaker.Patches
         /// </summary>
         internal static void SetFromConfig(bool p_OnSceneSwitch)
         {
-            m_Enabled               = Config.NoteTweaker.Enabled;
+            m_Enabled               = NTConfig.Instance.Enabled;
             SetArrowScaleFromConfig();
             SetArrowColorsFromConfig();
-            m_CircleEnabled         = Config.NoteTweaker.Enabled ? Config.NoteTweaker.DotA != 0f           : true;
-            m_CircleForceEnabled    = Config.NoteTweaker.Enabled ? Config.NoteTweaker.ShowDotsWithArrow    : false;
+            m_CircleEnabled         = NTConfig.Instance.Enabled ? NTConfig.Instance.DotAlpha != 0f       : true;
+            m_CircleForceEnabled    = NTConfig.Instance.Enabled ? NTConfig.Instance.ShowDotsWithArrow    : false;
             SetDotScaleFromConfig();
             SetDotColorsFromConfig();
         }
         internal static void SetArrowScaleFromConfig()
         {
-            m_ArrowScale        = (Config.NoteTweaker.Enabled ? Config.NoteTweaker.ArrowScale : 1.0f) * Vector3.one;
-            m_ArrowGlowScale    = (Config.NoteTweaker.Enabled ? Config.NoteTweaker.ArrowScale : 1.0f) * new Vector3(0.6f, 0.3f, 0.6f);
+            m_ArrowScale        = (NTConfig.Instance.Enabled ? NTConfig.Instance.ArrowScale : 1.0f) * Vector3.one;
+            m_ArrowGlowScale    = (NTConfig.Instance.Enabled ? NTConfig.Instance.ArrowScale : 1.0f) * new Vector3(0.6f, 0.3f, 0.6f);
         }
         internal static void SetArrowColorsFromConfig()
         {
-            m_OverrideArrowColors   = Config.NoteTweaker.Enabled ? Config.NoteTweaker.OverrideDotColors : false;
-            m_ArrowAlpha            = Config.NoteTweaker.Enabled ? Config.NoteTweaker.ArrowA            : 0.6f;
-            m_LeftArrowColor        = Config.NoteTweaker.Enabled ? Config.NoteTweaker.ArrowLColor       : new Color(0.659f, 0.125f, 0.125f, 1.000f);
-            m_RightArrowColor       = Config.NoteTweaker.Enabled ? Config.NoteTweaker.ArrowRColor       : new Color(0.125f, 0.392f, 0.659f, 1.000f);
+            m_OverrideArrowColors   = NTConfig.Instance.Enabled ? NTConfig.Instance.OverrideDotColors : false;
+            m_ArrowAlpha            = NTConfig.Instance.Enabled ? NTConfig.Instance.ArrowAlpha        : 0.6f;
+            m_LeftArrowColor        = NTConfig.Instance.Enabled ? NTConfig.Instance.ArrowLColor       : new Color(0.659f, 0.125f, 0.125f, 1.000f);
+            m_RightArrowColor       = NTConfig.Instance.Enabled ? NTConfig.Instance.ArrowRColor       : new Color(0.125f, 0.392f, 0.659f, 1.000f);
         }
 
         internal static void SetDotScaleFromConfig()
         {
-            m_CircleScale           = (Config.NoteTweaker.Enabled ? Config.NoteTweaker.DotScale             : 1.0f) * new Vector3(0.5f, 0.5f, 0.5f);
-            m_PrecisionCircleScale  = (Config.NoteTweaker.Enabled ? Config.NoteTweaker.PrecisionDotScale    : 1.0f) * new Vector3(0.5f, 0.5f, 0.5f);
+            m_CircleScale           = (NTConfig.Instance.Enabled ? NTConfig.Instance.DotScale             : 1.0f) * new Vector3(0.5f, 0.5f, 0.5f);
+            m_PrecisionCircleScale  = (NTConfig.Instance.Enabled ? NTConfig.Instance.PrecisionDotScale    : 1.0f) * new Vector3(0.5f, 0.5f, 0.5f);
         }
         internal static void SetDotColorsFromConfig()
         {
-            m_OverrideDotColors = Config.NoteTweaker.Enabled ? Config.NoteTweaker.OverrideDotColors : false;
-            m_DotAlpha          = Config.NoteTweaker.Enabled ? Config.NoteTweaker.DotA              : 1f;
-            m_LeftCircleColor   = Config.NoteTweaker.Enabled ? Config.NoteTweaker.DotLColor         : new Color(0.659f, 0.125f, 0.125f, 1.000f);
-            m_RightCircleColor  = Config.NoteTweaker.Enabled ? Config.NoteTweaker.DotRColor         : new Color(0.125f, 0.392f, 0.659f, 1.000f);
+            m_OverrideDotColors = NTConfig.Instance.Enabled ? NTConfig.Instance.OverrideDotColors : false;
+            m_DotAlpha          = NTConfig.Instance.Enabled ? NTConfig.Instance.DotAlpha          : 1f;
+            m_LeftCircleColor   = NTConfig.Instance.Enabled ? NTConfig.Instance.DotLColor         : new Color(0.659f, 0.125f, 0.125f, 1.000f);
+            m_RightCircleColor  = NTConfig.Instance.Enabled ? NTConfig.Instance.DotRColor         : new Color(0.125f, 0.392f, 0.659f, 1.000f);
         }
 
-        internal static void SetBlockColorOverride(bool p_Enabled, Color p_Left, Color p_Right)
+        public static void SetBlockColorOverride(bool p_Enabled, Color p_Left, Color p_Right)
         {
             m_BlockColorsEnabled    = p_Enabled;
             m_LeftBlockColor        = p_Left.ColorWithAlpha(1f);

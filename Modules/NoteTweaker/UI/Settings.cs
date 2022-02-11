@@ -2,12 +2,12 @@
 using BeatSaberMarkupLanguage.Components.Settings;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.NoteTweaker.UI
+namespace BeatSaberPlus_NoteTweaker.UI
 {
     /// <summary>
     /// Settings main view
     /// </summary>
-    internal class Settings : SDK.UI.ResourceViewController<Settings>
+    internal class Settings : BeatSaberPlus.SDK.UI.ResourceViewController<Settings>
     {
 #pragma warning disable CS0649
         [UIComponent("OverrideArrowColors")]
@@ -64,38 +64,45 @@ namespace BeatSaberPlus.Modules.NoteTweaker.UI
         /// </summary>
         protected override sealed void OnViewCreation()
         {
-            SDK.UI.Backgroundable.SetOpacity(m_InfoBackground, 0.5f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_InfoBackground, 0.5f);
 
             var l_Event         = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic));
-            var l_ArrowLColor   = new Color(Config.NoteTweaker.ArrowLR, Config.NoteTweaker.ArrowLG, Config.NoteTweaker.ArrowLB, 1f);
-            var l_ArrowRColor   = new Color(Config.NoteTweaker.ArrowRR, Config.NoteTweaker.ArrowRG, Config.NoteTweaker.ArrowRB, 1f);
-            var l_DotLColor     = new Color(Config.NoteTweaker.DotLR,   Config.NoteTweaker.DotLG,   Config.NoteTweaker.DotLB,   1f);
-            var l_DotRColor     = new Color(Config.NoteTweaker.DotRR,   Config.NoteTweaker.DotRG,   Config.NoteTweaker.DotRB,   1f);
+            var l_ArrowLColor   = NTConfig.Instance.ArrowLColor.ColorWithAlpha(1.00f);
+            var l_ArrowRColor   = NTConfig.Instance.ArrowRColor.ColorWithAlpha(1.00f);
+            var l_DotLColor     = NTConfig.Instance.DotLColor.ColorWithAlpha(1.00f);
+            var l_DotRColor     = NTConfig.Instance.DotRColor.ColorWithAlpha(1.00f);
 
-            SDK.UI.ToggleSetting.Setup(m_ShowDotOnDirectionalNoteToggle,    l_Event,                                            Config.NoteTweaker.ShowDotsWithArrow,   true);
-            SDK.UI.ToggleSetting.Setup(m_OverrideArrowColors,               l_Event,                                            Config.NoteTweaker.OverrideArrowColors, true);
-            SDK.UI.ToggleSetting.Setup(m_OverrideDotColors,                 l_Event,                                            Config.NoteTweaker.OverrideDotColors,   true);
-            SDK.UI.IncrementSetting.Setup(m_NoteScaleIncrement,             l_Event, SDK.UI.BSMLSettingFormartter.Percentage,   Config.NoteTweaker.Scale,               true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_ShowDotOnDirectionalNoteToggle,    l_Event,                                                          NTConfig.Instance.ShowDotsWithArrow,   true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_OverrideArrowColors,               l_Event,                                                          NTConfig.Instance.OverrideArrowColors, true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_OverrideDotColors,                 l_Event,                                                          NTConfig.Instance.OverrideDotColors,   true);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_NoteScaleIncrement,             l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Percentage,   NTConfig.Instance.Scale,               true);
 
-            SDK.UI.IncrementSetting.Setup(m_ArrowScaleIncrement,            l_Event, SDK.UI.BSMLSettingFormartter.Percentage,   Config.NoteTweaker.ArrowScale,          true);
-            SDK.UI.ColorSetting.Setup(m_ArrowLColor,                        l_Event,                                            l_ArrowLColor,                          true);
-            SDK.UI.ColorSetting.Setup(m_ArrowRColor,                        l_Event,                                            l_ArrowRColor,                          true);
-            SDK.UI.IncrementSetting.Setup(m_ArrowIntensity,                 l_Event, SDK.UI.BSMLSettingFormartter.Percentage,   Config.NoteTweaker.ArrowA,              true);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_ArrowScaleIncrement,            l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Percentage,   NTConfig.Instance.ArrowScale,          true);
+            BeatSaberPlus.SDK.UI.ColorSetting.Setup(m_ArrowLColor,                        l_Event,                                                          l_ArrowLColor,                         true);
+            BeatSaberPlus.SDK.UI.ColorSetting.Setup(m_ArrowRColor,                        l_Event,                                                          l_ArrowRColor,                         true);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_ArrowIntensity,                 l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Percentage,   NTConfig.Instance.ArrowAlpha,          true);
 
-            SDK.UI.IncrementSetting.Setup(m_DotScaleIncrement,              l_Event, SDK.UI.BSMLSettingFormartter.Percentage,   Config.NoteTweaker.DotScale,            true);
-            SDK.UI.ColorSetting.Setup(m_DotLColor,                          l_Event,                                            l_DotLColor,                            true);
-            SDK.UI.ColorSetting.Setup(m_DotRColor,                          l_Event,                                            l_DotRColor,                            true);
-            SDK.UI.IncrementSetting.Setup(m_DotIntensity,                   l_Event, SDK.UI.BSMLSettingFormartter.Percentage,   Config.NoteTweaker.DotA,                true);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_DotScaleIncrement,              l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Percentage,   NTConfig.Instance.DotScale,            true);
+            BeatSaberPlus.SDK.UI.ColorSetting.Setup(m_DotLColor,                          l_Event,                                                          l_DotLColor,                           true);
+            BeatSaberPlus.SDK.UI.ColorSetting.Setup(m_DotRColor,                          l_Event,                                                          l_DotRColor,                           true);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_DotIntensity,                   l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Percentage,   NTConfig.Instance.DotAlpha,            true);
 
-            SDK.UI.IncrementSetting.Setup(m_PrecisionDotScaleIncrement,     l_Event, SDK.UI.BSMLSettingFormartter.Percentage,   Config.NoteTweaker.PrecisionDotScale,   true);
-            SDK.UI.ToggleSetting.Setup(m_OverrideBombColorToggle,           l_Event,                                            Config.NoteTweaker.OverrideBombColor,   true);
-            SDK.UI.ColorSetting.Setup(m_BombColor,                          l_Event,                                            Config.NoteTweaker.BombColor,           true);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_PrecisionDotScaleIncrement,     l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Percentage,   NTConfig.Instance.PrecisionDotScale,   true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_OverrideBombColorToggle,           l_Event,                                                          NTConfig.Instance.OverrideBombColor,   true);
+            BeatSaberPlus.SDK.UI.ColorSetting.Setup(m_BombColor,                          l_Event,                                                          NTConfig.Instance.BombColor,           true);
 
-            m_ArrowLColor.interactable  = Config.NoteTweaker.OverrideArrowColors;
-            m_ArrowRColor.interactable  = Config.NoteTweaker.OverrideArrowColors;
-            m_DotLColor.interactable    = Config.NoteTweaker.OverrideDotColors;
-            m_DotRColor.interactable    = Config.NoteTweaker.OverrideDotColors;
-            m_BombColor.interactable    = Config.NoteTweaker.OverrideBombColor;
+            m_ArrowLColor.interactable  = NTConfig.Instance.OverrideArrowColors;
+            m_ArrowRColor.interactable  = NTConfig.Instance.OverrideArrowColors;
+            m_DotLColor.interactable    = NTConfig.Instance.OverrideDotColors;
+            m_DotRColor.interactable    = NTConfig.Instance.OverrideDotColors;
+            m_BombColor.interactable    = NTConfig.Instance.OverrideBombColor;
+        }
+        /// <summary>
+        /// On view deactivation
+        /// </summary>
+        protected override sealed void OnViewDeactivation()
+        {
+            NTConfig.Instance.Save();
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -111,40 +118,30 @@ namespace BeatSaberPlus.Modules.NoteTweaker.UI
                 return;
 
             /// Update config
-            Config.NoteTweaker.ShowDotsWithArrow    = m_ShowDotOnDirectionalNoteToggle.Value;
-            Config.NoteTweaker.OverrideArrowColors  = m_OverrideArrowColors.Value;
-            Config.NoteTweaker.OverrideDotColors    = m_OverrideDotColors.Value;
-            Config.NoteTweaker.Scale                = m_NoteScaleIncrement.Value;
+            NTConfig.Instance.ShowDotsWithArrow    = m_ShowDotOnDirectionalNoteToggle.Value;
+            NTConfig.Instance.OverrideArrowColors  = m_OverrideArrowColors.Value;
+            NTConfig.Instance.OverrideDotColors    = m_OverrideDotColors.Value;
+            NTConfig.Instance.Scale                = m_NoteScaleIncrement.Value;
 
-            Config.NoteTweaker.ArrowScale           = m_ArrowScaleIncrement.Value;
-            Config.NoteTweaker.ArrowLR              = m_ArrowLColor.CurrentColor.r;
-            Config.NoteTweaker.ArrowLG              = m_ArrowLColor.CurrentColor.g;
-            Config.NoteTweaker.ArrowLB              = m_ArrowLColor.CurrentColor.b;
-            Config.NoteTweaker.ArrowRR              = m_ArrowRColor.CurrentColor.r;
-            Config.NoteTweaker.ArrowRG              = m_ArrowRColor.CurrentColor.g;
-            Config.NoteTweaker.ArrowRB              = m_ArrowRColor.CurrentColor.b;
-            Config.NoteTweaker.ArrowA               = m_ArrowIntensity.Value;
+            NTConfig.Instance.ArrowScale           = m_ArrowScaleIncrement.Value;
+            NTConfig.Instance.ArrowAlpha           = m_ArrowIntensity.Value;
+            NTConfig.Instance.ArrowLColor          = m_ArrowLColor.CurrentColor.ColorWithAlpha(1.0f);
+            NTConfig.Instance.ArrowRColor          = m_ArrowRColor.CurrentColor.ColorWithAlpha(1.0f);
 
-            Config.NoteTweaker.DotScale             = m_DotScaleIncrement.Value;
-            Config.NoteTweaker.DotLR                = m_DotLColor.CurrentColor.r;
-            Config.NoteTweaker.DotLG                = m_DotLColor.CurrentColor.g;
-            Config.NoteTweaker.DotLB                = m_DotLColor.CurrentColor.b;
-            Config.NoteTweaker.DotRR                = m_DotRColor.CurrentColor.r;
-            Config.NoteTweaker.DotRG                = m_DotRColor.CurrentColor.g;
-            Config.NoteTweaker.DotRB                = m_DotRColor.CurrentColor.b;
-            Config.NoteTweaker.DotA                 = m_DotIntensity.Value;
+            NTConfig.Instance.DotScale             = m_DotScaleIncrement.Value;
+            NTConfig.Instance.DotAlpha             = m_DotIntensity.Value;
+            NTConfig.Instance.DotLColor            = m_DotLColor.CurrentColor.ColorWithAlpha(1.0f);
+            NTConfig.Instance.DotRColor            = m_DotRColor.CurrentColor.ColorWithAlpha(1.0f);
 
-            Config.NoteTweaker.PrecisionDotScale    = m_PrecisionDotScaleIncrement.Value;
-            Config.NoteTweaker.OverrideBombColor    = m_OverrideBombColorToggle.Value;
-            Config.NoteTweaker.BombR                = m_BombColor.CurrentColor.r;
-            Config.NoteTweaker.BombG                = m_BombColor.CurrentColor.g;
-            Config.NoteTweaker.BombB                = m_BombColor.CurrentColor.b;
+            NTConfig.Instance.PrecisionDotScale    = m_PrecisionDotScaleIncrement.Value;
+            NTConfig.Instance.OverrideBombColor    = m_OverrideBombColorToggle.Value;
+            NTConfig.Instance.BombColor            = m_BombColor.CurrentColor.ColorWithAlpha(1.0f);
 
-            m_ArrowLColor.interactable  = Config.NoteTweaker.OverrideArrowColors;
-            m_ArrowRColor.interactable  = Config.NoteTweaker.OverrideArrowColors;
-            m_DotLColor.interactable    = Config.NoteTweaker.OverrideDotColors;
-            m_DotRColor.interactable    = Config.NoteTweaker.OverrideDotColors;
-            m_BombColor.interactable    = Config.NoteTweaker.OverrideBombColor;
+            m_ArrowLColor.interactable  = NTConfig.Instance.OverrideArrowColors;
+            m_ArrowRColor.interactable  = NTConfig.Instance.OverrideArrowColors;
+            m_DotLColor.interactable    = NTConfig.Instance.OverrideDotColors;
+            m_DotRColor.interactable    = NTConfig.Instance.OverrideDotColors;
+            m_BombColor.interactable    = NTConfig.Instance.OverrideBombColor;
 
             /// Refresh preview
             SettingsRight.Instance.RefreshSettings();
@@ -161,29 +158,29 @@ namespace BeatSaberPlus.Modules.NoteTweaker.UI
             m_PreventChanges = true;
 
             /// Set values
-            m_ShowDotOnDirectionalNoteToggle.Value  = Config.NoteTweaker.ShowDotsWithArrow;
-            m_OverrideArrowColors.Value             = Config.NoteTweaker.OverrideArrowColors;
-            m_OverrideDotColors.Value               = Config.NoteTweaker.OverrideDotColors;
-            m_NoteScaleIncrement.Value              = Config.NoteTweaker.Scale;
+            m_ShowDotOnDirectionalNoteToggle.Value  = NTConfig.Instance.ShowDotsWithArrow;
+            m_OverrideArrowColors.Value             = NTConfig.Instance.OverrideArrowColors;
+            m_OverrideDotColors.Value               = NTConfig.Instance.OverrideDotColors;
+            m_NoteScaleIncrement.Value              = NTConfig.Instance.Scale;
 
-            m_ArrowScaleIncrement.Value             = Config.NoteTweaker.ArrowScale;
-            m_ArrowLColor.CurrentColor              = new Color(Config.NoteTweaker.ArrowLR, Config.NoteTweaker.ArrowLG, Config.NoteTweaker.ArrowLB, 1f);
-            m_ArrowRColor.CurrentColor              = new Color(Config.NoteTweaker.ArrowRR, Config.NoteTweaker.ArrowRG, Config.NoteTweaker.ArrowRB, 1f);
-            m_ArrowIntensity.Value                  = Config.NoteTweaker.ArrowA;
+            m_ArrowScaleIncrement.Value             = NTConfig.Instance.ArrowScale;
+            m_ArrowLColor.CurrentColor              = NTConfig.Instance.ArrowLColor.ColorWithAlpha(1.00f);
+            m_ArrowRColor.CurrentColor              = NTConfig.Instance.ArrowRColor.ColorWithAlpha(1.00f);
+            m_ArrowIntensity.Value                  = NTConfig.Instance.ArrowAlpha;
 
-            m_DotScaleIncrement.Value               = Config.NoteTweaker.DotScale;
-            m_DotLColor.CurrentColor                = new Color(Config.NoteTweaker.DotLR, Config.NoteTweaker.DotLG, Config.NoteTweaker.DotLB, 1f);
-            m_DotRColor.CurrentColor                = new Color(Config.NoteTweaker.DotRR, Config.NoteTweaker.DotRG, Config.NoteTweaker.DotRB, 1f);
-            m_DotIntensity.Value                    = Config.NoteTweaker.DotA;
+            m_DotScaleIncrement.Value               = NTConfig.Instance.DotScale;
+            m_DotLColor.CurrentColor                = NTConfig.Instance.DotLColor.ColorWithAlpha(1.00f);
+            m_DotRColor.CurrentColor                = NTConfig.Instance.DotRColor.ColorWithAlpha(1.00f);
+            m_DotIntensity.Value                    = NTConfig.Instance.DotAlpha;
 
-            m_PrecisionDotScaleIncrement.Value      = Config.NoteTweaker.PrecisionDotScale;
-            m_OverrideBombColorToggle.Value         = Config.NoteTweaker.OverrideBombColor;
-            m_BombColor.CurrentColor                = Config.NoteTweaker.BombColor;
+            m_PrecisionDotScaleIncrement.Value      = NTConfig.Instance.PrecisionDotScale;
+            m_OverrideBombColorToggle.Value         = NTConfig.Instance.OverrideBombColor;
+            m_BombColor.CurrentColor                = NTConfig.Instance.BombColor;
 
-            m_ArrowLColor.interactable  = Config.NoteTweaker.OverrideArrowColors;
-            m_ArrowRColor.interactable  = Config.NoteTweaker.OverrideArrowColors;
-            m_DotLColor.interactable    = Config.NoteTweaker.OverrideDotColors;
-            m_DotRColor.interactable    = Config.NoteTweaker.OverrideDotColors;
+            m_ArrowLColor.interactable  = NTConfig.Instance.OverrideArrowColors;
+            m_ArrowRColor.interactable  = NTConfig.Instance.OverrideArrowColors;
+            m_DotLColor.interactable    = NTConfig.Instance.OverrideDotColors;
+            m_DotRColor.interactable    = NTConfig.Instance.OverrideDotColors;
 
             m_PreventChanges = false;
 
