@@ -2,12 +2,12 @@
 using BeatSaberMarkupLanguage.Components.Settings;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.SongChartVisualizer.UI
+namespace BeatSaberPlus_SongChartVisualizer.UI
 {
     /// <summary>
     /// Settings main view
     /// </summary>
-    internal class Settings : SDK.UI.ResourceViewController<Settings>
+    internal class Settings : BeatSaberPlus.SDK.UI.ResourceViewController<Settings>
     {
 #pragma warning disable CS0649
         [UIComponent("alignwithfloor-toggle")]
@@ -67,24 +67,24 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer.UI
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic));
 
             /// Left
-            SDK.UI.ToggleSetting.Setup(m_AlignWithFloor,              l_Event,                                          Config.SongChartVisualizer.AlignWithFloor,               true);
-            SDK.UI.ToggleSetting.Setup(m_ShowLockIcon,                l_Event,                                          Config.SongChartVisualizer.ShowLockIcon,                 true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_AlignWithFloor,              l_Event,                                                        SCVConfig.Instance.AlignWithFloor,               true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_ShowLockIcon,                l_Event,                                                        SCVConfig.Instance.ShowLockIcon,                 true);
 
             /// Center
-            SDK.UI.ToggleSetting.Setup(m_FollowEnvironementRotations, l_Event,                                          Config.SongChartVisualizer.FollowEnvironementRotation,   true);
-            SDK.UI.IncrementSetting.Setup(m_BackgroundOpacity,        l_Event, SDK.UI.BSMLSettingFormartter.Percentage, Config.SongChartVisualizer.BackgroundA,                  true);
-            SDK.UI.IncrementSetting.Setup(m_CursorOpacity,            l_Event, SDK.UI.BSMLSettingFormartter.Percentage, Config.SongChartVisualizer.CursorA,                      true);
-            SDK.UI.IncrementSetting.Setup(m_LineOpacity,              l_Event, SDK.UI.BSMLSettingFormartter.Percentage, Config.SongChartVisualizer.LineA,                        true);
-            SDK.UI.IncrementSetting.Setup(m_LegendOpacity,            l_Event, SDK.UI.BSMLSettingFormartter.Percentage, Config.SongChartVisualizer.LegendA,                      true);
-            SDK.UI.IncrementSetting.Setup(m_DashOpacity,              l_Event, SDK.UI.BSMLSettingFormartter.Percentage, Config.SongChartVisualizer.DashLineA,                    true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_FollowEnvironementRotations, l_Event,                                                        SCVConfig.Instance.FollowEnvironementRotation,   true);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_BackgroundOpacity,        l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Percentage, SCVConfig.Instance.BackgroundColor.a,            true);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_CursorOpacity,            l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Percentage, SCVConfig.Instance.CursorColor.a,                true);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_LineOpacity,              l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Percentage, SCVConfig.Instance.LineColor.a,                  true);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_LegendOpacity,            l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Percentage, SCVConfig.Instance.LegendColor.a,                true);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_DashOpacity,              l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Percentage, SCVConfig.Instance.DashLineColor.a,              true);
 
             /// Right
-            SDK.UI.ToggleSetting.Setup(m_ShowNPSLegend,  l_Event, Config.SongChartVisualizer.ShowNPSLegend,      true);
-            SDK.UI.ColorSetting.Setup(m_BackgroundColor, l_Event, Config.SongChartVisualizer.BackgroundColor,    true);
-            SDK.UI.ColorSetting.Setup(m_CursorColor,     l_Event, Config.SongChartVisualizer.CursorColor,        true);
-            SDK.UI.ColorSetting.Setup(m_LineColor,       l_Event, Config.SongChartVisualizer.LineColor,          true);
-            SDK.UI.ColorSetting.Setup(m_LegendColor,     l_Event, Config.SongChartVisualizer.LegendColor,        true);
-            SDK.UI.ColorSetting.Setup(m_DashColor,       l_Event, Config.SongChartVisualizer.DashLineColor,      true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_ShowNPSLegend,  l_Event, SCVConfig.Instance.ShowNPSLegend,      true);
+            BeatSaberPlus.SDK.UI.ColorSetting.Setup(m_BackgroundColor, l_Event, SCVConfig.Instance.BackgroundColor,    true);
+            BeatSaberPlus.SDK.UI.ColorSetting.Setup(m_CursorColor,     l_Event, SCVConfig.Instance.CursorColor,        true);
+            BeatSaberPlus.SDK.UI.ColorSetting.Setup(m_LineColor,       l_Event, SCVConfig.Instance.LineColor,          true);
+            BeatSaberPlus.SDK.UI.ColorSetting.Setup(m_LegendColor,     l_Event, SCVConfig.Instance.LegendColor,        true);
+            BeatSaberPlus.SDK.UI.ColorSetting.Setup(m_DashColor,       l_Event, SCVConfig.Instance.DashLineColor,      true);
         }
         /// <summary>
         /// On view activation
@@ -99,6 +99,7 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer.UI
         protected override sealed void OnViewDeactivation()
         {
             SongChartVisualizer.Instance.DestroyChart();
+            SCVConfig.Instance.Save();
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -114,30 +115,47 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer.UI
                 return;
 
             /// Update config
-            Config.SongChartVisualizer.AlignWithFloor               = m_AlignWithFloor.Value;
-            Config.SongChartVisualizer.ShowLockIcon                 = m_ShowLockIcon.Value;
-            Config.SongChartVisualizer.FollowEnvironementRotation   = m_FollowEnvironementRotations.Value;
-            Config.SongChartVisualizer.ShowNPSLegend                = m_ShowNPSLegend.Value;
-            Config.SongChartVisualizer.BackgroundA                  = m_BackgroundOpacity.Value;
-            Config.SongChartVisualizer.BackgroundR                  = m_BackgroundColor.CurrentColor.r;
-            Config.SongChartVisualizer.BackgroundG                  = m_BackgroundColor.CurrentColor.g;
-            Config.SongChartVisualizer.BackgroundB                  = m_BackgroundColor.CurrentColor.b;
-            Config.SongChartVisualizer.CursorA                      = m_CursorOpacity.Value;
-            Config.SongChartVisualizer.CursorR                      = m_CursorColor.CurrentColor.r;
-            Config.SongChartVisualizer.CursorG                      = m_CursorColor.CurrentColor.g;
-            Config.SongChartVisualizer.CursorB                      = m_CursorColor.CurrentColor.b;
-            Config.SongChartVisualizer.LineA                        = m_LineOpacity.Value;
-            Config.SongChartVisualizer.LineR                        = m_LineColor.CurrentColor.r;
-            Config.SongChartVisualizer.LineG                        = m_LineColor.CurrentColor.g;
-            Config.SongChartVisualizer.LineB                        = m_LineColor.CurrentColor.b;
-            Config.SongChartVisualizer.LegendA                      = m_LegendOpacity.Value;
-            Config.SongChartVisualizer.LegendR                      = m_LegendColor.CurrentColor.r;
-            Config.SongChartVisualizer.LegendG                      = m_LegendColor.CurrentColor.g;
-            Config.SongChartVisualizer.LegendB                      = m_LegendColor.CurrentColor.b;
-            Config.SongChartVisualizer.DashLineA                    = m_DashOpacity.Value;
-            Config.SongChartVisualizer.DashLineR                    = m_DashColor.CurrentColor.r;
-            Config.SongChartVisualizer.DashLineG                    = m_DashColor.CurrentColor.g;
-            Config.SongChartVisualizer.DashLineB                    = m_DashColor.CurrentColor.b;
+            SCVConfig.Instance.AlignWithFloor               = m_AlignWithFloor.Value;
+            SCVConfig.Instance.ShowLockIcon                 = m_ShowLockIcon.Value;
+            SCVConfig.Instance.FollowEnvironementRotation   = m_FollowEnvironementRotations.Value;
+            SCVConfig.Instance.ShowNPSLegend                = m_ShowNPSLegend.Value;
+
+            SCVConfig.Instance.CursorColor = new Color(
+                m_BackgroundColor.CurrentColor.r,
+                m_BackgroundColor.CurrentColor.g,
+                m_BackgroundColor.CurrentColor.b,
+                m_BackgroundOpacity.Value
+            );
+
+            SCVConfig.Instance.CursorColor = new Color(
+                m_CursorColor.CurrentColor.r,
+                m_CursorColor.CurrentColor.g,
+                m_CursorColor.CurrentColor.b,
+                m_CursorOpacity.Value
+            );
+
+            SCVConfig.Instance.LineColor = new Color(
+                m_LineColor.CurrentColor.r,
+                m_LineColor.CurrentColor.g,
+                m_LineColor.CurrentColor.b,
+                m_LineOpacity.Value
+            );
+
+            SCVConfig.Instance.LegendColor = new Color(
+                m_LegendColor.CurrentColor.r,
+                m_LegendColor.CurrentColor.g,
+                m_LegendColor.CurrentColor.b,
+                m_LegendOpacity.Value
+            );
+
+            SCVConfig.Instance.DashLineColor = new Color(
+                m_DashColor.CurrentColor.r,
+                m_DashColor.CurrentColor.g,
+                m_DashColor.CurrentColor.b,
+                m_DashOpacity.Value
+            );
+
+            SCVConfig.Instance.Save();
 
             /// Refresh preview
             SongChartVisualizer.Instance.RefreshPreview();
@@ -154,24 +172,24 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer.UI
             m_PreventChanges = true;
 
             /// Set values
-            m_AlignWithFloor.Value              = Config.SongChartVisualizer.AlignWithFloor;
-            m_ShowLockIcon.Value                = Config.SongChartVisualizer.ShowLockIcon;
+            m_AlignWithFloor.Value              = SCVConfig.Instance.AlignWithFloor;
+            m_ShowLockIcon.Value                = SCVConfig.Instance.ShowLockIcon;
 
             /// Set values
-            m_FollowEnvironementRotations.Value = Config.SongChartVisualizer.FollowEnvironementRotation;
-            m_BackgroundOpacity.Value           = Config.SongChartVisualizer.BackgroundA;
-            m_CursorOpacity.Value               = Config.SongChartVisualizer.CursorA;
-            m_LineOpacity.Value                 = Config.SongChartVisualizer.LineA;
-            m_LegendOpacity.Value               = Config.SongChartVisualizer.LegendA;
-            m_DashOpacity.Value                 = Config.SongChartVisualizer.DashLineA;
+            m_FollowEnvironementRotations.Value = SCVConfig.Instance.FollowEnvironementRotation;
+            m_BackgroundOpacity.Value           = SCVConfig.Instance.BackgroundColor.a;
+            m_CursorOpacity.Value               = SCVConfig.Instance.CursorColor.a;
+            m_LineOpacity.Value                 = SCVConfig.Instance.LineColor.a;
+            m_LegendOpacity.Value               = SCVConfig.Instance.LegendColor.a;
+            m_DashOpacity.Value                 = SCVConfig.Instance.DashLineColor.a;
 
             /// Set values
-            m_ShowNPSLegend.Value           = Config.SongChartVisualizer.ShowNPSLegend;
-            m_BackgroundColor.CurrentColor  = new Color(Config.SongChartVisualizer.BackgroundR, Config.SongChartVisualizer.BackgroundG, Config.SongChartVisualizer.BackgroundB, 1f);
-            m_CursorColor.CurrentColor      = new Color(Config.SongChartVisualizer.CursorR,     Config.SongChartVisualizer.CursorG,     Config.SongChartVisualizer.CursorB,     1f);
-            m_LineColor.CurrentColor        = new Color(Config.SongChartVisualizer.LineR,       Config.SongChartVisualizer.LineG,       Config.SongChartVisualizer.LineB,       1f);
-            m_LegendColor.CurrentColor      = new Color(Config.SongChartVisualizer.LegendR,     Config.SongChartVisualizer.LegendG,     Config.SongChartVisualizer.LegendB,     1f);
-            m_DashColor.CurrentColor        = new Color(Config.SongChartVisualizer.DashLineR,   Config.SongChartVisualizer.DashLineG,   Config.SongChartVisualizer.DashLineB,   1f);
+            m_ShowNPSLegend.Value           = SCVConfig.Instance.ShowNPSLegend;
+            m_BackgroundColor.CurrentColor  = SCVConfig.Instance.BackgroundColor.ColorWithAlpha(1f);
+            m_CursorColor.CurrentColor      = SCVConfig.Instance.CursorColor.ColorWithAlpha(1f);
+            m_LineColor.CurrentColor        = SCVConfig.Instance.LineColor.ColorWithAlpha(1f);
+            m_LegendColor.CurrentColor      = SCVConfig.Instance.LegendColor.ColorWithAlpha(1f);
+            m_DashColor.CurrentColor        = SCVConfig.Instance.DashLineColor.ColorWithAlpha(1f);
 
             m_PreventChanges = false;
 

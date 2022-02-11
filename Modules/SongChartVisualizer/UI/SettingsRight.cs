@@ -1,9 +1,9 @@
-﻿namespace BeatSaberPlus.Modules.SongChartVisualizer.UI
+﻿namespace BeatSaberPlus_SongChartVisualizer.UI
 {
     /// <summary>
     /// Settings right view
     /// </summary>
-    internal class SettingsRight : SDK.UI.ResourceViewController<SettingsRight>
+    internal class SettingsRight : BeatSaberPlus.SDK.UI.ResourceViewController<SettingsRight>
     {
 
     }

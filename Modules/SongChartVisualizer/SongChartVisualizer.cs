@@ -4,17 +4,17 @@ using HMUI;
 using System.Collections;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.SongChartVisualizer
+namespace BeatSaberPlus_SongChartVisualizer
 {
     /// <summary>
     /// SongChartVisualizer Module
     /// </summary>
-    internal class SongChartVisualizer : SDK.ModuleBase<SongChartVisualizer>
+    internal class SongChartVisualizer : BeatSaberPlus.SDK.ModuleBase<SongChartVisualizer>
     {
         /// <summary>
         /// Module type
         /// </summary>
-        public override SDK.IModuleBaseType Type => SDK.IModuleBaseType.Integrated;
+        public override BeatSaberPlus.SDK.IModuleBaseType Type => BeatSaberPlus.SDK.IModuleBaseType.Integrated;
         /// <summary>
         /// Name of the Module
         /// </summary>
@@ -30,11 +30,11 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer
         /// <summary>
         /// Is enabled
         /// </summary>
-        public override bool IsEnabled { get => Config.SongChartVisualizer.Enabled; set => Config.SongChartVisualizer.Enabled = value; }
+        public override bool IsEnabled { get => SCVConfig.Instance.Enabled; set { SCVConfig.Instance.Enabled = value; SCVConfig.Instance.Save(); } }
         /// <summary>
         /// Activation kind
         /// </summary>
-        public override SDK.IModuleBaseActivationType ActivationType => SDK.IModuleBaseActivationType.OnMenuSceneLoaded;
+        public override BeatSaberPlus.SDK.IModuleBaseActivationType ActivationType => BeatSaberPlus.SDK.IModuleBaseActivationType.OnMenuSceneLoaded;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -69,7 +69,7 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer
         protected override void OnEnable()
         {
             /// Bind event
-            SDK.Game.Logic.OnLevelStarted += Game_LevelStarted;
+            BeatSaberPlus.SDK.Game.Logic.OnLevelStarted += Game_LevelStarted;
         }
         /// <summary>
         /// Disable the Module
@@ -77,7 +77,7 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer
         protected override void OnDisable()
         {
             /// Unbind event
-            SDK.Game.Logic.OnLevelStarted -= Game_LevelStarted;
+            BeatSaberPlus.SDK.Game.Logic.OnLevelStarted -= Game_LevelStarted;
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -109,10 +109,10 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer
         /// When a level start
         /// </summary>
         /// <param name="p_Data">Level data</param>
-        private void Game_LevelStarted(SDK.Game.LevelData p_Data)
+        private void Game_LevelStarted(BeatSaberPlus.SDK.Game.LevelData p_Data)
         {
             /// Not enabled in multi-player
-            if (p_Data.Type == SDK.Game.LevelType.Multiplayer)
+            if (p_Data.Type == BeatSaberPlus.SDK.Game.LevelType.Multiplayer)
                 return;
 
             /// Start the task
@@ -153,13 +153,13 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer
         {
             yield return new WaitForEndOfFrame();
 
-            var l_HasRotation = SDK.Game.Logic.LevelData?.Data?.difficultyBeatmap?.beatmapData?.spawnRotationEventsCount > 0;
-            var l_Position = l_HasRotation ? new Vector3(Config.SongChartVisualizer.Chart360_90PositionX,   Config.SongChartVisualizer.Chart360_90PositionY,    Config.SongChartVisualizer.Chart360_90PositionZ)
-                                           : new Vector3(Config.SongChartVisualizer.ChartStandardPositionX, Config.SongChartVisualizer.ChartStandardPositionY,  Config.SongChartVisualizer.ChartStandardPositionZ);
-            var l_Rotation = l_HasRotation ? new Vector3(Config.SongChartVisualizer.Chart360_90RotationX,   Config.SongChartVisualizer.Chart360_90RotationY,    Config.SongChartVisualizer.Chart360_90RotationZ)
-                                           : new Vector3(Config.SongChartVisualizer.ChartStandardRotationX, Config.SongChartVisualizer.ChartStandardRotationY,  Config.SongChartVisualizer.ChartStandardRotationZ);
+            var l_HasRotation = BeatSaberPlus.SDK.Game.Logic.LevelData?.Data?.difficultyBeatmap?.beatmapData?.spawnRotationEventsCount > 0;
+            var l_Position = l_HasRotation ? SCVConfig.Instance.Chart360_90Position
+                                           : SCVConfig.Instance.ChartStandardPosition;
+            var l_Rotation = l_HasRotation ? SCVConfig.Instance.Chart360_90Rotation
+                                           : SCVConfig.Instance.ChartStandardRotation;
 
-            if (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Menu)
+            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Menu)
             {
                 l_Position = new Vector3(2.38f, 1.20f, 1.29f);
                 l_Rotation = new Vector3(0f, 58f, 0f);
@@ -172,7 +172,7 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer
             m_ChartFloatingScreen.ScreenRotation = Quaternion.Euler(l_Rotation);
 
             /// Update background color
-            m_ChartFloatingScreen.GetComponentInChildren<ImageView>().color = Config.SongChartVisualizer.BackgroundColor;
+            m_ChartFloatingScreen.GetComponentInChildren<ImageView>().color = SCVConfig.Instance.BackgroundColor;
 
             /// Bind event
             m_ChartFloatingScreen.HandleReleased += OnFloatingWindowMoved;
@@ -199,31 +199,23 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer
         private void OnFloatingWindowMoved(object p_Sender, FloatingScreenHandleEventArgs p_Event)
         {
             /// Always parallel to the floor
-            if (Config.SongChartVisualizer.AlignWithFloor)
+            if (SCVConfig.Instance.AlignWithFloor)
                 m_ChartFloatingScreen.transform.localEulerAngles = new Vector3(m_ChartFloatingScreen.transform.localEulerAngles.x, m_ChartFloatingScreen.transform.localEulerAngles.y, 0);
 
             /// Don't update from preview
-            if (SDK.Game.Logic.ActiveScene != SDK.Game.Logic.SceneType.Playing)
+            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene != BeatSaberPlus.SDK.Game.Logic.SceneType.Playing)
                 return;
 
-            var l_HasRotation = SDK.Game.Logic.LevelData?.Data?.difficultyBeatmap?.beatmapData?.spawnRotationEventsCount > 0;
+            var l_HasRotation = BeatSaberPlus.SDK.Game.Logic.LevelData?.Data?.difficultyBeatmap?.beatmapData?.spawnRotationEventsCount > 0;
             if (!l_HasRotation)
             {
-                Config.SongChartVisualizer.ChartStandardPositionX   = m_ChartFloatingScreen.transform.localPosition.x;
-                Config.SongChartVisualizer.ChartStandardPositionY   = m_ChartFloatingScreen.transform.localPosition.y;
-                Config.SongChartVisualizer.ChartStandardPositionZ   = m_ChartFloatingScreen.transform.localPosition.z;
-                Config.SongChartVisualizer.ChartStandardRotationX   = m_ChartFloatingScreen.transform.localEulerAngles.x;
-                Config.SongChartVisualizer.ChartStandardRotationY   = m_ChartFloatingScreen.transform.localEulerAngles.y;
-                Config.SongChartVisualizer.ChartStandardRotationZ   = m_ChartFloatingScreen.transform.localEulerAngles.z;
+                SCVConfig.Instance.ChartStandardPosition = m_ChartFloatingScreen.transform.localPosition;
+                SCVConfig.Instance.ChartStandardRotation = m_ChartFloatingScreen.transform.localEulerAngles;
             }
             else
             {
-                Config.SongChartVisualizer.Chart360_90PositionX     = m_ChartFloatingScreen.transform.localPosition.x;
-                Config.SongChartVisualizer.Chart360_90PositionY     = m_ChartFloatingScreen.transform.localPosition.y;
-                Config.SongChartVisualizer.Chart360_90PositionZ     = m_ChartFloatingScreen.transform.localPosition.z;
-                Config.SongChartVisualizer.Chart360_90RotationX     = m_ChartFloatingScreen.transform.localEulerAngles.x;
-                Config.SongChartVisualizer.Chart360_90RotationY     = m_ChartFloatingScreen.transform.localEulerAngles.y;
-                Config.SongChartVisualizer.Chart360_90RotationZ     = m_ChartFloatingScreen.transform.localEulerAngles.z;
+                SCVConfig.Instance.Chart360_90Position = m_ChartFloatingScreen.transform.localPosition;
+                SCVConfig.Instance.Chart360_90Rotation = m_ChartFloatingScreen.transform.localEulerAngles;
             }
         }
     }

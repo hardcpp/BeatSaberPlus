@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace BeatSaberPlus.Modules.SongChartVisualizer.Components
+namespace BeatSaberPlus_SongChartVisualizer.Components
 {
     /// <summary>
     /// Chart creator component
@@ -49,7 +49,7 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer.Components
         {
             m_AudioTimeSyncController = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().FirstOrDefault();
 
-            bool l_NoUI = SDK.Game.Logic.LevelData?.Data?.playerSpecificSettings?.noTextsAndHuds ?? false;
+            bool l_NoUI = BeatSaberPlus.SDK.Game.Logic.LevelData?.Data?.playerSpecificSettings?.noTextsAndHuds ?? false;
 
             if (l_NoUI)
             {
@@ -57,22 +57,22 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer.Components
                 return;
             }
 
-            var l_DifficultyBeatmap = SDK.Game.Logic.LevelData?.Data?.difficultyBeatmap;
-            if ((l_DifficultyBeatmap != null && l_DifficultyBeatmap.beatmapData != null) || SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Menu)
+            var l_DifficultyBeatmap = BeatSaberPlus.SDK.Game.Logic.LevelData?.Data?.difficultyBeatmap;
+            if ((l_DifficultyBeatmap != null && l_DifficultyBeatmap.beatmapData != null) || BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Menu)
             {
                 var l_SongDuration = -1f;
 
                 /// Demo data
-                if (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Menu)
+                if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Menu)
                     l_SongDuration = 201f;
                 else
                     l_SongDuration = l_DifficultyBeatmap?.level?.beatmapLevelData?.audioClip?.length ?? -1f;
 
                 if (l_SongDuration >= 0)
                 {
-                    if (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Menu)
+                    if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Menu)
                         FillGraphDataWithDemoValues();
-                    else if (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Playing)
+                    else if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Playing)
                     {
                         m_FlyingGameHUDRotation = l_DifficultyBeatmap.beatmapData.spawnRotationEventsCount > 0 ? Resources.FindObjectsOfTypeAll<FlyingGameHUDRotation>().FirstOrDefault()?.gameObject : null;
 
@@ -254,9 +254,9 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer.Components
 
                         var l_Image = m_Pointer.AddComponent<Image>();
                         l_Image.useSpriteMesh   = true;
-                        l_Image.color           = Config.SongChartVisualizer.CursorColor;
+                        l_Image.color           = SCVConfig.Instance.CursorColor;
 
-                        m_CurrentGraphDataIndex = SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Menu ? (m_GraphData.Length / 2) : 0;
+                        m_CurrentGraphDataIndex = BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Menu ? (m_GraphData.Length / 2) : 0;
 
                         var l_RectTransform = m_Pointer.GetComponent<RectTransform>();
                         l_RectTransform.sizeDelta = Vector2.one * 10f;
@@ -264,7 +264,7 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer.Components
                         (m_Pointer.transform as RectTransform).anchorMax         = Vector2.zero;
                         (m_Pointer.transform as RectTransform).anchoredPosition  = m_Points.Count > 0 ? m_Points[m_CurrentGraphDataIndex] : Vector2.zero;
 
-                        SDK.Unity.GameObject.ChangerLayerRecursive(gameObject, LayerMask.NameToLayer("UI"));
+                        BeatSaberPlus.SDK.Unity.GameObject.ChangerLayerRecursive(gameObject, LayerMask.NameToLayer("UI"));
                     }
                 }
             }
@@ -278,10 +278,10 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer.Components
         /// </summary>
         private void Update()
         {
-            if (SDK.Game.Logic.ActiveScene != SDK.Game.Logic.SceneType.Playing)
+            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene != BeatSaberPlus.SDK.Game.Logic.SceneType.Playing)
                 return;
 
-            if (m_FlyingGameHUDRotation != null && m_FlyingGameHUDRotation && Config.SongChartVisualizer.FollowEnvironementRotation)
+            if (m_FlyingGameHUDRotation != null && m_FlyingGameHUDRotation && SCVConfig.Instance.FollowEnvironementRotation)
                 transform.parent.rotation = m_FlyingGameHUDRotation.transform.rotation;
 
             if (m_GraphCanvas == null || m_Pointer == null || m_AudioTimeSyncController == null || !m_AudioTimeSyncController || m_AudioTimeSyncController .state == AudioTimeSyncController.State.Stopped)
@@ -333,7 +333,7 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer.Components
                 {
                     var l_Line = new GameObject("", typeof(Image));
                     l_Line.transform.SetParent(m_GraphCanvas, false);
-                    l_Line.GetComponent<Image>().color = Config.SongChartVisualizer.LineColor;
+                    l_Line.GetComponent<Image>().color = SCVConfig.Instance.LineColor;
 
                     var l_Direction = (l_CurrentPoint - l_LastPoint).normalized;
                     var l_Distance  = Vector2.Distance(l_LastPoint, l_CurrentPoint);
@@ -353,7 +353,7 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer.Components
             {
                 var l_Line = new GameObject("", typeof(Image));
                 l_Line.transform.SetParent(m_GraphCanvas, false);
-                l_Line.GetComponent<Image>().color = Config.SongChartVisualizer.LineColor;
+                l_Line.GetComponent<Image>().color = SCVConfig.Instance.LineColor;
 
                 var l_Direction = (new Vector2(m_GraphCanvas.sizeDelta.x, 0) - l_LastPoint).normalized;
                 var l_Distance  = Vector2.Distance(l_LastPoint, new Vector2(m_GraphCanvas.sizeDelta.x, 0));
@@ -366,7 +366,7 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer.Components
                 l_RectTransform.localEulerAngles    = new Vector3(0, 0, Mathf.Atan2(l_Direction.y, l_Direction.x) * Mathf.Rad2Deg);
             }
 
-            if (Config.SongChartVisualizer.ShowNPSLegend)
+            if (SCVConfig.Instance.ShowNPSLegend)
             {
                 var l_Font          = Resources.FindObjectsOfTypeAll<TMPro.TMP_FontAsset>().FirstOrDefault(x => x.name == "Teko-Medium SDF");
                 var l_LabelCount    = 10;
@@ -387,7 +387,7 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer.Components
                     (l_LegendLabel.transform as RectTransform).localPosition        = new Vector3(-585.00f, (l_LegendLabel.transform as RectTransform).localPosition.y, (l_LegendLabel.transform as RectTransform).localPosition.z);
                     l_LegendLabel.GetComponent<TMPro.TextMeshProUGUI>().font        = l_Font;
                     l_LegendLabel.GetComponent<TMPro.TextMeshProUGUI>().alignment   = TMPro.TextAlignmentOptions.MidlineRight;
-                    l_LegendLabel.GetComponent<TMPro.TextMeshProUGUI>().color       = Config.SongChartVisualizer.LegendColor;
+                    l_LegendLabel.GetComponent<TMPro.TextMeshProUGUI>().color       = SCVConfig.Instance.LegendColor;
                     l_LegendLabel.GetComponent<TMPro.TextMeshProUGUI>().text        = Mathf.Round(l_MinValue + (l_NormalizedValue * (l_MaxValue - l_MinValue))).ToString();
                     l_LegendLabel.GetComponent<TMPro.TextMeshProUGUI>().fontSize    = 25;
                     l_LegendLabel.GetComponent<TMPro.TextMeshProUGUI>().enabled     = System.Math.Round(l_MinValue + (l_NormalizedValue * (l_MaxValue - l_MinValue)), 2) >= 0f;
@@ -401,9 +401,9 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer.Components
                     (l_LegendLine.transform as RectTransform).offsetMin          = new Vector2(-448.1f, 247.6f);
                     (l_LegendLine.transform as RectTransform).offsetMax          = new Vector2(521.9f, 250.6f);
                     (l_LegendLine.transform as RectTransform).anchoredPosition   = new Vector2(-4f, l_NormalizedValue * m_GraphCanvas.sizeDelta.y);
-                    l_LegendLine.GetComponent<Image>().sprite                    = SDK.Unity.Sprite.CreateFromTexture(Texture2D.whiteTexture);
+                    l_LegendLine.GetComponent<Image>().sprite                    = BeatSaberPlus.SDK.Unity.Sprite.CreateFromTexture(Texture2D.whiteTexture);
                     l_LegendLine.GetComponent<Image>().type                      = Image.Type.Simple;
-                    l_LegendLine.GetComponent<Image>().color                     = Config.SongChartVisualizer.DashLineColor;
+                    l_LegendLine.GetComponent<Image>().color                     = SCVConfig.Instance.DashLineColor;
                 }
             }
         }

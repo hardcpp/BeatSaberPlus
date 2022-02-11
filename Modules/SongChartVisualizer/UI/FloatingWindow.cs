@@ -6,12 +6,12 @@ using System.Linq;
 using UnityEngine;
 using VRUIControls;
 
-namespace BeatSaberPlus.Modules.SongChartVisualizer.UI
+namespace BeatSaberPlus_SongChartVisualizer.UI
 {
     /// <summary>
     /// Floating window content
     /// </summary>
-    internal class FloatingWindow : SDK.UI.ResourceViewController<FloatingWindow>
+    internal class FloatingWindow : BeatSaberPlus.SDK.UI.ResourceViewController<FloatingWindow>
     {
         /// <summary>
         /// Is movement allowed
@@ -40,7 +40,7 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer.UI
                     l_FloatingScreen.handle.transform.localRotation = Quaternion.identity;
 
                     /// Update handle material
-                    var l_ChartFloatingScreenHandleMaterial = GameObject.Instantiate(SDK.Unity.Material.UINoGlowMaterial);
+                    var l_ChartFloatingScreenHandleMaterial = GameObject.Instantiate(BeatSaberPlus.SDK.Unity.Material.UINoGlowMaterial);
                     l_ChartFloatingScreenHandleMaterial.color = Color.clear;
                     l_FloatingScreen.handle.gameObject.GetComponent<Renderer>().material = l_ChartFloatingScreenHandleMaterial;
                 }
@@ -91,10 +91,10 @@ namespace BeatSaberPlus.Modules.SongChartVisualizer.UI
             m_AllowMovement = false;
 
             /// Hide the lock icon
-            if (!Config.SongChartVisualizer.ShowLockIcon)
+            if (!SCVConfig.Instance.ShowLockIcon)
                 m_LockIcon.gameObject.SetActive(false);
 
-            SDK.Unity.GameObject.ChangerLayerRecursive(gameObject, LayerMask.NameToLayer("UI"));
+            BeatSaberPlus.SDK.Unity.GameObject.ChangerLayerRecursive(gameObject, LayerMask.NameToLayer("UI"));
         }
 
         ////////////////////////////////////////////////////////////////////////////
