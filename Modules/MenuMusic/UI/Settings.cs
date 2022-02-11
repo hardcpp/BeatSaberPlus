@@ -2,12 +2,12 @@
 using BeatSaberMarkupLanguage.Components.Settings;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.MenuMusic.UI
+namespace BeatSaberPlus_MenuMusic.UI
 {
     /// <summary>
     /// Settings view controller
     /// </summary>
-    internal class Settings : SDK.UI.ResourceViewController<Settings>
+    internal class Settings : BeatSaberPlus.SDK.UI.ResourceViewController<Settings>
     {
 #pragma warning disable CS0649
         [UIComponent("ShowPlayerInterfaceToggle")]
@@ -55,17 +55,17 @@ namespace BeatSaberPlus.Modules.MenuMusic.UI
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic));
 
             /// Left
-            SDK.UI.ToggleSetting.Setup(m_ShowPlayerInterface,           l_Event,                                            Config.MenuMusic.ShowPlayer,                    true);
-            SDK.UI.ToggleSetting.Setup(m_ShowPlayTime,                  l_Event,                                            Config.MenuMusic.ShowPlayTime,                  true);
-            SDK.UI.IncrementSetting.Setup(m_PlayerBackgroundOpacity,    l_Event, SDK.UI.BSMLSettingFormartter.Percentage,    Config.MenuMusic.BackgroundA,                   true);
-            SDK.UI.ColorSetting.Setup(m_PlayerBackground,               l_Event,                                            Config.MenuMusic.BackgroundColor,               true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_ShowPlayerInterface,           l_Event,                                                          MMConfig.Instance.ShowPlayer,                           true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_ShowPlayTime,                  l_Event,                                                          MMConfig.Instance.ShowPlayTime,                         true);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_PlayerBackgroundOpacity,    l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Percentage,   MMConfig.Instance.BackgroundColor.a,                    true);
+            BeatSaberPlus.SDK.UI.ColorSetting.Setup(m_PlayerBackground,               l_Event,                                                          MMConfig.Instance.BackgroundColor.ColorWithAlpha(1.0f), true);
 
             /// Right
-            SDK.UI.ToggleSetting.Setup(m_PlaySongsFromBeginning,        l_Event,                                            Config.MenuMusic.StartSongFromBeginning,        true);
-            SDK.UI.ToggleSetting.Setup(m_StartANewMusicOnSceneChange,   l_Event,                                            Config.MenuMusic.StartANewMusicOnSceneChange,   true);
-            SDK.UI.ToggleSetting.Setup(m_LoopCurrentMusic,              l_Event,                                            Config.MenuMusic.LoopCurrentMusic,              true);
-            SDK.UI.ToggleSetting.Setup(m_PlayOnlyCustomMenuMusics,      l_Event,                                            Config.MenuMusic.UseOnlyCustomMenuSongsFolder,  true);
-            SDK.UI.IncrementSetting.Setup(m_PlaybackVolume,             l_Event, SDK.UI.BSMLSettingFormartter.Percentage,    Config.MenuMusic.PlaybackVolume,                true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_PlaySongsFromBeginning,        l_Event,                                                          MMConfig.Instance.StartSongFromBeginning,               true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_StartANewMusicOnSceneChange,   l_Event,                                                          MMConfig.Instance.StartANewMusicOnSceneChange,          true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_LoopCurrentMusic,              l_Event,                                                          MMConfig.Instance.LoopCurrentMusic,                     true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_PlayOnlyCustomMenuMusics,      l_Event,                                                          MMConfig.Instance.UseOnlyCustomMenuSongsFolder,         true);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_PlaybackVolume,             l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Percentage,   MMConfig.Instance.PlaybackVolume,                       true);
         }
         /// <summary>
         /// On view activation
@@ -73,8 +73,15 @@ namespace BeatSaberPlus.Modules.MenuMusic.UI
         protected override void OnViewActivation()
         {
             m_PreventChanges = true;
-            m_PlaybackVolume.Value = Config.MenuMusic.PlaybackVolume;
+            m_PlaybackVolume.Value = MMConfig.Instance.PlaybackVolume;
             m_PreventChanges = false;
+        }
+        /// <summary>
+        /// On view deactivation
+        /// </summary>
+        protected override sealed void OnViewDeactivation()
+        {
+            MMConfig.Instance.Save();
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -90,19 +97,16 @@ namespace BeatSaberPlus.Modules.MenuMusic.UI
                 return;
 
             /// Left
-            Config.MenuMusic.ShowPlayer                     = m_ShowPlayerInterface.Value;
-            Config.MenuMusic.ShowPlayTime                   = m_ShowPlayTime.Value;
-            Config.MenuMusic.BackgroundA                    = m_PlayerBackgroundOpacity.Value;
-            Config.MenuMusic.BackgroundR                    = m_PlayerBackground.CurrentColor.r;
-            Config.MenuMusic.BackgroundG                    = m_PlayerBackground.CurrentColor.g;
-            Config.MenuMusic.BackgroundB                    = m_PlayerBackground.CurrentColor.b;
+            MMConfig.Instance.ShowPlayer                     = m_ShowPlayerInterface.Value;
+            MMConfig.Instance.ShowPlayTime                   = m_ShowPlayTime.Value;
+            MMConfig.Instance.BackgroundColor                = m_PlayerBackground.CurrentColor.ColorWithAlpha(m_PlayerBackgroundOpacity.Value);
 
             /// Right
-            Config.MenuMusic.StartSongFromBeginning         = m_PlaySongsFromBeginning.Value;
-            Config.MenuMusic.StartANewMusicOnSceneChange    = m_StartANewMusicOnSceneChange.Value;
-            Config.MenuMusic.LoopCurrentMusic               = m_LoopCurrentMusic.Value;
-            Config.MenuMusic.UseOnlyCustomMenuSongsFolder   = m_PlayOnlyCustomMenuMusics.Value;
-            Config.MenuMusic.PlaybackVolume                 = m_PlaybackVolume.Value;
+            MMConfig.Instance.StartSongFromBeginning         = m_PlaySongsFromBeginning.Value;
+            MMConfig.Instance.StartANewMusicOnSceneChange    = m_StartANewMusicOnSceneChange.Value;
+            MMConfig.Instance.LoopCurrentMusic               = m_LoopCurrentMusic.Value;
+            MMConfig.Instance.UseOnlyCustomMenuSongsFolder   = m_PlayOnlyCustomMenuMusics.Value;
+            MMConfig.Instance.PlaybackVolume                 = m_PlaybackVolume.Value;
 
             /// Update playback volume & player
             MenuMusic.Instance.UpdatePlaybackVolume(true);
@@ -120,17 +124,17 @@ namespace BeatSaberPlus.Modules.MenuMusic.UI
             m_PreventChanges = true;
 
             /// Left
-            m_ShowPlayerInterface.Value         = Config.MenuMusic.ShowPlayer;
-            m_ShowPlayTime.Value                = Config.MenuMusic.ShowPlayTime;
-            m_PlayerBackgroundOpacity.Value     = Config.MenuMusic.BackgroundA;
-            m_PlayerBackground.CurrentColor     = new Color(Config.MenuMusic.BackgroundR, Config.MenuMusic.BackgroundG, Config.MenuMusic.BackgroundB, 1f);
+            m_ShowPlayerInterface.Value         = MMConfig.Instance.ShowPlayer;
+            m_ShowPlayTime.Value                = MMConfig.Instance.ShowPlayTime;
+            m_PlayerBackgroundOpacity.Value     = MMConfig.Instance.BackgroundColor.a;
+            m_PlayerBackground.CurrentColor     = MMConfig.Instance.BackgroundColor.ColorWithAlpha(1.0f);
 
             /// Right
-            m_PlaySongsFromBeginning.Value      = Config.MenuMusic.StartSongFromBeginning;
-            m_StartANewMusicOnSceneChange.Value = Config.MenuMusic.StartANewMusicOnSceneChange;
-            m_LoopCurrentMusic.Value            = Config.MenuMusic.LoopCurrentMusic;
-            m_PlayOnlyCustomMenuMusics.Value    = Config.MenuMusic.UseOnlyCustomMenuSongsFolder;
-            m_PlaybackVolume.Value              = Config.MenuMusic.PlaybackVolume;
+            m_PlaySongsFromBeginning.Value      = MMConfig.Instance.StartSongFromBeginning;
+            m_StartANewMusicOnSceneChange.Value = MMConfig.Instance.StartANewMusicOnSceneChange;
+            m_LoopCurrentMusic.Value            = MMConfig.Instance.LoopCurrentMusic;
+            m_PlayOnlyCustomMenuMusics.Value    = MMConfig.Instance.UseOnlyCustomMenuSongsFolder;
+            m_PlaybackVolume.Value              = MMConfig.Instance.PlaybackVolume;
 
             m_PreventChanges = false;
 

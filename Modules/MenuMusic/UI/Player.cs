@@ -7,12 +7,12 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace BeatSaberPlus.Modules.MenuMusic.UI
+namespace BeatSaberPlus_MenuMusic.UI
 {
     /// <summary>
     /// Player UI window
     /// </summary>
-    internal class Player : SDK.UI.ResourceViewController<Player>
+    internal class Player : BeatSaberPlus.SDK.UI.ResourceViewController<Player>
     {
 #pragma warning disable CS0649
         [UIComponent("Playing")]
@@ -73,18 +73,18 @@ namespace BeatSaberPlus.Modules.MenuMusic.UI
         protected override sealed void OnViewCreation()
         {
             /// Update background color
-            GetComponentInChildren<ImageView>().color = Config.MenuMusic.BackgroundColor;
+            GetComponentInChildren<ImageView>().color = MMConfig.Instance.BackgroundColor;
 
             if (m_PlaySprite == null)
-                m_PlaySprite = BeatSaberMarkupLanguage.Utilities.FindSpriteInAssembly("BeatSaberPlus.Modules.MenuMusic.Resources.Play.png");
+                m_PlaySprite = BeatSaberMarkupLanguage.Utilities.FindSpriteInAssembly("BeatSaberPlus_MenuMusic.Resources.Play.png");
             if (m_PauseSprite == null)
-                m_PauseSprite = BeatSaberMarkupLanguage.Utilities.FindSpriteInAssembly("BeatSaberPlus.Modules.MenuMusic.Resources.Pause.png");
+                m_PauseSprite = BeatSaberMarkupLanguage.Utilities.FindSpriteInAssembly("BeatSaberPlus_MenuMusic.Resources.Pause.png");
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic));
 
             m_PrevButton.transform.localScale       = Vector3.one * 0.75f;
             m_RandButton.transform.localScale       = Vector3.one * 0.75f;
-            SDK.UI.IncrementSetting.Setup(m_PlaybackVolume, l_Event, SDK.UI.BSMLSettingFormartter.Percentage, Config.MenuMusic.PlaybackVolume, true);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_PlaybackVolume, l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Percentage, MMConfig.Instance.PlaybackVolume, true);
             m_PlayPauseButton.transform.localScale  = Vector3.one * 0.75f;
             m_NextButton.transform.localScale       = Vector3.one * 0.75f;
 
@@ -153,7 +153,7 @@ namespace BeatSaberPlus.Modules.MenuMusic.UI
         internal void UpdateBackgroundColor()
         {
             /// Update background color
-            GetComponentInChildren<ImageView>().color = Config.MenuMusic.BackgroundColor;
+            GetComponentInChildren<ImageView>().color = MMConfig.Instance.BackgroundColor;
         }
         /// <summary>
         /// Update status text
@@ -163,7 +163,7 @@ namespace BeatSaberPlus.Modules.MenuMusic.UI
             if (!UICreated)
                 return;
 
-            if (Config.MenuMusic.ShowPlayTime)
+            if (MMConfig.Instance.ShowPlayTime)
             {
                 var l_Text = "<size=90%>" + m_CurrentSongName;
                 l_Text += "\n<size=80%><#7F7F7F>";
@@ -190,7 +190,7 @@ namespace BeatSaberPlus.Modules.MenuMusic.UI
                 return;
 
             m_PreventChanges = true;
-            m_PlaybackVolume.Value = Config.MenuMusic.PlaybackVolume;
+            m_PlaybackVolume.Value = MMConfig.Instance.PlaybackVolume;
             m_PreventChanges = false;
         }
 
@@ -230,7 +230,7 @@ namespace BeatSaberPlus.Modules.MenuMusic.UI
         {
             var l_Map = MenuMusic.Instance.GetCurrentlyPlayingSongPreviewBeatmap();
             if (l_Map != null)
-                SDK.Game.LevelSelection.FilterToSpecificSong(l_Map);
+                BeatSaberPlus.SDK.Game.LevelSelection.FilterToSpecificSong(l_Map);
             else
                 ShowMessageModal("Map not found!");
         }
@@ -263,7 +263,7 @@ namespace BeatSaberPlus.Modules.MenuMusic.UI
             if (m_PreventChanges)
                 return;
 
-            Config.MenuMusic.PlaybackVolume = m_PlaybackVolume.Value;
+            MMConfig.Instance.PlaybackVolume = m_PlaybackVolume.Value;
 
             /// Update playback volume & player
             MenuMusic.Instance.UpdatePlaybackVolume(false);

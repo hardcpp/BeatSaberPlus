@@ -11,17 +11,17 @@ using System.Reflection;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace BeatSaberPlus.Modules.MenuMusic
+namespace BeatSaberPlus_MenuMusic
 {
     /// <summary>
     /// Menu Music Module
     /// </summary>
-    internal class MenuMusic : SDK.ModuleBase<MenuMusic>
+    internal class MenuMusic : BeatSaberPlus.SDK.ModuleBase<MenuMusic>
     {
         /// <summary>
         /// Module type
         /// </summary>
-        public override SDK.IModuleBaseType Type => SDK.IModuleBaseType.Integrated;
+        public override BeatSaberPlus.SDK.IModuleBaseType Type => BeatSaberPlus.SDK.IModuleBaseType.Integrated;
         /// <summary>
         /// Name of the Module
         /// </summary>
@@ -37,11 +37,11 @@ namespace BeatSaberPlus.Modules.MenuMusic
         /// <summary>
         /// Is enabled
         /// </summary>
-        public override bool IsEnabled { get => Config.MenuMusic.Enabled; set => Config.MenuMusic.Enabled = value; }
+        public override bool IsEnabled { get => MMConfig.Instance.Enabled; set { MMConfig.Instance.Enabled = value; MMConfig.Instance.Save(); } }
         /// <summary>
         /// Activation kind
         /// </summary>
-        public override SDK.IModuleBaseActivationType ActivationType => SDK.IModuleBaseActivationType.OnMenuSceneLoaded;
+        public override BeatSaberPlus.SDK.IModuleBaseActivationType ActivationType => BeatSaberPlus.SDK.IModuleBaseActivationType.OnMenuSceneLoaded;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -136,7 +136,7 @@ namespace BeatSaberPlus.Modules.MenuMusic
         protected override void OnEnable()
         {
             /// Bind event
-            SDK.Game.Logic.OnSceneChange += Game_OnSceneChange;
+            BeatSaberPlus.SDK.Game.Logic.OnSceneChange += Game_OnSceneChange;
 
             /// Create CustomMenuSongs directory if not existing
             try
@@ -163,20 +163,20 @@ namespace BeatSaberPlus.Modules.MenuMusic
             RefreshSongs();
 
             /// Enable at start if in menu
-            if (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Menu)
-                Game_OnSceneChange(SDK.Game.Logic.SceneType.Menu);
+            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Menu)
+                Game_OnSceneChange(BeatSaberPlus.SDK.Game.Logic.SceneType.Menu);
 
-            SDK.Chat.Service.Discrete_OnTextMessageReceived += ChatService_Discrete_OnTextMessageReceived;
+            BeatSaberPlus.SDK.Chat.Service.Discrete_OnTextMessageReceived += ChatService_Discrete_OnTextMessageReceived;
         }
         /// <summary>
         /// Disable the Module
         /// </summary>
         protected override void OnDisable()
         {
-            SDK.Chat.Service.Discrete_OnTextMessageReceived -= ChatService_Discrete_OnTextMessageReceived;
+            BeatSaberPlus.SDK.Chat.Service.Discrete_OnTextMessageReceived -= ChatService_Discrete_OnTextMessageReceived;
 
             /// Unbind event
-            SDK.Game.Logic.OnSceneChange -= Game_OnSceneChange;
+            BeatSaberPlus.SDK.Game.Logic.OnSceneChange -= Game_OnSceneChange;
 
             /// Stop wait and play next song coroutine
             if (m_WaitAndPlayNextSongCoroutine != null)
@@ -223,10 +223,10 @@ namespace BeatSaberPlus.Modules.MenuMusic
         /// When the active scene change
         /// </summary>
         /// <param name="p_Scene">Scene type</param>
-        private void Game_OnSceneChange(SDK.Game.Logic.SceneType p_Scene)
+        private void Game_OnSceneChange(BeatSaberPlus.SDK.Game.Logic.SceneType p_Scene)
         {
             /// Skip if it's not the menu
-            if (p_Scene != SDK.Game.Logic.SceneType.Menu)
+            if (p_Scene != BeatSaberPlus.SDK.Game.Logic.SceneType.Menu)
             {
                 if (m_PreviewPlayer != null && m_PreviewPlayer && m_OriginalMenuMusic != null)
                 {
@@ -238,14 +238,14 @@ namespace BeatSaberPlus.Modules.MenuMusic
             }
 
             /// Create player window
-            if (Config.MenuMusic.ShowPlayer)
+            if (MMConfig.Instance.ShowPlayer)
                 CreateFloatingPlayer();
 
             m_PreviewPlayer.SetField("_ambientVolumeScale", 0f);
             m_PreviewPlayer.SetField("_volumeScale",        0f);
 
             /// Start a new music
-            if (Config.MenuMusic.StartANewMusicOnSceneChange)
+            if (MMConfig.Instance.StartANewMusicOnSceneChange)
                 StartNewMusic(false, true);
             else
                 SharedCoroutineStarter.instance.StartCoroutine(LoadAudioClip(true));
@@ -262,7 +262,7 @@ namespace BeatSaberPlus.Modules.MenuMusic
 
             string l_LMessage = p_Message.Message.ToLower();
             if (l_LMessage.StartsWith("!menumusic"))
-                p_Service.SendTextMessage(p_Message.Channel, $"!: @{p_Message.Sender.DisplayName} current song: {GetCurrenltyPlayingSongName()}");
+                p_Service.SendTextMessage(p_Message.Channel, $"!: @{p_Message.Sender.DisplayName} current song: {GetCurrenltyPlayingSongName().Replace(".", " . ")}");
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -276,22 +276,24 @@ namespace BeatSaberPlus.Modules.MenuMusic
             if (m_PreviewPlayer == null || !m_PreviewPlayer)
                 return;
 
-            m_PreviewPlayer.SetField("_volumeScale", Config.MenuMusic.PlaybackVolume);
+            m_PreviewPlayer.SetField("_volumeScale", MMConfig.Instance.PlaybackVolume);
 
             if (p_FromSettings && m_PlayerFloatingScreenController != null && m_PlayerFloatingScreenController)
                 m_PlayerFloatingScreenController.UpdateVolume();
 
             if (!p_FromSettings && m_SettingsView && UI.Settings.CanBeUpdated)
                 m_SettingsView.OnResetButton();
+
+            MMConfig.Instance.Save();
         }
         /// <summary>
         /// Update player
         /// </summary>
         internal void UpdatePlayer()
         {
-            if (Config.MenuMusic.ShowPlayer && (m_PlayerFloatingScreen == null || !m_PlayerFloatingScreen))
+            if (MMConfig.Instance.ShowPlayer && (m_PlayerFloatingScreen == null || !m_PlayerFloatingScreen))
                 CreateFloatingPlayer();
-            else if (!Config.MenuMusic.ShowPlayer && m_PlayerFloatingScreen != null && m_PlayerFloatingScreen)
+            else if (!MMConfig.Instance.ShowPlayer && m_PlayerFloatingScreen != null && m_PlayerFloatingScreen)
                 DestroyFloatingPlayer();
 
             if (m_PlayerFloatingScreen != null && m_PlayerFloatingScreen)
@@ -429,10 +431,10 @@ namespace BeatSaberPlus.Modules.MenuMusic
         {
             try
             {
-                if (Config.MenuMusic.UseOnlyCustomMenuSongsFolder)
+                if (MMConfig.Instance.UseOnlyCustomMenuSongsFolder)
                     m_AllSongs = GetSongsInDirectory("CustomMenuSongs", true).ToArray();
 
-                if (!Config.MenuMusic.UseOnlyCustomMenuSongsFolder || m_AllSongs.Length == 0)
+                if (!MMConfig.Instance.UseOnlyCustomMenuSongsFolder || m_AllSongs.Length == 0)
                     m_AllSongs = GetSongsInDirectory("Beat Saber_Data\\CustomLevels", false).ToArray();
 
                 m_CurrentSongIndex = 0;
@@ -540,7 +542,7 @@ namespace BeatSaberPlus.Modules.MenuMusic
             }
 
             /// Skip if it's not the menu
-            if (SDK.Game.Logic.ActiveScene != SDK.Game.Logic.SceneType.Menu)
+            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene != BeatSaberPlus.SDK.Game.Logic.SceneType.Menu)
                 yield break;
 
             yield return new WaitUntil(() => m_PreviewPlayer = Resources.FindObjectsOfTypeAll<SongPreviewPlayer>().First());
@@ -559,7 +561,7 @@ namespace BeatSaberPlus.Modules.MenuMusic
             yield return l_Song.SendWebRequest();
 
             /// Skip if it's not the menu
-            if (SDK.Game.Logic.ActiveScene != SDK.Game.Logic.SceneType.Menu)
+            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene != BeatSaberPlus.SDK.Game.Logic.SceneType.Menu)
                 yield break;
 
             try
@@ -575,7 +577,7 @@ namespace BeatSaberPlus.Modules.MenuMusic
                     Logger.Instance.Debug("No audio found!");
 
                     /// Try next music if loading failed
-                    if (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Menu)
+                    if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Menu)
                         StartNextMusic();
 
                     yield break;
@@ -587,7 +589,7 @@ namespace BeatSaberPlus.Modules.MenuMusic
                 Logger.Instance.Error(p_Exception);
 
                 /// Try next music if loading failed
-                if (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Menu)
+                if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Menu)
                     StartNextMusic();
 
                 yield break;
@@ -596,7 +598,7 @@ namespace BeatSaberPlus.Modules.MenuMusic
             yield return new WaitUntil(() => m_CurrentMusic);
 
             /// Skip if it's not the menu
-            if (SDK.Game.Logic.ActiveScene != SDK.Game.Logic.SceneType.Menu)
+            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene != BeatSaberPlus.SDK.Game.Logic.SceneType.Menu)
                 yield break;
 
             if (m_PreviewPlayer != null && m_PreviewPlayer && m_CurrentMusic != null)
@@ -609,7 +611,7 @@ namespace BeatSaberPlus.Modules.MenuMusic
                 }
 
                 /// Check if we changed scene during loading
-                if (!m_PreviewPlayer || BeatSaberPlus.SDK.Game.Logic.ActiveScene != SDK.Game.Logic.SceneType.Menu)
+                if (!m_PreviewPlayer || BeatSaberPlus.SDK.Game.Logic.ActiveScene != BeatSaberPlus.SDK.Game.Logic.SceneType.Menu)
                     yield break;
 
                 if (m_CurrentMusic.loadState == AudioDataLoadState.Loaded)
@@ -626,12 +628,12 @@ namespace BeatSaberPlus.Modules.MenuMusic
 
                         m_PreviewPlayer.SetField("_defaultAudioClip",   m_CurrentMusic);
 
-                        m_PreviewPlayer.SetField("_ambientVolumeScale", Config.MenuMusic.PlaybackVolume);
-                        m_PreviewPlayer.SetField("_volumeScale",        Config.MenuMusic.PlaybackVolume);
+                        m_PreviewPlayer.SetField("_ambientVolumeScale", MMConfig.Instance.PlaybackVolume);
+                        m_PreviewPlayer.SetField("_volumeScale",        MMConfig.Instance.PlaybackVolume);
 
-                        float l_StartTime = (Config.MenuMusic.StartSongFromBeginning || m_CurrentMusic.length < 60) ? 0f : Mathf.Max(UnityEngine.Random.Range(m_CurrentMusic.length * 0.2f, m_CurrentMusic.length * 0.8f), 0.0f);
+                        float l_StartTime = (MMConfig.Instance.StartSongFromBeginning || m_CurrentMusic.length < 60) ? 0f : Mathf.Max(UnityEngine.Random.Range(m_CurrentMusic.length * 0.2f, m_CurrentMusic.length * 0.8f), 0.0f);
 
-                        m_PreviewPlayer.CrossfadeTo(m_CurrentMusic, Config.MenuMusic.PlaybackVolume, l_StartTime, -1f, () => { });
+                        m_PreviewPlayer.CrossfadeTo(m_CurrentMusic, MMConfig.Instance.PlaybackVolume, l_StartTime, -1f, () => { });
 
                         m_BackupTimeClip    = m_CurrentMusic;
                         m_BackupTime        = l_StartTime;
@@ -655,7 +657,7 @@ namespace BeatSaberPlus.Modules.MenuMusic
                         yield return new WaitForSeconds(2f);
 
                         /// Try next music if loading failed
-                        if (SDK.Game.Logic.ActiveScene == SDK.Game.Logic.SceneType.Menu)
+                        if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Menu)
                             StartNextMusic();
 
                         yield break;
@@ -680,7 +682,7 @@ namespace BeatSaberPlus.Modules.MenuMusic
             do
             {
                 /// Skip if it's not the menu
-                if (SDK.Game.Logic.ActiveScene != SDK.Game.Logic.SceneType.Menu || !m_PreviewPlayer)
+                if (BeatSaberPlus.SDK.Game.Logic.ActiveScene != BeatSaberPlus.SDK.Game.Logic.SceneType.Menu || !m_PreviewPlayer)
                 {
                     m_WaitAndPlayNextSongCoroutine = null;
                     yield break;
@@ -718,14 +720,14 @@ namespace BeatSaberPlus.Modules.MenuMusic
                                 l_Channel.Pause();
                             else
                             {
-                                m_PreviewPlayer.SetField("_ambientVolumeScale", Config.MenuMusic.PlaybackVolume);
-                                m_PreviewPlayer.SetField("_volumeScale",        Config.MenuMusic.PlaybackVolume);
+                                m_PreviewPlayer.SetField("_ambientVolumeScale", MMConfig.Instance.PlaybackVolume);
+                                m_PreviewPlayer.SetField("_volumeScale",        MMConfig.Instance.PlaybackVolume);
                             }
 
                             if (Mathf.Abs(p_EndTime - l_Channel.time) < 3f)
                             {
                                 m_WaitAndPlayNextSongCoroutine = null;
-                                if (Config.MenuMusic.LoopCurrentMusic)
+                                if (MMConfig.Instance.LoopCurrentMusic)
                                     SharedCoroutineStarter.instance.StartCoroutine(LoadAudioClip(false));
                                 else
                                     StartNextMusic();

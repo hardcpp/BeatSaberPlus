@@ -2,12 +2,12 @@
 using System.Diagnostics;
 using UnityEngine;
 
-namespace BeatSaberPlus.Modules.MenuMusic.UI
+namespace BeatSaberPlus_MenuMusic.UI
 {
     /// <summary>
     /// Menu music settings credit view
     /// </summary>
-    internal class SettingsLeft : SDK.UI.ResourceViewController<SettingsLeft>
+    internal class SettingsLeft : BeatSaberPlus.SDK.UI.ResourceViewController<SettingsLeft>
     {
 #pragma warning disable CS0414
         [UIObject("Background")]
@@ -32,7 +32,7 @@ namespace BeatSaberPlus.Modules.MenuMusic.UI
         /// </summary>
         protected override sealed void OnViewCreation()
         {
-            SDK.UI.Backgroundable.SetOpacity(m_Background, 0.5f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_Background, 0.5f);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -47,7 +47,9 @@ namespace BeatSaberPlus.Modules.MenuMusic.UI
             ShowConfirmationModal("<color=yellow><b>Do you really want to reset\nall Menu Music settings?", () =>
             {
                 /// Reset settings
-                Config.MenuMusic.Reset();
+                MMConfig.Instance.Reset();
+                MMConfig.Instance.Enabled = true;
+                MMConfig.Instance.Save();
 
                 /// Update main view
                 Settings.Instance.OnResetButton();
