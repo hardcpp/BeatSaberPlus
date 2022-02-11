@@ -1,0 +1,16 @@
+﻿<vertical child-control-height='false'>
+  <horizontal bg='panel-top' pad-left='15' pad-right='15' horizontal-fit='PreferredSize'>
+    <text text='Module Template' align='Center' font-size='4.2'/>
+  </horizontal>
+
+  <horizontal>
+    <text text='Title' />
+  </horizontal>
+  <horizontal>
+    <bool-setting id='templatesetting-toggle'></bool-setting>
+  </horizontal>
+
+  <horizontal min-height='50'>
+  </horizontal>
+
+</vertical>
