@@ -14,6 +14,166 @@ using UnityEngine.XR;
 
 namespace BeatSaberPlus
 {
+    /*[HarmonyPatch(typeof(BeatmapObjectsInstaller))]
+    [HarmonyPatch(nameof(BeatmapObjectsInstaller.InstallBindings))]
+    internal class PBeatmapObjectsInstaller
+    {
+        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            foreach (var l_Current in instructions)
+            {
+                if (l_Current.opcode == OpCodes.Ldc_I4_S && l_Current.operand is sbyte && (sbyte)l_Current.operand == (sbyte)25)
+                    yield return new CodeInstruction(OpCodes.Ldc_I4, 300);
+                else
+                    yield return l_Current;
+            }
+        }
+    }*/
+
+    /*
+    class test : MonoBehaviour
+    {
+        /// <summary>
+        /// Canvas instance
+        /// </summary>
+        private Canvas m_Canvas;
+        /// <summary>
+        /// Text instance
+        /// </summary>
+        private TMP_Text m_Text;
+        private void Awake()
+        {
+
+
+            var l_RectTransform = null as RectTransform;
+
+            gameObject.transform.position = Vector3.zero;
+            gameObject.transform.eulerAngles = Vector3.zero;
+            gameObject.transform.localScale = Vector3.one;
+
+            m_Canvas = gameObject.AddComponent<Canvas>();
+            m_Canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            l_RectTransform = m_Canvas.transform as RectTransform;
+            l_RectTransform.sizeDelta = new Vector2(200, 200);
+
+            gameObject.AddComponent<HMUI.CurvedCanvasSettings>().SetRadius(0);
+
+            m_Text = CreateText(m_Canvas.transform as RectTransform, "hello world", Vector2.zero, new Vector2(100, 100));
+            l_RectTransform = m_Text.transform as RectTransform;
+            l_RectTransform.anchoredPosition = Vector2.zero;
+            m_Text.fontSize = 50;
+            m_Text.alignment = TextAlignmentOptions.Center;
+
+            ///var l_Background            = new GameObject("Background").AddComponent<Image>();
+            ///l_RectTransform             = l_Background.transform as RectTransform;
+            ///l_RectTransform.SetParent(m_Canvas.transform, false);
+            ///l_RectTransform.sizeDelta   = CanvasSize;
+            ///l_Background.color          = new Color(0, 1, 0, 0.5f);
+
+            string TT = "GCMode " + UnityEngine.Scripting.GarbageCollector.GCMode + "\n";
+            TT += "isIncremental " + UnityEngine.Scripting.GarbageCollector.isIncremental + "\n";
+            TT += "incrementalTimeSliceNanoseconds " + UnityEngine.Scripting.GarbageCollector.incrementalTimeSliceNanoseconds + "\n";
+            TT += "MaxGeneration " + System.GC.MaxGeneration + "\n";
+
+            System.IO.File.WriteAllText("gc.txt", TT);
+
+
+            /// Don't destroy this object on scene changes
+            DontDestroyOnLoad(this);
+        }
+
+        public void Update()
+        {
+            m_Text.text = "Gc mode " + UnityEngine.Scripting.GarbageCollector.GCMode;
+        }
+
+        private TextMeshProUGUI CreateText(RectTransform p_Parent, string p_Text, Vector2 p_AnchoredPosition, Vector2 p_SizeDelta)
+        {
+            GameObject l_GameObject = new GameObject("CustomUIText");
+            l_GameObject.SetActive(false);
+
+            TextMeshProUGUI l_Text = l_GameObject.AddComponent<HMUI.CurvedTextMeshPro>();
+            l_Text.rectTransform.SetParent(p_Parent, false);
+            l_Text.font = Resources.Load<TMP_FontAsset>("Teko-Medium SDF");
+            l_Text.text = p_Text;
+            l_Text.fontSize = 4;
+            l_Text.color = Color.white;
+            l_Text.rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+            l_Text.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            l_Text.rectTransform.sizeDelta = p_SizeDelta;
+            l_Text.rectTransform.anchoredPosition = p_AnchoredPosition;
+
+            l_GameObject.SetActive(true);
+            return l_Text;
+        }
+    }
+
+    [HarmonyPatch(typeof(StandardLevelGameplayManager))]
+    [HarmonyPatch(nameof(StandardLevelGameplayManager.HandleGameEnergyDidReach0))]
+    public class PHandleGameEnergyDidReach0
+    {
+
+    internal static bool Prefix()
+        {
+            return false;
+        }
+    }
+
+
+    [HarmonyPatch(typeof(GameEnergyUIPanel))]
+    [HarmonyPatch(nameof(GameEnergyUIPanel.RefreshEnergyUI))]
+    public class PRefreshEnergyUI
+    {
+
+        internal static void Prefix(ref float energy)
+        {
+            energy = Mathf.Max(0.01f, energy);
+        }
+    }
+
+                _ = SDK.Game.Level.LoadSong("custom_level_F769E1E77F0CA8196B05DE7734C99047E6CCEEAF", (x) =>
+                {
+                    var l_DifficultyBeatmap = x.beatmapLevelData.GetDifficultyBeatmap(SongCore.Loader.beatmapCharacteristicCollection.GetBeatmapCharacteristicBySerializedName("Standard"), BeatmapDifficulty.ExpertPlus);
+                    ScoreSaber.ReplayPlayer.StartZ(System.IO.File.ReadAllBytes("UserData\\ScoreSaber\\Replays\\76561198154857191-Scattered_Faith-ExpertPlus-Standard-F769E1E77F0CA8196B05DE7734C99047E6CCEEAF.dat"), new ScoreSaber.Core.Data.Score()
+                    {
+                        rawName = "<color=#16E68E>OMDN | Vilanya</color>",
+                        isLocalReplay = true,
+                        percent = 84.67,
+                        modifiers = new GameplayModifiers(false, false, GameplayModifiers.EnergyType.Bar, false, false, false, GameplayModifiers.EnabledObstacleType.All, false, false, false, false, GameplayModifiers.SongSpeed.Normal, false, false, false, false, false),
+                        country = "fr",
+                        name = "<color=#16E68E>OMDN | Vilanya</color> - <size=75%>(<color=#FFD42A>84,67%</color>)</size>",
+                        playerId = "76561198154857191",
+                        parent = new ScoreSaber.Core.Data.LeaderboardScoreData()
+                        {
+                            level = l_DifficultyBeatmap,
+                            playerScore = "4280320",
+                            ranked = "",
+                            scores = new System.Collections.Generic.List<ScoreSaber.Core.Data.Score>(),
+                            uid = "291723"
+                        },
+                        //level = l_DifficultyBeatmap,
+                        replay = true,
+                    }); ;
+
+                    ///public string timeset { get; set; }
+                    ///public int hmd { get; set; }
+                    ///public int fullCombo { get; set; }
+                    ///public int maxCombo { get; set; }
+                    ///public int missedNotes { get; set; }
+                    ///public int badCuts { get; set; }
+                    ///public string mods { get; set; }
+                    ///public double pp { get; set; }
+                    ///public string country { get; set; }
+                    ///public int score { get; set; }
+                    ///public int rank { get; set; }
+                    ///public string name { get; set; }
+                    ///public string playerId { get; set; }
+                    ///public LeaderboardScoreData parent { get; set; }
+                    ///public double weight { get; set; }
+                    ///public bool replay { get; set; }
+                });
+    */
+
     /// <summary>
     /// Main plugin class
     /// </summary>
