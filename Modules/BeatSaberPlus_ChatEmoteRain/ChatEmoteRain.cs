@@ -212,7 +212,7 @@ namespace BeatSaberPlus_ChatEmoteRain
         {
             if (m_TempDisable)
             {
-                SendChatMessage($"Emotes rains are now enabled!");
+                SendChatMessage($"Emotes rains are now enabled!", null, null);
                 m_TempDisable = false;
             }
 
@@ -681,12 +681,12 @@ namespace BeatSaberPlus_ChatEmoteRain
                         m_TempDisable = !m_TempDisable;
 
                         if (m_TempDisable)
-                            SendChatMessage($"@{p_Message.Sender.UserName} emotes rains are disabled until next scene change!");
+                            SendChatMessage($"@{p_Message.Sender.UserName} emotes rains are disabled until next scene change!", p_Service, p_Message);
                         else
-                            SendChatMessage($"@{p_Message.Sender.UserName} emotes rains are now enabled!");
+                            SendChatMessage($"@{p_Message.Sender.UserName} emotes rains are now enabled!", p_Service, p_Message);
                     }
                     else
-                        SendChatMessage($"@{p_Message.Sender.UserName} You have no power here!");
+                        SendChatMessage($"@{p_Message.Sender.UserName} You have no power here!", p_Service, p_Message);
                 }
                 else if (l_LMessage.StartsWith("!er rain "))
                 {
@@ -695,21 +695,21 @@ namespace BeatSaberPlus_ChatEmoteRain
                         l_LMessage = l_LMessage.Substring("!er rain ".Length);
                         var l_Parts = l_LMessage.Split(' ');
 
-                        if (p_Message.Emotes.Length == 0 || l_Parts.Length < 2 || !uint.TryParse(l_Parts[0], out var l_Count))
+                        if (p_Message.Emotes == null || p_Message.Emotes.Length == 0 || l_Parts.Length < 2 || !uint.TryParse(l_Parts[0], out var l_Count))
                         {
-                            SendChatMessage($"@{p_Message.Sender.UserName} bad syntax, the command is \"!er rain #COUNT #EMOTES \"!");
+                            SendChatMessage($"@{p_Message.Sender.UserName} bad syntax, the command is \"!er rain #COUNT #EMOTES \"!", p_Service, p_Message);
                             return;
                         }
 
                         BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() => {
-                            foreach (var l_Emote in p_Message.Emotes)
-                                EnqueueEmote(l_Emote, l_Count);
+                            for (int l_EmoteI = 0; l_EmoteI < p_Message.Emotes.Length; ++l_EmoteI)
+                                EnqueueEmote(p_Message.Emotes[l_EmoteI], l_Count);
                         });
 
-                        SendChatMessage($"@{p_Message.Sender.UserName} Let em' rain!");
+                        SendChatMessage($"@{p_Message.Sender.UserName} Let em' rain!", p_Service, p_Message);
                     }
                     else
-                        SendChatMessage($"@{p_Message.Sender.UserName} You have no power here!");
+                        SendChatMessage($"@{p_Message.Sender.UserName} You have no power here!", p_Service, p_Message);
                 }
                 else if (l_LMessage.StartsWith("!er clear"))
                 {
@@ -725,7 +725,7 @@ namespace BeatSaberPlus_ChatEmoteRain
                         });
                     }
                     else
-                        SendChatMessage($"@{p_Message.Sender.UserName} You have no power here!");
+                        SendChatMessage($"@{p_Message.Sender.UserName} You have no power here!", p_Service, p_Message);
                 }
             }
 
@@ -739,7 +739,7 @@ namespace BeatSaberPlus_ChatEmoteRain
             }
 
             IChatEmote[] l_Emotes = CERConfig.Instance.ComboMode ? FilterEmotesForCombo(p_Message) : p_Message.Emotes;
-            if (l_Emotes.Length > 0)
+            if (l_Emotes != null && l_Emotes.Length > 0)
             {
                 var l_EmotesToRain =
                                     (from iChatEmote in l_Emotes
@@ -1023,9 +1023,14 @@ namespace BeatSaberPlus_ChatEmoteRain
         /// Send message to chat
         /// </summary>
         /// <param name="p_Message">Messages to send</param>
-        internal void SendChatMessage(string p_Message)
+        /// <param name="p_Service">Source channel</param>
+        /// <param name="p_SourceMessage">Context message</param>
+        internal void SendChatMessage(string p_Message, IChatService p_Service, IChatMessage p_SourceMessage)
         {
-            BeatSaberPlus.SDK.Chat.Service.BroadcastMessage("! " + p_Message);
+            if (p_Service == null && p_SourceMessage == null)
+                BeatSaberPlus.SDK.Chat.Service.BroadcastMessage("! " + p_Message);
+            else
+                p_Service.SendTextMessage(p_SourceMessage.Channel, "! " + p_Message);
         }
         /// <summary>
         /// Has privileges
@@ -1034,6 +1039,9 @@ namespace BeatSaberPlus_ChatEmoteRain
         /// <returns></returns>
         private bool HasPower(IChatUser p_User)
         {
+            if (CERConfig.Instance.ChatCommands.UserPower)
+                return true;
+
             if (p_User is BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchUser l_TwitchUser)
             {
                 return l_TwitchUser.IsBroadcaster

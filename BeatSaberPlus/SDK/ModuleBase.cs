@@ -35,6 +35,10 @@
         /// </summary>
         string Name { get; }
         /// <summary>
+        /// Fancy Name of the Module
+        /// </summary>
+        string FancyName { get; }
+        /// <summary>
         /// Description of the Module
         /// </summary>
         string Description { get; }
@@ -99,6 +103,10 @@
         /// Name of the Module
         /// </summary>
         public abstract string Name { get; }
+        /// <summary>
+        /// Fancy Name of the Module
+        /// </summary>
+        public virtual string FancyName => Name;
         /// <summary>
         /// Description of the Module
         /// </summary>

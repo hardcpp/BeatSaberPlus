@@ -1,0 +1,44 @@
+﻿<bg bg='round-rect-panel'>
+	<vertical child-control-height='false' min-width='75' max-width='75'>
+		<horizontal bg='panel-top' pad-left='15' pad-right='15' horizontal-fit='PreferredSize'>
+			<text text='Poll' align='Center' font-size='4.2'/>
+		</horizontal>
+
+		<horizontal>
+			<text font-size='5' id='Subject' align='Center' font-color='yellow' overflow-mode='Truncate' text='Subject'></text>
+		</horizontal>
+
+		<horizontal id='Option1Frame' anchor-min-x='0' anchor-max-x='1' >
+			<horizontal anchor-min-x='0' anchor-max-x='1' pad-left='2' pad-right='2'>
+				<text font-size='4' text='Option 1'></text>
+			</horizontal>
+		</horizontal>
+		<horizontal id='Option2Frame' anchor-min-x='0' anchor-max-x='1'>
+			<horizontal anchor-min-x='0' anchor-max-x='1' pad-left='2' pad-right='2'>
+				<text font-size='4' text='Option 2'></text>
+			</horizontal>
+		</horizontal>
+		<horizontal id='Option3Frame' anchor-min-x='0' anchor-max-x='1'>
+			<horizontal anchor-min-x='0' anchor-max-x='1' pad-left='2' pad-right='2'>
+				<text font-size='4' text='Option 3'></text>
+			</horizontal>
+		</horizontal>
+		<horizontal id='Option4Frame' anchor-min-x='0' anchor-max-x='1'>
+			<horizontal anchor-min-x='0' anchor-max-x='1' pad-left='2' pad-right='2'>
+				<text font-size='4' text='Option 4'></text>
+			</horizontal>
+		</horizontal>
+		<horizontal id='Option5Frame' anchor-min-x='0' anchor-max-x='1'>
+			<horizontal anchor-min-x='0' anchor-max-x='1' pad-left='2' pad-right='2'>
+				<text font-size='4' text='Option 5'></text>
+			</horizontal>
+		</horizontal>
+
+		<horizontal id='TimeFrame' anchor-min-x='0' anchor-max-x='1'>
+			<horizontal anchor-min-x='0' anchor-max-x='1' pad-left='2' pad-right='2'>
+				<text font-size='1' text=' '></text>
+			</horizontal>
+		</horizontal>
+
+	</vertical>
+</bg>

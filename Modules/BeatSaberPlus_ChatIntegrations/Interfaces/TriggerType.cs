@@ -12,8 +12,10 @@
         ChatFollow,
         ChatPointsReward,
         ChatSubscription,
-        LevelEnded,
         LevelStarted,
+        LevelPaused,
+        LevelResumed,
+        LevelEnded,
         VoiceAttackCommand,
 
         _CUSTOM_START = 1000

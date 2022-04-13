@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using IPA.Utilities;
 
 namespace BeatSaberPlus.SDK.Game.Patches
 {
@@ -20,24 +21,12 @@ namespace BeatSaberPlus.SDK.Game.Patches
         /// <summary>
         /// Prefix
         /// </summary>
-        internal static void Postfix(ref StandardLevelScenesTransitionSetupDataSO    __instance,
-                                     ref IDifficultyBeatmap                          difficultyBeatmap,
-                                     ref IPreviewBeatmapLevel                        previewBeatmapLevel,
-                                     ref ColorScheme                                 overrideColorScheme,
-                                     ref OverrideEnvironmentSettings                 overrideEnvironmentSettings,
-                                     ref GameplayModifiers                           gameplayModifiers,
-                                     ref PlayerSpecificSettings                      playerSpecificSettings,
-                                     ref PracticeSettings                            practiceSettings,
-                                     ref bool                                        useTestNoteCutSoundEffects)
+        internal static void Postfix(ref StandardLevelScenesTransitionSetupDataSO __instance)
         {
-            EnvironmentInfoSO l_EnvironmentInfoSO = difficultyBeatmap.GetEnvironmentInfo();
-            if (overrideEnvironmentSettings != null && overrideEnvironmentSettings.overrideEnvironments)
-                l_EnvironmentInfoSO = overrideEnvironmentSettings.GetOverrideEnvironmentInfoForType(l_EnvironmentInfoSO.environmentType);
-
             m_LevelData = new LevelData()
             {
                 Type = LevelType.Solo,
-                Data = new GameplayCoreSceneSetupData(difficultyBeatmap, previewBeatmapLevel, gameplayModifiers, playerSpecificSettings, practiceSettings, useTestNoteCutSoundEffects, l_EnvironmentInfoSO, overrideColorScheme)
+                Data = __instance.GetProperty<GameplayCoreSceneSetupData, LevelScenesTransitionSetupDataSO>("gameplayCoreSceneSetupData")
             };
 
             Logic.FireLevelStarted(m_LevelData);

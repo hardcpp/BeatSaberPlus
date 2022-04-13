@@ -17,7 +17,7 @@ namespace BeatSaberPlus_Chat
     /// <summary>
     /// Chat instance
     /// </summary>
-    internal class Chat : BeatSaberPlus.SDK.ModuleBase<Chat>
+    public class Chat : BeatSaberPlus.SDK.ModuleBase<Chat>
     {
         /// <summary>
         /// Module type
@@ -75,6 +75,42 @@ namespace BeatSaberPlus_Chat
         /// Mover handle material
         /// </summary>
         private Material m_ChatFloatingScreenHandleMaterial = null;
+        /// <summary>
+        /// Chat poll floating screen parent
+        /// </summary>
+        private GameObject m_ChatPollFloatingScreenOwner = null;
+        /// <summary>
+        /// Chat poll floating screen
+        /// </summary>
+        private FloatingScreen m_ChatPollFloatingScreen = null;
+        /// <summary>
+        /// Chat poll floating screen controller
+        /// </summary>
+        private UI.FloatingWindow_Poll m_ChatPollFloatingScreenController = null;
+        /// <summary>
+        /// Chat hype train floating screen parent
+        /// </summary>
+        private GameObject m_ChatHypeTrainFloatingScreenOwner = null;
+        /// <summary>
+        /// Chat hype train floating screen
+        /// </summary>
+        private FloatingScreen m_ChatHypeTrainFloatingScreen = null;
+        /// <summary>
+        /// Chat hype train floating screen controller
+        /// </summary>
+        private UI.FloatingWindow_HypeTrain m_ChatHypeTrainFloatingScreenController = null;
+        /// <summary>
+        /// Chat prediction floating screen parent
+        /// </summary>
+        private GameObject m_ChatPredictionFloatingScreenOwner = null;
+        /// <summary>
+        /// Chat prediction floating screen
+        /// </summary>
+        private FloatingScreen m_ChatPredictionFloatingScreen = null;
+        /// <summary>
+        /// Chat prediction floating screen controller
+        /// </summary>
+        private UI.FloatingWindow_Prediction m_ChatPredictionFloatingScreenController = null;
         /// <summary>
         /// Chat core instance
         /// </summary>
@@ -293,6 +329,9 @@ namespace BeatSaberPlus_Chat
         /// <param name="p_SceneType"></param>
         private void OnSceneChange(BeatSaberPlus.SDK.Game.Logic.SceneType p_SceneType)
         {
+            if (m_RootGameObject)
+                m_RootGameObject.transform.localScale = Vector3.one;
+
             if (p_SceneType == BeatSaberPlus.SDK.Game.Logic.SceneType.Menu)
                 UpdateButton();
 
@@ -327,6 +366,34 @@ namespace BeatSaberPlus_Chat
 
             m_ViewerCountOwner.transform.localPosition = m_ChatFloatingScreen.transform.localPosition;
             m_ViewerCountOwner.transform.localRotation = m_ChatFloatingScreen.transform.localRotation;
+
+            m_ChatPollFloatingScreenOwner.transform.localPosition = m_ChatFloatingScreen.transform.localPosition;
+            m_ChatPollFloatingScreenOwner.transform.localRotation = m_ChatFloatingScreen.transform.localRotation;
+
+            m_ChatHypeTrainFloatingScreenOwner.transform.localPosition = m_ChatFloatingScreen.transform.localPosition;
+            m_ChatHypeTrainFloatingScreenOwner.transform.localRotation = m_ChatFloatingScreen.transform.localRotation;
+
+            m_ChatPredictionFloatingScreenOwner.transform.localPosition = m_ChatFloatingScreen.transform.localPosition;
+            m_ChatPredictionFloatingScreenOwner.transform.localRotation = m_ChatFloatingScreen.transform.localRotation;
+        }
+        /// <summary>
+        /// Toggle chat visibility
+        /// </summary>
+        public void ToggleVisibility()
+        {
+            if (m_RootGameObject && m_RootGameObject.transform.localScale.x > 0.5f)
+                m_RootGameObject.transform.localScale = Vector3.zero;
+            else if (m_RootGameObject)
+                m_RootGameObject.transform.localScale = Vector3.one;
+        }
+        /// <summary>
+        /// Set visible
+        /// </summary>
+        /// <param name="p_Visible">Is visible</param>
+        public void SetVisible(bool p_Visible)
+        {
+            if (m_RootGameObject)
+                m_RootGameObject.transform.localScale = p_Visible ? Vector3.one : Vector3.zero;
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -650,6 +717,87 @@ namespace BeatSaberPlus_Chat
 
                 UpdateViewerCount();
 
+                ///////////////////////////////////////////////
+                /// Poll window
+                var l_PollSize = UI.FloatingWindow_Poll.SIZE;
+                var l_PollPosition = new Vector3(
+                    ((CConfig.Instance.ChatSize.x + l_PollSize.x) / 2f) * 0.02f,
+                    ((-CConfig.Instance.ChatSize.y + l_PollSize.y + 16) / 2f) * 0.02f,
+                    0
+                    );
+
+                /// Create viewer count owner
+                m_ChatPollFloatingScreenOwner = new GameObject();
+                m_ChatPollFloatingScreenOwner.transform.localPosition = l_ChatPosition;
+                m_ChatPollFloatingScreenOwner.transform.localRotation = Quaternion.Euler(l_ChatRotation);
+                m_ChatPollFloatingScreenOwner.transform.SetParent(m_RootGameObject.transform);
+
+                /// Create floating screen
+                m_ChatPollFloatingScreen = FloatingScreen.CreateFloatingScreen(l_PollSize, false, Vector2.zero, Quaternion.identity, 0, false);
+                m_ChatPollFloatingScreen.transform.SetParent(m_ChatPollFloatingScreenOwner.transform, false);
+                m_ChatPollFloatingScreen.transform.localPosition = l_PollPosition;
+                m_ChatPollFloatingScreen.transform.localRotation = Quaternion.identity;
+
+                /// Create UI Controller
+                m_ChatPollFloatingScreenController = BeatSaberUI.CreateViewController<UI.FloatingWindow_Poll>();
+                m_ChatPollFloatingScreen.SetRootViewController(m_ChatPollFloatingScreenController, HMUI.ViewController.AnimationType.None);
+                m_ChatPollFloatingScreen.GetComponentInChildren<Canvas>().sortingOrder = -1;
+                ///////////////////////////////////////////////
+
+                ///////////////////////////////////////////////
+                /// HypeTrain window
+                var l_HypeTrainSize = new Vector2(CConfig.Instance.ChatSize.x, UI.FloatingWindow_HypeTrain.HEIGHT);
+                var l_HypeTrainPosition = new Vector3(
+                    0f,
+                    ((-CConfig.Instance.ChatSize.y - l_HypeTrainSize.y) / 2f) * 0.02f,
+                    0f
+                    );
+
+                /// Create viewer count owner
+                m_ChatHypeTrainFloatingScreenOwner = new GameObject();
+                m_ChatHypeTrainFloatingScreenOwner.transform.localPosition = l_ChatPosition;
+                m_ChatHypeTrainFloatingScreenOwner.transform.localRotation = Quaternion.Euler(l_ChatRotation);
+                m_ChatHypeTrainFloatingScreenOwner.transform.SetParent(m_RootGameObject.transform);
+
+                /// Create floating screen
+                m_ChatHypeTrainFloatingScreen = FloatingScreen.CreateFloatingScreen(l_PollSize, false, Vector2.zero, Quaternion.identity, 0, false);
+                m_ChatHypeTrainFloatingScreen.transform.SetParent(m_ChatHypeTrainFloatingScreenOwner.transform, false);
+                m_ChatHypeTrainFloatingScreen.transform.localPosition = l_PollPosition;
+                m_ChatHypeTrainFloatingScreen.transform.localRotation = Quaternion.identity;
+
+                /// Create UI Controller
+                m_ChatHypeTrainFloatingScreenController = BeatSaberUI.CreateViewController<UI.FloatingWindow_HypeTrain>();
+                m_ChatHypeTrainFloatingScreen.SetRootViewController(m_ChatHypeTrainFloatingScreenController, HMUI.ViewController.AnimationType.None);
+                m_ChatHypeTrainFloatingScreen.GetComponentInChildren<Canvas>().sortingOrder = -1;
+                ///////////////////////////////////////////////
+
+                ///////////////////////////////////////////////
+                /// Prediction window
+                var l_PredictionSize = UI.FloatingWindow_Prediction.SIZE;
+                var l_PredictionPosition = new Vector3(
+                    ((-CConfig.Instance.ChatSize.x - l_PredictionSize.x) / 2f) * 0.02f,
+                    ((-CConfig.Instance.ChatSize.y + l_PredictionSize.y + 16) / 2f) * 0.02f,
+                    0
+                    );
+
+                /// Create viewer count owner
+                m_ChatPredictionFloatingScreenOwner = new GameObject();
+                m_ChatPredictionFloatingScreenOwner.transform.localPosition = l_ChatPosition;
+                m_ChatPredictionFloatingScreenOwner.transform.localRotation = Quaternion.Euler(l_ChatRotation);
+                m_ChatPredictionFloatingScreenOwner.transform.SetParent(m_RootGameObject.transform);
+
+                /// Create floating screen
+                m_ChatPredictionFloatingScreen = FloatingScreen.CreateFloatingScreen(l_PredictionSize, false, Vector2.zero, Quaternion.identity, 0, false);
+                m_ChatPredictionFloatingScreen.transform.SetParent(m_ChatPredictionFloatingScreenOwner.transform, false);
+                m_ChatPredictionFloatingScreen.transform.localPosition = l_PredictionPosition;
+                m_ChatPredictionFloatingScreen.transform.localRotation = Quaternion.identity;
+
+                /// Create UI Controller
+                m_ChatPredictionFloatingScreenController = BeatSaberUI.CreateViewController<UI.FloatingWindow_Prediction>();
+                m_ChatPredictionFloatingScreen.SetRootViewController(m_ChatPredictionFloatingScreenController, HMUI.ViewController.AnimationType.None);
+                m_ChatPredictionFloatingScreen.GetComponentInChildren<Canvas>().sortingOrder = -1;
+                ///////////////////////////////////////////////
+
                 UpdateFloatingWindow(p_SceneType, true);
             }
             catch (System.Exception l_Exception)
@@ -676,6 +824,9 @@ namespace BeatSaberPlus_Chat
                 GameObject.Destroy(m_ChatFloatingScreen);
                 GameObject.Destroy(m_ChatFloatingScreenHandleMaterial);
                 GameObject.Destroy(m_ViewerCountFloatingScreen);
+                GameObject.Destroy(m_ChatPollFloatingScreen);
+                GameObject.Destroy(m_ChatHypeTrainFloatingScreen);
+                GameObject.Destroy(m_ChatPredictionFloatingScreen);
                 GameObject.Destroy(m_RootGameObject);
 
                 /// Reset variables
@@ -684,6 +835,9 @@ namespace BeatSaberPlus_Chat
                 m_ChatFloatingScreenHandleMaterial  = null;
                 m_ViewerCountFloatingScreen         = null;
                 m_ViewerCountText                   = null;
+                m_ChatHypeTrainFloatingScreen       = null;
+                m_ChatPollFloatingScreen            = null;
+                m_ChatPredictionFloatingScreen      = null;
                 m_RootGameObject                    = null;
             }
             catch (System.Exception l_Exception)
@@ -714,7 +868,7 @@ namespace BeatSaberPlus_Chat
                 }
 
                 /// Prepare data for level with rotations
-                var l_Is360Level            = BeatSaberPlus.SDK.Game.Logic.LevelData?.Data?.difficultyBeatmap?.beatmapData?.spawnRotationEventsCount > 0;
+                var l_Is360Level            = BeatSaberPlus.SDK.Game.Logic.LevelData?.Data?.transformedBeatmapData?.spawnRotationEventsCount > 0;
                 var l_FlyingGameHUDRotation = l_Is360Level ? Resources.FindObjectsOfTypeAll<FlyingGameHUDRotation>().FirstOrDefault()?.gameObject : null as GameObject;
 
                 /// Update chat messages display
@@ -736,6 +890,46 @@ namespace BeatSaberPlus_Chat
                 /// Update visibility
                 m_ViewerCountImage.enabled  = CConfig.Instance.ShowViewerCount;
                 m_ViewerCountText.enabled   = CConfig.Instance.ShowViewerCount;
+
+                ///////////////////////////////////////////////
+                /// Poll window
+                var l_PollSize      = UI.FloatingWindow_Poll.SIZE;
+                var l_PollPosition  = new Vector3(
+                    ((CConfig.Instance.ChatSize.x + l_PollSize.x) / 2f) * 0.02f,
+                    ((-CConfig.Instance.ChatSize.y + l_PollSize.y + 16) / 2f) * 0.02f,
+                    0
+                    );
+                m_ChatPollFloatingScreen.transform.localPosition = l_PollPosition;
+                m_ChatPollFloatingScreenOwner.transform.localPosition = m_ChatFloatingScreen.transform.localPosition;
+                m_ChatPollFloatingScreenOwner.transform.localRotation = m_ChatFloatingScreen.transform.localRotation;
+                ///////////////////////////////////////////////
+
+                ///////////////////////////////////////////////
+                /// HypeTrain window
+                var l_HypeTrainSize     = new Vector2(CConfig.Instance.ChatSize.x, UI.FloatingWindow_HypeTrain.HEIGHT);
+                var l_HypeTrainPosition = new Vector3(
+                    0f,
+                    ((-CConfig.Instance.ChatSize.y - l_HypeTrainSize.y) / 2f) * 0.02f,
+                    0f
+                    );
+                m_ChatHypeTrainFloatingScreen.ScreenSize = l_HypeTrainSize;
+                m_ChatHypeTrainFloatingScreen.transform.localPosition = l_HypeTrainPosition;
+                m_ChatHypeTrainFloatingScreenOwner.transform.localPosition = m_ChatFloatingScreen.transform.localPosition;
+                m_ChatHypeTrainFloatingScreenOwner.transform.localRotation = m_ChatFloatingScreen.transform.localRotation;
+                ///////////////////////////////////////////////
+
+                ///////////////////////////////////////////////
+                /// Prediction window
+                var l_PredictionSize = UI.FloatingWindow_Prediction.SIZE;
+                var l_PredictionPosition = new Vector3(
+                    ((-CConfig.Instance.ChatSize.x - l_PredictionSize.x) / 2f) * 0.02f,
+                    ((-CConfig.Instance.ChatSize.y + l_PredictionSize.y + 16) / 2f) * 0.02f,
+                    0
+                    );
+                m_ChatPredictionFloatingScreen.transform.localPosition = l_PredictionPosition;
+                m_ChatPredictionFloatingScreenOwner.transform.localPosition = m_ChatFloatingScreen.transform.localPosition;
+                m_ChatPredictionFloatingScreenOwner.transform.localRotation = m_ChatFloatingScreen.transform.localRotation;
+                ///////////////////////////////////////////////
             }
             catch (System.Exception l_Exception)
             {

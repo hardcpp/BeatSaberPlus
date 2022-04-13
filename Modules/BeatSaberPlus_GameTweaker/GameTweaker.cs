@@ -49,10 +49,6 @@ namespace BeatSaberPlus_GameTweaker
         /// </summary>
         private UI.SettingsLeft m_SettingsLeftView = null;
         /// <summary>
-        /// Settings right view
-        /// </summary>
-        private UI.SettingsRight m_SettingsRightView = null;
-        /// <summary>
         /// FPFC escape object
         /// </summary>
         private Components.FPFCEscape m_FPFCEscape = null;
@@ -68,6 +64,8 @@ namespace BeatSaberPlus_GameTweaker
             /// Bind event
             BeatSaberPlus.SDK.Game.Logic.OnSceneChange  += Game_OnSceneChange;
             BeatSaberPlus.SDK.Game.Logic.OnLevelStarted += Game_OnLevelStarted;
+
+            Managers.CustomMenuLightManager.Init();
 
             /// Update patches
             UpdatePatches(false);
@@ -99,12 +97,9 @@ namespace BeatSaberPlus_GameTweaker
             /// Create view if needed
             if (m_SettingsLeftView == null)
                 m_SettingsLeftView = BeatSaberUI.CreateViewController<UI.SettingsLeft>();
-            /// Create view if needed
-            if (m_SettingsRightView == null)
-                m_SettingsRightView = BeatSaberUI.CreateViewController<UI.SettingsRight>();
 
             /// Change main view
-            return (m_SettingsView, m_SettingsLeftView, m_SettingsRightView);
+            return (m_SettingsView, m_SettingsLeftView, null);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -151,25 +146,25 @@ namespace BeatSaberPlus_GameTweaker
 
             /// Apply show player statistics in main menu
             try {
-                Patches.PMainMenuViewController.SetBeatMapEditorButtonDisabled(!p_ForceDisable && GTConfig.Instance.DisableBeatMapEditorButtonOnMainMenu);
-                Patches.PMainMenuViewController.SetRemovePackMusicPromoBanner(!p_ForceDisable && GTConfig.Instance.RemoveNewContentPromotional);
+                Patches.PMainMenuViewController.SetBeatMapEditorButtonDisabled(!p_ForceDisable && GTConfig.Instance.MainMenu.DisableEditorButtonOnMainMenu);
+                Patches.PMainMenuViewController.SetRemovePackMusicPromoBanner(!p_ForceDisable && GTConfig.Instance.MainMenu.RemoveNewContentPromotional);
             } catch (System.Exception p_PatchException) { Logger.Instance.Error("[GameTweaker] Error on updating PMainMenuViewController"); Logger.Instance.Error(p_PatchException); }
             /// Apply new content promotional settings
             try {
-                Patches.PPromoViewController.SetEnabled(!p_ForceDisable && GTConfig.Instance.RemoveNewContentPromotional);
+                Patches.PPromoViewController.SetEnabled(!p_ForceDisable && GTConfig.Instance.MainMenu.RemoveNewContentPromotional);
             } catch (System.Exception p_PatchException) { Logger.Instance.Error("[GameTweaker] Error on updating PPromoViewController"); Logger.Instance.Error(p_PatchException); }
             /// Apply player settings
             try {
-                Patches.PPlayerSettingsPanelController.SetReorderEnabled(!p_ForceDisable && GTConfig.Instance.ReorderPlayerSettings, !p_ForceDisable && GTConfig.Instance.AddOverrideLightIntensityOption);
-                Patches.PPlayerSettingsPanelController.SetLightsOptionMerging(!p_ForceDisable && GTConfig.Instance.MergeLightPressetOptions);
+                Patches.PPlayerSettingsPanelController.SetReorderEnabled(!p_ForceDisable && GTConfig.Instance.PlayerOptions.ReorderPlayerSettings, !p_ForceDisable && GTConfig.Instance.PlayerOptions.OverrideLightIntensityOption);
+                Patches.PPlayerSettingsPanelController.SetLightsOptionMerging(!p_ForceDisable && GTConfig.Instance.PlayerOptions.MergeLightPressetOptions);
             } catch (System.Exception p_PatchException) { Logger.Instance.Error("[GameTweaker] Error on updating PlayerSettingsPanelController"); Logger.Instance.Error(p_PatchException); }
             /// Apply remove base game filter button settings
             try {
-                Patches.PLevelSearchViewController.SetRemoveBaseGameFilter(!p_ForceDisable && GTConfig.Instance.RemoveBaseGameFilterButton);
+                Patches.PLevelSearchViewController.SetRemoveBaseGameFilter(!p_ForceDisable && GTConfig.Instance.LevelSelection.RemoveBaseGameFilterButton);
             } catch (System.Exception p_PatchException) { Logger.Instance.Error("[GameTweaker] Error on updating PLevelSearchViewController"); Logger.Instance.Error(p_PatchException); }
             /// Apply song delete button
             try {
-                Patches.PStandardLevelDetailView.SetDeleteSongButtonEnabled(!p_ForceDisable && GTConfig.Instance.DeleteSongButton);
+                Patches.PStandardLevelDetailView.SetDeleteSongButtonEnabled(!p_ForceDisable && GTConfig.Instance.LevelSelection.DeleteSongButton);
             } catch (System.Exception p_PatchException) { Logger.Instance.Error("[GameTweaker] Error on updating PStandardLevelDetailView"); Logger.Instance.Error(p_PatchException); }
 
             ////////////////////////////////////////////////////////////////////////////
@@ -177,7 +172,7 @@ namespace BeatSaberPlus_GameTweaker
             ////////////////////////////////////////////////////////////////////////////
 
             /// Clean logs
-            CleanLogs(GTConfig.Instance.RemoveOldLogs, GTConfig.Instance.LogEntriesToKeep);
+            CleanLogs(GTConfig.Instance.Tools.RemoveOldLogs, GTConfig.Instance.Tools.LogEntriesToKeep);
 
             try {
                 UpdateFPFCEscape(p_ForceDisable);
@@ -193,12 +188,12 @@ namespace BeatSaberPlus_GameTweaker
             if (l_FPFCCamera == null || !l_FPFCCamera.enabled)
                 return;
 
-            if (!p_ForceDisable && GTConfig.Instance.FPFCEscape && m_FPFCEscape == null)
+            if (!p_ForceDisable && GTConfig.Instance.Tools.FPFCEscape && m_FPFCEscape == null)
             {
                 m_FPFCEscape = new GameObject("BeatSaberPlus_FPFCEscape").AddComponent<Components.FPFCEscape>();
                 GameObject.DontDestroyOnLoad(m_FPFCEscape.gameObject);
             }
-            else if ((p_ForceDisable || !GTConfig.Instance.FPFCEscape) && m_FPFCEscape != null)
+            else if ((p_ForceDisable || !GTConfig.Instance.Tools.FPFCEscape) && m_FPFCEscape != null)
             {
                 GameObject.DestroyImmediate(m_FPFCEscape.gameObject);
                 m_FPFCEscape = null;
@@ -283,7 +278,7 @@ namespace BeatSaberPlus_GameTweaker
             Patches.Lights.PLightsPatches.SetFromConfig();
             Patches.PNoteDebrisSpawner.SetFromConfig();
 
-            if (GTConfig.Instance.RemoveMusicBandLogo && p_LevelData?.Data?.environmentInfo != null)
+            if (GTConfig.Instance.Environment.RemoveMusicBandLogo && p_LevelData?.Data?.environmentInfo != null)
             {
                 switch (p_LevelData.Data.environmentInfo.serializedName)
                 {

@@ -56,6 +56,11 @@
       <Private>False</Private>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
+    <Reference Include="Camera2">
+      <HintPath>$(BeatSaberDir)\Plugins\Camera2.dll</HintPath>
+      <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
     <Reference Include="Colors">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Colors.dll</HintPath>
       <Private>False</Private>
@@ -71,6 +76,11 @@
       <Private>False</Private>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
+    <Reference Include="Hive.Versioning, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <Private>False</Private>
+      <HintPath>$(BeatSaberDir)\Libs\Hive.Versioning.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
     <Reference Include="HMRendering">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\HMRendering.dll</HintPath>
       <Private>False</Private>
@@ -83,11 +93,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Net.Http, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\System.Net.Http.dll</HintPath>
-      <Private>False</Private>
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
+    <Reference Include="System.Net.Http, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
@@ -125,6 +131,11 @@
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="UnityEngine.IMGUIModule">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
+      <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UI.dll</HintPath>
       <Private>False</Private>
@@ -153,7 +164,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Actions\Camera2.cs" />
+    <Compile Include="Actions\NoteTweaker.cs" />
+    <Compile Include="Actions\OBS.cs" />
+    <Compile Include="Actions\SongChartVisualizer.cs" />
     <Compile Include="CIConfig.cs" />
+    <Compile Include="Conditions\OBS.cs" />
+    <Compile Include="Events\LevelPaused.cs" />
+    <Compile Include="Events\LevelResumed.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Actions\Chat.cs" />
     <Compile Include="Actions\EmoteRain.cs" />
@@ -186,16 +204,21 @@
     <Compile Include="Interfaces\TriggerType.cs" />
     <Compile Include="Interfaces\ValueType.cs" />
     <Compile Include="Models\Action.cs" />
+    <Compile Include="Models\Actions\Camera2.cs" />
     <Compile Include="Models\Actions\Chat.cs" />
     <Compile Include="Models\Actions\EmoteRain.cs" />
     <Compile Include="Models\Actions\Event.cs" />
     <Compile Include="Models\Actions\GamePlay.cs" />
     <Compile Include="Models\Actions\Misc.cs" />
+    <Compile Include="Models\Actions\OBS.cs" />
+    <Compile Include="Models\Actions\SongChartVisualizer.cs" />
     <Compile Include="Models\Condition.cs" />
     <Compile Include="Models\Conditions\Bits.cs" />
     <Compile Include="Models\Conditions\ChatRequest.cs" />
+    <Compile Include="Models\Conditions\Events.cs" />
     <Compile Include="Models\Conditions\GamePlay.cs" />
     <Compile Include="Models\Conditions\Misc.cs" />
+    <Compile Include="Models\Conditions\OBS.cs" />
     <Compile Include="Models\Conditions\Subscription.cs" />
     <Compile Include="Models\Conditions\User.cs" />
     <Compile Include="Models\Event.cs" />
@@ -206,6 +229,7 @@
     <Compile Include="Models\Events\ChatPointsReward.cs" />
     <Compile Include="Models\Events\ChatSubscription.cs" />
     <Compile Include="Models\Events\VoiceAttackCommand.cs" />
+    <Compile Include="ModPresence.cs" />
     <Compile Include="ModulePresence.cs" />
     <Compile Include="UI\Settings.cs" />
     <Compile Include="UI\SettingsLeft.cs" />
@@ -216,35 +240,56 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="manifest.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="BuildTargets.targets" />
+    <EmbeddedResource Include="Actions\Views\Camera2_SwitchToScene.bsml" />
+    <EmbeddedResource Include="Actions\Views\Camera2_ToggleCamera.bsml" />
     <EmbeddedResource Include="Actions\Views\Chat_SendMessage.bsml" />
+    <EmbeddedResource Include="Actions\Views\Chat_ToggleVisibility.bsml" />
     <EmbeddedResource Include="Actions\Views\EmoteRain_CustomRain.bsml" />
     <EmbeddedResource Include="Actions\Views\EmoteRain_EmoteBombRain.bsml" />
     <EmbeddedResource Include="Actions\Views\Event_ExecuteDummy.bsml" />
     <EmbeddedResource Include="Actions\Views\Event_Toggle.bsml" />
+    <EmbeddedResource Include="Actions\Views\GamePlay_ChangeBombScale.bsml" />
     <EmbeddedResource Include="Actions\Views\GamePlay_ChangeDebris.bsml" />
     <EmbeddedResource Include="Actions\Views\GamePlay_ChangeLightIntensity.bsml" />
     <EmbeddedResource Include="Actions\Views\GamePlay_ChangeMusicVolume.bsml" />
     <EmbeddedResource Include="Actions\Views\GamePlay_ChangeNoteColors.bsml" />
+    <EmbeddedResource Include="Actions\Views\GamePlay_ChangeNoteScale.bsml" />
     <EmbeddedResource Include="Actions\Views\GamePlay_SpawnBombPatterns.bsml" />
     <EmbeddedResource Include="Actions\Views\GamePlay_SpawnSquatWalls.bsml" />
+    <EmbeddedResource Include="Actions\Views\GamePlay_ToggleHUD.bsml" />
     <EmbeddedResource Include="Actions\Views\GamePlay_ToggleLights.bsml" />
     <EmbeddedResource Include="Actions\Views\Misc_Delay.bsml" />
     <EmbeddedResource Include="Actions\Views\Misc_PlaySound.bsml" />
+    <EmbeddedResource Include="Actions\Views\OBS_SetRecordFilenameFormat.bsml" />
+    <EmbeddedResource Include="Actions\Views\OBS_SwitchPreviewToScene.bsml" />
+    <EmbeddedResource Include="Actions\Views\OBS_SwitchToScene.bsml" />
+    <EmbeddedResource Include="Actions\Views\OBS_ToggleSource.bsml" />
+    <EmbeddedResource Include="Actions\Views\OBS_ToggleStudioMode.bsml" />
+    <EmbeddedResource Include="Actions\Views\OBS_Transition.bsml" />
+    <EmbeddedResource Include="Actions\Views\SongChartVisualizer_ToggleVisibility.bsml" />
     <EmbeddedResource Include="Actions\Views\Twitch_AddMarker.bsml" />
     <EmbeddedResource Include="Conditions\Views\Bits_Amount.bsml" />
     <EmbeddedResource Include="Conditions\Views\ChatRequest_QueueDuration.bsml" />
     <EmbeddedResource Include="Conditions\Views\ChatRequest_QueueSize.bsml" />
     <EmbeddedResource Include="Conditions\Views\ChatRequest_QueueStatus.bsml" />
+    <EmbeddedResource Include="Conditions\Views\Event_Disabled.bsml" />
+    <EmbeddedResource Include="Conditions\Views\Event_Enabled.bsml" />
     <EmbeddedResource Include="Conditions\Views\GamePlay_LevelEndType.bsml" />
     <EmbeddedResource Include="Conditions\Views\GamePlay_PlayingMap.bsml" />
     <EmbeddedResource Include="Conditions\Views\Misc_Cooldown.bsml" />
+    <EmbeddedResource Include="Conditions\Views\OBS_IsInScene.bsml" />
+    <EmbeddedResource Include="Conditions\Views\OBS_IsNotInScene.bsml" />
     <EmbeddedResource Include="Conditions\Views\Subscription_PlanType.bsml" />
     <EmbeddedResource Include="Conditions\Views\Subscription_PurchasedMonthCount.bsml" />
     <EmbeddedResource Include="Conditions\Views\User_Permissions.bsml" />
+    <EmbeddedResource Include="manifest.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Actions\Views\OBS_ToggleSourceAudio.bsml" />
+    <EmbeddedResource Include="Actions\Views\GamePlay_Pause.bsml" />
+    <EmbeddedResource Include="Actions\Views\GamePlay_ChangeBombColor.bsml" />
+    <EmbeddedResource Include="Actions\Views\NoteTweaker_SwitchProfile.bsml" />
+    <None Include="BuildTargets.targets" />
     <EmbeddedResource Include="Events\Views\ChatBits.bsml" />
     <EmbeddedResource Include="Events\Views\ChatCommand.bsml" />
     <EmbeddedResource Include="Events\Views\ChatFollow.bsml" />
@@ -254,15 +299,17 @@
     <EmbeddedResource Include="Events\Views\LevelEnded.bsml" />
     <EmbeddedResource Include="Events\Views\LevelStarted.bsml" />
     <EmbeddedResource Include="Events\Views\VoiceAttackCommand.bsml" />
-    <EmbeddedResource Include="UI\Settings.bsml" >
+    <EmbeddedResource Include="UI\Settings.bsml">
       <DependentUpon>Settings.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\SettingsLeft.bsml" >
+    <EmbeddedResource Include="UI\SettingsLeft.bsml">
       <DependentUpon>SettingsLeft.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\SettingsRight.bsml" >
+    <EmbeddedResource Include="UI\SettingsRight.bsml">
       <DependentUpon>SettingsRight.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Events\Views\LevelPaused.bsml" />
+    <EmbeddedResource Include="Events\Views\LevelResumed.bsml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\BeatSaberPlus\BeatSaberPlus.csproj">
@@ -277,6 +324,10 @@
       <Project>{eb5ad22c-8b2e-4b17-8eb9-606553db68ae}</Project>
       <Name>BeatSaberPlus_ChatRequest</Name>
     </ProjectReference>
+    <ProjectReference Include="..\BeatSaberPlus_Chat\BeatSaberPlus_Chat.csproj">
+      <Project>{2de1608f-407f-4b11-be8a-d4ccdcd910a1}</Project>
+      <Name>BeatSaberPlus_Chat</Name>
+    </ProjectReference>
     <ProjectReference Include="..\BeatSaberPlus_GameTweaker\BeatSaberPlus_GameTweaker.csproj">
       <Project>{c1f6f190-4a2d-4c28-917b-9d2704e098f9}</Project>
       <Name>BeatSaberPlus_GameTweaker</Name>
@@ -284,6 +335,10 @@
     <ProjectReference Include="..\BeatSaberPlus_NoteTweaker\BeatSaberPlus_NoteTweaker.csproj">
       <Project>{ddbc9483-c077-4485-a720-d7da3a76ca34}</Project>
       <Name>BeatSaberPlus_NoteTweaker</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BeatSaberPlus_SongChartVisualizer\BeatSaberPlus_SongChartVisualizer.csproj">
+      <Project>{07e42f20-ae5b-4bda-8260-970191c61eb3}</Project>
+      <Name>BeatSaberPlus_SongChartVisualizer</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

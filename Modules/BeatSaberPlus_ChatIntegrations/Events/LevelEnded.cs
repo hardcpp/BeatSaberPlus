@@ -53,9 +53,10 @@ namespace BeatSaberPlus_ChatIntegrations.Events
                 new Conditions.ChatRequest_QueueSize(),
                 new Conditions.ChatRequest_QueueStatus(),
                 new Conditions.Misc_Cooldown(),
-                new Conditions.Event_AlwaysFail(),
-                new Conditions.GamePlay_LevelEndType()
+                new Conditions.GamePlay_LevelEndType(),
             }
+            .Union(BeatSaberPlus_ChatIntegrations.Conditions.EventBuilder.BuildFor(this))
+            .Union(BeatSaberPlus_ChatIntegrations.Conditions.OBSBuilder.BuildFor(this))
             .Union(GetInstanciatedCustomConditionList())
             .Distinct().ToList().AsReadOnly();
 
@@ -64,12 +65,16 @@ namespace BeatSaberPlus_ChatIntegrations.Events
             {
 
             }
+            .Union(BeatSaberPlus_ChatIntegrations.Actions.Camera2Builder.BuildFor(this))
             .Union(BeatSaberPlus_ChatIntegrations.Actions.ChatBuilder.BuildFor(this))
             .Union(BeatSaberPlus_ChatIntegrations.Actions.EmoteRainBuilder.BuildFor(this))
             .Union(BeatSaberPlus_ChatIntegrations.Actions.EventBuilder.BuildFor(this))
             .Union(BeatSaberPlus_ChatIntegrations.Actions.GamePlayBuilder.BuildFor(this))
             .Union(BeatSaberPlus_ChatIntegrations.Actions.MiscBuilder.BuildFor(this))
+            .Union(BeatSaberPlus_ChatIntegrations.Actions.NoteTweakerBuilder.BuildFor(this))
+            .Union(BeatSaberPlus_ChatIntegrations.Actions.OBSBuilder.BuildFor(this))
             .Union(BeatSaberPlus_ChatIntegrations.Actions.TwitchBuilder.BuildFor(this))
+            .Union(BeatSaberPlus_ChatIntegrations.Actions.SongChartVisualizerBuilder.BuildFor(this))
             .Union(GetInstanciatedCustomActionList())
             .Distinct().ToList().AsReadOnly();
         }
@@ -116,10 +121,10 @@ namespace BeatSaberPlus_ChatIntegrations.Events
         /// <param name="p_Context">Event context</param>
         protected override sealed void BuildProvidedValues(Models.EventContext p_Context)
         {
-            Int64  l_NoteCount  = p_Context.LevelCompletionData.Data.difficultyBeatmap.beatmapData.cuttableNotesCount;
+            Int64  l_NoteCount  = p_Context.LevelCompletionData.Data.transformedBeatmapData.cuttableNotesCount;
             Int64  l_HitCount   = p_Context.LevelCompletionData.Results.goodCutsCount;
             Int64  l_MissCount  = l_NoteCount - l_HitCount;
-            float  l_Accuracy   = (float)System.Math.Round(100.0f * BeatSaberPlus.SDK.Game.Levels.GetScorePercentage(BeatSaberPlus.SDK.Game.Levels.GetMaxScore((int)l_NoteCount), p_Context.LevelCompletionData.Results.rawScore), 2);
+            float  l_Accuracy   = (float)System.Math.Round(100.0f * BeatSaberPlus.SDK.Game.Levels.GetScorePercentage(BeatSaberPlus.SDK.Game.Levels.GetMaxScore((int)l_NoteCount), p_Context.LevelCompletionData.Results.modifiedScore), 2);
             string l_GameMode   = p_Context.LevelCompletionData.Data.difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName;
             string l_Difficulty = p_Context.LevelCompletionData.Data.difficultyBeatmap.difficulty.Name();
 

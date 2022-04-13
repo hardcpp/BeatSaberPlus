@@ -337,9 +337,16 @@ namespace BeatSaberPlus_ChatIntegrations.UI
             l_NewAction.Event = m_CurrentEvent;
             l_NewAction.IsEnabled = true;
 
-            m_CurrentEvent.AddAction(l_NewAction);
-
-            RebuildActionList(l_NewAction);
+            if (m_EventFrame_ActionsTab.gameObject.activeSelf)
+            {
+                m_CurrentEvent.AddAction(l_NewAction);
+                RebuildActionList(l_NewAction);
+            }
+            else if (m_EventFrame_OnFailActionsTab.gameObject.activeSelf)
+            {
+                m_CurrentEvent.AddOnFailAction(l_NewAction);
+                RebuildOnFailActionList(l_NewAction);
+            }
 
             m_AddActionFrame.SetActive(false);
             m_EventFrame.SetActive(true);

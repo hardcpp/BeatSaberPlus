@@ -61,7 +61,6 @@ namespace BeatSaberPlus_GameTweaker.UI
 
                 /// Refresh values
                 Settings.Instance.RefreshSettings();
-                SettingsRight.Instance.RefreshSettings();
             });
         }
 

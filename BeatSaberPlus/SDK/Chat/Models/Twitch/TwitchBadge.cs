@@ -2,7 +2,7 @@
 
 namespace BeatSaberPlus.SDK.Chat.Models.Twitch
 {
-    public class TwitchBadge : IChatBadge
+    public struct TwitchBadge : IChatBadge
     {
         public string Id { get; internal set; }
         public string Name { get; internal set; }

@@ -144,6 +144,7 @@ namespace BeatSaberPlus_ChatIntegrations.Interfaces
                 return false;
 
             Model = p_Serialized.ToObject<M>();
+            Model.OnDeserialized(p_Serialized);
 
             return true;
         }

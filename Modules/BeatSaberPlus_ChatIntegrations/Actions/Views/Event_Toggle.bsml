@@ -3,7 +3,6 @@
   <text text='Event to toggle:' align='Center' />
   <dropdown-list-setting id='Event_DropDown' choices='Event_DropDownOptions' apply-on-change='true' />
   <list-setting id='TypeList' value='TypeList_Value' choices='TypeList_Choices' apply-on-change='true' text='Change type' />
-  <bool-setting id='ContinueToggle' text='Continue execution if failed' />
 
   <horizontal min-height='30'></horizontal>
 

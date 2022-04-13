@@ -9,6 +9,7 @@ namespace BeatSaberPlus.SDK.UI
     {
         private static BSMLAction m_DateMonthFrom2018;
         private static BSMLAction m_Time;
+        private static BSMLAction m_Milliseconds;
         private static BSMLAction m_Seconds;
         private static BSMLAction m_Minutes;
         private static BSMLAction m_Percentage;
@@ -18,6 +19,7 @@ namespace BeatSaberPlus.SDK.UI
 
         public static BSMLAction DateMonthFrom2018  { get { if (m_DateMonthFrom2018 == null)    m_DateMonthFrom2018 = BuildAction(nameof(FNDateMonthFrom2018)); return m_DateMonthFrom2018; } }
         public static BSMLAction Time               { get { if (m_Time == null)                 m_Time = BuildAction(nameof(FNTime));                           return m_Time; } }
+        public static BSMLAction Milliseconds       { get { if (m_Milliseconds == null)         m_Milliseconds = BuildAction(nameof(FNMilliseconds));           return m_Milliseconds; } }
         public static BSMLAction Seconds            { get { if (m_Seconds == null)              m_Seconds = BuildAction(nameof(FNSeconds));                     return m_Seconds; } }
         public static BSMLAction Minutes            { get { if (m_Minutes == null)              m_Minutes = BuildAction(nameof(FNMinutes));                     return m_Minutes; } }
         public static BSMLAction Percentage         { get { if (m_Percentage == null)           m_Percentage = BuildAction(nameof(FNPercentage));               return m_Percentage; } }
@@ -46,7 +48,7 @@ namespace BeatSaberPlus.SDK.UI
             return s_Months[p_Value % 12] + " " + l_Year;
         }
         /// <summary>
-        /// On tile setting changes
+        /// Format time
         /// </summary>
         /// <param name="p_Value">New value</param>
         /// <returns></returns>
@@ -64,7 +66,16 @@ namespace BeatSaberPlus.SDK.UI
             return l_Result;
         }
         /// <summary>
-        /// On tile setting changes
+        /// Format milliseconds
+        /// </summary>
+        /// <param name="p_Value">New value</param>
+        /// <returns></returns>
+        private static string FNMilliseconds(int p_Value)
+        {
+            return p_Value + "ms";
+        }
+        /// <summary>
+        /// Format seconds
         /// </summary>
         /// <param name="p_Value">New value</param>
         /// <returns></returns>
@@ -73,7 +84,7 @@ namespace BeatSaberPlus.SDK.UI
             return p_Value + " Second" + (p_Value > 1 ? "s" : "");
         }
         /// <summary>
-        /// On tile setting changes
+        /// Format minutes
         /// </summary>
         /// <param name="p_Value">New value</param>
         /// <returns></returns>
@@ -82,7 +93,7 @@ namespace BeatSaberPlus.SDK.UI
             return p_Value + " Minute" + (p_Value > 1 ? "s" : "");
         }
         /// <summary>
-        /// On percentage setting changes
+        /// Format percentage
         /// </summary>
         /// <param name="p_Value">New value</param>
         /// <returns></returns>

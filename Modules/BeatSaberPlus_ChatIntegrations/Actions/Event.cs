@@ -63,7 +63,9 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             var l_Choices = new List<object>();
             l_Choices.Add("<i>None</i>");
 
-            foreach (var l_EventBase in ChatIntegrations.Instance.GetEventsByType(typeof(Events.Dummy)))
+            var l_Events = ChatIntegrations.Instance.GetEventsByType(typeof(Events.Dummy));
+            l_Events.Sort((x, y) => (x.GetTypeNameShort() + x.GenericModel.Name).CompareTo(y.GetTypeNameShort() + y.GenericModel.Name));
+            foreach (var l_EventBase in l_Events)
             {
                 if (l_EventBase == Event)
                     continue;
@@ -99,8 +101,13 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
         {
             var l_SelectedEvent = ChatIntegrations.Instance.GetEventByGUID(Model.BaseValue);
             if (l_SelectedEvent != null && l_SelectedEvent is Events.Dummy)
-                p_Context.HasActionFailed = !ChatIntegrations.Instance.ExecuteEvent(l_SelectedEvent, new EventContext() { Type = Interfaces.TriggerType.Dummy });
-            else if (!Model.Continue)
+            {
+                if (Model.Continue)
+                    ChatIntegrations.Instance.ExecuteEvent(l_SelectedEvent, new EventContext() { Type = Interfaces.TriggerType.Dummy });
+                else
+                    p_Context.HasActionFailed = !ChatIntegrations.Instance.ExecuteEvent(l_SelectedEvent, new EventContext() { Type = Interfaces.TriggerType.Dummy });
+            }
+            else
                 p_Context.HasActionFailed = true;
 
             yield return null;
@@ -112,19 +119,14 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
         public override string Description => "Toggle an event";
 
 #pragma warning disable CS0414
-        [UIComponent("Event_DropDown")]
-        protected DropDownListSetting m_Event_DropDown = null;
-        [UIValue("Event_DropDownOptions")]
-        private List<object> m_Event_DropDownOptions = new List<object>() { "Loading...", };
-        [UIComponent("TypeList")]
-        private ListSetting m_TypeList = null;
-        [UIValue("TypeList_Choices")]
-        private List<object> m_TypeListList_Choices = new List<object>() { "Toggle", "Enable", "Disable" };
-        [UIValue("TypeList_Value")]
-        private string m_TypeList_Value;
-        [UIComponent("ContinueToggle")]
-        private ToggleSetting m_ContinueToggle = null;
+        [UIComponent("Event_DropDown")]     protected DropDownListSetting   m_Event_DropDown = null;
+        [UIValue("Event_DropDownOptions")]  private List<object>            m_Event_DropDownOptions = new List<object>() { "Loading...", };
+        [UIComponent("TypeList")]           private ListSetting             m_TypeList = null;
+        [UIValue("TypeList_Choices")]       private List<object>            m_TypeListList_Choices = new List<object>() { "Toggle", "Enable", "Disable" };
+        [UIValue("TypeList_Value")]         private string                  m_TypeList_Value;
 #pragma warning restore CS0414
+
+        private Dictionary<string, string> m_NameToGUID = new Dictionary<string, string>();
 
         public override sealed void BuildUI(Transform p_Parent)
         {
@@ -137,15 +139,20 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
 
             BeatSaberPlus.SDK.UI.DropDownListSetting.Setup(m_Event_DropDown, l_Event, true);
             BeatSaberPlus.SDK.UI.ListSetting.Setup(m_TypeList, l_Event, false);
-            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_ContinueToggle, l_Event, Model.Continue, false);
 
             int l_ChoiceIndex = 0;
             var l_Choices = new List<object>();
             l_Choices.Add("<i>None</i>");
 
-            foreach (var l_EventBase in ChatIntegrations.Instance.GetEventsByType(null))
+            m_NameToGUID.Clear();
+
+            var l_Events = ChatIntegrations.Instance.GetEventsByType(null);
+            l_Events.Sort((x, y) => (x.GetTypeNameShort() + x.GenericModel.Name).CompareTo(y.GetTypeNameShort() + y.GenericModel.Name));
+            foreach (var l_EventBase in l_Events)
             {
-                l_Choices.Add(l_EventBase.GenericModel.Name);
+                var l_Line = BuildLineString(l_EventBase);
+                l_Choices.Add(l_Line);
+                m_NameToGUID.Add(l_Line, l_EventBase.GenericModel.GUID);
 
                 if (Model.BaseValue != "" && l_EventBase.GenericModel.GUID == Model.BaseValue)
                     l_ChoiceIndex = l_Choices.Count - 1;
@@ -153,7 +160,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
 
             m_Event_DropDownOptions = l_Choices;
             m_Event_DropDown.values = l_Choices;
-            m_Event_DropDown.Value =  l_Choices[l_ChoiceIndex];
+            m_Event_DropDown.Value = l_Choices[l_ChoiceIndex];
             m_Event_DropDown.UpdateChoices();
         }
         private void OnSettingChanged(object p_Value)
@@ -161,10 +168,8 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             if ((string)p_Value == "<i>None</i>")
                 Model.BaseValue = "";
 
-            var l_SelectedEvent = ChatIntegrations.Instance.GetEventByName((string)m_Event_DropDown.Value);
-
-            if (l_SelectedEvent != null)
-                Model.BaseValue = l_SelectedEvent.GenericModel.GUID;
+            if (m_NameToGUID.TryGetValue((string)m_Event_DropDown.Value, out var l_SelectedGUID))
+                Model.BaseValue = l_SelectedGUID;
             else
             {
                 Model.BaseValue = "";
@@ -182,10 +187,29 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
                 if (Model.ChangeType == 0 || (Model.ChangeType == 1 && !l_SelectedEvent.IsEnabled) || (Model.ChangeType == 2 && l_SelectedEvent.IsEnabled))
                     ChatIntegrations.Instance.ToggleEvent(l_SelectedEvent);
             }
-            else if (!Model.Continue)
-                p_Context.HasActionFailed = true;
 
             yield return null;
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Build event line
+        /// </summary>
+        /// <param name="p_Event">Event to build for</param>
+        private string BuildLineString(Interfaces.IEventBase p_Event)
+        {
+            /// Result line
+            string l_Text = "";
+            l_Text += "<align=\"left\"><b>";
+
+            /// Left part
+            l_Text += "<color=yellow>[" + p_Event.GetTypeNameShort() + "] </color> ";
+            l_Text += p_Event.GenericModel.Name;
+            l_Text += "</b>";
+
+            return l_Text;
         }
     }
 }

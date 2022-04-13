@@ -1,9 +1,13 @@
-﻿using BeatSaberMarkupLanguage;
+﻿#define WITH_SONG_CORE
+
+using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using HarmonyLib;
 using HMUI;
 using IPA.Utilities;
+#if WITH_SONG_CORE
 using SongCore;
+#endif
 using System.Linq;
 using TMPro;
 using UnityEngine;
@@ -43,13 +47,13 @@ namespace BeatSaberPlus_GameTweaker.Patches
         {
             m_StandardLevelDetailView = __instance;
 
-            /// BetterSongSearch already have a trashcan
-            if (IPA.Loader.PluginManager.GetPluginFromId("BetterSongSearch") != null)
+            /// BetterSongList already have a trashcan
+            if (IPA.Loader.PluginManager.GetPluginFromId("BetterSongList") != null)
                 return;
 
             /// Apply
-            if (GTConfig.Instance.Enabled && GTConfig.Instance.DeleteSongButton)
-                SetDeleteSongButtonEnabled(GTConfig.Instance.DeleteSongButton);
+            if (GTConfig.Instance.Enabled && GTConfig.Instance.LevelSelection.DeleteSongButton)
+                SetDeleteSongButtonEnabled(GTConfig.Instance.LevelSelection.DeleteSongButton);
 
             Transform l_SongBrowserButton = null;
 
@@ -66,7 +70,7 @@ namespace BeatSaberPlus_GameTweaker.Patches
 
             if (l_SongBrowserButton)
             {
-                if (GTConfig.Instance.Enabled && GTConfig.Instance.DeleteSongBrowserTrashcan)
+                if (GTConfig.Instance.Enabled && GTConfig.Instance.LevelSelection.DeleteSongBrowserTrashcan)
                 {
                     l_SongBrowserButton.transform.localScale = Vector3.zero;
                     l_SongBrowserButton.transform.SetParent(null);
@@ -241,8 +245,9 @@ namespace BeatSaberPlus_GameTweaker.Patches
                             l_IndexOfTopCell = l_TableView.visibleCells.Min(x => x.idx);
                     }
 
+#if WITH_SONG_CORE
                     Loader.Instance.DeleteSong((l_LevelToDelete as CustomBeatmapLevel).customLevelPath);
-
+#endif
                     /// Scroll back to where we were
                     if (l_TableView != null)
                         l_TableView.ScrollToCellWithIdx(l_IndexOfTopCell, TableView.ScrollPositionType.Beginning, false);

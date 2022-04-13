@@ -65,14 +65,10 @@ namespace BeatSaberPlus_GameTweaker.Patches.Lights
         [HarmonyPrefix, HarmonyPriority(Priority.First)]
         internal static void Prefix_SetColorK(ref UnityEngine.Color color) => ImplSetColor(ref color);
 
-        [HarmonyPatch(typeof(LightmapLightsWithIds.LightIntensitiesData))]
-        [HarmonyPatch(nameof(LightmapLightsWithIds.LightIntensitiesData.SetDataToShaders))]
+        [HarmonyPatch(typeof(LightWithIds.LightWithId))]
+        [HarmonyPatch(nameof(LightWithIds.LightWithId.ColorWasSet))]
         [HarmonyPrefix, HarmonyPriority(Priority.First)]
-        internal static void Prefix_SetColorL(ref Color lightmapColor, ref Color probeColor)
-        {
-            ImplSetColor(ref lightmapColor);
-            ImplSetColor(ref probeColor);
-        }
+        internal static void Prefix_SetColorL(ref Color newColor) => ImplSetColor(ref newColor);
         [HarmonyPatch(typeof(LightmapLightWithIds))]
         [HarmonyPatch(nameof(LightmapLightWithIds.SetDataToShaders))]
         [HarmonyPrefix, HarmonyPriority(Priority.First)]
@@ -107,7 +103,7 @@ namespace BeatSaberPlus_GameTweaker.Patches.Lights
         /// </summary>
         public static void SetFromConfig()
         {
-            m_Intensity = (GTConfig.Instance.Enabled && GTConfig.Instance.AddOverrideLightIntensityOption) ? GTConfig.Instance.OverrideLightIntensity : 1.0f;
+            m_Intensity = (GTConfig.Instance.Enabled && GTConfig.Instance.PlayerOptions.OverrideLightIntensityOption) ? GTConfig.Instance.PlayerOptions.OverrideLightIntensity : 1.0f;
         }
         /// <summary>
         /// Set temp config

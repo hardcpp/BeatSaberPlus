@@ -29,6 +29,7 @@ namespace BeatSaberPlus_ChatEmoteRain
             [JsonProperty] internal bool ModeratorPower = true;
             [JsonProperty] internal bool VIPPower = false;
             [JsonProperty] internal bool SubscriberPower = false;
+            [JsonProperty] internal bool UserPower = false;
         }
 
         [JsonProperty] internal bool Enabled = true;
@@ -78,9 +79,6 @@ namespace BeatSaberPlus_ChatEmoteRain
         /// <param name="p_OnCreation">On creation</param>
         protected override void OnInit(bool p_OnCreation)
         {
-            if (p_OnCreation)
-                Enabled = BeatSaberPlus.Config.ChatEmoteRain.Enabled;
-
             if (p_OnCreation)
             {
                 MenuEmitters.Add(new _Emitter()

@@ -98,18 +98,35 @@
       <!-- =========================================== -->
 
       <horizontal id='CommandsTab' bg='round-rect-panel' min-height='65' spacing='0' pad='0'>
-        <vertical size-delta-x='30' min-width='30' pad-bottom='0'>
-          <text text='Give moderators power'></text>
-          <bool-setting id='CommandsTab_ModeratorPowerToggle' />
-        </vertical>
-        <vertical size-delta-x='40' min-width='40' pad-bottom='0'>
-          <text text='Give VIP power'></text>
-          <bool-setting id='CommandsTab_VIPPowerToggle' />
-        </vertical>
-        <vertical size-delta-x='40' min-width='40' pad-bottom='0'>
-          <text text='Give subscriber power'></text>
-          <bool-setting id='CommandsTab_SubscriberPowerToggle' />
-        </vertical>
+		  <vertical>
+			  <horizontal>
+				  <vertical>
+					  <text text='Give moderators power'></text>
+					  <bool-setting id='CommandsTab_ModeratorPowerToggle' />
+				  </vertical>
+			  </horizontal>
+			  <horizontal>
+				  <vertical>
+					  <text text='Give VIP power'></text>
+					  <bool-setting id='CommandsTab_VIPPowerToggle' />
+				  </vertical>
+			  </horizontal>
+			  <horizontal>
+				  <vertical>
+					  <text text='Give subscriber power'></text>
+					  <bool-setting id='CommandsTab_SubscriberPowerToggle' />
+				  </vertical>
+			  </horizontal>
+			  <horizontal>
+				  <vertical>
+					  <text text='Give user power'></text>
+					  <bool-setting id='CommandsTab_UserPowerToggle' />
+				  </vertical>
+			  </horizontal>
+
+			  <horizontal min-height='5'>
+			  </horizontal>
+		  </vertical>
       </horizontal>
     </vertical>
   </horizontal>

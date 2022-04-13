@@ -54,6 +54,18 @@ namespace BeatSaberPlus_ChatRequest.UI
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
+        /// On random button
+        /// </summary>
+        [UIAction("click-btn-random")]
+        private void OnRandomButton()
+        {
+            ManagerMain.Instance.SelectRandom();
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
         /// Cleat queue button
         /// </summary>
         [UIAction("click-clear-queue-btn-pressed")]
@@ -75,6 +87,10 @@ namespace BeatSaberPlus_ChatRequest.UI
                 ChatRequest.Instance.ResetBlacklist();
             });
         }
+        
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+        
         /// <summary>
         /// On queue button
         /// </summary>

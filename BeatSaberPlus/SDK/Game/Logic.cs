@@ -20,13 +20,9 @@ namespace BeatSaberPlus.SDK.Game
         /// </summary>
         private static bool m_WasInReplay = false;
         /// <summary>
-        /// ScoreSaber ReplayPlayer instance field
+        /// ScoreSaber playbackEnabled instance field
         /// </summary>
-        private static FieldInfo m_ScoreSaber_ReplayPlayer_InstanceField;
-        /// <summary>
-        /// ScoreSaber ReplayPlayer PlaybackEnabled Property
-        /// </summary>
-        private static PropertyInfo m_ScoreSaber_ReplayPlayer_PlaybackEnabledProperty;
+        private static MethodBase m_ScoreSaber_playbackEnabled;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -65,37 +61,20 @@ namespace BeatSaberPlus.SDK.Game
             {
                 try
                 {
-                    if (m_ScoreSaber_ReplayPlayer_InstanceField == null)
+                    if (m_ScoreSaber_playbackEnabled == null)
                     {
                         PluginMetadata l_ScoreSaberMetaData = PluginManager.GetPluginFromId("ScoreSaber");
                         if (l_ScoreSaberMetaData != null)
                         {
-                            foreach (Type l_Type in l_ScoreSaberMetaData.Assembly.GetTypes())
-                            {
-                                if (l_Type.Namespace == "ScoreSaber")
-                                {
-                                    if (l_Type.Name != "ReplayPlayer")
-                                        continue;
-
-                                    m_ScoreSaber_ReplayPlayer_InstanceField = l_Type.GetField("instance", BindingFlags.Public | BindingFlags.Static);
-                                    break;
-                                }
-                            }
+                            m_ScoreSaber_playbackEnabled = l_ScoreSaberMetaData.Assembly.GetType("ScoreSaber.Core.ReplaySystem.HarmonyPatches.PatchHandleHMDUnmounted")?
+                                                            .GetMethod("Prefix", BindingFlags.Static | BindingFlags.NonPublic);
                         }
                     }
 
-                    if (m_ScoreSaber_ReplayPlayer_PlaybackEnabledProperty == null && m_ScoreSaber_ReplayPlayer_InstanceField != null)
-                    {
-                        var l_Type = m_ScoreSaber_ReplayPlayer_InstanceField.FieldType;
-                        m_ScoreSaber_ReplayPlayer_PlaybackEnabledProperty = l_Type.GetProperty("playbackEnabled", BindingFlags.Public | BindingFlags.Instance);
-                    }
+                    if (m_ScoreSaber_playbackEnabled == null)
+                        return false;
 
-                    if (m_ScoreSaber_ReplayPlayer_PlaybackEnabledProperty != null && m_ScoreSaber_ReplayPlayer_InstanceField != null)
-                    {
-                        var l_Instance = m_ScoreSaber_ReplayPlayer_InstanceField.GetValue(null);
-                        if (l_Instance != null)
-                            return (bool)m_ScoreSaber_ReplayPlayer_PlaybackEnabledProperty.GetValue(l_Instance);
-                    }
+                    return !(bool)m_ScoreSaber_playbackEnabled.Invoke(null, null);
                 }
                 catch
                 {
@@ -270,6 +249,10 @@ namespace BeatSaberPlus.SDK.Game
                 {
                     LevelData.IsReplay = m_WasInReplay;
 
+#if DEBUG
+                    Logger.Instance?.Error($"====== [SDK.Game][Logic.OnGameSceneActive] OnLevelStarted ======");
+#endif
+
                     if (OnLevelStarted != null)
                         OnLevelStarted.Invoke(LevelData);
                 }
@@ -300,8 +283,8 @@ namespace BeatSaberPlus.SDK.Game
 #if DEBUG
             Logger.Instance?.Error("====== [SDK.Game][Logic.FireLevelEnded] ======");
 #endif
-            LevelCompletionData = p_LevelCompletionData;
-            LevelCompletionData.IsReplay = m_WasInReplay;
+            LevelCompletionData             = p_LevelCompletionData;
+            LevelCompletionData.IsReplay    = m_WasInReplay;
         }
     }
 }

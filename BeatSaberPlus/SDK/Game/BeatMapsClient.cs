@@ -380,22 +380,6 @@ namespace BeatSaberPlus.SDK.Game
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
-        /// Create a fake CustomBeatmapLevel
-        /// </summary>
-        /// <param name="p_MapDetail">MapDetail instance</param>
-        /// <returns></returns>
-        public static CustomBeatmapLevel CreateFakeCustomBeatmapLevelFromBeatMap(BeatMaps.MapDetail p_MapDetail)
-        {
-            if (p_MapDetail == null)
-                return null;
-
-            return Internal.BeatMaps_CustomBeatmapLevel.FromBeatSaver(p_MapDetail, p_MapDetail.SelectMapVersion());
-        }
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        /// <summary>
         /// Download a song
         /// </summary>
         /// <param name="p_Song">Beat map</param>

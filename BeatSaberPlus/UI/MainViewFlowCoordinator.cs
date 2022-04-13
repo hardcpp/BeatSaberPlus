@@ -8,7 +8,7 @@
         /// <summary>
         /// Title
         /// </summary>
-        public override string Title => "Beat Saber Plus V4.1.0-Preview";
+        public override string Title => "Beat Saber Plus V4.3.1";
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -33,6 +33,10 @@
         /// Settings left view
         /// </summary>
         private SettingsLeftView m_SettingsLeftView;
+        /// <summary>
+        /// Settings right view
+        /// </summary>
+        private SettingsRightView m_SettingsRightView;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -47,6 +51,7 @@
             //m_ChangeLogView     = CreateViewController<ChangeLogView>();
             m_SettingsView      = CreateViewController<SettingsView>();
             m_SettingsLeftView  = CreateViewController<SettingsLeftView>();
+            m_SettingsRightView = CreateViewController<SettingsRightView>();
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -83,6 +88,6 @@
         /// <summary>
         /// Switch to settings view
         /// </summary>
-        public void SwitchToSettingsView() => ChangeView(m_SettingsView, m_SettingsLeftView);
+        public void SwitchToSettingsView() => ChangeView(m_SettingsView, m_SettingsLeftView, m_SettingsRightView);
     }
 }

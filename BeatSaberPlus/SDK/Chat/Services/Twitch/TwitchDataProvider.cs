@@ -48,23 +48,25 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
 
         public _7TVDataProvider _7TVDataProvider => m_7TVDataProvider;
 
+        public bool IsReady { get; internal set; } = false;
+
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
         /// Request global resources
         /// </summary>
-        public void TryRequestGlobalResources()
+        public void TryRequestGlobalResources(string p_Token)
         {
             Task.Run(async () =>
             {
                 await m_GlobalLock.WaitAsync();
                 try
                 {
-                    await m_TwitchBadgeProvider.TryRequestResources(null);
-                    await m_BTTVDataProvider.TryRequestResources(null);
-                    await m_FFZDataProvider.TryRequestResources(null);
-                    await m_7TVDataProvider.TryRequestResources(null);
+                    await m_TwitchBadgeProvider.TryRequestResources(null, p_Token);
+                    await m_BTTVDataProvider.TryRequestResources(null, p_Token);
+                    await m_FFZDataProvider.TryRequestResources(null, p_Token);
+                    await m_7TVDataProvider.TryRequestResources(null, p_Token);
                     ///Logger.Instance.Information("Finished caching global emotes/badges.");
                 }
                 catch (Exception l_Exception)
@@ -87,7 +89,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
         /// </summary>
         /// <param name="p_Channel">Channel instance</param>
         /// <param name="p_OnChannelResourceDataCached">Callback</param>
-        public void TryRequestChannelResources(IChatChannel p_Channel, Action<Dictionary<string, IChatResourceData>> p_OnChannelResourceDataCached)
+        public void TryRequestChannelResources(IChatChannel p_Channel, string p_Token, Action<Dictionary<string, IChatResourceData>> p_OnChannelResourceDataCached)
         {
             Task.Run(async () =>
             {
@@ -98,11 +100,11 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                     {
                         string l_RoomId = p_Channel.AsTwitchChannel().Roomstate.RoomId;
 
-                        await m_TwitchBadgeProvider.TryRequestResources(l_RoomId);
-                        await m_TwitchCheermoteProvider.TryRequestResources(l_RoomId);
-                        await m_BTTVDataProvider.TryRequestResources(l_RoomId);
-                        await m_FFZDataProvider.TryRequestResources(p_Channel.Id);
-                        await m_7TVDataProvider.TryRequestResources(p_Channel.Id);
+                        await m_TwitchBadgeProvider.TryRequestResources(l_RoomId, p_Token);
+                        await m_TwitchCheermoteProvider.TryRequestResources(l_RoomId, p_Token);
+                        await m_BTTVDataProvider.TryRequestResources(l_RoomId, p_Token);
+                        await m_FFZDataProvider.TryRequestResources(p_Channel.Id, p_Token);
+                        await m_7TVDataProvider.TryRequestResources(p_Channel.Id, p_Token);
 
                         Dictionary<string, IChatResourceData> l_Result = new Dictionary<string, IChatResourceData>();
 
@@ -135,6 +137,8 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
 
                         p_OnChannelResourceDataCached?.Invoke(l_Result);
                         m_ChannelDataCached.Add(p_Channel.Id);
+
+                        IsReady = true;
                         //Logger.Instance.Information($"Finished caching emotes for channel {channel.Id}.");
                     }
                 }
@@ -227,6 +231,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                 return false;
 
             string l_Prefix = p_Word.Substring(0, l_PrefixLength).ToLower();
+
             if (!m_TwitchCheermoteProvider.TryGetResource(l_Prefix, p_RoomID, out p_Data))
                 return false;
 

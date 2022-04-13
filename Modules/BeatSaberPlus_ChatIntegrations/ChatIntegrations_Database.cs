@@ -17,14 +17,30 @@ namespace BeatSaberPlus_ChatIntegrations
         /// <returns></returns>
         private bool LoadDatabase()
         {
-            /// Create folder if needed
-            if (!Directory.Exists(s_DATABASE_FOLDER))
-                Directory.CreateDirectory(s_DATABASE_FOLDER);
+            /// Migrate old database if any
+            try
+            {
+                if (File.Exists(s_OLD_DATABASE_FILE))
+                {
+                    if (!File.Exists(s_DATABASE_FILE))
+                        File.Move(s_OLD_DATABASE_FILE, s_DATABASE_FILE);
+                    else
+                        File.Move(s_OLD_DATABASE_FILE, s_DATABASE_FILE + BeatSaberPlus.SDK.Misc.Time.UnixTimeNow());
+                }
+            }
+            catch
+            {
 
-            if (!File.Exists(s_DATABASE_PATH))
+            }
+
+            /// Create folder if needed
+            if (!Directory.Exists(CIConfig.Instance.DataLocation))
+                Directory.CreateDirectory(CIConfig.Instance.DataLocation);
+
+            if (!File.Exists(s_DATABASE_FILE))
                 return false;
 
-            string l_JSONContent = File.ReadAllText(s_DATABASE_PATH, Encoding.Unicode);
+            string l_JSONContent = File.ReadAllText(s_DATABASE_FILE, Encoding.Unicode);
             try
             {
                 var l_JSON = JObject.Parse(l_JSONContent);
@@ -43,7 +59,7 @@ namespace BeatSaberPlus_ChatIntegrations
                 Logger.Instance?.Error("[Modules.ChatIntegrations][ChatIntegrations.LoadDatabase] Failed");
                 Logger.Instance?.Error(l_Exception);
 
-                try { File.Move(s_DATABASE_PATH, s_DATABASE_PATH + BeatSaberPlus.SDK.Misc.Time.UnixTimeNow()); }
+                try { File.Move(s_DATABASE_FILE, s_DATABASE_FILE + BeatSaberPlus.SDK.Misc.Time.UnixTimeNow()); }
                 catch { }
             }
 
@@ -55,15 +71,15 @@ namespace BeatSaberPlus_ChatIntegrations
         internal void SaveDatabase()
         {
             /// Create folder if needed
-            if (!Directory.Exists(s_DATABASE_FOLDER))
-                Directory.CreateDirectory(s_DATABASE_FOLDER);
+            if (!Directory.Exists(CIConfig.Instance.DataLocation))
+                Directory.CreateDirectory(CIConfig.Instance.DataLocation);
 
             string l_OldJSONContent = null;
             try
             {
                 /// Backup in case of error
-                if (File.Exists(s_DATABASE_PATH))
-                    l_OldJSONContent = File.ReadAllText(s_DATABASE_PATH, Encoding.Unicode);
+                if (File.Exists(s_DATABASE_FILE))
+                    l_OldJSONContent = File.ReadAllText(s_DATABASE_FILE, Encoding.Unicode);
 
                 /// Serialize everything
                 var l_Object = new JObject()
@@ -72,7 +88,7 @@ namespace BeatSaberPlus_ChatIntegrations
                 };
 
                 /// Save new database
-                File.WriteAllText(s_DATABASE_PATH, l_Object.ToString(Newtonsoft.Json.Formatting.Indented), Encoding.Unicode);
+                File.WriteAllText(s_DATABASE_FILE, l_Object.ToString(Newtonsoft.Json.Formatting.Indented), Encoding.Unicode);
             }
             catch (System.Exception l_Exception)
             {
@@ -81,7 +97,7 @@ namespace BeatSaberPlus_ChatIntegrations
 
                 if (!string.IsNullOrEmpty(l_OldJSONContent))
                 {
-                    try { File.WriteAllText(s_DATABASE_PATH + BeatSaberPlus.SDK.Misc.Time.UnixTimeNow(), l_OldJSONContent, Encoding.Unicode); }
+                    try { File.WriteAllText(s_DATABASE_FILE + BeatSaberPlus.SDK.Misc.Time.UnixTimeNow(), l_OldJSONContent, Encoding.Unicode); }
                     catch { }
                 }
             }

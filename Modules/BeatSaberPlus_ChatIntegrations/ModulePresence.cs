@@ -2,6 +2,18 @@
 {
     internal class ModulePresence
     {
+        public static bool Chat
+        {
+            get
+            {
+                if (!m_Chat.HasValue)
+                    m_Chat = IPA.Loader.PluginManager.GetPluginFromId("BeatSaberPlus_Chat") != null;
+
+                return m_Chat.Value;
+            }
+        }
+        private static bool? m_Chat;
+
         public static bool ChatEmoteRain
         {
             get
@@ -47,5 +59,17 @@
             }
         }
         private static bool? m_NoteTweaker;
+
+        public static bool SongChartVisualizer
+        {
+            get
+            {
+                if (!m_SongChartVisualizer.HasValue)
+                    m_SongChartVisualizer = IPA.Loader.PluginManager.GetPluginFromId("BeatSaberPlus_SongChartVisualizer") != null;
+
+                return m_SongChartVisualizer.Value;
+            }
+        }
+        private static bool? m_SongChartVisualizer;
     }
 }

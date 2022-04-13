@@ -1,0 +1,6 @@
+﻿<vertical min-height='55' child-align='UpperCenter'>
+
+	<list-setting id='TypeList' value='TypeList_Value' choices='TypeList_Choices' apply-on-change='true' text='Change type' />
+	<horizontal min-height='50'></horizontal>
+
+</vertical>

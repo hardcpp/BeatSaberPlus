@@ -138,7 +138,7 @@ namespace BeatSaberPlus_ChatIntegrations.Models
                     break;
 
                 case IValueType.Emotes:
-                    if (p_Value != null && !(p_Value is List<IChatEmote>))
+                    if (p_Value != null && !(p_Value is IChatEmote[]))
                         throw new System.Exception($"[BeatSaberPlus_ChatIntegrations.Models][EventContext.AddValue] Wrong value type for {p_Type}.{p_Name}, List<IChatEmote> excepted, got {p_Value.GetType()}!");
                     break;
 
@@ -246,13 +246,13 @@ namespace BeatSaberPlus_ChatIntegrations.Models
         /// <param name="p_Name">Value name</param>
         /// <param name="p_Out">Out result</param>
         /// <returns>If the value exist</returns>
-        public bool GetEmotesValue(string p_Name, out List<IChatEmote> p_Out)
+        public bool GetEmotesValue(string p_Name, out IChatEmote[] p_Out)
         {
             p_Out = null;
 
             if (m_Values != null && m_Values.TryGetValue((IValueType.Emotes, p_Name), out var l_Result))
             {
-                p_Out = (List<IChatEmote>)l_Result;
+                p_Out = (IChatEmote[])l_Result;
                 return p_Out != null;
             }
 

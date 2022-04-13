@@ -41,6 +41,8 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
 #pragma warning disable CS0414
         [UIComponent("DelaySlider")]
         private SliderSetting m_DelaySlider = null;
+        [UIComponent("DelayMsSlider")]
+        private SliderSetting m_DelayMsSlider = null;
         [UIComponent("PreventFailureToggle")]
         private ToggleSetting m_PreventFailureToggle = null;
 
@@ -57,12 +59,14 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
 
-            BeatSaberPlus.SDK.UI.SliderSetting.Setup(m_DelaySlider,           l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Time, Model.Delay,                    true, true, new Vector2(0.08f, 0.10f), new Vector2(0.93f, 0.90f));
-            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_PreventFailureToggle,  l_Event,                                                  Model.PreventNextActionFailure, false);
+            BeatSaberPlus.SDK.UI.SliderSetting.Setup(m_DelaySlider,           l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Time,         Model.Delay,                    true, true, new Vector2(0.08f, 0.10f), new Vector2(0.93f, 0.90f));
+            BeatSaberPlus.SDK.UI.SliderSetting.Setup(m_DelayMsSlider,         l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Milliseconds, Model.DelayMs,                  true, true, new Vector2(0.08f, 0.10f), new Vector2(0.93f, 0.90f));
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_PreventFailureToggle,  l_Event,                                                          Model.PreventNextActionFailure, false);
         }
         private void OnSettingChanged(object p_Value)
         {
             Model.Delay                     = (uint)m_DelaySlider.slider.value;
+            Model.DelayMs                   = (uint)m_DelayMsSlider.slider.value;
             Model.PreventNextActionFailure  = m_PreventFailureToggle.Value;
         }
 
@@ -71,7 +75,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             if (Model.PreventNextActionFailure)
                 p_Context.PreventNextActionFailure = true;
 
-            yield return new WaitForSecondsRealtime((float)Model.Delay);
+            yield return new WaitForSecondsRealtime((float)Model.Delay + (((float)Model.DelayMs) / 1000f));
             yield return null;
         }
     }
@@ -91,8 +95,12 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
         private List<object> m_File_DropDownOptions = new List<object>() { "Loading...", };
         [UIComponent("VolumeIncrement")]
         protected IncrementSetting m_VolumeIncrement = null;
-        [UIComponent("PitchIncrement")]
-        protected IncrementSetting m_PitchIncrement = null;
+        [UIComponent("PitchMinIncrement")]
+        protected IncrementSetting m_PitchMinIncrement = null;
+        [UIComponent("PitchMaxIncrement")]
+        protected IncrementSetting m_PitchMaxIncrement = null;
+        [UIComponent("KillToggle")]
+        private ToggleSetting m_KillToggle = null;
 
         [UIObject("InfoPanel_Background")]
         private GameObject m_InfoPanel_Background = null;
@@ -107,14 +115,18 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
 
-            BeatSaberPlus.SDK.UI.DropDownListSetting.Setup(m_File_DropDown, l_Event, true);
-            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_VolumeIncrement, l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Percentage, Model.Volume, false);
-            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_PitchIncrement, l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Percentage, Model.Pitch, false);
+            BeatSaberPlus.SDK.UI.DropDownListSetting.Setup(m_File_DropDown,     l_Event, true);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_VolumeIncrement,      l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Percentage, Model.Volume,   false);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_PitchMinIncrement,    l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Percentage, Model.PitchMin, false);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_PitchMaxIncrement,    l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Percentage, Model.PitchMax, false);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_KillToggle,              l_Event, Model.KillOnSceneSwitch,                                               false);
 
             var l_Files = Directory.GetFiles(ChatIntegrations.s_SOUND_CLIPS_ASSETS_PATH, "*.ogg").ToArray();
 
             bool l_ChoiceExist = false;
             var l_Choices = new List<object>();
+            l_Choices.Add("<i>None</i>");
+
             foreach (var l_CurrentFile in l_Files)
             {
                 var l_Filtered = Path.GetFileName(l_CurrentFile);
@@ -123,9 +135,6 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
                 if (l_Filtered == Model.BaseValue)
                     l_ChoiceExist = true;
             }
-
-            if (l_Choices.Count == 0)
-                l_Choices.Add("None");
 
             m_File_DropDownOptions = l_Choices;
             m_File_DropDown.values = l_Choices;
@@ -141,8 +150,12 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             }
 
             Model.BaseValue = (string)m_File_DropDown.Value;
-            Model.Volume = m_VolumeIncrement.Value;
-            Model.Pitch = m_PitchIncrement.Value;
+            Model.Volume    = m_VolumeIncrement.Value;
+            Model.PitchMin  = m_PitchMinIncrement.Value;
+            Model.PitchMax  = m_PitchMaxIncrement.Value;
+
+            if ((string)p_Value == "<i>None</i>")
+                Model.BaseValue = "";
         }
 
         [UIAction("click-test-btn-pressed")]
@@ -203,17 +216,19 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             {
                 if (m_AudioSource == null || !m_AudioSource)
                 {
-                    m_AudioSource               = new GameObject("BSP_CI_Misc_PlaySound").AddComponent<AudioSource>();
-                    m_AudioSource.loop          = false;
-                    m_AudioSource.spatialize    = false;
-                    m_AudioSource.playOnAwake   = false;
+                    m_AudioSource                       = new GameObject("BSP_CI_Misc_PlaySound").AddComponent<AudioSource>();
+                    m_AudioSource.loop                  = false;
+                    m_AudioSource.spatialize            = false;
+                    m_AudioSource.playOnAwake           = false;
+                    m_AudioSource.ignoreListenerPause   = true;
 
-                    GameObject.DontDestroyOnLoad(m_AudioSource);
+                    if (!Model.KillOnSceneSwitch)
+                        GameObject.DontDestroyOnLoad(m_AudioSource);
                 }
 
                 m_AudioSource.clip          = m_AudioClip;
                 m_AudioSource.volume        = Model.Volume;
-                m_AudioSource.pitch         = Model.Pitch;
+                m_AudioSource.pitch         = UnityEngine.Random.Range(Model.PitchMin, Model.PitchMax);
                 m_AudioSource.Play();
             }
         }

@@ -338,11 +338,9 @@ namespace BeatSaberPlus
             foreach (var l_Module in Modules)
                 l_Module.OnApplicationExit();
 
-            /// Release all chat services
             SDK.Chat.Service.Release(true);
-
-            /// Release voice attack service
             SDK.VoiceAttack.Service.Release(true);
+            SDK.OBS.Service.Release(true);
         }
 
         ////////////////////////////////////////////////////////////////////////////

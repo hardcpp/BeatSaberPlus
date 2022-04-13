@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -29,6 +30,10 @@ namespace BeatSaberPlus.SDK.Config
             new JsonConverters.ColorConverter(),
             new JsonConverters.Color32Converter()
         };
+        /// <summary>
+        /// Raw loaded JSON
+        /// </summary>
+        protected JObject m_RawLoaded = null;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -160,11 +165,13 @@ namespace BeatSaberPlus.SDK.Config
                             l_Params.DefaultValueHandling   = DefaultValueHandling.Include;
                             l_Params.NullValueHandling      = NullValueHandling.Ignore;
 
+                            m_RawLoaded = JObject.Parse(l_Content);
                             JsonConvert.PopulateObject(l_Content, m_Instance, l_Params);
                         }
                     }
 
                     OnInit(false);
+                    m_RawLoaded = null;
                 }
                 else
                 {

@@ -1,152 +1,177 @@
 ﻿<vertical child-control-height='false' spacing='0' pad='0'>
-  <horizontal bg='panel-top' pad-left='15' pad-right='15' horizontal-fit='PreferredSize'>
-    <text text='Chat Integrations' align='Center' font-size='4.2'/>
-  </horizontal>
+	<horizontal bg='panel-top' pad-left='15' pad-right='15' horizontal-fit='PreferredSize'>
+		<text text='Chat Integrations' align='Center' font-size='4.2'/>
+	</horizontal>
 
-  <!-- =========================================== -->
+	<!-- =========================================== -->
 
-  <horizontal id='MessageFrame' spacing='0' pad-top='-1'>
-    <horizontal>
-      <text text=' ' font-size='5.5' align='Center'/>
-    </horizontal>
-    <horizontal id='MessageFrame_Background' bg='round-rect-panel' pad='8'>
-      <text text='Please select an event to edit on right screen' font-size='4.5' align='Center'/>
-    </horizontal>
-    <horizontal>
-      <text text=' ' font-size='5.5' align='Center'/>
-    </horizontal>
-  </horizontal>
+	<horizontal id='MessageFrame' spacing='0' pad-top='-1'>
+		<horizontal>
+			<text text=' ' font-size='5.5' align='Center'/>
+		</horizontal>
+		<horizontal id='MessageFrame_Background' bg='round-rect-panel' pad='8'>
+			<text text='Please select an event to edit on right screen' font-size='4.5' align='Center'/>
+		</horizontal>
+		<horizontal>
+			<text text=' ' font-size='5.5' align='Center'/>
+		</horizontal>
+	</horizontal>
 
-  <!-- =========================================== -->
+	<!-- =========================================== -->
 
-  <horizontal id='EventFrame' spacing='0' pad-top='0' min-width='145'>
-    <vertical spacing='0' pad-top='0' >
-      <horizontal id='EventFrame_TabSelector' pad-top='2' pref-height='7' pad-left='8' pad-right='8' min-width='145'>
-      </horizontal>
+	<horizontal id='EventFrame' spacing='0' pad-top='0' min-width='145'>
+		<vertical spacing='0' pad-top='0' >
+			<horizontal id='EventFrame_TabSelector' pad-top='2' pref-height='7' pad-left='8' pad-right='8' min-width='145'>
+			</horizontal>
 
-      <horizontal min-height='2'></horizontal>
+			<horizontal min-height='2'></horizontal>
 
-      <!-- =========================================== -->
+			<!-- =========================================== -->
 
-      <horizontal id='EventFrame_TriggerTab' bg='round-rect-panel' min-height='65' spacing='0' pad='0'>
-        <vertical>
-          <horizontal><text id='EventFrame_TriggerTab_Title' align='Top' font-size='4.5'/></horizontal>
-          <horizontal id='EventFrame_TriggerTab_EventContent' min-width='145' spacing='0' pad='0'>
+			<horizontal id='EventFrame_TriggerTab' bg='round-rect-panel' min-height='65' spacing='0' pad='0'>
+				<vertical>
+					<horizontal>
+						<text id='EventFrame_TriggerTab_Title' align='Top' font-size='4.5'/>
+					</horizontal>
+					<horizontal id='EventFrame_TriggerTab_EventContent' min-width='145' spacing='0' pad='0'>
 
-          </horizontal>
-        </vertical>
-      </horizontal>
+					</horizontal>
+				</vertical>
+			</horizontal>
 
-      <!-- =========================================== -->
+			<!-- =========================================== -->
 
-      <horizontal id='EventFrame_ConditionsTab' bg='round-rect-panel' min-height='65' spacing='0' pad='0'>
-        <vertical spacing='0' pad='0'>
-          <page-button id='EventFrame_ConditionsTab_UpButton' direction='Up'></page-button>
-          <list id='EventFrame_ConditionsTab_List' expand-cell='false'>
-          </list>
-          <page-button id='EventFrame_ConditionsTab_DownButton' direction='Down'></page-button>
-          <horizontal spacing='0'>
-            <button on-click='click-condition-movedown-btn-pressed'    min-width='20' text='▼' hover-hint='Move condition down in the list' />
-            <button on-click='click-condition-moveup-btn-pressed'      min-width='20' text='▲' hover-hint='Move condition up in the list' />
-          </horizontal>
-          <horizontal>
-            <primary-button on-click='AddConditionFrame_Show'          min-width='10' text='+'></primary-button>
-            <button on-click='click-condition-toggle-btn-pressed'      min-width='20' text='Toggle'></button>
-            <button on-click='click-condition-delete-btn-pressed'      min-width='10' text='-'></button>
-          </horizontal>
-        </vertical>
-        <vertical id='EventFrame_ConditionsTab_ConditionContent' bg='round-rect-panel' pad='0' spacing='0' size-delta-x='100' size-delta-y='55' min-width='100'>
+			<horizontal id='EventFrame_ConditionsTab' bg='round-rect-panel' min-height='65' spacing='0' pad='0'>
+				<vertical spacing='0' pad='0'>
+					<page-button id='EventFrame_ConditionsTab_UpButton' direction='Up'></page-button>
+					<list id='EventFrame_ConditionsTab_List' expand-cell='false'>
+					</list>
+					<page-button id='EventFrame_ConditionsTab_DownButton' direction='Down'></page-button>
+					<horizontal spacing='0'>
+						<button on-click='click-condition-movedown-btn-pressed'    min-width='20' text='▼' hover-hint='Move condition down in the list' />
+						<button on-click='click-condition-moveup-btn-pressed'      min-width='20' text='▲' hover-hint='Move condition up in the list' />
+					</horizontal>
+					<horizontal>
+						<primary-button on-click='AddConditionFrame_Show'          min-width='10' text='+'></primary-button>
+						<button on-click='click-condition-toggle-btn-pressed'      min-width='20' text='Toggle'></button>
+						<button on-click='click-condition-delete-btn-pressed'      min-width='10' text='-'></button>
+					</horizontal>
+				</vertical>
+				<vertical id='EventFrame_ConditionsTab_ConditionContent' bg='round-rect-panel' child-align='UpperCenter' pad='0' spacing='0' size-delta-x='100' size-delta-y='55' min-width='100'>
 
-        </vertical>
-      </horizontal>
+				</vertical>
+			</horizontal>
 
-      <!-- =========================================== -->
+			<!-- =========================================== -->
 
-      <horizontal id='EventFrame_ActionsTab' bg='round-rect-panel' min-height='65' spacing='0' pad='0'>
-        <vertical spacing='0' pad='0'>
-          <page-button id='EventFrame_ActionsTab_UpButton' direction='Up'></page-button>
-          <list id='EventFrame_ActionsTab_List' expand-cell='false'>
-          </list>
-          <page-button id='EventFrame_ActionsTab_DownButton' direction='Down'></page-button>
-          <horizontal spacing='0'>
-            <button on-click='click-action-movedown-btn-pressed'    min-width='20' text='▼' hover-hint='Move action down in the list' />
-            <button on-click='click-action-moveup-btn-pressed'      min-width='20' text='▲' hover-hint='Move action up in the list' />
-          </horizontal>
-          <horizontal spacing='0'>
-            <primary-button on-click='AddActionFrame_Show'      min-width='10' text='+'></primary-button>
-            <button on-click='click-action-toggle-btn-pressed'  min-width='20' text='Toggle'></button>
-            <button on-click='click-action-delete-btn-pressed'  min-width='10' text='-'></button>
-          </horizontal>
-        </vertical>
-        <vertical id='EventFrame_ActionsTab_ActionContent' bg='round-rect-panel' pad='0' spacing='0' size-delta-x='100' size-delta-y='55' min-width='100'>
+			<horizontal id='EventFrame_ActionsTab' bg='round-rect-panel' min-height='65' spacing='0' pad='0'>
+				<vertical spacing='0' pad='0'>
+					<page-button id='EventFrame_ActionsTab_UpButton' direction='Up'></page-button>
+					<list id='EventFrame_ActionsTab_List' expand-cell='false'>
+					</list>
+					<page-button id='EventFrame_ActionsTab_DownButton' direction='Down'></page-button>
+					<horizontal spacing='0'>
+						<button on-click='click-action-movedown-btn-pressed'    min-width='20' text='▼' hover-hint='Move action down in the list' />
+						<button on-click='click-action-moveup-btn-pressed'      min-width='20' text='▲' hover-hint='Move action up in the list' />
+					</horizontal>
+					<horizontal spacing='0'>
+						<primary-button on-click='AddActionFrame_Show'      min-width='10' text='+'></primary-button>
+						<button on-click='click-action-toggle-btn-pressed'  min-width='20' text='Toggle'></button>
+						<button on-click='click-action-delete-btn-pressed'  min-width='10' text='-'></button>
+					</horizontal>
+				</vertical>
+				<vertical id='EventFrame_ActionsTab_ActionContent' bg='round-rect-panel' child-align='UpperCenter' pad='0' spacing='0' size-delta-x='100' size-delta-y='55' min-width='100'>
 
-        </vertical>
-      </horizontal>
+				</vertical>
+			</horizontal>
 
-    </vertical>
-  </horizontal>
+			<!-- =========================================== -->
 
-  <!-- =========================================== -->
+			<horizontal id='EventFrame_OnFailActionsTab' bg='round-rect-panel' min-height='65' spacing='0' pad='0'>
+				<vertical spacing='0' pad='0'>
+					<page-button id='EventFrame_OnFailActionsTab_UpButton' direction='Up'></page-button>
+					<list id='EventFrame_OnFailActionsTab_List' expand-cell='false'>
+					</list>
+					<page-button id='EventFrame_OnFailActionsTab_DownButton' direction='Down'></page-button>
+					<horizontal spacing='0'>
+						<button on-click='click-onfailaction-movedown-btn-pressed'    min-width='20' text='▼' hover-hint='Move action down in the list' />
+						<button on-click='click-onfailaction-moveup-btn-pressed'      min-width='20' text='▲' hover-hint='Move action up in the list' />
+					</horizontal>
+					<horizontal spacing='0'>
+						<primary-button on-click='AddActionFrame_Show'            min-width='10' text='+'></primary-button>
+						<button on-click='click-onfailaction-toggle-btn-pressed'  min-width='20' text='Toggle'></button>
+						<button on-click='click-onfailaction-delete-btn-pressed'  min-width='10' text='-'></button>
+					</horizontal>
+				</vertical>
+				<vertical id='EventFrame_OnFailActionsTab_ActionContent' bg='round-rect-panel' child-align='UpperCenter' pad='0' spacing='0' size-delta-x='100' size-delta-y='55' min-width='100'>
 
-  <horizontal id='AddConditionFrame' spacing='0' pad-top='-1'>
-    <vertical id='AddConditionFrame_LeftBackground' bg='round-rect-panel' spacing='0' pad='0'>
-      <text text='Category' font-size='4.5' align='Center'/>
+				</vertical>
+			</horizontal>
 
-      <page-button id='AddConditionFrame_CategoryUpButton' direction='Up'></page-button>
-      <list id='AddConditionFrame_CategoryList' expand-cell='false'>
-      </list>
-      <page-button id='AddConditionFrame_CategoryDownButton' direction='Down'></page-button>
-    </vertical>
-    <vertical id='AddConditionFrame_RightBackground' bg='round-rect-panel' pad='0' spacing='0' size-delta-x='70' size-delta-y='30' min-width='70'>
-      <text text='Type' font-size='4.5' align='Center'/>
+		</vertical>
+	</horizontal>
 
-      <page-button id='AddConditionFrame_TypeUpButton' direction='Up'></page-button>
-      <list id='AddConditionFrame_TypeList' expand-cell='false'>
-      </list>
-      <page-button id='AddConditionFrame_TypeDownButton' direction='Down'></page-button>
+	<!-- =========================================== -->
 
-      <horizontal>
-        <button on-click='AddConditionFrame_OnCancelAddConditionButton' min-width='50' text='Cancel'></button>
-        <primary-button on-click='AddConditionFrame_OnAddConditionButton' min-width='50' text='Add'></primary-button>
-      </horizontal>
-    </vertical>
-  </horizontal>
+	<horizontal id='AddConditionFrame' spacing='0' pad-top='-1'>
+		<vertical id='AddConditionFrame_LeftBackground' bg='round-rect-panel' spacing='0' pad='0'>
+			<text text='Category' font-size='4.5' align='Center'/>
 
-  <!-- =========================================== -->
+			<page-button id='AddConditionFrame_CategoryUpButton' direction='Up'></page-button>
+			<list id='AddConditionFrame_CategoryList' expand-cell='false'>
+			</list>
+			<page-button id='AddConditionFrame_CategoryDownButton' direction='Down'></page-button>
+		</vertical>
+		<vertical id='AddConditionFrame_RightBackground' bg='round-rect-panel' pad='0' spacing='0' size-delta-x='70' size-delta-y='30' min-width='70'>
+			<text text='Type' font-size='4.5' align='Center'/>
 
-  <horizontal id='AddActionFrame' spacing='0' pad-top='-1'>
-    <vertical id='AddActionFrame_LeftBackground' bg='round-rect-panel' spacing='0' pad='0'>
-      <text text='Category' font-size='4.5' align='Center'/>
+			<page-button id='AddConditionFrame_TypeUpButton' direction='Up'></page-button>
+			<list id='AddConditionFrame_TypeList' expand-cell='false'>
+			</list>
+			<page-button id='AddConditionFrame_TypeDownButton' direction='Down'></page-button>
 
-      <page-button id='AddActionFrame_CategoryUpButton' direction='Up'></page-button>
-      <list id='AddActionFrame_CategoryList' expand-cell='false'>
-      </list>
-      <page-button id='AddActionFrame_CategoryDownButton' direction='Down'></page-button>
-    </vertical>
-    <vertical id='AddActionFrame_RightBackground' bg='round-rect-panel' pad='0' spacing='0' size-delta-x='70' size-delta-y='30' min-width='70'>
-      <text text='Type' font-size='4.5' align='Center'/>
+			<horizontal>
+				<button on-click='AddConditionFrame_OnCancelAddConditionButton' min-width='50' text='Cancel'></button>
+				<primary-button on-click='AddConditionFrame_OnAddConditionButton' min-width='50' text='Add'></primary-button>
+			</horizontal>
+		</vertical>
+	</horizontal>
 
-      <page-button id='AddActionFrame_TypeUpButton' direction='Up'></page-button>
-      <list id='AddActionFrame_TypeList' expand-cell='false'>
-      </list>
-      <page-button id='AddActionFrame_TypeDownButton' direction='Down'></page-button>
+	<!-- =========================================== -->
 
-      <horizontal>
-        <button on-click='AddActionFrame_OnCancelAddActionButton' min-width='50' text='Cancel'></button>
-        <primary-button on-click='AddActionFrame_OnAddActionButton' min-width='50' text='Add'></primary-button>
-      </horizontal>
-    </vertical>
-  </horizontal>
+	<horizontal id='AddActionFrame' spacing='0' pad-top='-1'>
+		<vertical id='AddActionFrame_LeftBackground' bg='round-rect-panel' spacing='0' pad='0'>
+			<text text='Category' font-size='4.5' align='Center'/>
 
-  <!-- =========================================== -->
+			<page-button id='AddActionFrame_CategoryUpButton' direction='Up'></page-button>
+			<list id='AddActionFrame_CategoryList' expand-cell='false'>
+			</list>
+			<page-button id='AddActionFrame_CategoryDownButton' direction='Down'></page-button>
+		</vertical>
+		<vertical id='AddActionFrame_RightBackground' bg='round-rect-panel' pad='0' spacing='0' size-delta-x='70' size-delta-y='30' min-width='70'>
+			<text text='Type' font-size='4.5' align='Center'/>
 
-  <modal-keyboard id='InputKeyboard'
-                move-to-center="true"
-                value="InputKeyboardValue"
-                show-event="OpenInputKeyboardModal"
-                hide-event="CloseAllModals"
-                clear-on-open="false"
-                on-enter="InputKeyboardEnterPressed"
-                click-off-closes="true"></modal-keyboard>
+			<page-button id='AddActionFrame_TypeUpButton' direction='Up'></page-button>
+			<list id='AddActionFrame_TypeList' expand-cell='false'>
+			</list>
+			<page-button id='AddActionFrame_TypeDownButton' direction='Down'></page-button>
+
+			<horizontal>
+				<button on-click='AddActionFrame_OnCancelAddActionButton' min-width='50' text='Cancel'></button>
+				<primary-button on-click='AddActionFrame_OnAddActionButton' min-width='50' text='Add'></primary-button>
+			</horizontal>
+		</vertical>
+	</horizontal>
+
+	<!-- =========================================== -->
+
+	<modal-keyboard id='InputKeyboard'
+				  move-to-center="true"
+				  value="InputKeyboardValue"
+				  show-event="OpenInputKeyboardModal"
+				  hide-event="CloseAllModals"
+				  clear-on-open="false"
+				  on-enter="InputKeyboardEnterPressed"
+				  click-off-closes="true"></modal-keyboard>
 
 </vertical>

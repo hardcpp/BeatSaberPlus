@@ -221,26 +221,32 @@ namespace BeatSaberPlus.SDK.Chat
             int l_Loaded = 0;
 
             OnLoadingStateChanged?.Invoke(true);
-            UI.LoadingProgressBar.instance.ShowLoadingProgressBar("Loading animated emotes...", 0f);
+
+            Unity.MainThreadInvoker.Enqueue(() => UI.LoadingProgressBar.instance.ShowLoadingProgressBar("Loading animated emotes...", 0f));
+
+            foreach (var l_Current in p_Resources)
+            {
+                if (l_Current.Value.Animation != Animation.AnimationType.NONE && l_Current.Value.Category == EChatResourceCategory.Emote)
+                    l_Count++;
+            }
 
             foreach (var l_Current in p_Resources)
             {
                 if (l_Current.Value.Animation != Animation.AnimationType.NONE && l_Current.Value.Category == EChatResourceCategory.Emote)
                 {
-                    l_Count++;
                     ImageProvider.PrecacheAnimatedImage(l_Current.Value.Category, l_Current.Value.Uri, l_Current.Key, l_Current.Value.Animation, (x) =>
                     {
                         var l_CurrentLoaded = System.Threading.Interlocked.Increment(ref l_Loaded);
                         var l_Progress      = (float)l_CurrentLoaded / (float)l_Count;
 
                         OnLoadingProgressChanged?.Invoke(l_Progress, l_Count);
-                        UI.LoadingProgressBar.instance.SetProgress("Loading emotes...", l_Progress);
+                        Unity.MainThreadInvoker.Enqueue(() => UI.LoadingProgressBar.instance.SetProgress("Loading emotes...", l_Progress));
 
                         if (l_CurrentLoaded == l_Count)
                         {
                             OnLoadingStateChanged?.Invoke(false);
-                            UI.LoadingProgressBar.instance.SetProgress($"Loaded {l_Count} emotes", 1f);
-                            UI.LoadingProgressBar.instance.HideTimed(4f);
+                            Unity.MainThreadInvoker.Enqueue(() => UI.LoadingProgressBar.instance.SetProgress($"Loaded {l_Count} emotes", 1f));
+                            Unity.MainThreadInvoker.Enqueue(() => UI.LoadingProgressBar.instance.HideTimed(4f));
 
                             Multiplexer.InternalBroadcastSystemMessage($"Pre-cached {l_Count} animated emotes for {p_Channel.Name}.");
                             Logger.Instance.Info($"Pre-cached {l_Count} animated emotes for {p_Channel.Name}.");
@@ -253,8 +259,8 @@ namespace BeatSaberPlus.SDK.Chat
             {
                 OnLoadingStateChanged?.Invoke(false);
 
-                UI.LoadingProgressBar.instance.SetProgress("Loaded 0 animated emotes...", 1f);
-                UI.LoadingProgressBar.instance.HideTimed(4f);
+                Unity.MainThreadInvoker.Enqueue(() => UI.LoadingProgressBar.instance.SetProgress("Loaded 0 animated emotes...", 1f));
+                Unity.MainThreadInvoker.Enqueue(() => UI.LoadingProgressBar.instance.HideTimed(4f));
             }
         }
         /// <summary>

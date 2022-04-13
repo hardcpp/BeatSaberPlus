@@ -230,6 +230,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BSPConfig.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Plugin.cs" />
@@ -258,7 +259,6 @@
     <Compile Include="SDK\Chat\Interfaces\IChatEmote.cs" />
     <Compile Include="SDK\Chat\Interfaces\IChatMessage.cs" />
     <Compile Include="SDK\Chat\Interfaces\IChatMessageHandler.cs" />
-    <Compile Include="SDK\Chat\Interfaces\IChatMessageParser.cs" />
     <Compile Include="SDK\Chat\Interfaces\IChatResourceData.cs" />
     <Compile Include="SDK\Chat\Interfaces\IChatResourceProvider.cs" />
     <Compile Include="SDK\Chat\Interfaces\IChatService.cs" />
@@ -266,10 +266,17 @@
     <Compile Include="SDK\Chat\Interfaces\IChatUser.cs" />
     <Compile Include="SDK\Chat\Interfaces\IEmojiParser.cs" />
     <Compile Include="SDK\Config\JsonConverters\Color32Converter.cs" />
+    <Compile Include="SDK\Cryptography\SHA256.cs" />
+    <Compile Include="SDK\OBS\Models\Scene.cs" />
+    <Compile Include="SDK\OBS\Models\Source.cs" />
+    <Compile Include="SDK\OBS\Service.cs" />
+    <Compile Include="SDK\OBS\Service_RequestHandlers.cs" />
+    <Compile Include="SDK\OBS\Service_UpdateHandlers.cs" />
     <Compile Include="SDK\Pool\IObjectPool.cs" />
     <Compile Include="SDK\Pool\MTCollectionPool.cs" />
     <Compile Include="SDK\Pool\MTDictionaryPool.cs" />
     <Compile Include="SDK\Pool\MTGenericPool.cs" />
+    <Compile Include="SDK\Pool\MTHashSetPool.cs" />
     <Compile Include="SDK\Pool\MTListPool.cs" />
     <Compile Include="SDK\Pool\MTObjectPool.cs" />
     <Compile Include="SDK\Pool\PooledObject.cs" />
@@ -320,7 +327,6 @@
     <Compile Include="SDK\Game\BeatMaps\MapVersion.cs" />
     <Compile Include="SDK\Game\BeatMaps\SearchResponse.cs" />
     <Compile Include="SDK\Game\BeatMaps\UserDetail.cs" />
-    <Compile Include="SDK\Game\Internal\CustomBeatSaverBeatmapLevel.cs" />
     <Compile Include="SDK\Misc\CRC.cs" />
     <Compile Include="SDK\Animation\APNG\Frame.cs" />
     <Compile Include="SDK\Animation\APNG\Helper.cs" />
@@ -456,6 +462,7 @@
     <Compile Include="UI\InfoView.cs" />
     <Compile Include="UI\MainView.cs" />
     <Compile Include="UI\SettingsLeftView.cs" />
+    <Compile Include="UI\SettingsRightView.cs" />
     <Compile Include="UI\SettingsView.cs" />
     <Compile Include="UI\MainViewFlowCoordinator.cs" />
     <Compile Include="SDK\UI\LevelDetail.cs" />
@@ -485,6 +492,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UI\SettingsLeftView.bsml">
       <DependentUpon>SettingsLeftView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\SettingsRightView.bsml">
+      <DependentUpon>SettingsRightView.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

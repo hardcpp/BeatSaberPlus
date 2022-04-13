@@ -13,14 +13,14 @@ namespace BeatSaberPlus_GameTweaker.Patches
         /// Prefix
         /// </summary>
         /// <param name="__instance">ComboUIController instance</param>
-        internal static bool Prefix(ref ComboUIController __instance, ref bool ____comboLost)
+        internal static bool Prefix(ref ComboUIController __instance, ref bool ____fullComboLost)
         {
-            if (!GTConfig.Instance.Enabled || !GTConfig.Instance.RemoveFullComboLossAnimation)
+            if (!GTConfig.Instance.Enabled || !GTConfig.Instance.Environment.RemoveFullComboLossAnimation)
                 return true; ///< Continue to original function
 
-            if (!____comboLost)
+            if (!____fullComboLost)
             {
-                ____comboLost = true;
+                ____fullComboLost = true;
 
                 __instance.transform.Find("Line0")?.gameObject.SetActive(false);
                 __instance.transform.Find("Line1")?.gameObject.SetActive(false);

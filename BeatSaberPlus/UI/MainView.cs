@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
+using TMPro;
 
 namespace BeatSaberPlus.UI
 {
@@ -38,10 +39,13 @@ namespace BeatSaberPlus.UI
 
             foreach (var l_Module in Plugin.Instance.Modules.Where(x => x.Type == SDK.IModuleBaseType.Integrated))
             {
-                var l_Button = SDK.UI.Button.Create(m_ButtonGrid.transform, l_Module.Name, () => {
+                var l_Button = SDK.UI.Button.Create(m_ButtonGrid.transform, l_Module.FancyName, () => {
                     var l_Items = l_Module.GetSettingsUI();
                     MainViewFlowCoordinator.Instance().ChangeView(l_Items.Item1, l_Items.Item2, l_Items.Item3);
                 }, l_Module.Description, 35f, 10f);
+
+                var l_Text = l_Button.GetComponentInChildren<TextMeshProUGUI>();
+                l_Text.fontSize = l_Text.fontSize * 0.85f;
                 m_ModulesButton.Add(l_Module, l_Button);
             }
         }

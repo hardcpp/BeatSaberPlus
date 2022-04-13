@@ -36,27 +36,6 @@ namespace BeatSaberPlus_MenuMusic
         /// <param name="p_OnCreation">On creation</param>
         protected override void OnInit(bool p_OnCreation)
         {
-            if (BeatSaberPlus.Config.MenuMusic.OldConfigMigrated)
-            {
-                Save();
-                return;
-            }
-
-            Enabled = BeatSaberPlus.Config.MenuMusic.Enabled;
-
-            ShowPlayer      = BeatSaberPlus.Config.MenuMusic.ShowPlayer;
-            ShowPlayTime    = BeatSaberPlus.Config.MenuMusic.ShowPlayTime;
-
-            BackgroundColor                 = BeatSaberPlus.Config.MenuMusic.BackgroundColor;
-            StartSongFromBeginning          = BeatSaberPlus.Config.MenuMusic.StartSongFromBeginning;
-            StartANewMusicOnSceneChange     = BeatSaberPlus.Config.MenuMusic.StartANewMusicOnSceneChange;
-            LoopCurrentMusic                = BeatSaberPlus.Config.MenuMusic.LoopCurrentMusic;
-            UseOnlyCustomMenuSongsFolder    = BeatSaberPlus.Config.MenuMusic.UseOnlyCustomMenuSongsFolder;
-            PlaybackVolume                  = BeatSaberPlus.Config.MenuMusic.PlaybackVolume;
-
-            ////////////////////////////////////////////////////////////////////////////
-
-            BeatSaberPlus.Config.MenuMusic.OldConfigMigrated = true;
             Save();
         }
     }

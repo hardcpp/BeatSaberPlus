@@ -1,0 +1,7 @@
+﻿<vertical min-height='55' child-align='UpperCenter'>
+
+  <bool-setting id='HideUI' text='Hide UI?'></bool-setting>
+
+  <horizontal min-height='50'></horizontal>
+
+</vertical>

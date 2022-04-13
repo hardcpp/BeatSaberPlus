@@ -40,8 +40,8 @@ namespace BeatSaberPlus_GameTweaker.Patches
             if (GTConfig.Instance.Enabled)
             {
                 /// Apply
-                SetBeatMapEditorButtonDisabled(GTConfig.Instance.DisableBeatMapEditorButtonOnMainMenu);
-                SetRemovePackMusicPromoBanner(GTConfig.Instance.RemoveNewContentPromotional);
+                SetBeatMapEditorButtonDisabled(GTConfig.Instance.MainMenu.DisableEditorButtonOnMainMenu);
+                SetRemovePackMusicPromoBanner(GTConfig.Instance.MainMenu.RemoveNewContentPromotional);
             }
         }
 

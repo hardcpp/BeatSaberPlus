@@ -2,6 +2,7 @@
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -87,8 +88,11 @@ namespace BeatSaberPlus_GameTweaker.Patches
                     [ERROR @ 06:07:26 | BeatSaberPlus_GameTweaker] 1
                 */
 
-                var l_NewReactionTimeList = new List<float>();
-                for (float l_Value = 0.35f; l_Value < 1f; l_Value += 0.01f)
+                var l_NewReactionTimeList   = new List<float>();
+                var l_IncrementType         = GTConfig.Instance.PlayerOptions.JumpDurationIncrement;
+                var l_Increment             = l_IncrementType == 2 ? 0.100f : (l_IncrementType == 1 ? 0.010f : 0.005f);
+
+                for (float l_Value = (l_IncrementType == 2 ? 0.3f : 0.34f); l_Value < 1f; l_Value += l_Increment)
                     l_NewReactionTimeList.Add(l_Value);
 
                 if (m_NoteJumpFixedDurationSettingsController)
@@ -104,10 +108,10 @@ namespace BeatSaberPlus_GameTweaker.Patches
 
             /// Apply
             if (GTConfig.Instance.Enabled)
-                SetReorderEnabled(GTConfig.Instance.ReorderPlayerSettings, GTConfig.Instance.AddOverrideLightIntensityOption);
+                SetReorderEnabled(GTConfig.Instance.PlayerOptions.ReorderPlayerSettings, GTConfig.Instance.PlayerOptions.OverrideLightIntensityOption);
 
             if (GTConfig.Instance.Enabled)
-                SetLightsOptionMerging(GTConfig.Instance.MergeLightPressetOptions);
+                SetLightsOptionMerging(GTConfig.Instance.PlayerOptions.MergeLightPressetOptions);
         }
         /// <summary>
         /// Refresh prefix
@@ -117,7 +121,7 @@ namespace BeatSaberPlus_GameTweaker.Patches
         [HarmonyPostfix]
         internal static void Refresh_Postfix()
         {
-            if (GTConfig.Instance.MergeLightPressetOptions
+            if (GTConfig.Instance.PlayerOptions.MergeLightPressetOptions
                 && m_EnvironmentEffectsFilterDefaultPresetDropdown
                 && m_EnvironmentEffectsFilterExpertPlusPresetDropdown)
             {
@@ -137,10 +141,10 @@ namespace BeatSaberPlus_GameTweaker.Patches
         [HarmonyPatch(typeof(FormattedFloatListSettingsController))]
         [HarmonyPatch("TextForValue", new Type[] { typeof(int) })]
         [HarmonyPostfix]
-        internal static void NoteJumpFixedDurationSettingsController_TextForValue_Postfix(FormattedFloatListSettingsController __instance , ref string __result)
+        internal static void NoteJumpFixedDurationSettingsController_TextForValue_Postfix(FormattedFloatListSettingsController __instance, int idx, ref string __result)
         {
             if (__instance == m_NoteJumpFixedDurationSettingsController)
-                __result = string.Format("{0:0.00}", __instance.value).Replace(".", "").Replace(",", "").TrimStart('0') + "0ms";
+                __result = string.Format("{0:0.000}", __instance.values[idx]).Replace(".", "").Replace(",", "").TrimStart('0') + "ms";
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -183,7 +187,7 @@ namespace BeatSaberPlus_GameTweaker.Patches
                 m_OverrideLightsIntensityToggle.increments  = 0.1f;
 
                 var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(null, typeof(PPlayerSettingsPanelController).GetMethod(nameof(OnOverrideLightIntensityChange), System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic));
-                BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_OverrideLightsIntensityToggle, l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Percentage, GTConfig.Instance.OverrideLightIntensity, false);
+                BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_OverrideLightsIntensityToggle, l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Percentage, GTConfig.Instance.PlayerOptions.OverrideLightIntensity, false);
             }
             else if (!p_AddOverrideLightsIntensityOption && m_OverrideLightsIntensityToggle != null && m_OverrideLightsIntensityToggle)
             {
@@ -259,7 +263,7 @@ namespace BeatSaberPlus_GameTweaker.Patches
         /// <param name="p_Value">New value</param>
         private static void OnOverrideLightIntensityChange(object p_Value)
         {
-            GTConfig.Instance.OverrideLightIntensity = (float)p_Value;
+            GTConfig.Instance.PlayerOptions.OverrideLightIntensity = (float)p_Value;
             GTConfig.Instance.Save();
         }
         /// <summary>

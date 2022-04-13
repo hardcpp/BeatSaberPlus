@@ -78,6 +78,7 @@ namespace BeatSaberPlus_ChatRequest
             [JsonProperty] internal bool   WrongCommandEnabled      = true;
             [JsonProperty] internal string WrongCommand             = "wrong,oops,wrongsong";
             [JsonProperty] internal string WrongCommand_NoSong      = "@$UserName you have no song in queue!";
+            [JsonProperty] internal string WrongCommand_NoSongFound = "@$UserName you have no song in queue with the specified code!!";
 
             [JsonProperty] internal bool   Moderator_ModAddCommandEnabled   = true;
             [JsonProperty] internal string Moderator_ModAddCommand          = "modadd";
@@ -170,53 +171,6 @@ namespace BeatSaberPlus_ChatRequest
         /// <param name="p_OnCreation">On creation</param>
         protected override void OnInit(bool p_OnCreation)
         {
-            if (BeatSaberPlus.Config.ChatRequest.OldConfigMigrated)
-            {
-                Save();
-                return;
-            }
-
-            Enabled = BeatSaberPlus.Config.ChatRequest.Enabled;
-
-            QueueOpen = BeatSaberPlus.Config.ChatRequest.QueueOpen;
-
-            UserMaxRequest          = BeatSaberPlus.Config.ChatRequest.UserMaxRequest;
-            VIPBonusRequest         = BeatSaberPlus.Config.ChatRequest.VIPBonusRequest;
-            SubscriberBonusRequest  = BeatSaberPlus.Config.ChatRequest.SubscriberBonusRequest;
-
-            HistorySize = BeatSaberPlus.Config.ChatRequest.HistorySize;
-
-            PlayPreviewMusic = BeatSaberPlus.Config.ChatRequest.PlayPreviewMusic;
-
-            ModeratorPower = BeatSaberPlus.Config.ChatRequest.ModeratorPower;
-
-            QueueCommandShowSize = BeatSaberPlus.Config.ChatRequest.QueueCommandShowSize;
-            QueueCommandCooldown = BeatSaberPlus.Config.ChatRequest.QueueCommandCooldown;
-
-            Filters.NoBeatSage      = BeatSaberPlus.Config.ChatRequest.NoBeatSage;
-            Filters.NPSMin          = BeatSaberPlus.Config.ChatRequest.NPSMin;
-            Filters.NPSMinV         = BeatSaberPlus.Config.ChatRequest.NPSMinV;
-            Filters.NPSMax          = BeatSaberPlus.Config.ChatRequest.NPSMax;
-            Filters.NPSMaxV         = BeatSaberPlus.Config.ChatRequest.NPSMaxV;
-            Filters.NJSMin          = BeatSaberPlus.Config.ChatRequest.NJSMin;
-            Filters.NJSMinV         = BeatSaberPlus.Config.ChatRequest.NJSMinV;
-            Filters.NJSMax          = BeatSaberPlus.Config.ChatRequest.NJSMax;
-            Filters.NJSMaxV         = BeatSaberPlus.Config.ChatRequest.NJSMaxV;
-            Filters.DurationMax     = BeatSaberPlus.Config.ChatRequest.DurationMax;
-            Filters.DurationMaxV    = BeatSaberPlus.Config.ChatRequest.DurationMaxV;
-            Filters.VoteMin         = BeatSaberPlus.Config.ChatRequest.VoteMin;
-            Filters.VoteMinV        = BeatSaberPlus.Config.ChatRequest.VoteMinV;
-            Filters.DateMin         = BeatSaberPlus.Config.ChatRequest.DateMin;
-            Filters.DateMinV        = BeatSaberPlus.Config.ChatRequest.DateMinV;
-            Filters.DateMax         = BeatSaberPlus.Config.ChatRequest.DateMax;
-            Filters.DateMaxV        = BeatSaberPlus.Config.ChatRequest.DateMaxV;
-
-            OverlayIntegration.SimpleQueueFileCount     = BeatSaberPlus.Config.ChatRequest.SimpleQueueFileCount;
-            OverlayIntegration.SimpleQueueFileFormat    = BeatSaberPlus.Config.ChatRequest.SimpleQueueFileFormat;
-
-            ////////////////////////////////////////////////////////////////////////////
-
-            BeatSaberPlus.Config.ChatRequest.OldConfigMigrated = true;
             Save();
         }
     }

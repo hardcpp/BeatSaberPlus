@@ -30,43 +30,6 @@ namespace BeatSaberPlus.SDK.Chat
             }
         }
 
-        internal class Global
-        {
-            private static string _s = "Global";
-
-            internal static bool ParseEmojis {
-                get { return m_Config.GetBool(_s, "ParseEmojis", true, true);           }
-                set {        m_Config.SetBool(_s, "ParseEmojis", value);                }
-            }
-        }
-
-        internal class Twitch
-        {
-            private static string _s = "Twitch";
-
-            internal static bool ParseBTTVEmotes {
-                get { return m_Config.GetBool(_s, "ParseBTTVEmotes", true, true); }
-                set {        m_Config.SetBool(_s, "ParseBTTVEmotes", value); }
-            }
-            internal static bool ParseFFZEmotes {
-                get { return m_Config.GetBool(_s, "ParseFFZEmotes", true, true); }
-                set {        m_Config.SetBool(_s, "ParseFFZEmotes", value); }
-            }
-            internal static bool Parse7TVEmotes
-            {
-                get { return m_Config.GetBool(_s, "Parse7TVEmotes", true, true); }
-                set {        m_Config.SetBool(_s, "Parse7TVEmotes", value); }
-            }
-            internal static bool ParseTwitchEmotes {
-                get { return m_Config.GetBool(_s, "ParseTwitchEmotes", true, true); }
-                set {        m_Config.SetBool(_s, "ParseTwitchEmotes", value); }
-            }
-            internal static bool ParseCheermotes {
-                get { return m_Config.GetBool(_s, "ParseCheermotes", true, true); }
-                set {        m_Config.SetBool(_s, "ParseCheermotes", value); }
-            }
-        }
-
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 

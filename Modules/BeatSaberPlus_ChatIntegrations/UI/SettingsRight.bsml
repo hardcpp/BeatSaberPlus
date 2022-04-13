@@ -34,10 +34,11 @@
     <primary-button on-click='click-delete-btn-pressed' min-width='28' text='Delete' />
   </horizontal>
   <horizontal id='EventListButtonsFrame2'>
-    <button on-click='click-export-btn-pressed'         min-width='28' text='Export'/>
-    <button on-click='click-import-btn-pressed'         min-width='28' text='Import'/>
-    <button on-click='click-clone-btn-pressed'          min-width='28' text='Clone'/>
-    <button on-click='click-templates-btn-pressed'      min-width='28' text='Templates'/>
+    <button on-click='click-export-btn-pressed'         min-width='22' text='Export'/>
+    <button on-click='click-import-btn-pressed'         min-width='22' text='Import'/>
+    <button on-click='click-clone-btn-pressed'          min-width='22' text='Clone'/>
+    <button on-click='click-templates-btn-pressed'      min-width='22' text='Templates'/>
+	<button on-click='click-convert-btn-pressed'        min-width='22' text='Convert'/>
   </horizontal>
 
   <!-- =========================================== -->

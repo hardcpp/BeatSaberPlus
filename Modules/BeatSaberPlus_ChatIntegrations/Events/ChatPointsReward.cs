@@ -58,11 +58,12 @@ namespace BeatSaberPlus_ChatIntegrations.Events
                 new Conditions.ChatRequest_QueueDuration(),
                 new Conditions.ChatRequest_QueueSize(),
                 new Conditions.ChatRequest_QueueStatus(),
-                new Conditions.Event_AlwaysFail(),
                 new Conditions.GamePlay_InMenu(),
                 new Conditions.GamePlay_PlayingMap(),
-                new Conditions.Misc_Cooldown()
+                new Conditions.Misc_Cooldown(),
             }
+            .Union(BeatSaberPlus_ChatIntegrations.Conditions.EventBuilder.BuildFor(this))
+            .Union(BeatSaberPlus_ChatIntegrations.Conditions.OBSBuilder.BuildFor(this))
             .Union(GetInstanciatedCustomConditionList())
             .Distinct().ToList().AsReadOnly();
 
@@ -71,12 +72,16 @@ namespace BeatSaberPlus_ChatIntegrations.Events
             {
 
             }
+            .Union(BeatSaberPlus_ChatIntegrations.Actions.Camera2Builder.BuildFor(this))
             .Union(BeatSaberPlus_ChatIntegrations.Actions.ChatBuilder.BuildFor(this))
             .Union(BeatSaberPlus_ChatIntegrations.Actions.EmoteRainBuilder.BuildFor(this))
             .Union(BeatSaberPlus_ChatIntegrations.Actions.EventBuilder.BuildFor(this))
             .Union(BeatSaberPlus_ChatIntegrations.Actions.GamePlayBuilder.BuildFor(this))
             .Union(BeatSaberPlus_ChatIntegrations.Actions.MiscBuilder.BuildFor(this))
+            .Union(BeatSaberPlus_ChatIntegrations.Actions.NoteTweakerBuilder.BuildFor(this))
+            .Union(BeatSaberPlus_ChatIntegrations.Actions.OBSBuilder.BuildFor(this))
             .Union(BeatSaberPlus_ChatIntegrations.Actions.TwitchBuilder.BuildFor(this))
+            .Union(BeatSaberPlus_ChatIntegrations.Actions.SongChartVisualizerBuilder.BuildFor(this))
             .Union(GetInstanciatedCustomActionList())
             .Distinct().ToList().AsReadOnly();
         }
@@ -92,8 +97,8 @@ namespace BeatSaberPlus_ChatIntegrations.Events
         private TextMeshProUGUI m_TitleText = null;
         [UIComponent("PromptText")]
         private TextMeshProUGUI m_PromptText = null;
-        [UIComponent("CostIncrement")]
-        private SliderSetting m_CostIncrement = null;
+        [UIComponent("CostText")]
+        private TextMeshProUGUI m_CostText = null;
 
         [UIComponent("RequireInputToggle")]
         private ToggleSetting m_RequireInputToggle = null;
@@ -134,9 +139,6 @@ namespace BeatSaberPlus_ChatIntegrations.Events
             /// Change opacity
             BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_InfoBackground, 0.5f);
 
-            /// Setup fields
-            BeatSaberPlus.SDK.UI.SliderSetting.Setup(m_CostIncrement, l_Event, null, Model.Cost, true, true, new Vector2(0.07f, 0f), new Vector2(0.95f, 1.0f));
-
             BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_RequireInputToggle,                l_Event,                      Model.RequireInput,          true);
             BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_MaxPerStreamIncrement,          l_Event, l_QuantityFormatter, Model.MaxPerStream,          true);
             BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_MaxPerUserPerStreamIncrement,   l_Event, l_QuantityFormatter, Model.MaxPerUserPerStream,   true);
@@ -156,7 +158,6 @@ namespace BeatSaberPlus_ChatIntegrations.Events
         /// <param name="p_Value">Value</param>
         private void OnSettingChanged(object p_Value)
         {
-            Model.Cost                  = (int)m_CostIncrement.slider.value;
             Model.RequireInput          = m_RequireInputToggle.Value;
             Model.MaxPerStream          = (int)m_MaxPerStreamIncrement.Value;
             Model.MaxPerUserPerStream   = (int)m_MaxPerUserPerStreamIncrement.Value;
@@ -170,6 +171,7 @@ namespace BeatSaberPlus_ChatIntegrations.Events
         {
             m_TitleText.SetText(Model.Title + " ");
             m_PromptText.SetText(Model.Prompt + " ");
+            m_CostText.SetText(Model.Cost + " ");
         }
         /// <summary>
         /// Title button pressed
@@ -196,6 +198,24 @@ namespace BeatSaberPlus_ChatIntegrations.Events
             });
         }
         /// <summary>
+        /// Cost button pressed
+        /// </summary>
+        [UIAction("click-cost-btn-pressed")]
+        private void OnCostButton()
+        {
+            UI.Settings.Instance.UIShowInputKeyboard(Model.Cost.ToString(), (x) =>
+            {
+                int l_NewValue = 0;
+                if (!int.TryParse(x, out l_NewValue))
+                    l_NewValue = Model.Cost;
+                else
+                    l_NewValue = Mathf.Clamp(l_NewValue, 0, 10000000);
+
+                Model.Cost = l_NewValue;
+                UpdateUI();
+            });
+        }
+        /// <summary>
         /// Update reward button pressed
         /// </summary>
         [UIAction("click-update-reward-btn-pressed")]
@@ -203,7 +223,6 @@ namespace BeatSaberPlus_ChatIntegrations.Events
         {
             CreateOrUpdateReward();
         }
-
         /// <summary>
         /// Quantity formatter
         /// </summary>
@@ -452,7 +471,11 @@ namespace BeatSaberPlus_ChatIntegrations.Events
                                 {
                                     BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() =>
                                     {
-                                        UI.Settings.Instance.UISetPendingMessage("<color=red>Twitch error,\n"+ p_SecondReply.Result.BodyString);
+                                        if (p_SecondReply.Result.BodyString.Contains("CREATE_CUSTOM_REWARD_DUPLICATE_REWARD"))
+                                            UI.Settings.Instance.UISetPendingMessage("<color=red>Twitch error,\nA reward with the same name already exist on your channel\nPlease delete on twitch.tv any conflicting reward");
+                                        else
+                                            UI.Settings.Instance.UISetPendingMessage("<color=red>Twitch error,\n" + p_SecondReply.Result.BodyString);
+
                                         UI.Settings.Instance.UIHideLoading();
                                     });
                                 }

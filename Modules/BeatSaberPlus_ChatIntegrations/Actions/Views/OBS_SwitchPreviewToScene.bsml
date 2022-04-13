@@ -1,0 +1,11 @@
+﻿<vertical min-height='55' child-align='UpperCenter'>
+
+	<text text='Preview Scene' align='Center' />
+	<dropdown-list-setting id='Scene_DropDown' choices='Scene_DropDownOptions' apply-on-change='true' />
+
+	<button on-click='click-activescene-btn-pressed' text='Select active scene' min-width='20'></button>
+	<primary-button on-click='click-test-btn-pressed' text='Test' min-width='20'></primary-button>
+
+	<horizontal min-height='30'></horizontal>
+
+</vertical>

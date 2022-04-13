@@ -42,6 +42,10 @@ namespace BeatSaberPlus_ChatIntegrations.Interfaces
         /// Action list
         /// </summary>
         public abstract List<IActionBase> Actions { get; protected set; }
+        /// <summary>
+        /// On fail Action list
+        /// </summary>
+        public abstract List<IActionBase> OnFailActions { get; protected set; }
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -74,6 +78,7 @@ namespace BeatSaberPlus_ChatIntegrations.Interfaces
                 {
                     if (l_Condition.IsEnabled && !l_Condition.Eval(p_Context))
                     {
+                        BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() => SharedCoroutineStarter.instance.StartCoroutine(DoOnFailActions(p_Context)));
                         OnEventFailed(p_Context);
                         return false;
                     }
@@ -133,6 +138,10 @@ namespace BeatSaberPlus_ChatIntegrations.Interfaces
         /// </summary>
         /// <param name="p_Condition">Condition to delete</param>
         public abstract void DeleteCondition(IConditionBase p_Condition);
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
         /// <summary>
         /// Add an action to the event
         /// </summary>
@@ -148,6 +157,25 @@ namespace BeatSaberPlus_ChatIntegrations.Interfaces
         /// </summary>
         /// <param name="p_Action">Action to delete</param>
         public abstract void DeleteAction(IActionBase p_Action);
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Add an on fail action to the event
+        /// </summary>
+        /// <param name="p_OnFailAction">Action to add</param>
+        public abstract void AddOnFailAction(IActionBase p_OnFailAction);
+        /// <summary>
+        /// Move an on fail action
+        /// </summary>
+        /// <param name="p_OnFailAction">Action to move</param>
+        public abstract int MoveOnFailAction(IActionBase p_OnFailAction, bool p_Up);
+        /// <summary>
+        /// Delete an on fail action from the event
+        /// </summary>
+        /// <param name="p_OnFailAction">Action to delete</param>
+        public abstract void DeleteOnFailAction(IActionBase p_OnFailAction);
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -255,8 +283,9 @@ namespace BeatSaberPlus_ChatIntegrations.Interfaces
         /// <returns></returns>
         private IEnumerator DoActions(Models.EventContext p_Context)
         {
-            foreach (var l_Action in Actions)
+            for (int l_I = 0; l_I < Actions.Count; ++l_I)
             {
+                var l_Action = Actions[l_I];
                 if (!l_Action.IsEnabled)
                     continue;
 
@@ -271,6 +300,27 @@ namespace BeatSaberPlus_ChatIntegrations.Interfaces
 
             if (!p_Context.PreventNextActionFailure && !p_Context.HasActionFailed)
                 OnSuccess(p_Context);
+
+            yield return null;
+        }
+        /// <summary>
+        /// Do on fail actions
+        /// </summary>
+        /// <param name="p_Context">Event context</param>
+        /// <returns></returns>
+        private IEnumerator DoOnFailActions(Models.EventContext p_Context)
+        {
+            for (int l_I = 0; l_I < OnFailActions.Count; ++l_I)
+            {
+                var l_OnFailAction = OnFailActions[l_I];
+                if (!l_OnFailAction.IsEnabled)
+                    continue;
+
+                yield return l_OnFailAction.Eval(p_Context);
+
+                if (!p_Context.PreventNextActionFailure && p_Context.HasActionFailed)
+                    break;
+            }
 
             yield return null;
         }
@@ -302,6 +352,10 @@ namespace BeatSaberPlus_ChatIntegrations.Interfaces
         /// Action list
         /// </summary>
         public override sealed List<IActionBase> Actions { get; protected set; } = new List<IActionBase>();
+        /// <summary>
+        /// On fail action list
+        /// </summary>
+        public override sealed List<IActionBase> OnFailActions { get; protected set; } = new List<IActionBase>();
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -379,10 +433,11 @@ namespace BeatSaberPlus_ChatIntegrations.Interfaces
             Model.Type = GetTypeName();
 
             return new JObject() {
-                ["Type"]        = GetTypeName(),
-                ["Event"]       = JObject.FromObject(Model),
-                ["Conditions"]  = JArray.FromObject(Conditions.Select(x => x.Serialize()).ToArray()),
-                ["Actions"]     = JArray.FromObject(Actions.Select(x => x.Serialize()).ToArray())
+                ["Type"]            = GetTypeName(),
+                ["Event"]           = JObject.FromObject(Model),
+                ["Conditions"]      = JArray.FromObject(Conditions.Select(x => x.Serialize()).ToArray()),
+                ["Actions"]         = JArray.FromObject(Actions.Select(x => x.Serialize()).ToArray()),
+                ["OnFailActions"]   = JArray.FromObject(OnFailActions.Select(x => x.Serialize()).ToArray())
             };
         }
         /// <summary>
@@ -495,6 +550,46 @@ namespace BeatSaberPlus_ChatIntegrations.Interfaces
                 }
             }
 
+            if (p_Serialized.ContainsKey("OnFailActions") && p_Serialized["OnFailActions"].Type == JTokenType.Array)
+            {
+                foreach (JObject l_SerializedOnFailAction in (p_Serialized["OnFailActions"] as JArray))
+                {
+                    if (!l_SerializedOnFailAction.ContainsKey(nameof(Models.Condition.Type)))
+                        continue;
+
+                    var l_OnFailActionType = l_SerializedOnFailAction[nameof(Models.Action.Type)].Value<string>();
+
+                    if (l_OnFailActionType.StartsWith("BeatSaberPlus.Modules.ChatIntegrations."))
+                    {
+                        l_OnFailActionType = l_OnFailActionType.Replace("BeatSaberPlus.Modules.ChatIntegrations.", "BeatSaberPlus_ChatIntegrations.");
+                        l_SerializedOnFailAction[nameof(Models.Action.Type)] = l_OnFailActionType;
+                    }
+
+                    var l_MatchingType  = AvailableActions.Where(x => x.GetTypeName() == l_OnFailActionType).FirstOrDefault();
+
+                    if (l_MatchingType == null)
+                    {
+                        /// Todo backup this action to avoid loss
+                        Logger.Instance?.Error($"[Modules.ChatIntegrations.Interfaces][IEvent.Unserialize] Missing action type \"{l_OnFailActionType}\"");
+                        continue;
+                    }
+
+                    /// Create instance
+                    var l_NewOnFailAction = Activator.CreateInstance(l_MatchingType.GetType()) as Interfaces.IActionBase;
+                    l_NewOnFailAction.Event = this;
+
+                    /// Unserialize action
+                    if (!l_NewOnFailAction.Unserialize(l_SerializedOnFailAction))
+                    {
+                        /// Todo backup this event to avoid loss
+                        Logger.Instance?.Error($"[Modules.ChatIntegrations.Interfaces][IEvent.Unserialize] Failed to unserialize action\n\"{l_OnFailActionType.ToString()}\"");
+                        continue;
+                    }
+
+                    OnFailActions.Add(l_NewOnFailAction);
+                }
+            }
+
             p_Error = "";
 
             if (string.IsNullOrEmpty(Model.GUID))
@@ -538,6 +633,10 @@ namespace BeatSaberPlus_ChatIntegrations.Interfaces
         {
             Conditions.Remove(p_Condition);
         }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
         /// <summary>
         /// Add an action to the event
         /// </summary>
@@ -569,6 +668,42 @@ namespace BeatSaberPlus_ChatIntegrations.Interfaces
         public override sealed void DeleteAction(IActionBase p_Action)
         {
             Actions.Remove(p_Action);
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Add an on fail action to the event
+        /// </summary>
+        /// <param name="p_OnFailAction">Action to add</param>
+        public override sealed void AddOnFailAction(IActionBase p_OnFailAction)
+        {
+            OnFailActions.Add(p_OnFailAction);
+        }
+        /// <summary>
+        /// Move an on fail action
+        /// </summary>
+        /// <param name="p_OnFailAction">Action to move</param>
+        public override sealed int MoveOnFailAction(IActionBase p_OnFailAction, bool p_Up)
+        {
+            var l_Index = OnFailActions.IndexOf(p_OnFailAction);
+
+            if (l_Index == -1 || (l_Index == 0 && p_Up) || (l_Index == (OnFailActions.Count - 1) && !p_Up))
+                return -1;
+
+            OnFailActions.Remove(p_OnFailAction);
+            OnFailActions.Insert(l_Index + (p_Up ? -1 : 1), p_OnFailAction);
+
+            return OnFailActions.IndexOf(p_OnFailAction);
+        }
+        /// <summary>
+        /// Delete an on fail action from the event
+        /// </summary>
+        /// <param name="p_OnFailAction">Action to delete</param>
+        public override sealed void DeleteOnFailAction(IActionBase p_OnFailAction)
+        {
+            OnFailActions.Remove(p_OnFailAction);
         }
     }
 }

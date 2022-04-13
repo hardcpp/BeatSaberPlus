@@ -74,47 +74,6 @@ namespace BeatSaberPlus_Chat
                 };
             }
 
-            if (BeatSaberPlus.Config.Chat.OldConfigMigrated)
-            {
-                Save();
-                return;
-            }
-
-            Enabled = BeatSaberPlus.Config.Chat.Enabled;
-
-            ChatSize            = new Vector2(BeatSaberPlus.Config.Chat.ChatWidth, BeatSaberPlus.Config.Chat.ChatHeight);
-            ReverseChatOrder    = BeatSaberPlus.Config.Chat.ReverseChatOrder;
-            SystemFontName      = BeatSaberPlus.Config.Chat.SystemFontName;
-            FontSize            = BeatSaberPlus.Config.Chat.FontSize;
-
-            AlignWithFloor              = BeatSaberPlus.Config.Chat.AlignWithFloor;
-            ShowLockIcon                = BeatSaberPlus.Config.Chat.ShowLockIcon;
-            FollowEnvironementRotation  = BeatSaberPlus.Config.Chat.FollowEnvironementRotation;
-            ShowViewerCount             = BeatSaberPlus.Config.Chat.ShowViewerCount;
-            ShowFollowEvents            = BeatSaberPlus.Config.Chat.ShowFollowEvents;
-            ShowSubscriptionEvents      = BeatSaberPlus.Config.Chat.ShowSubscriptionEvents;
-            ShowBitsCheeringEvents      = BeatSaberPlus.Config.Chat.ShowBitsCheeringEvents;
-            ShowChannelPointsEvent      = BeatSaberPlus.Config.Chat.ShowChannelPointsEvent;
-            FilterViewersCommands       = BeatSaberPlus.Config.Chat.FilterViewersCommands;
-            FilterBroadcasterCommands   = BeatSaberPlus.Config.Chat.FilterBroadcasterCommands;
-
-            BackgroundColor = BeatSaberPlus.Config.Chat.BackgroundColor;
-            HighlightColor  = BeatSaberPlus.Config.Chat.HighlightColor;
-            AccentColor     = BeatSaberPlus.Config.Chat.AccentColor;
-            TextColor       = BeatSaberPlus.Config.Chat.TextColor;
-            PingColor       = BeatSaberPlus.Config.Chat.PingColor;
-
-            MenuChatPosition = new Vector3(BeatSaberPlus.Config.Chat.MenuChatPositionX, BeatSaberPlus.Config.Chat.MenuChatPositionY, BeatSaberPlus.Config.Chat.MenuChatPositionZ);
-            MenuChatRotation = new Vector3(BeatSaberPlus.Config.Chat.MenuChatRotationX, BeatSaberPlus.Config.Chat.MenuChatRotationY, BeatSaberPlus.Config.Chat.MenuChatRotationZ);
-
-            PlayingChatPosition = new Vector3(BeatSaberPlus.Config.Chat.PlayingChatPositionX, BeatSaberPlus.Config.Chat.PlayingChatPositionY, BeatSaberPlus.Config.Chat.PlayingChatPositionZ);
-            PlayingChatRotation = new Vector3(BeatSaberPlus.Config.Chat.PlayingChatRotationX, BeatSaberPlus.Config.Chat.PlayingChatRotationY, BeatSaberPlus.Config.Chat.PlayingChatRotationZ);
-
-            ModerationKeys = BeatSaberPlus.Config.Chat.ModerationKeys.Split(new string[] { BeatSaberPlus.Config.Chat.s_ModerationKeyDefault_Split }, System.StringSplitOptions.RemoveEmptyEntries).ToList();
-
-            ////////////////////////////////////////////////////////////////////////////
-
-            BeatSaberPlus.Config.Chat.OldConfigMigrated = true;
             Save();
         }
 

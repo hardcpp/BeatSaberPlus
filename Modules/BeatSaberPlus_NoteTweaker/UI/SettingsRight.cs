@@ -13,16 +13,21 @@ namespace BeatSaberPlus_NoteTweaker.UI
         private GameObject m_Parent = null;
         private GameObject m_NoteTemplate = null;
         private GameObject m_BombTemplate = null;
+        private GameObject m_BurstSliderTemplate = null;
+
         private GameObject m_CustomPreviewTL = null;
         private GameObject m_CustomPreviewTR = null;
         private GameObject m_CustomPreviewDL = null;
         private GameObject m_CustomPreviewDR = null;
         private GameObject m_CustomPreviewBomb = null;
+        private GameObject m_CustomPreviewSliderFill = null;
+
         private GameObject m_DefaultPreviewTL = null;
         private GameObject m_DefaultPreviewTR = null;
         private GameObject m_DefaultPreviewDL = null;
         private GameObject m_DefaultPreviewDR = null;
         private GameObject m_DefaultPreviewBomb = null;
+        private GameObject m_DefaultPreviewSliderFill = null;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -40,15 +45,19 @@ namespace BeatSaberPlus_NoteTweaker.UI
         /// </summary>
         protected override void OnViewCreation()
         {
-            m_CustomPreviewTL   = null;
-            m_CustomPreviewTR   = null;
-            m_CustomPreviewDL   = null;
-            m_CustomPreviewDR   = null;
-            m_DefaultPreviewTL  = null;
-            m_DefaultPreviewTR  = null;
-            m_DefaultPreviewDL  = null;
-            m_DefaultPreviewDR  = null;
-            m_DefaultPreviewBomb = null;
+            m_CustomPreviewTL           = null;
+            m_CustomPreviewTR           = null;
+            m_CustomPreviewDL           = null;
+            m_CustomPreviewDR           = null;
+            m_CustomPreviewBomb         = null;
+            m_CustomPreviewSliderFill   = null;
+
+            m_DefaultPreviewTL          = null;
+            m_DefaultPreviewTR          = null;
+            m_DefaultPreviewDL          = null;
+            m_DefaultPreviewDR          = null;
+            m_DefaultPreviewBomb        = null;
+            m_DefaultPreviewSliderFill  = null;
 
             m_Parent = new GameObject();
             m_Parent.transform.position = new Vector3(3.50f, 1.35f, 2.28f);
@@ -73,37 +82,19 @@ namespace BeatSaberPlus_NoteTweaker.UI
 
                     GameObject.DontDestroyOnLoad(m_NoteTemplate);
 
-                    /// _Smoothness                 Range                       System.Single[]
-                    /// _NoteSize                   Float                       0,25
-                    /// _EnableColorInstancing      Float                       0
-                    /// _SimpleColor                Color                       RGBA(0.251, 0.251, 0.251, 0.000)
-                    /// _FinalColorMul              Float                       1
-                    /// _EnvironmentReflectionCube  Texture
-                    /// _EnableReflectionProbe      Float                       0
-                    /// _ReflectionProbeIntensity   Float                       1
-                    /// _EnableFog                  Float                       1
-                    /// _FogStartOffset             Float                       100
-                    /// _FogScale                   Float                       0,5
-                    /// _EnableCutout               Float                       1
-                    /// _CutoutTexScale             Float                       0,5
-                    /// _EnableCloseToCameraCutout  Float                       0
-                    /// _CloseToCameraCutoutOffset  Float                       0,5
-                    /// _CloseToCameraCutoutScale   Float                       0,5
-                    /// _EnablePlaneCut             Float                       0
-                    /// _CutPlaneEdgeGlowWidth      Float                       0,01
-                    /// _CutPlane                   Vector                      (1.0, 0.0, 0.0, 0.0)
-                    /// _EnableRimDim               Float                       0
-                    /// _RimScale                   Float                       2
-                    /// _RimOffset                  Float                       -0,3
-                    /// _RimCameraDistanceOffset    Float                       4
-                    /// _RimCameraDistanceScale     Float                       0,01
-                    /// _RimDarkening               Float                       0
-                    /// _CullMode                   Float                       2
                     var l_OriginalBombPrefab = l_BeatmapObjectsInstaller.GetField<BombNoteController, BeatmapObjectsInstaller>("_bombNotePrefab");
                     m_BombTemplate = GameObject.Instantiate(l_OriginalBombPrefab.transform.GetChild(0).gameObject);
                     m_BombTemplate.gameObject.SetActive(false);
 
-                    CreatePreview(m_NoteTemplate, m_BombTemplate);
+                    GameObject.DontDestroyOnLoad(m_BombTemplate);
+
+                    var l_OriginalBurstSliderPrefab = l_BeatmapObjectsInstaller.GetField<BurstSliderGameNoteController, BeatmapObjectsInstaller>("_burstSliderNotePrefab");
+                    m_BurstSliderTemplate = GameObject.Instantiate(l_OriginalBurstSliderPrefab.transform.GetChild(0).gameObject);
+                    m_BurstSliderTemplate.gameObject.SetActive(false);
+
+                    GameObject.DontDestroyOnLoad(m_BurstSliderTemplate);
+
+                    CreatePreview(m_NoteTemplate, m_BombTemplate, m_BurstSliderTemplate);
 
                     UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(l_StandardGameplaySceneInfo.sceneName);
                     UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(l_GameCoreSceneInfo.sceneName);
@@ -121,7 +112,7 @@ namespace BeatSaberPlus_NoteTweaker.UI
              || m_CustomPreviewTR == null || !m_CustomPreviewTR)
             {
                 if (m_NoteTemplate != null)
-                    CreatePreview(m_NoteTemplate, m_BombTemplate);
+                    CreatePreview(m_NoteTemplate, m_BombTemplate, m_BurstSliderTemplate);
             }
         }
         /// <summary>
@@ -139,7 +130,8 @@ namespace BeatSaberPlus_NoteTweaker.UI
             m_CustomPreviewDL = null;
             m_CustomPreviewDR = null;
 
-            if (m_CustomPreviewBomb != null && m_CustomPreviewBomb) GameObject.Destroy(m_CustomPreviewBomb);
+            if (m_CustomPreviewBomb         != null && m_CustomPreviewBomb)         GameObject.Destroy(m_CustomPreviewBomb);
+            if (m_CustomPreviewSliderFill   != null && m_CustomPreviewSliderFill)   GameObject.Destroy(m_CustomPreviewSliderFill);
 
             m_CustomPreviewBomb = null;
 
@@ -153,7 +145,9 @@ namespace BeatSaberPlus_NoteTweaker.UI
             m_DefaultPreviewDL  = null;
             m_DefaultPreviewDR  = null;
 
-            if (m_DefaultPreviewBomb != null && m_DefaultPreviewBomb) GameObject.Destroy(m_DefaultPreviewBomb);
+            if (m_DefaultPreviewBomb        != null && m_DefaultPreviewBomb)        GameObject.Destroy(m_DefaultPreviewBomb);
+            if (m_DefaultPreviewSliderFill  != null && m_DefaultPreviewSliderFill)  GameObject.Destroy(m_DefaultPreviewSliderFill);
+
             m_DefaultPreviewBomb = null;
         }
         /// <summary>
@@ -184,33 +178,41 @@ namespace BeatSaberPlus_NoteTweaker.UI
              || m_CustomPreviewDR == null || !m_CustomPreviewDR)
                 return;
 
-            m_CustomPreviewTL.transform.localScale = Vector3.one * NTConfig.Instance.Scale;
-            m_CustomPreviewTR.transform.localScale = Vector3.one * NTConfig.Instance.Scale;
-            m_CustomPreviewDL.transform.localScale = Vector3.one * NTConfig.Instance.Scale;
-            m_CustomPreviewDR.transform.localScale = Vector3.one * NTConfig.Instance.Scale;
+            var l_Profile = NTConfig.Instance.GetActiveProfile();
+
+            m_CustomPreviewTL.transform.localScale = Vector3.one * l_Profile.NotesScale;
+            m_CustomPreviewTR.transform.localScale = Vector3.one * l_Profile.NotesScale;
+            m_CustomPreviewDL.transform.localScale = Vector3.one * l_Profile.NotesScale;
+            m_CustomPreviewDR.transform.localScale = Vector3.one * l_Profile.NotesScale;
 
             var l_PlayerData    = Resources.FindObjectsOfTypeAll<PlayerDataModel>().First().playerData;
             var l_ColorScheme   = l_PlayerData.colorSchemesSettings.overrideDefaultColors ? l_PlayerData.colorSchemesSettings.GetSelectedColorScheme() : null;
             var l_LeftColor     = l_ColorScheme != null ? l_ColorScheme.saberAColor : new Color(0.658823549747467f, 0.125490203499794f,  0.125490203499794f);
             var l_RightColor    = l_ColorScheme != null ? l_ColorScheme.saberBColor : new Color(0.125490203499794f, 0.3921568691730499f, 0.658823549747467f);
 
-            var l_ArrowLColor = NTConfig.Instance.OverrideArrowColors ? NTConfig.Instance.ArrowLColor : l_LeftColor.ColorWithAlpha(NTConfig.Instance.ArrowLColor.a);
-            var l_ArrowRColor = NTConfig.Instance.OverrideArrowColors ? NTConfig.Instance.ArrowRColor : l_RightColor.ColorWithAlpha(NTConfig.Instance.ArrowRColor.a);
+            var l_ArrowLColor = l_Profile.ArrowsOverrideColors ? l_Profile.ArrowsLColor : l_LeftColor.ColorWithAlpha( l_Profile.ArrowsLColor.a);
+            var l_ArrowRColor = l_Profile.ArrowsOverrideColors ? l_Profile.ArrowsRColor : l_RightColor.ColorWithAlpha(l_Profile.ArrowsRColor.a);
 
-            PatchArrow(m_CustomPreviewTL,  NTConfig.Instance.ArrowScale,        l_ArrowLColor, true);
-            PatchArrow(m_CustomPreviewTR,  NTConfig.Instance.ArrowScale,        l_ArrowRColor, true);
-            PatchArrow(m_CustomPreviewDL,  NTConfig.Instance.ArrowScale,        l_ArrowLColor, false);
-            PatchArrow(m_CustomPreviewDR,  NTConfig.Instance.ArrowScale,        l_ArrowRColor, false);
+            PatchArrow(m_CustomPreviewTL,  l_Profile.ArrowsScale,        l_ArrowLColor.ColorWithAlpha(l_Profile.ArrowsIntensity), true);
+            PatchArrow(m_CustomPreviewTR,  l_Profile.ArrowsScale,        l_ArrowRColor.ColorWithAlpha(l_Profile.ArrowsIntensity), true);
+            PatchArrow(m_CustomPreviewDL,  l_Profile.ArrowsScale,        l_ArrowLColor.ColorWithAlpha(l_Profile.ArrowsIntensity), false);
+            PatchArrow(m_CustomPreviewDR,  l_Profile.ArrowsScale,        l_ArrowRColor.ColorWithAlpha(l_Profile.ArrowsIntensity), false);
 
-            var l_DotLColor = NTConfig.Instance.OverrideDotColors ? NTConfig.Instance.DotLColor : l_LeftColor.ColorWithAlpha(NTConfig.Instance.DotLColor.a);
-            var l_DotRColor = NTConfig.Instance.OverrideDotColors ? NTConfig.Instance.DotRColor : l_RightColor.ColorWithAlpha(NTConfig.Instance.DotRColor.a);
+            var l_DotLColor = l_Profile.DotsOverrideColors ? l_Profile.DotsLColor : l_LeftColor.ColorWithAlpha( l_Profile.DotsLColor.a);
+            var l_DotRColor = l_Profile.DotsOverrideColors ? l_Profile.DotsRColor : l_RightColor.ColorWithAlpha(l_Profile.DotsRColor.a);
 
-            PatchCircle(m_CustomPreviewTL, NTConfig.Instance.PrecisionDotScale, l_DotLColor,   NTConfig.Instance.ShowDotsWithArrow);
-            PatchCircle(m_CustomPreviewTR, NTConfig.Instance.PrecisionDotScale, l_DotRColor,   NTConfig.Instance.ShowDotsWithArrow);
-            PatchCircle(m_CustomPreviewDL, NTConfig.Instance.DotScale,          l_DotLColor,   true);
-            PatchCircle(m_CustomPreviewDR, NTConfig.Instance.DotScale,          l_DotRColor,   true);
+            PatchCircle(m_CustomPreviewTL, l_Profile.NotesPrecisonDotsScale,    l_DotLColor,   l_Profile.NotesShowPrecisonDots);
+            PatchCircle(m_CustomPreviewTR, l_Profile.NotesPrecisonDotsScale,    l_DotRColor,   l_Profile.NotesShowPrecisonDots);
+            PatchCircle(m_CustomPreviewDL, l_Profile.DotsScale,                 l_DotLColor,   true);
+            PatchCircle(m_CustomPreviewDR, l_Profile.DotsScale,                 l_DotRColor,   true);
 
-            PatchBomb(m_CustomPreviewBomb, NTConfig.Instance.OverrideBombColor ? NTConfig.Instance.BombColor : new Color(0.251f, 0.251f, 0.251f, 0.000f));
+            PatchBomb(m_CustomPreviewBomb, l_Profile.BombsOverrideColor ? l_Profile.BombsColor : new Color(0.251f, 0.251f, 0.251f, 1f));
+
+            m_CustomPreviewBomb.transform.localScale = Vector3.one * l_Profile.BombsScale;
+
+            PatchCircle(m_CustomPreviewSliderFill, l_Profile.BurstNotesDotsScale, l_DotLColor, true);
+
+            m_CustomPreviewSliderFill.transform.localScale = Vector3.one * l_Profile.NotesScale;
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -220,12 +222,15 @@ namespace BeatSaberPlus_NoteTweaker.UI
         /// Create note preview
         /// </summary>
         /// <param name="p_NoteTemplate">Note template</param>
-        private void CreatePreview(GameObject p_NoteTemplate, GameObject p_BombTemplate)
+        private void CreatePreview(GameObject p_NoteTemplate, GameObject p_BombTemplate, GameObject m_BurstFillTemplate)
         {
+            var l_Profile       = NTConfig.Instance.GetActiveProfile();
             var l_PlayerData    = Resources.FindObjectsOfTypeAll<PlayerDataModel>().First().playerData;
             var l_ColorScheme   = l_PlayerData.colorSchemesSettings.overrideDefaultColors ? l_PlayerData.colorSchemesSettings.GetSelectedColorScheme() : null;
             var l_LeftColor     = l_ColorScheme != null ? l_ColorScheme.saberAColor : new Color(0.658823549747467f, 0.125490203499794f, 0.125490203499794f);
             var l_RightColor    = l_ColorScheme != null ? l_ColorScheme.saberBColor : new Color(0.125490203499794f, 0.3921568691730499f, 0.658823549747467f);
+
+            /// ==============
 
             m_CustomPreviewTL   = GameObject.Instantiate(p_NoteTemplate);
             m_CustomPreviewTR   = GameObject.Instantiate(p_NoteTemplate);
@@ -257,13 +262,29 @@ namespace BeatSaberPlus_NoteTweaker.UI
             PatchNote(m_CustomPreviewDL, l_LeftColor);
             PatchNote(m_CustomPreviewDR, l_RightColor);
 
+            /// ==============
+
             m_CustomPreviewBomb = GameObject.Instantiate(p_BombTemplate);
             m_CustomPreviewBomb.transform.SetParent(m_Parent.transform, false);
             m_CustomPreviewBomb.name = "BSP_NOTE_TWEAKER_CUSTOM";
             m_CustomPreviewBomb.transform.localPosition = Vector3.zero - new Vector3(0, 0.75f, 0.75f);
             m_CustomPreviewBomb.SetActive(true);
 
-            PatchBomb(m_CustomPreviewBomb, NTConfig.Instance.OverrideBombColor ? NTConfig.Instance.BombColor : new Color(0.251f, 0.251f, 0.251f, 0.000f));
+            PatchBomb(m_CustomPreviewBomb, l_Profile.BombsOverrideColor ? l_Profile.BombsColor : new Color(0.251f, 0.251f, 0.251f, 1f));
+
+            /// ==============
+
+            m_CustomPreviewSliderFill = GameObject.Instantiate(m_BurstFillTemplate);
+            m_CustomPreviewSliderFill.transform.SetParent(m_Parent.transform, false);
+            m_CustomPreviewSliderFill.name = "BSP_NOTE_TWEAKER_CUSTOM";
+            m_CustomPreviewSliderFill.transform.localPosition = Vector3.zero - new Vector3(0, -0.75f, 0.75f);
+            m_CustomPreviewSliderFill.transform.localRotation = Quaternion.Euler(0, 272, 0);
+            m_CustomPreviewSliderFill.SetActive(true);
+
+            PatchNote(m_CustomPreviewSliderFill, l_LeftColor);
+            PatchCircle(m_CustomPreviewSliderFill, l_Profile.BurstNotesDotsScale, l_LeftColor, true);
+
+            /// ========================================================
 
             m_DefaultPreviewTL = GameObject.Instantiate(p_NoteTemplate);
             m_DefaultPreviewTR = GameObject.Instantiate(p_NoteTemplate);
@@ -299,11 +320,25 @@ namespace BeatSaberPlus_NoteTweaker.UI
             PatchCircle(m_DefaultPreviewDL, 1f, l_LeftColor,  true);
             PatchCircle(m_DefaultPreviewDR, 1f, l_RightColor, true);
 
+            /// ==============
+
             m_DefaultPreviewBomb = GameObject.Instantiate(p_BombTemplate);
             m_DefaultPreviewBomb.transform.SetParent(m_Parent.transform, false);
             m_DefaultPreviewBomb.name = "BSP_NOTE_TWEAKER_DEFAULT";
             m_DefaultPreviewBomb.transform.localPosition = Vector3.zero + new Vector3(0, -0.75f, 0.75f);
             m_DefaultPreviewBomb.SetActive(true);
+
+            /// ==============
+
+            m_DefaultPreviewSliderFill = GameObject.Instantiate(m_BurstFillTemplate);
+            m_DefaultPreviewSliderFill.transform.SetParent(m_Parent.transform, false);
+            m_DefaultPreviewSliderFill.name = "BSP_NOTE_TWEAKER_DEFAULT";
+            m_DefaultPreviewSliderFill.transform.localPosition = Vector3.zero + new Vector3(0, 0.75f, 0.75f);
+            m_DefaultPreviewSliderFill.transform.localRotation = Quaternion.Euler(0, 272, 0);
+            m_DefaultPreviewSliderFill.SetActive(true);
+
+            PatchNote(m_DefaultPreviewSliderFill, l_LeftColor);
+            PatchCircle(m_DefaultPreviewSliderFill, 1f, l_LeftColor, true);
 
             RefreshSettings();
         }
@@ -407,7 +442,6 @@ namespace BeatSaberPlus_NoteTweaker.UI
             var l_Glow = p_Note.transform.Find("NoteArrowGlow");
             if (l_Glow)
             {
-                //Debug.LogError("l_Glow Original scale " + l_Glow.transform.localScale);
                 l_Glow.transform.localScale = new Vector3(0.6f, 0.3f, 0.6f) * p_Scale;
 
                 foreach (var l_PropertyBlockController in l_Glow.GetComponents<MaterialPropertyBlockController>())
@@ -428,10 +462,10 @@ namespace BeatSaberPlus_NoteTweaker.UI
         /// <param name="p_Show">Show</param>
         private void PatchCircle(GameObject p_Note, float p_Scale, Color p_Color, bool p_Show)
         {
-            var l_CircleGlow = p_Note.transform.Find("NoteCircleGlow");
+            var l_CircleGlow    = p_Note.transform.Find("NoteCircleGlow");
+            var l_Circle        = p_Note.transform.Find("Circle");
             if (l_CircleGlow)
             {
-                //Debug.LogError("l_CircleGlow Original scale " + l_CircleGlow.transform.localScale);
                 l_CircleGlow.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f) * p_Scale;
 
                 foreach (var l_PropertyBlockController in l_CircleGlow.GetComponents<MaterialPropertyBlockController>())
@@ -441,6 +475,18 @@ namespace BeatSaberPlus_NoteTweaker.UI
                 }
 
                 l_CircleGlow.GetComponent<Renderer>().enabled = p_Show;
+            }
+            else if (l_Circle)
+            {
+                l_Circle.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f) * p_Scale;
+
+                foreach (var l_PropertyBlockController in l_Circle.GetComponents<MaterialPropertyBlockController>())
+                {
+                    l_PropertyBlockController.materialPropertyBlock.SetColor(Shader.PropertyToID("_Color"), p_Color);
+                    l_PropertyBlockController.ApplyChanges();
+                }
+
+                l_Circle.GetComponent<Renderer>().enabled = p_Show;
             }
         }
         /// <summary>

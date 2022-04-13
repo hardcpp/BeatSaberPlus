@@ -31,7 +31,7 @@ namespace BeatSaberPlus_GameTweaker.Patches
             if (GTConfig.Instance.Enabled)
             {
                 /// Apply
-                SetRemoveBaseGameFilter(GTConfig.Instance.RemoveBaseGameFilterButton);
+                SetRemoveBaseGameFilter(GTConfig.Instance.LevelSelection.RemoveBaseGameFilterButton);
             }
         }
 

@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using IPA.Utilities;
 
 namespace BeatSaberPlus.SDK.Game.Patches
 {
@@ -20,19 +21,12 @@ namespace BeatSaberPlus.SDK.Game.Patches
         /// <summary>
         /// Prefix
         /// </summary>
-        internal static void Postfix(ref MissionLevelScenesTransitionSetupDataSO __instance,
-                                     ref IDifficultyBeatmap                      difficultyBeatmap,
-                                     ref IPreviewBeatmapLevel                    previewBeatmapLevel,
-                                     ref ColorScheme                             overrideColorScheme,
-                                     ref GameplayModifiers                       gameplayModifiers,
-                                     ref PlayerSpecificSettings                  playerSpecificSettings)
+        internal static void Postfix(ref MissionLevelScenesTransitionSetupDataSO __instance)
         {
-            EnvironmentInfoSO l_EnvironmentInfoSO = difficultyBeatmap.GetEnvironmentInfo();
-
             var l_LevelData = new LevelData()
             {
                 Type = LevelType.Solo,
-                Data = new GameplayCoreSceneSetupData(difficultyBeatmap, previewBeatmapLevel, gameplayModifiers, playerSpecificSettings, PracticeSettings.defaultPracticeSettings, false, l_EnvironmentInfoSO, overrideColorScheme)
+                Data = __instance.GetProperty<GameplayCoreSceneSetupData, LevelScenesTransitionSetupDataSO>("gameplayCoreSceneSetupData")
             };
 
             Logic.FireLevelStarted(l_LevelData);

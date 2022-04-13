@@ -1,5 +1,7 @@
 ﻿using BeatSaberPlus.SDK.Chat.Interfaces;
+using System.Collections;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace BeatSaberPlus_ChatIntegrations
 {
@@ -103,10 +105,26 @@ namespace BeatSaberPlus_ChatIntegrations
         /// <param name="p_Data">Level data</param>
         private void Game_OnLevelStarted(BeatSaberPlus.SDK.Game.LevelData p_Data)
         {
-            if (p_Data.IsReplay)
-                return;
-
             Task.Run(() => HandleEvents(new Models.EventContext() { Type = Interfaces.TriggerType.LevelStarted, LevelData  = p_Data }));
+
+            SharedCoroutineStarter.instance.StartCoroutine(Game_FindPauseManager(p_Data));
+        }
+        private IEnumerator Game_FindPauseManager(BeatSaberPlus.SDK.Game.LevelData p_Data)
+        {
+            var l_PauseController = null as PauseController;
+            yield return new WaitUntil(() => (l_PauseController = GameObject.FindObjectOfType<PauseController>()));
+
+            if (l_PauseController)
+            {
+                l_PauseController.didPauseEvent += () =>
+                {
+                    Task.Run(() => HandleEvents(new Models.EventContext() { Type = Interfaces.TriggerType.LevelPaused, LevelData = p_Data }));
+                };
+                l_PauseController.didResumeEvent += () =>
+                {
+                    Task.Run(() => HandleEvents(new Models.EventContext() { Type = Interfaces.TriggerType.LevelResumed, LevelData = p_Data }));
+                };
+            }
         }
         /// <summary>
         /// On level ended
@@ -114,9 +132,6 @@ namespace BeatSaberPlus_ChatIntegrations
         /// <param name="p_Data">Completion data</param>
         private void Game_OnLevelEnded(BeatSaberPlus.SDK.Game.LevelCompletionData p_Data)
         {
-            if (p_Data.IsReplay)
-                return;
-
             Task.Run(() => HandleEvents(new Models.EventContext() { Type = Interfaces.TriggerType.LevelEnded, LevelCompletionData = p_Data }));
         }
 
@@ -135,5 +150,6 @@ namespace BeatSaberPlus_ChatIntegrations
             else
                 Task.Run(() => HandleEvents(new Models.EventContext() { Type = Interfaces.TriggerType.VoiceAttackCommand, VoiceAttackCommandGUID = p_GUID, VoiceAttackCommandName = p_GUID }));
         }
+
     }
 }

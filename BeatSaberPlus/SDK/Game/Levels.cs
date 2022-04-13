@@ -187,6 +187,7 @@ namespace BeatSaberPlus.SDK.Game
                     null,
                     "Menu",
                     false,
+                    false,
                     null,
                     (p_StandardLevelScenesTransitionSetupData, p_Results) => p_SongFinishedCallback?.Invoke(p_StandardLevelScenesTransitionSetupData, p_Results, l_DifficultyBeatmap)
                 );
@@ -409,13 +410,6 @@ namespace BeatSaberPlus.SDK.Game
 
             return (int)((float)((p_NoteCount - 13) * 920 + 4715) * p_ScoreMultiplier);
         }
-        /// <summary>
-        /// Get song max score
-        /// </summary>
-        /// <param name="p_Difficulty">Song difficulty</param>
-        /// <param name="p_ScoreMultiplier">Score mutiplier</param>
-        /// <returns></returns>
-        public static int GetMaxScore(IDifficultyBeatmap p_Difficulty, float p_ScoreMultiplier = 1f) => GetMaxScore(p_Difficulty.beatmapData.cuttableNotesCount, p_ScoreMultiplier);
         /// <summary>
         /// Get score percentage
         /// </summary>

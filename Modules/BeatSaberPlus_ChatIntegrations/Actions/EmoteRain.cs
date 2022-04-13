@@ -77,6 +77,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
 
             bool l_ChoiceExist = false;
             var l_Choices = new List<object>();
+            l_Choices.Add("<i>None</i>");
             foreach (var l_CurrentFile in l_Files)
             {
                 var l_Filtered = Path.GetFileName(l_CurrentFile);
@@ -85,9 +86,6 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
                 if (l_Filtered == Model.BaseValue)
                     l_ChoiceExist = true;
             }
-
-            if (l_Choices.Count == 0)
-                l_Choices.Add("None");
 
             m_File_DropDownOptions  = l_Choices;
             m_File_DropDown.values  = l_Choices;
@@ -101,6 +99,9 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
         {
             Model.BaseValue = (string)m_File_DropDown.Value;
             Model.Count     = (uint)m_CountIncrement.Value;
+
+            if ((string)p_Value == "<i>None</i>")
+                Model.BaseValue = "";
         }
 
         [UIAction("click-test-btn-pressed")]

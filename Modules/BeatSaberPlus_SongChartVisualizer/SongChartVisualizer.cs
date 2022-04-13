@@ -9,7 +9,7 @@ namespace BeatSaberPlus_SongChartVisualizer
     /// <summary>
     /// SongChartVisualizer Module
     /// </summary>
-    internal class SongChartVisualizer : BeatSaberPlus.SDK.ModuleBase<SongChartVisualizer>
+    public class SongChartVisualizer : BeatSaberPlus.SDK.ModuleBase<SongChartVisualizer>
     {
         /// <summary>
         /// Module type
@@ -141,6 +141,25 @@ namespace BeatSaberPlus_SongChartVisualizer
             GameObject.Destroy(m_MasterGOB);
             m_MasterGOB = null;
         }
+        /// <summary>
+        /// Toggle chat visibility
+        /// </summary>
+        public void ToggleVisibility()
+        {
+            if (m_MasterGOB && m_MasterGOB.transform.localScale.x > 0.5f)
+                m_MasterGOB.transform.localScale = Vector3.zero;
+            else if (m_MasterGOB)
+                m_MasterGOB.transform.localScale = Vector3.one;
+        }
+        /// <summary>
+        /// Set visible
+        /// </summary>
+        /// <param name="p_Visible">Is visible</param>
+        public void SetVisible(bool p_Visible)
+        {
+            if (m_MasterGOB)
+                m_MasterGOB.transform.localScale = p_Visible ? Vector3.one : Vector3.zero;
+        }
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -153,7 +172,7 @@ namespace BeatSaberPlus_SongChartVisualizer
         {
             yield return new WaitForEndOfFrame();
 
-            var l_HasRotation = BeatSaberPlus.SDK.Game.Logic.LevelData?.Data?.difficultyBeatmap?.beatmapData?.spawnRotationEventsCount > 0;
+            var l_HasRotation = BeatSaberPlus.SDK.Game.Logic.LevelData?.Data?.transformedBeatmapData?.spawnRotationEventsCount > 0;
             var l_Position = l_HasRotation ? SCVConfig.Instance.Chart360_90Position
                                            : SCVConfig.Instance.ChartStandardPosition;
             var l_Rotation = l_HasRotation ? SCVConfig.Instance.Chart360_90Rotation
@@ -206,7 +225,7 @@ namespace BeatSaberPlus_SongChartVisualizer
             if (BeatSaberPlus.SDK.Game.Logic.ActiveScene != BeatSaberPlus.SDK.Game.Logic.SceneType.Playing)
                 return;
 
-            var l_HasRotation = BeatSaberPlus.SDK.Game.Logic.LevelData?.Data?.difficultyBeatmap?.beatmapData?.spawnRotationEventsCount > 0;
+            var l_HasRotation = BeatSaberPlus.SDK.Game.Logic.LevelData?.Data?.transformedBeatmapData?.spawnRotationEventsCount > 0;
             if (!l_HasRotation)
             {
                 SCVConfig.Instance.ChartStandardPosition = m_ChartFloatingScreen.transform.localPosition;

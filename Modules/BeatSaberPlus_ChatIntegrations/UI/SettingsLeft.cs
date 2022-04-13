@@ -18,6 +18,8 @@ namespace BeatSaberPlus_ChatIntegrations.UI
             + "\n- <color=yellow><b>ChatSubscription</b></color>\n<i><color=#CCCCCCFF>When someone subscribes or subgifts</color></i>"
             + "\n- <color=yellow><b>Dummy</b></color>\n<i><color=#CCCCCCFF>Dummy event that can get triggered by other events</color></i>"
             + "\n- <color=yellow><b>LevelEnded</b></color>\n<i><color=#CCCCCCFF>When you exit a map</color></i>"
+            + "\n- <color=yellow><b>LevelPaused</b></color>\n<i><color=#CCCCCCFF>When you pause a map</color></i>"
+            + "\n- <color=yellow><b>LevelResumed</b></color>\n<i><color=#CCCCCCFF>When you resume a map</color></i>"
             + "\n- <color=yellow><b>LevelStarted</b></color>\n<i><color=#CCCCCCFF>When you enter a map</color></i>"
             + "\n- <color=yellow><b>VoiceAttackCommand</b></color>\n<i><color=#CCCCCCFF>Bind VoiceAttack commands to BS+</color></i>"
             + "\n"

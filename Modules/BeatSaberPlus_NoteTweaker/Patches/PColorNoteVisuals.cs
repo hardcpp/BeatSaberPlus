@@ -22,6 +22,7 @@ namespace BeatSaberPlus_NoteTweaker.Patches
         private static bool m_CircleEnabled;
         private static bool m_CircleForceEnabled;
         private static Vector3 m_CircleScale;
+        private static Vector3 m_BurstCircleScale;
         private static Vector3 m_PrecisionCircleScale;
         private static bool m_OverrideDotColors;
         private static float m_DotAlpha;
@@ -41,11 +42,13 @@ namespace BeatSaberPlus_NoteTweaker.Patches
         /// <summary>
         /// Prefix
         /// </summary>
+        /// <param name="__instance">ColorVisual component instance</param>
         /// <param name="____colorManager">ColorManager instance</param>
         /// <param name="____noteController">NoteController instance</param>
         /// <param name="____arrowMeshRenderers">MeshRenderer instance</param>
         /// <param name="____circleMeshRenderers">SpriteRenderer instance</param>
-        internal static void Postfix(ref ColorManager ____colorManager,
+        internal static void Postfix(ColorNoteVisuals __instance,
+                                     ref ColorManager ____colorManager,
                                      ref NoteController ____noteController,
                                      ref MeshRenderer[] ____arrowMeshRenderers,
                                      ref MeshRenderer[] ____circleMeshRenderers,
@@ -85,6 +88,7 @@ namespace BeatSaberPlus_NoteTweaker.Patches
             if (!m_Enabled)
                 return;
 
+            var l_IsBurstNote   = (bool)__instance.GetComponent<BurstSliderGameNoteController>();
             var l_CutDirection  = ____noteController.noteData.cutDirection;
             var l_DotEnabled    = l_CutDirection == NoteCutDirection.Any ? m_CircleEnabled : (m_CircleEnabled && m_CircleForceEnabled);
 
@@ -117,7 +121,8 @@ namespace BeatSaberPlus_NoteTweaker.Patches
                 }
             }
 
-            var l_CircleScale = l_CutDirection == NoteCutDirection.Any ? m_CircleScale : m_PrecisionCircleScale;
+            var l_CircleScale = l_IsBurstNote ? m_BurstCircleScale : (l_CutDirection == NoteCutDirection.Any ? m_CircleScale : m_PrecisionCircleScale);
+
             for (int l_I = 0; l_I < ____circleMeshRenderers.Length; ++l_I)
             {
                 var l_CurrentRenderer = ____circleMeshRenderers[l_I];
@@ -135,38 +140,41 @@ namespace BeatSaberPlus_NoteTweaker.Patches
         /// </summary>
         internal static void SetFromConfig(bool p_OnSceneSwitch)
         {
+            var l_Profile = NTConfig.Instance.GetActiveProfile();
+
             m_Enabled               = NTConfig.Instance.Enabled;
-            SetArrowScaleFromConfig();
-            SetArrowColorsFromConfig();
-            m_CircleEnabled         = NTConfig.Instance.Enabled ? NTConfig.Instance.DotAlpha != 0f       : true;
-            m_CircleForceEnabled    = NTConfig.Instance.Enabled ? NTConfig.Instance.ShowDotsWithArrow    : false;
-            SetDotScaleFromConfig();
-            SetDotColorsFromConfig();
+            SetArrowScaleFromConfig(l_Profile);
+            SetArrowColorsFromConfig(l_Profile);
+            m_CircleEnabled         = NTConfig.Instance.Enabled ? l_Profile.DotsIntensity != 0f     : true;
+            m_CircleForceEnabled    = NTConfig.Instance.Enabled ? l_Profile.NotesShowPrecisonDots   : false;
+            SetDotScaleFromConfig(l_Profile);
+            SetDotColorsFromConfig(l_Profile);
         }
-        internal static void SetArrowScaleFromConfig()
+        internal static void SetArrowScaleFromConfig(NTConfig._Profile p_Profile)
         {
-            m_ArrowScale        = (NTConfig.Instance.Enabled ? NTConfig.Instance.ArrowScale : 1.0f) * Vector3.one;
-            m_ArrowGlowScale    = (NTConfig.Instance.Enabled ? NTConfig.Instance.ArrowScale : 1.0f) * new Vector3(0.6f, 0.3f, 0.6f);
+            m_ArrowScale        = (NTConfig.Instance.Enabled ? p_Profile.ArrowsScale : 1.0f) * Vector3.one;
+            m_ArrowGlowScale    = (NTConfig.Instance.Enabled ? p_Profile.ArrowsScale : 1.0f) * new Vector3(0.6f, 0.3f, 0.6f);
         }
-        internal static void SetArrowColorsFromConfig()
+        internal static void SetArrowColorsFromConfig(NTConfig._Profile p_Profile)
         {
-            m_OverrideArrowColors   = NTConfig.Instance.Enabled ? NTConfig.Instance.OverrideDotColors : false;
-            m_ArrowAlpha            = NTConfig.Instance.Enabled ? NTConfig.Instance.ArrowAlpha        : 0.6f;
-            m_LeftArrowColor        = NTConfig.Instance.Enabled ? NTConfig.Instance.ArrowLColor       : new Color(0.659f, 0.125f, 0.125f, 1.000f);
-            m_RightArrowColor       = NTConfig.Instance.Enabled ? NTConfig.Instance.ArrowRColor       : new Color(0.125f, 0.392f, 0.659f, 1.000f);
+            m_OverrideArrowColors   = NTConfig.Instance.Enabled ? p_Profile.ArrowsOverrideColors    : false;
+            m_ArrowAlpha            = NTConfig.Instance.Enabled ? p_Profile.ArrowsIntensity         : 0.6f;
+            m_LeftArrowColor        = NTConfig.Instance.Enabled ? p_Profile.ArrowsLColor            : new Color(0.659f, 0.125f, 0.125f, 1.000f);
+            m_RightArrowColor       = NTConfig.Instance.Enabled ? p_Profile.ArrowsRColor            : new Color(0.125f, 0.392f, 0.659f, 1.000f);
         }
 
-        internal static void SetDotScaleFromConfig()
+        internal static void SetDotScaleFromConfig(NTConfig._Profile p_Profile)
         {
-            m_CircleScale           = (NTConfig.Instance.Enabled ? NTConfig.Instance.DotScale             : 1.0f) * new Vector3(0.5f, 0.5f, 0.5f);
-            m_PrecisionCircleScale  = (NTConfig.Instance.Enabled ? NTConfig.Instance.PrecisionDotScale    : 1.0f) * new Vector3(0.5f, 0.5f, 0.5f);
+            m_CircleScale           = (NTConfig.Instance.Enabled ? p_Profile.DotsScale              : 1.0f) * new Vector3(0.5f, 0.5f, 0.5f);
+            m_BurstCircleScale      = (NTConfig.Instance.Enabled ? p_Profile.BurstNotesDotsScale    : 1.0f) * new Vector3(0.1f, 0.1f, 0.1f);
+            m_PrecisionCircleScale  = (NTConfig.Instance.Enabled ? p_Profile.NotesPrecisonDotsScale : 1.0f) * new Vector3(0.5f, 0.5f, 0.5f);
         }
-        internal static void SetDotColorsFromConfig()
+        internal static void SetDotColorsFromConfig(NTConfig._Profile p_Profile)
         {
-            m_OverrideDotColors = NTConfig.Instance.Enabled ? NTConfig.Instance.OverrideDotColors : false;
-            m_DotAlpha          = NTConfig.Instance.Enabled ? NTConfig.Instance.DotAlpha          : 1f;
-            m_LeftCircleColor   = NTConfig.Instance.Enabled ? NTConfig.Instance.DotLColor         : new Color(0.659f, 0.125f, 0.125f, 1.000f);
-            m_RightCircleColor  = NTConfig.Instance.Enabled ? NTConfig.Instance.DotRColor         : new Color(0.125f, 0.392f, 0.659f, 1.000f);
+            m_OverrideDotColors = NTConfig.Instance.Enabled ? p_Profile.DotsOverrideColors  : false;
+            m_DotAlpha          = NTConfig.Instance.Enabled ? p_Profile.DotsIntensity       : 1f;
+            m_LeftCircleColor   = NTConfig.Instance.Enabled ? p_Profile.DotsLColor          : new Color(0.659f, 0.125f, 0.125f, 1.000f);
+            m_RightCircleColor  = NTConfig.Instance.Enabled ? p_Profile.DotsRColor          : new Color(0.125f, 0.392f, 0.659f, 1.000f);
         }
 
         public static void SetBlockColorOverride(bool p_Enabled, Color p_Left, Color p_Right)

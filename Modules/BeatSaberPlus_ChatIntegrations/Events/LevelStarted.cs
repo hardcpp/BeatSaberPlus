@@ -48,10 +48,11 @@ namespace BeatSaberPlus_ChatIntegrations.Events
                 new Conditions.ChatRequest_QueueDuration(),
                 new Conditions.ChatRequest_QueueSize(),
                 new Conditions.ChatRequest_QueueStatus(),
-                new Conditions.Event_AlwaysFail(),
                 new Conditions.Misc_Cooldown(),
-                new Conditions.GamePlay_PlayingMap()
+                new Conditions.GamePlay_PlayingMap(),
             }
+            .Union(BeatSaberPlus_ChatIntegrations.Conditions.EventBuilder.BuildFor(this))
+            .Union(BeatSaberPlus_ChatIntegrations.Conditions.OBSBuilder.BuildFor(this))
             .Union(GetInstanciatedCustomConditionList())
             .Distinct().ToList().AsReadOnly();
 
@@ -60,12 +61,16 @@ namespace BeatSaberPlus_ChatIntegrations.Events
             {
 
             }
+            .Union(BeatSaberPlus_ChatIntegrations.Actions.Camera2Builder.BuildFor(this))
             .Union(BeatSaberPlus_ChatIntegrations.Actions.ChatBuilder.BuildFor(this))
             .Union(BeatSaberPlus_ChatIntegrations.Actions.EmoteRainBuilder.BuildFor(this))
             .Union(BeatSaberPlus_ChatIntegrations.Actions.EventBuilder.BuildFor(this))
             .Union(BeatSaberPlus_ChatIntegrations.Actions.GamePlayBuilder.BuildFor(this))
             .Union(BeatSaberPlus_ChatIntegrations.Actions.MiscBuilder.BuildFor(this))
+            .Union(BeatSaberPlus_ChatIntegrations.Actions.NoteTweakerBuilder.BuildFor(this))
+            .Union(BeatSaberPlus_ChatIntegrations.Actions.OBSBuilder.BuildFor(this))
             .Union(BeatSaberPlus_ChatIntegrations.Actions.TwitchBuilder.BuildFor(this))
+            .Union(BeatSaberPlus_ChatIntegrations.Actions.SongChartVisualizerBuilder.BuildFor(this))
             .Union(GetInstanciatedCustomActionList())
             .Distinct().ToList().AsReadOnly();
         }

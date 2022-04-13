@@ -5,6 +5,7 @@ namespace BeatSaberPlus_ChatIntegrations
     internal class CIConfig : BeatSaberPlus.SDK.Config.JsonConfig<CIConfig>
     {
         [JsonProperty] internal bool Enabled = false;
+        [JsonProperty] internal string DataLocation = "UserData/BeatSaberPlus/ChatIntegrations/";
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -25,18 +26,7 @@ namespace BeatSaberPlus_ChatIntegrations
         /// <param name="p_OnCreation">On creation</param>
         protected override void OnInit(bool p_OnCreation)
         {
-            if (BeatSaberPlus.Config.ChatIntegrations.OldConfigMigrated)
-            {
-                Save();
-                return;
-            }
 
-            Enabled = BeatSaberPlus.Config.ChatIntegrations.Enabled;
-
-            ////////////////////////////////////////////////////////////////////////////
-
-            BeatSaberPlus.Config.ChatIntegrations.OldConfigMigrated = true;
-            Save();
         }
     }
 }

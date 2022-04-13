@@ -25,8 +25,8 @@ namespace BeatSaberPlus_SongChartVisualizer.UI
             get => m__AllowMovement;
             set {
                 m__AllowMovement = value;
-                ColorUtility.TryParseHtmlString(value ? "#FFFFFFFF" : "#FFFFFF11", out var l_ColH);
-                ColorUtility.TryParseHtmlString(value ? "#FFFFFF11" : "#FFFFFFFF", out var l_ColD);
+                ColorUtility.TryParseHtmlString(value ? "#FFFFFFFF" : "#FFFFFF80", out var l_ColH);
+                ColorUtility.TryParseHtmlString(value ? "#FFFFFF80" : "#FFFFFFFF", out var l_ColD);
                 m_LockIcon.HighlightColor   = l_ColH;
                 m_LockIcon.DefaultColor     = l_ColD;
 
@@ -95,6 +95,9 @@ namespace BeatSaberPlus_SongChartVisualizer.UI
                 m_LockIcon.gameObject.SetActive(false);
 
             BeatSaberPlus.SDK.Unity.GameObject.ChangerLayerRecursive(gameObject, LayerMask.NameToLayer("UI"));
+
+            /// Make icons easier to click
+            m_LockIcon.gameObject.AddComponent<SphereCollider>().radius = 10f;
         }
 
         ////////////////////////////////////////////////////////////////////////////

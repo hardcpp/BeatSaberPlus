@@ -41,7 +41,7 @@ namespace BeatSaberPlus_GameTweaker.Patches
                     m_OriginalStates.Add(m_Instance.transform.GetChild(l_I).gameObject.activeSelf);
 
                 /// Apply
-                SetEnabled(GTConfig.Instance.RemoveNewContentPromotional);
+                SetEnabled(GTConfig.Instance.MainMenu.RemoveNewContentPromotional);
             }
         }
 

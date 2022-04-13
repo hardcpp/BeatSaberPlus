@@ -1,7 +1,6 @@
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberPlus_ChatIntegrations.Interfaces;
-using BeatSaberPlus.SDK.Chat.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,12 +52,14 @@ namespace BeatSaberPlus_ChatIntegrations.Events
                 new Conditions.ChatRequest_QueueDuration(),
                 new Conditions.ChatRequest_QueueSize(),
                 new Conditions.ChatRequest_QueueStatus(),
-                new Conditions.Event_AlwaysFail(),
                 new Conditions.GamePlay_InMenu(),
                 new Conditions.GamePlay_PlayingMap(),
                 new Conditions.Misc_Cooldown(),
-                new Conditions.User_Permissions()
+
+                new Conditions.User_Permissions(),
             }
+            .Union(BeatSaberPlus_ChatIntegrations.Conditions.EventBuilder.BuildFor(this))
+            .Union(BeatSaberPlus_ChatIntegrations.Conditions.OBSBuilder.BuildFor(this))
             .Union(GetInstanciatedCustomConditionList())
             .Distinct().ToList().AsReadOnly();
 
@@ -67,12 +68,16 @@ namespace BeatSaberPlus_ChatIntegrations.Events
             {
 
             }
+            .Union(BeatSaberPlus_ChatIntegrations.Actions.Camera2Builder.BuildFor(this))
             .Union(BeatSaberPlus_ChatIntegrations.Actions.ChatBuilder.BuildFor(this))
             .Union(BeatSaberPlus_ChatIntegrations.Actions.EmoteRainBuilder.BuildFor(this))
             .Union(BeatSaberPlus_ChatIntegrations.Actions.EventBuilder.BuildFor(this))
             .Union(BeatSaberPlus_ChatIntegrations.Actions.GamePlayBuilder.BuildFor(this))
             .Union(BeatSaberPlus_ChatIntegrations.Actions.MiscBuilder.BuildFor(this))
+            .Union(BeatSaberPlus_ChatIntegrations.Actions.NoteTweakerBuilder.BuildFor(this))
+            .Union(BeatSaberPlus_ChatIntegrations.Actions.OBSBuilder.BuildFor(this))
             .Union(BeatSaberPlus_ChatIntegrations.Actions.TwitchBuilder.BuildFor(this))
+            .Union(BeatSaberPlus_ChatIntegrations.Actions.SongChartVisualizerBuilder.BuildFor(this))
             .Union(GetInstanciatedCustomActionList())
             .Distinct().ToList().AsReadOnly();
         }
@@ -159,7 +164,7 @@ namespace BeatSaberPlus_ChatIntegrations.Events
         {
             var l_FirstSpaceIndex = p_Context.Message.Message.IndexOf(' ');
 
-            var l_Emotes    = p_Context.Message.Emotes.ToList();
+            var l_Emotes    = p_Context.Message.Emotes;
             var l_Number    = (Int64?)null;
             var l_Content   = null as string;
 

@@ -23,7 +23,7 @@
       </vertical>
       <vertical size-delta-x='60' min-width='60' pad-bottom='2'>
         <text text='Font size'></text>
-        <increment-setting id='chat-fontsize' integer-only='false' min='1' max='6' increment='0.1'/>
+        <increment-setting id='chat-fontsize' integer-only='false' min='1' max='10' increment='0.1'/>
       </vertical>
     </vertical>
 

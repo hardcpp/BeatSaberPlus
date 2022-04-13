@@ -181,21 +181,27 @@ namespace BeatSaberPlus_ChatRequest
         /// Send message to chat
         /// </summary>
         /// <param name="p_Message">Messages to send</param>
-        /// <param name="p_ContextUser">Context user</param>
+        /// <param name="p_Service">Source channel</param>
+        /// <param name="p_SourceMessage">Context message</param>
         /// <param name="p_ContextMap">Context map</param>
-        internal void SendChatMessage(string p_Message, IChatUser p_ContextUser = null, BeatSaberPlus.SDK.Game.BeatMaps.MapDetail p_ContextMap = null)
+        internal void SendChatMessage(string p_Message, IChatService p_Service, IChatMessage p_SourceMessage, BeatSaberPlus.SDK.Game.BeatMaps.MapDetail p_ContextMap = null)
         {
-            if (p_ContextUser != null)
-                p_Message = p_Message.Replace("$UserName", p_ContextUser.DisplayName);
+            if (p_SourceMessage != null && p_SourceMessage.Sender != null)
+                p_Message = p_Message.Replace("$UserName", p_SourceMessage.Sender.DisplayName);
 
             if (p_ContextMap != null)
             {
                 p_Message = p_Message.Replace("$BSRKey",            p_ContextMap.id);
                 p_Message = p_Message.Replace("$SongName",          p_ContextMap.metadata.songName.Replace(".", " . "));
                 p_Message = p_Message.Replace("$LevelAuthorName",   p_ContextMap.metadata.levelAuthorName.Replace(".", " . "));
+                p_Message = p_Message.Replace("$UploaderName",      p_ContextMap.uploader.name.Replace(".", " . "));
+                p_Message = p_Message.Replace("$Vote",              Math.Round((double)p_ContextMap.stats.score * 100f, 0).ToString());
             }
 
-            BeatSaberPlus.SDK.Chat.Service.BroadcastMessage("! " + p_Message);
+            if (p_Service == null && p_SourceMessage == null)
+                BeatSaberPlus.SDK.Chat.Service.BroadcastMessage("! " + p_Message);
+            else
+                p_Service.SendTextMessage(p_SourceMessage.Channel, "! " + p_Message);
         }
         /// <summary>
         /// Is user banned
@@ -232,9 +238,9 @@ namespace BeatSaberPlus_ChatRequest
         internal void ToggleQueueStatus()
         {
             if (QueueOpen)
-                SendChatMessage("Queue is now closed!");
+                SendChatMessage("Queue is now closed!", null, null);
             else
-                SendChatMessage("Queue is now open!");
+                SendChatMessage("Queue is now open!", null, null);
 
             QueueOpen = !QueueOpen;
 
@@ -284,43 +290,34 @@ namespace BeatSaberPlus_ChatRequest
             if (p_Entry == null)
                 return;
 
-            lock (SongQueue)
+            lock (SongQueue) { lock (SongHistory) { lock (SongBlackList)
             {
-                lock (SongHistory)
+                /// Remove from queue
+                if (SongQueue.Contains(p_Entry))
+                    SongQueue.Remove(p_Entry);
+
+                /// Move at top of history
+                SongHistory.RemoveAll(x => x.BeatMap.id == p_Entry.BeatMap.id);
+                SongHistory.Insert(0, p_Entry);
+
+                /// Reduce history size
+                while (SongHistory.Count > CRConfig.Instance.HistorySize)
                 {
-                    lock (SongBlackList)
-                    {
-                        /// Remove from queue
-                        if (SongQueue.Contains(p_Entry))
-                            SongQueue.Remove(p_Entry);
+                    var l_ToRemove = SongHistory.ElementAt(SongHistory.Count - 1);
 
-                        /// Move at top of history
-                        SongHistory.RemoveAll(x => x.BeatMap.id == p_Entry.BeatMap.id);
-                        SongHistory.Insert(0, p_Entry);
+                    /// Clear cache
+                    if (SongBlackList.Count(x => x.BeatMap.id == l_ToRemove.BeatMap.id) == 0)
+                        BeatSaberPlus.SDK.Game.BeatMapsClient.ClearCache(l_ToRemove.BeatMap.id);
 
-                        /// Reduce history size
-                        while (SongHistory.Count > CRConfig.Instance.HistorySize)
-                        {
-                            var l_ToRemove = SongHistory.ElementAt(SongHistory.Count - 1);
-
-                            /// Clear cache
-                            if (SongBlackList.Count(x => x.BeatMap.id == l_ToRemove.BeatMap.id) == 0)
-                                BeatSaberPlus.SDK.Game.BeatMapsClient.ClearCache(l_ToRemove.BeatMap.id);
-
-                            SongHistory.RemoveAt(SongHistory.Count - 1);
-                        }
-                    }
+                    SongHistory.RemoveAt(SongHistory.Count - 1);
                 }
-            }
+            } } }
 
             /// Update request manager
             OnQueueChanged();
 
             if (p_ChatNotify)
-            {
-                float l_Vote = (float)Math.Round((double)p_Entry.BeatMap.stats.score * 100f, 0);
-                SendChatMessage($"{p_Entry.BeatMap.metadata.songName} / {p_Entry.BeatMap.metadata.levelAuthorName} {l_Vote}% (bsr {p_Entry.BeatMap.id}) requested by @{p_Entry.RequesterName} is next!");
-            }
+                SendChatMessage($"$SongName / $LevelAuthorName $Vote% (bsr $BSRKey) requested by @{p_Entry.RequesterName} is next!", null, null, p_Entry.BeatMap);
         }
         /// <summary>
         /// Clear queue

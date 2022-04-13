@@ -1,91 +1,245 @@
 ﻿<vertical child-control-height='false'>
-  <horizontal bg='panel-top' pad-left='15' pad-right='15' horizontal-fit='PreferredSize'>
-    <text text='Note Tweaker' align='Center' font-size='4.2'/>
-  </horizontal>
+	<horizontal bg='panel-top' pad-left='15' pad-right='15' horizontal-fit='PreferredSize'>
+		<text text='Note Tweaker' align='Center' font-size='4.2'/>
+	</horizontal>
 
-  <horizontal min-width='110'>
-    <vertical spacing='0' pad-right='5' size-delta-x='36' min-width='36'>
-      <vertical size-delta-x='30' min-width='30' pad-top='0'>
-        <text font-size='3.5' text='Show dot on directional notes' align='Center'></text>
-        <bool-setting id='ShowDotOnDirectionalNoteToggle' apply-on-change='true' />
-      </vertical>
-      <vertical size-delta-x='30' min-width='30'>
-        <text font-size='3.5' text='Arrow scale' align='Center'></text>
-        <increment-setting id='ArrowScaleIncrement' min='0.2' max='1.4' increment='0.05'/>
-      </vertical>
-      <vertical size-delta-x='30' min-width='30'>
-        <text font-size='3.5' text='Dot scale' align='Center'></text>
-        <increment-setting id='DotScaleIncrement' min='0.2' max='1.5' increment='0.05'/>
-      </vertical>
-      <vertical size-delta-x='30' min-width='30' pad-bottom='0'>
-        <text font-size='3.5' text='Precision dot scale' align='Center'></text>
-        <increment-setting id='PrecisionDotScaleIncrement' min='0.2' max='1.5' increment='0.05'/>
-      </vertical>
-    </vertical>
 
-    <vertical spacing='0' pad-right='5' size-delta-x='36' min-width='36'>
-      <vertical size-delta-x='30' min-width='30' pad-top='0'>
-        <text font-size='3.5' text='Override arrow colors' align='Center'></text>
-        <bool-setting id='OverrideArrowColors' apply-on-change='true' />
-      </vertical>
-      <vertical size-delta-x='30' min-width='30'>
-        <text font-size='3.5' text='Arrow left color'  align='Center'></text>
-        <color-setting id='ArrowLColor' apply-on-change='true'></color-setting>
-      </vertical>
-      <vertical size-delta-x='30' min-width='30'>
-        <text font-size='3.5' text='Dot left color' align='Center'></text>
-        <color-setting id='DotLColor' apply-on-change='true'></color-setting>
-      </vertical>
-      <vertical size-delta-x='30' min-width='30' pad-bottom='0'>
-        <text font-size='3.5' text='Override bomb color' align='Center'></text>
-        <bool-setting id='OverrideBombColorToggle' apply-on-change='true' />
-      </vertical>
-    </vertical>
+	<horizontal id='Tabs' spacing='0' pad-top='0' min-width='145'>
+		<vertical spacing='0' pad-top='0' >
+			<horizontal id='TabSelector' pad-top='2' pref-height='7' pad-left='8' pad-right='8' min-width='145'>
+			</horizontal>
 
-    <vertical spacing='0' pad-right='5' size-delta-x='36' min-width='36'>
-      <vertical size-delta-x='30' min-width='30' pad-top='0'>
-        <text font-size='3.5' text='Override dot colors' align='Center'></text>
-        <bool-setting id='OverrideDotColors' apply-on-change='true' />
-      </vertical>
-      <vertical size-delta-x='30' min-width='30'>
-        <text font-size='3.5' text='Arrow right color'  align='Center'></text>
-        <color-setting id='ArrowRColor' apply-on-change='true'></color-setting>
-      </vertical>
-      <vertical size-delta-x='30' min-width='30'>
-        <text font-size='3.5' text='Dot right color' align='Center'></text>
-        <color-setting id='DotRColor' apply-on-change='true'></color-setting>
-      </vertical>
-      <vertical size-delta-x='30' min-width='30' pad-bottom='0'>
-        <text font-size='3.5' text='Bomb color'  align='Center'></text>
-        <color-setting id='BombColor' apply-on-change='true'></color-setting>
-      </vertical>
-    </vertical>
+			<horizontal min-height='2'></horizontal>
 
-    <vertical spacing='0' pad-right='5' size-delta-x='36' min-width='36'>
-      <vertical size-delta-x='30' min-width='30' pad-top='0'>
-        <text font-size='3.5' text='Note scale' align='Center'></text>
-        <increment-setting id='NoteScaleIncrement' min='0.4' max='1.2' increment='0.05'/>
-      </vertical>
-      <vertical size-delta-x='30' min-width='30'>
-        <text font-size='3.5' text='Arrow glow intensity' align='Center'></text>
-        <increment-setting id='ArrowIntensity' min='0' max='1' increment='0.05'/>
-      </vertical>
-      <vertical size-delta-x='30' min-width='30'>
-        <text font-size='3.5' text='Dot glow intensity' align='Center'></text>
-        <increment-setting id='DotIntensity' min='0' max='1' increment='0.05'/>
-      </vertical>
-      <vertical size-delta-x='30' min-width='30' pad-bottom='0'>
-        <text font-size='3.5' text=' ' align='Center'></text>
-        <text text=' ' align='Center'></text>
-      </vertical>
-    </vertical>
-  </horizontal>
+			<!-- =========================================== -->
 
-  <horizontal>
-    <vertical id='InfoBackground' bg='round-rect-panel' size-delta-x='120' min-width='120' pad-top='2' pad-bottom='2' pad-left='2' pad-right='2'>
-      <text align='Center' text="This module change only the visual appearance of the notes, The hitbox will stay the same as default"/>
-      <text align='Center' text="The scale settings can conflict with CustomNotes if not 100%"/>
-    </vertical>
-  </horizontal>
+			<horizontal id='ProfilesTab' bg='round-rect-panel' min-height='65' spacing='0' pad='0'>
+				<vertical>
+					<horizontal id='ProfileListFrame' spacing='0' pad='0'>
+						<vertical min-width='5' pref-width='10'>
+							<page-button id='ProfilesUpButton' direction='Up'></page-button>
+							<page-button id='ProfilesDownButton' direction='Down'></page-button>
+						</vertical>
+						<vertical min-width='130' spacing='0' pad='0'>
+							<vertical id='ProfileListFrame_Background' bg='round-rect-panel'  min-width='130' pref-height='50' spacing='0' pad-top='1' pad-bottom='1'>
+								<list id='ProfilesList'>
+								</list>
+							</vertical>
+						</vertical>
+					</horizontal>
+
+					<horizontal>
+						<primary-button on-click='click-new-btn-pressed'    min-width='25' text='New' />
+						<primary-button on-click='click-rename-btn-pressed' min-width='25' text='Rename' />
+						<primary-button on-click='click-delete-btn-pressed' min-width='25' text='Delete' />
+						<button on-click='click-export-btn-pressed' min-width='25' text='Export' />
+						<button on-click='click-import-btn-pressed' min-width='25' text='Import' />
+					</horizontal>
+				</vertical>
+			</horizontal>
+
+			<!-- =========================================== -->
+
+			<horizontal id='NotesTab' bg='round-rect-panel' min-height='65' spacing='0' pad='0'>
+				<vertical>
+					<horizontal>
+						<vertical min-width='40'>
+							<text font-size='3.5' text='Note scale' align='Center'></text>
+							<increment-setting id='NotesTab_Scale' min='0.4' max='1.2' increment='0.05'/>
+						</vertical>
+					</horizontal>
+					<horizontal>
+						<vertical min-width='40'>
+							<text font-size='3.5' text='Show dot on directional notes' align='Center'></text>
+							<bool-setting id='NotesTab_ShowPrecisonDots' apply-on-change='true' />
+						</vertical>
+					</horizontal>
+					<horizontal>
+						<vertical min-width='40'>
+							<text font-size='3.5' text='Precision dot scale' align='Center'></text>
+							<increment-setting id='NotesTab_PrecisionDotsScale' min='0.2' max='1.5' increment='0.05'/>
+						</vertical>
+					</horizontal>
+					<horizontal>
+						<vertical id='NotesTab_InfoBackground' bg='round-rect-panel' size-delta-x='120' min-width='120' pad-top='2' pad-bottom='2' pad-left='2' pad-right='2'>
+							<text align='Center' text="This module change only the visual appearance of the notes, The hitbox will stay the same as default"/>
+							<text align='Center' text="The scale settings can conflict with CustomNotes if not 100%"/>
+						</vertical>
+					</horizontal>
+					<horizontal min-height='10'></horizontal>
+				</vertical>
+			</horizontal>
+
+			<!-- =========================================== -->
+
+			<horizontal id='ArrowsTab' bg='round-rect-panel' min-height='65' spacing='0' pad='0'>
+				<vertical>
+					<horizontal>
+						<vertical min-width='40'>
+							<text font-size='3.5' text='Arrow scale' align='Center'></text>
+							<increment-setting id='ArrowsTab_Scale' min='0.2' max='1.4' increment='0.05'/>
+						</vertical>
+					</horizontal>
+					<horizontal>
+						<vertical min-width='40'>
+							<text font-size='3.5' text='Arrow glow intensity' align='Center'></text>
+							<increment-setting id='ArrowsTab_Intensity' min='0' max='1' increment='0.05'/>
+						</vertical>
+					</horizontal>
+					<horizontal>
+						<vertical min-width='40'>
+							<text font-size='3.5' text='Override arrow colors' align='Center'></text>
+							<bool-setting id='ArrowsTab_OverrideColors' apply-on-change='true' />
+						</vertical>
+					</horizontal>
+					<horizontal>
+						<vertical min-width='40' pad-right='2'>
+							<text font-size='3.5' text='Arrow left color'  align='Center'></text>
+							<color-setting id='ArrowsTab_LColor' apply-on-change='true'></color-setting>
+						</vertical>
+						<vertical min-width='40'  pad-left='2'>
+							<text font-size='3.5' text='Arrow right color'  align='Center'></text>
+							<color-setting id='ArrowsTab_RColor' apply-on-change='true'></color-setting>
+						</vertical>
+					</horizontal>
+					<horizontal min-height='10'></horizontal>
+				</vertical>
+			</horizontal>
+
+			<!-- =========================================== -->
+
+			<horizontal id='DotsTab' bg='round-rect-panel' min-height='65' spacing='0' pad='0'>
+				<vertical>
+					<horizontal>
+						<vertical min-width='40'>
+							<text font-size='3.5' text='Dot scale' align='Center'></text>
+							<increment-setting id='DotsTab_Scale' min='0.2' max='1.5' increment='0.05'/>
+						</vertical>
+					</horizontal>
+					<horizontal>
+						<vertical min-width='40'>
+							<text font-size='3.5' text='Dot glow intensity' align='Center'></text>
+							<increment-setting id='DotsTab_Intensity' min='0' max='1' increment='0.05'/>
+						</vertical>
+					</horizontal>
+					<horizontal>
+						<vertical min-width='40'>
+							<text font-size='3.5' text='Override dot colors' align='Center'></text>
+							<bool-setting id='DotsTab_OverrideColors' apply-on-change='true' />
+						</vertical>
+					</horizontal>
+					<horizontal>
+						<vertical min-width='40' pad-right='2'>
+							<text font-size='3.5' text='Dot left color' align='Center'></text>
+							<color-setting id='DotsTab_LColor' apply-on-change='true'></color-setting>
+						</vertical>
+						<vertical min-width='40' pad-left='2'>
+							<text font-size='3.5' text='Dot right color' align='Center'></text>
+							<color-setting id='DotsTab_RColor' apply-on-change='true'></color-setting>
+						</vertical>
+					</horizontal>
+					<horizontal min-height='10'></horizontal>
+				</vertical>
+			</horizontal>
+
+			<!-- =========================================== -->
+
+			<horizontal id='BombsTab' bg='round-rect-panel' min-height='65' spacing='0' pad='0'>
+				<vertical>
+					<horizontal>
+						<vertical min-width='40'>
+							<text font-size='3.5' text='Bomb scale' align='Center'></text>
+							<increment-setting id='BombsTab_Scale' min='0.4' max='1.2' increment='0.05'/>
+						</vertical>
+					</horizontal>
+					<horizontal>
+						<vertical min-width='40'>
+							<text font-size='3.5' text='Override bomb color' align='Center'></text>
+							<bool-setting id='BombsTab_OverrideColor' apply-on-change='true' />
+						</vertical>
+					</horizontal>
+					<horizontal>
+						<vertical min-width='40'>
+							<text font-size='3.5' text='Bomb color'  align='Center'></text>
+							<color-setting id='BombsTab_Color' apply-on-change='true'></color-setting>
+						</vertical>
+					</horizontal>
+					<horizontal min-height='20'></horizontal>
+				</vertical>
+			</horizontal>
+
+			<!-- =========================================== -->
+
+			<horizontal id='ArcsTab' bg='round-rect-panel' min-height='65' spacing='0' pad='0'>
+				<vertical>
+					<horizontal>
+						<vertical min-width='40'>
+							<text font-size='3.5' text='Arcs intensity' align='Center'></text>
+							<increment-setting id='ArcsTab_Intensity' min='0' max='1' increment='0.05'/>
+						</vertical>
+					</horizontal>
+					<horizontal>
+						<vertical min-width='40'>
+							<text font-size='3.5' text='Arcs haptics' align='Center'></text>
+							<bool-setting id='ArcsTab_Haptics' apply-on-change='true' />
+						</vertical>
+					</horizontal>
+					<horizontal min-height='30'></horizontal>
+				</vertical>
+			</horizontal>
+
+			<!-- =========================================== -->
+
+			<horizontal id='BurstNotesTab' bg='round-rect-panel' min-height='65' spacing='0' pad='0'>
+				<vertical>
+					<horizontal>
+						<vertical min-width='40'>
+							<text font-size='3.5' text='Dot size' align='Center'></text>
+							<increment-setting id='BurstNotesTab_DotScale' min='0' max='3' increment='0.05'/>
+						</vertical>
+					</horizontal>
+					<horizontal min-height='40'></horizontal>
+				</vertical>
+			</horizontal>
+
+		</vertical>
+	</horizontal>
+
+	<!-- =========================================== -->
+
+	<horizontal id='ImportProfileFrame' spacing='0' pad-top='-1' active='false'>
+		<horizontal>
+			<text text=' ' font-size='5.5' align='Center'/>
+		</horizontal>
+		<vertical id='ImportProfileFrame_Background' bg='round-rect-panel' pad='8'>
+			<text text='What profile do you want to import?' font-size='4.5' align='Center'/>
+			<dropdown-list-setting id='ImportProfileFrame_DropDown' choices='ImportProfileFrame_DropDownOptions' apply-on-change='true' />
+			<horizontal>
+				<button on-click='click-cancel-import-profile-btn-pressed' min-width='50' text='Cancel'></button>
+				<primary-button on-click='click-import-profile-btn-pressed' min-width='50' text='Import'></primary-button>
+			</horizontal>
+		</vertical>
+		<horizontal>
+			<text text=' ' font-size='5.5' align='Center'/>
+		</horizontal>
+	</horizontal>
+
+	<!-- =========================================== -->
+
+	<modal-keyboard id='NewKeyboard'
+					move-to-center="true"
+					show-event="OpenNewModal"
+					hide-event="CloseAllModals"
+					clear-on-open="true"
+					on-enter="NewKeyboardPressed"
+					click-off-closes="true"></modal-keyboard>
+
+	<modal-keyboard id='RenameKeyboard'
+					move-to-center="true"
+					show-event="OpenRenameModal"
+					hide-event="CloseAllModals"
+					clear-on-open="false"
+					on-enter="RenameKeyboardPressed"
+					click-off-closes="true"></modal-keyboard>
 
 </vertical>

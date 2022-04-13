@@ -12,7 +12,7 @@ namespace BeatSaberPlus.Pool
         /// <summary>
         /// Static collection
         /// </summary>
-        internal static readonly MTObjectPool<TCollection> s_Pool = new MTObjectPool<TCollection>(() => new TCollection(), actionOnRelease: (x => x.Clear()));
+        internal static readonly MTObjectPool<TCollection> s_Pool = new MTObjectPool<TCollection>(() => new TCollection(), actionOnRelease: (x => x.Clear()), defaultCapacity: 100);
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////

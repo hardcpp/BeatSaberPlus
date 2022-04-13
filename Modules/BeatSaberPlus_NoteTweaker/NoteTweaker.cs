@@ -1,13 +1,22 @@
 ﻿using BeatSaberMarkupLanguage;
+using System.IO;
 using UnityEngine;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace BeatSaberPlus_NoteTweaker
 {
     /// <summary>
     /// NoteTweaker Module
     /// </summary>
-    internal class NoteTweaker : BeatSaberPlus.SDK.ModuleBase<NoteTweaker>
+    public class NoteTweaker : BeatSaberPlus.SDK.ModuleBase<NoteTweaker>
     {
+        internal const string IMPORT_FOLDER = "UserData/BeatSaberPlus/NoteTweaker/Import/";
+        internal const string EXPORT_FOLDER = "UserData/BeatSaberPlus/NoteTweaker/Export/";
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
         /// <summary>
         /// Module type
         /// </summary>
@@ -61,6 +70,18 @@ namespace BeatSaberPlus_NoteTweaker
 
             /// Trigger a Set config
             OnSceneChange(BeatSaberPlus.SDK.Game.Logic.SceneType.Menu);
+
+            try
+            {
+                if (!Directory.Exists(IMPORT_FOLDER))
+                    Directory.CreateDirectory(IMPORT_FOLDER);
+                if (!Directory.Exists(EXPORT_FOLDER))
+                    Directory.CreateDirectory(EXPORT_FOLDER);
+            }
+            catch (System.Exception)
+            {
+
+            }
         }
         /// <summary>
         /// Disable the Module
@@ -73,7 +94,39 @@ namespace BeatSaberPlus_NoteTweaker
             Patches.PColorNoteVisuals.SetFromConfig(true);
             Patches.PColorNoteVisuals.SetBlockColorOverride(false, Color.black, Color.black);
             Patches.PGameNoteController.SetFromConfig(true);
+            Patches.PGameNoteController.SetTemp(false, 1f);
+            Patches.PBurstSliderGameNoteController.SetFromConfig(true);
+            Patches.PBurstSliderGameNoteController.SetTemp(false, 1f);
             Patches.PBombController.SetFromConfig(true);
+            Patches.PBombController.SetTemp(false, 1f);
+            Patches.PSliderController.SetFromConfig(true);
+            Patches.PSliderHapticFeedbackInteractionEffect.SetFromConfig(true);
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// List available profiles
+        /// </summary>
+        /// <returns></returns>
+        public List<string> GetAvailableProfiles()
+            => NTConfig.Instance.Profiles.Select(x => x.Name).ToList();
+        /// <summary>
+        /// Switch to profile
+        /// </summary>
+        /// <param name="p_Index">Profile index</param>
+        public void SwitchToProfile(int p_Index)
+        {
+            p_Index = Mathf.Clamp(p_Index, 0, NTConfig.Instance.Profiles.Count);
+            NTConfig.Instance.ActiveProfile = p_Index;
+
+            Patches.PColorNoteVisuals.SetFromConfig(true);
+            Patches.PGameNoteController.SetFromConfig(true);
+            Patches.PBurstSliderGameNoteController.SetFromConfig(true);
+            Patches.PBombController.SetFromConfig(true);
+            Patches.PSliderController.SetFromConfig(true);
+            Patches.PSliderHapticFeedbackInteractionEffect.SetFromConfig(true);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -110,7 +163,13 @@ namespace BeatSaberPlus_NoteTweaker
             Patches.PColorNoteVisuals.SetFromConfig(true);
             Patches.PColorNoteVisuals.SetBlockColorOverride(false, Color.black, Color.black);
             Patches.PGameNoteController.SetFromConfig(true);
+            Patches.PGameNoteController.SetTemp(false, 1f);
+            Patches.PBurstSliderGameNoteController.SetFromConfig(true);
+            Patches.PBurstSliderGameNoteController.SetTemp(false, 1f);
             Patches.PBombController.SetFromConfig(true);
+            Patches.PBombController.SetTemp(false, 1f);
+            Patches.PSliderController.SetFromConfig(true);
+            Patches.PSliderHapticFeedbackInteractionEffect.SetFromConfig(true);
         }
     }
 }

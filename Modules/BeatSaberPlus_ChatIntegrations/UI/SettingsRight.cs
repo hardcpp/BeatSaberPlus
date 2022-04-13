@@ -217,6 +217,48 @@ namespace BeatSaberPlus_ChatIntegrations.UI
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
+        /// On GUI event
+        /// </summary>
+        private void OnGUI()
+        {
+            if ((!m_NewEventNameKeyboard || !m_NewEventNameKeyboard.modalView.gameObject.activeInHierarchy)
+                && (!m_RenameKeyboard || !m_RenameKeyboard.modalView.gameObject.activeInHierarchy))
+                return;
+
+            var l_Event = Event.current;
+            if (l_Event.isKey && l_Event.type == EventType.KeyDown)
+            {
+                var l_KeyCode = l_Event.keyCode;
+
+                /// Convert top row keyboard numbers to numpad numbers
+                if (l_KeyCode >= KeyCode.Alpha0 && l_KeyCode <= KeyCode.Alpha9)
+                    l_KeyCode += 208;
+
+                switch (l_KeyCode)
+                {
+                    case KeyCode.Backspace:
+                        if (m_NewEventNameKeyboard.keyboard.KeyboardText.text.Length > 0)
+                            m_NewEventNameKeyboard.SetText(m_NewEventNameKeyboard.keyboard.KeyboardText.text.Substring(0, m_NewEventNameKeyboard.keyboard.KeyboardText.text.Length - 1));
+
+                        if (m_RenameKeyboard.keyboard.KeyboardText.text.Length > 0)
+                            m_RenameKeyboard.SetText(m_RenameKeyboard.keyboard.KeyboardText.text.Substring(0, m_RenameKeyboard.keyboard.KeyboardText.text.Length - 1));
+                        break;
+
+                    default:
+                        if (l_Event.character != '\0' && !char.IsControl(l_Event.character))
+                        {
+                            m_NewEventNameKeyboard.SetText(m_NewEventNameKeyboard.keyboard.KeyboardText.text + l_Event.character);
+                            m_RenameKeyboard.SetText(m_RenameKeyboard.keyboard.KeyboardText.text + l_Event.character);
+                        }
+                        break;
+                }
+            }
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
         /// On filter changed
         /// </summary>
         /// <param name="p_Value">New value</param>
@@ -230,7 +272,7 @@ namespace BeatSaberPlus_ChatIntegrations.UI
                 if ((m_CurrentFilter == null || m_CurrentFilter == "All") || m_CurrentFilter == l_Event.GetTypeNameShort())
                     m_FilteredList.Add(l_Event);
             }
-
+            m_FilteredList.Sort((x, y) => (x.GetTypeNameShort() + x.GenericModel.Name).CompareTo((y.GetTypeNameShort() + y.GenericModel.Name)));
             m_CurrentPage = 1;
 
             RebuildList(null);
@@ -316,13 +358,13 @@ namespace BeatSaberPlus_ChatIntegrations.UI
             if (p_RelIndex < 0 || l_EventIndex >= m_FilteredList.Count)
             {
                 m_SelectedIndex = -1;
-                Settings.Instance.SelectEvent(null);
+                Settings.Instance?.SelectEvent(null);
                 return;
             }
 
             m_SelectedIndex = l_EventIndex;
 
-            Settings.Instance.SelectEvent(m_FilteredList[m_SelectedIndex]);
+            Settings.Instance?.SelectEvent(m_FilteredList[m_SelectedIndex]);
         }
         /// <summary>
         /// Go to next event page
@@ -612,6 +654,40 @@ namespace BeatSaberPlus_ChatIntegrations.UI
                 RebuildList(l_NewEvent);
             }
         }
+        /// <summary>
+        /// Convert an event
+        /// </summary>
+        [UIAction("click-convert-btn-pressed")]
+        private void OnConvertButton()
+        {
+            if (!EnsureEventSelected())
+                return;
+
+            var l_Event = m_FilteredList[m_SelectedIndex];
+            if (l_Event is Events.Dummy)
+            {
+                ShowMessageModal("This event is already a dummy event!");
+                return;
+            }
+
+            ShowConfirmationModal($"<color=yellow>Do you want to convert event</color>\n\"{l_Event.GenericModel.Name}\" <color=yellow>to Dummy?", () =>
+            {
+                var l_Serialized = l_Event.Serialize();
+                l_Serialized["Type"] = string.Join(".", typeof(Events.Dummy).Namespace, typeof(Events.Dummy).Name);
+                l_Serialized["Event"]["Type"]  = string.Join(".", typeof(Events.Dummy).Namespace, typeof(Events.Dummy).Name);
+                l_Serialized["Event"]["Name"] += " (Converted)";
+
+                var l_NewEvent = ChatIntegrations.Instance.AddEventFromSerialized(l_Serialized, false, true, out var _);
+
+                if (l_NewEvent == null)
+                    ShowMessageModal("Clone failed, check BeatSaberPlus logs!");
+                else
+                {
+                    OnFilterChanged(null);
+                    RebuildList(l_NewEvent);
+                }
+            });
+        }
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -846,6 +922,8 @@ namespace BeatSaberPlus_ChatIntegrations.UI
             m_AddEventFrame.SetActive(p_SubView == SubView.AddEvent);
             m_ImportEventFrame.SetActive(p_SubView == SubView.ImportEvent);
             m_TemplateEventFrame.SetActive(p_SubView == SubView.TemplateEvent);
+
+            LayoutRebuilder.ForceRebuildLayoutImmediate(m_FilterFrame.transform.parent.transform as RectTransform);
         }
         /// <summary>
         /// Ensure that an event is selected

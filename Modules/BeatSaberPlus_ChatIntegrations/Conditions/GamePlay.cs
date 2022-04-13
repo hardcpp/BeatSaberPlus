@@ -74,43 +74,51 @@ namespace BeatSaberPlus_ChatIntegrations.Conditions
         public override string Description => "Are we currently playing a map?";
 
 #pragma warning disable CS0414
-        [UIComponent("SoloToggle")]
-        private ToggleSetting m_SoloToggle = null;
-        [UIComponent("MultiToggle")]
-        private ToggleSetting m_MultiToggle = null;
-        [UIComponent("ReplayToggle")]
-        private ToggleSetting m_ReplayToggle = null;
+        [UIComponent("LevelTypeList")]
+        private ListSetting m_LevelTypeList = null;
+        [UIValue("LevelTypeList_Choices")]
+        private List<object> m_LevelTypeList_Choices = new List<object>() { };
+        [UIValue("LevelTypeList_Value")]
+        private string m_LevelTypeList_Value;
 
-        [UIComponent("TypeList")]
-        private ListSetting m_TypeList = null;
-        [UIValue("TypeList_Choices")]
-        private List<object> m_TypeListList_Choices = new List<object>() { "All", "Non noodle extensions", "Noodle extensions", "Chroma extensions", "Noodle & Chroma extensions" };
-        [UIValue("TypeList_Value")]
-        private string m_TypeList_Value;
+        [UIComponent("BeatmapList")]
+        private ListSetting m_BeatmapTypeList = null;
+        [UIValue("BeatmapList_Choices")]
+        private List<object> m_BeatmapTypeList_Choices = new List<object>() {  };
+        [UIValue("BeatmapList_Value")]
+        private string m_BeatmapTypeList_Value;
 #pragma warning restore CS0414
 
         public override sealed void BuildUI(Transform p_Parent)
         {
-            m_TypeList_Value = (string)m_TypeListList_Choices.ElementAt(Model.BeatmapType % m_TypeListList_Choices.Count);
+            if (m_LevelTypeList_Choices.Count == 0)
+            {
+                foreach (var l_Current in System.Enum.GetValues(typeof(Models.Conditions.GamePlay_PlayingMap.ELevelType)))
+                    m_LevelTypeList_Choices.Add((object)l_Current.ToString());
+            }
+            if (m_BeatmapTypeList_Choices.Count == 0)
+            {
+                foreach (var l_Current in System.Enum.GetValues(typeof(Models.Conditions.GamePlay_PlayingMap.EBeatmapModType)))
+                    m_BeatmapTypeList_Choices.Add((object)l_Current.ToString());
+            }
+
+            m_LevelTypeList_Value   = (string)m_LevelTypeList_Choices.ElementAt((int)Model.LevelType % m_LevelTypeList_Choices.Count);
+            m_BeatmapTypeList_Value = (string)m_BeatmapTypeList_Choices.ElementAt((int)Model.BeatmapModType % m_BeatmapTypeList_Choices.Count);
 
             string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
 
-            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_SoloToggle,    l_Event, Model.Solo,    false);
-            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_MultiToggle,   l_Event, Model.Multi,   false);
-            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_ReplayToggle,  l_Event, Model.Replay,  false);
-            BeatSaberPlus.SDK.UI.ListSetting.Setup(m_TypeList,        l_Event,                false);
+            BeatSaberPlus.SDK.UI.ListSetting.Setup(m_LevelTypeList,     l_Event,    false);
+            BeatSaberPlus.SDK.UI.ListSetting.Setup(m_BeatmapTypeList,   l_Event,    false);
 
             OnSettingChanged(null);
         }
         private void OnSettingChanged(object p_Value)
         {
-            Model.Solo          = m_SoloToggle.Value;
-            Model.Multi         = m_MultiToggle.Value;
-            Model.Replay        = m_ReplayToggle.Value;
-            Model.BeatmapType   = m_TypeListList_Choices.Select(x => (string)x).ToList().IndexOf(m_TypeList.Value);
+            Model.LevelType         = (Models.Conditions.GamePlay_PlayingMap.ELevelType)m_LevelTypeList_Choices.IndexOf(m_LevelTypeList.Value);
+            Model.BeatmapModType    = (Models.Conditions.GamePlay_PlayingMap.EBeatmapModType)m_BeatmapTypeList_Choices.IndexOf(m_BeatmapTypeList.Value);
         }
 
         public override bool Eval(Models.EventContext p_Context)
@@ -118,32 +126,63 @@ namespace BeatSaberPlus_ChatIntegrations.Conditions
             if (BeatSaberPlus.SDK.Game.Logic.ActiveScene != BeatSaberPlus.SDK.Game.Logic.SceneType.Playing)
                 return false;
 
-            var l_LevelData         = BeatSaberPlus.SDK.Game.Logic.LevelData;
-            var l_ReplayCond        = Model.Replay == BeatSaberPlus.SDK.Game.Logic.IsInReplay;
-            var l_BeatMapTypeCond   = Model.BeatmapType == 0; /* ALL */
+            var l_LevelData = BeatSaberPlus.SDK.Game.Logic.LevelData;
 
             if (l_LevelData == null)
                 return false;
 
-            /// Noodle excluded
-            if (Model.BeatmapType == 1 && !l_LevelData.IsNoodle)
-                l_BeatMapTypeCond = true;
-            /// Noodle required
-            else if (Model.BeatmapType == 2 && l_LevelData.IsNoodle)
-                l_BeatMapTypeCond = true;
-            /// Chroma required
-            else if (Model.BeatmapType == 3 && l_LevelData.IsChroma)
-                l_BeatMapTypeCond = true;
-            /// Noodle & Chroma required
-            else if (Model.BeatmapType == 4 && l_LevelData.IsNoodle && l_LevelData.IsChroma)
-                l_BeatMapTypeCond = true;
+            var l_IsInReplay        = BeatSaberPlus.SDK.Game.Logic.IsInReplay;
+            var l_LevelTypeCond     = false;
+            var l_BeatMapTypeCond   = false;
 
-            if (Model.Solo && l_LevelData.Type == BeatSaberPlus.SDK.Game.LevelType.Solo)
-                return l_ReplayCond && l_BeatMapTypeCond;
-            else if (Model.Multi && l_LevelData.Type == BeatSaberPlus.SDK.Game.LevelType.Multiplayer)
-                return l_ReplayCond && l_BeatMapTypeCond;
+            switch (Model.LevelType)
+            {
+                case Models.Conditions.GamePlay_PlayingMap.ELevelType.Solo:
+                    l_LevelTypeCond = !l_IsInReplay && l_LevelData.Type == BeatSaberPlus.SDK.Game.LevelType.Solo;
+                    break;
+                case Models.Conditions.GamePlay_PlayingMap.ELevelType.Multiplayer:
+                    l_LevelTypeCond = !l_IsInReplay && l_LevelData.Type == BeatSaberPlus.SDK.Game.LevelType.Multiplayer;
+                    break;
 
-            return false;
+                case Models.Conditions.GamePlay_PlayingMap.ELevelType.Replay:
+                    l_LevelTypeCond = l_IsInReplay && l_LevelData.Type == BeatSaberPlus.SDK.Game.LevelType.Solo;
+                    break;
+
+                case Models.Conditions.GamePlay_PlayingMap.ELevelType.SoloAndMultiplayer:
+                    l_LevelTypeCond = !l_IsInReplay && (l_LevelData.Type == BeatSaberPlus.SDK.Game.LevelType.Solo || l_LevelData.Type == BeatSaberPlus.SDK.Game.LevelType.Multiplayer);
+                    break;
+
+                case Models.Conditions.GamePlay_PlayingMap.ELevelType.Any:
+                default:
+                    l_LevelTypeCond = true;
+                    break;
+            }
+
+            switch (Model.BeatmapModType)
+            {
+                case Models.Conditions.GamePlay_PlayingMap.EBeatmapModType.NonNoodle:
+                    l_BeatMapTypeCond = !l_LevelData.IsNoodle;
+                    break;
+
+                case Models.Conditions.GamePlay_PlayingMap.EBeatmapModType.Noodle:
+                    l_BeatMapTypeCond = l_LevelData.IsNoodle;
+                    break;
+
+                case Models.Conditions.GamePlay_PlayingMap.EBeatmapModType.Chroma:
+                    l_BeatMapTypeCond = l_LevelData.IsChroma;
+                    break;
+
+                case Models.Conditions.GamePlay_PlayingMap.EBeatmapModType.NoodleOrChroma:
+                    l_BeatMapTypeCond = l_LevelData.IsNoodle || l_LevelData.IsChroma;
+                    break;
+
+                case Models.Conditions.GamePlay_PlayingMap.EBeatmapModType.All:
+                default:
+                    l_BeatMapTypeCond = true;
+                    break;
+            }
+
+            return l_LevelTypeCond && l_BeatMapTypeCond;
         }
     }
 }

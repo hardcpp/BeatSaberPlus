@@ -101,6 +101,8 @@ namespace BeatSaberPlus.SDK.Chat
                         var l_NewTwitchChannels = new List<string>();
                         var l_PostValues        = new Dictionary<string, string>();
 
+                        SettingsConfig.WebApp.LaunchWebAppOnStartup = false;
+
                         foreach (var l_CurrentPostData in l_PostData.Split('&'))
                         {
                             try
@@ -124,14 +126,19 @@ namespace BeatSaberPlus.SDK.Chat
                                                                         ;
                                         break;
 
-                                    case "twitch_channel":
-                                        string l_CurrentTwitchChannelName = l_Split[1].ToLower().Trim();
+                                    case "twitch_channel1":
+                                    case "twitch_channel2":
+                                    case "twitch_channel3":
+                                    case "twitch_channel4":
+                                    case "twitch_channel5":
+                                        var l_Value = l_Split[1].ToLower().Trim();
+                                        if (!string.IsNullOrEmpty(l_Value))
+                                            l_NewTwitchChannels.Add(l_Split[1].ToLower().Trim());
+                                        break;
 
-                                        if (!string.IsNullOrWhiteSpace(l_CurrentTwitchChannelName) && !l_ChannelList.Contains(l_CurrentTwitchChannelName, StringComparer.InvariantCultureIgnoreCase))
-                                            l_ChannelList.Add(l_CurrentTwitchChannelName);
-
-                                        Logger.Instance.Info($"[SDK.Chat][WebApp.OnContext] TwitchChannel: {l_CurrentTwitchChannelName}");
-                                        l_NewTwitchChannels.Add(l_CurrentTwitchChannelName);
+                                    case "start_webapp":
+                                        var l_PostValue = l_Split[1].ToLower().Trim();
+                                        SettingsConfig.WebApp.LaunchWebAppOnStartup = l_PostValue == "true" || l_PostValue == "on" || l_PostValue == "1";
                                         break;
                                 }
                             }
@@ -142,24 +149,13 @@ namespace BeatSaberPlus.SDK.Chat
                             }
                         }
 
-                        foreach (var l_CurrentOldChannel in new List<string>(l_ChannelList))
-                        {
-                            /// Remove any channels that weren't present in the post data
-                            if (!l_NewTwitchChannels.Contains(l_CurrentOldChannel))
-                                l_ChannelList.Remove(l_CurrentOldChannel);
-                        }
-
                         try
                         {
-                            AuthConfig.Twitch.Channels = string.Join(",", l_ChannelList);
-
-                            ParseWebAppSettings(l_PostValues);
-                            ParseGlobalSettings(l_PostValues);
-                            ParseTwitchSettings(l_PostValues);
+                            AuthConfig.Twitch.Channels = string.Join(",", l_NewTwitchChannels.Distinct());
 
                             var l_TwitchService = Service.Multiplexer.Services.FirstOrDefault(x => x is Services.Twitch.TwitchService);
                             if (l_TwitchService != null)
-                                (l_TwitchService as Services.Twitch.TwitchService).OnCredentialsUpdated();
+                                (l_TwitchService as Services.Twitch.TwitchService).OnCredentialsUpdated(false);
                             else
                                 Logger.Instance.Error("[SDK.Chat][WebApp.OnContext] Twitch service not found!");
                         }
@@ -185,12 +181,15 @@ namespace BeatSaberPlus.SDK.Chat
                     l_TwitchChannelHtmlString.Append($"<span id=\"twitch_channel_{l_I}\" class=\"chip \"><div style=\"overflow: hidden;text-overflow: ellipsis;\">{l_Channel}</div><input type=\"text\" class=\"form-input\" name=\"twitch_channel\" style=\"display: none; \" value=\"{l_Channel}\" /><button type=\"button\" onclick=\"removeTwitchChannel('twitch_channel_{l_I}')\" class=\"btn btn-clear\" aria-label=\"Close\" role=\"button\"></button></span>");
                 }
 
-                l_PageBuilder.Replace("{WebAppSettingsHTML}",   GenerateWebAppSettings());
-                l_PageBuilder.Replace("{GlobalSettingsHTML}",   GenerateGlobalSettings());
-                l_PageBuilder.Replace("{TwitchSettingsHTML}",   GenerateTwitchSettings());
-                l_PageBuilder.Replace("{TwitchChannelHtml}",    l_TwitchChannelHtmlString.ToString());
-                l_PageBuilder.Replace("{TwitchHasChannels}",    l_ChannelList.Count > 0 ? "true" : "false");
-                l_PageBuilder.Replace("{TwitchOAuthToken}",     AuthConfig.Twitch.OAuthToken);
+                l_PageBuilder.Replace("{APPLICATION_NAME}", "BeatSaberPlus");
+                l_PageBuilder.Replace("{TWITCH_OAUTH}",     AuthConfig.Twitch.OAuthToken);
+                l_PageBuilder.Replace("{TWITCH_CHANNEL1}",  l_ChannelList.Count >= 1 ? l_ChannelList[0] : "");
+                l_PageBuilder.Replace("{TWITCH_CHANNEL2}",  l_ChannelList.Count >= 2 ? l_ChannelList[1] : "");
+                l_PageBuilder.Replace("{TWITCH_CHANNEL3}",  l_ChannelList.Count >= 3 ? l_ChannelList[2] : "");
+                l_PageBuilder.Replace("{TWITCH_CHANNEL4}",  l_ChannelList.Count >= 4 ? l_ChannelList[3] : "");
+                l_PageBuilder.Replace("{TWITCH_CHANNEL5}",  l_ChannelList.Count >= 5 ? l_ChannelList[4] : "");
+                l_PageBuilder.Replace("{START_WEBAPP}",     SettingsConfig.WebApp.LaunchWebAppOnStartup ? "checked" : "");
+
 
                 byte[] l_Data = Encoding.UTF8.GetBytes(l_PageBuilder.ToString());
                 l_Response.ContentType      = "text/html";
@@ -205,160 +204,6 @@ namespace BeatSaberPlus.SDK.Chat
                 Logger.Instance.Error("[SDK.Chat][WebApp.OnContext] Exception occurred during webapp request.");
                 Logger.Instance.Error(l_Exception);
             }
-        }
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        private static string GenerateWebAppSettings()
-        {
-            string l_Result = "<label class=\"form-label\">Web App</label>";
-            l_Result += BuildSwitchHTML(nameof(SettingsConfig.WebApp.LaunchWebAppOnStartup), SettingsConfig.WebApp.LaunchWebAppOnStartup);
-
-            return l_Result;
-        }
-        private static void ParseWebAppSettings(Dictionary<string, string> p_Data)
-        {
-            if (p_Data.ContainsKey(nameof(SettingsConfig.WebApp.LaunchWebAppOnStartup)))
-            {
-                var l_PostValue = p_Data[nameof(SettingsConfig.WebApp.LaunchWebAppOnStartup)].ToLower();
-                SettingsConfig.WebApp.LaunchWebAppOnStartup = l_PostValue == "true" || l_PostValue == "on" || l_PostValue == "1";
-            }
-        }
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        private static string GenerateGlobalSettings()
-        {
-            string l_Result = "<label class=\"form-label\">Global</label>";
-            l_Result += BuildSwitchHTML(nameof(SettingsConfig.Global.ParseEmojis),          SettingsConfig.Global.ParseEmojis);
-
-            return l_Result;
-        }
-        private static void ParseGlobalSettings(Dictionary<string, string> p_Data)
-        {
-            if (p_Data.ContainsKey(nameof(SettingsConfig.Global.ParseEmojis)))
-            {
-                var l_PostValue = p_Data[nameof(SettingsConfig.Global.ParseEmojis)].ToLower();
-                SettingsConfig.Global.ParseEmojis = l_PostValue == "true" || l_PostValue == "on" || l_PostValue == "1";
-            }
-        }
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        private static string GenerateTwitchSettings()
-        {
-            string l_Result = "<label class=\"form-label\">Twitch</label>";
-            l_Result += BuildSwitchHTML(nameof(SettingsConfig.Twitch.ParseBTTVEmotes),      SettingsConfig.Twitch.ParseBTTVEmotes);
-            l_Result += BuildSwitchHTML(nameof(SettingsConfig.Twitch.ParseFFZEmotes),       SettingsConfig.Twitch.ParseFFZEmotes);
-            l_Result += BuildSwitchHTML(nameof(SettingsConfig.Twitch.Parse7TVEmotes),       SettingsConfig.Twitch.Parse7TVEmotes);
-            l_Result += BuildSwitchHTML(nameof(SettingsConfig.Twitch.ParseTwitchEmotes),    SettingsConfig.Twitch.ParseTwitchEmotes);
-            l_Result += BuildSwitchHTML(nameof(SettingsConfig.Twitch.ParseCheermotes),      SettingsConfig.Twitch.ParseCheermotes);
-
-            return l_Result;
-        }
-        private static void ParseTwitchSettings(Dictionary<string, string> p_Data)
-        {
-            if (p_Data.ContainsKey(nameof(SettingsConfig.Twitch.ParseBTTVEmotes)))
-            {
-                var l_PostValue = p_Data[nameof(SettingsConfig.Twitch.ParseBTTVEmotes)].ToLower();
-                SettingsConfig.Twitch.ParseBTTVEmotes = l_PostValue == "true" || l_PostValue == "on" || l_PostValue == "1";
-            }
-            if (p_Data.ContainsKey(nameof(SettingsConfig.Twitch.ParseFFZEmotes)))
-            {
-                var l_PostValue = p_Data[nameof(SettingsConfig.Twitch.ParseFFZEmotes)].ToLower();
-                SettingsConfig.Twitch.ParseFFZEmotes = l_PostValue == "true" || l_PostValue == "on" || l_PostValue == "1";
-            }
-            if (p_Data.ContainsKey(nameof(SettingsConfig.Twitch.Parse7TVEmotes)))
-            {
-                var l_PostValue = p_Data[nameof(SettingsConfig.Twitch.Parse7TVEmotes)].ToLower();
-                SettingsConfig.Twitch.Parse7TVEmotes = l_PostValue == "true" || l_PostValue == "on" || l_PostValue == "1";
-            }
-            if (p_Data.ContainsKey(nameof(SettingsConfig.Twitch.ParseTwitchEmotes)))
-            {
-                var l_PostValue = p_Data[nameof(SettingsConfig.Twitch.ParseTwitchEmotes)].ToLower();
-                SettingsConfig.Twitch.ParseTwitchEmotes = l_PostValue == "true" || l_PostValue == "on" || l_PostValue == "1";
-            }
-            if (p_Data.ContainsKey(nameof(SettingsConfig.Twitch.ParseCheermotes)))
-            {
-                var l_PostValue = p_Data[nameof(SettingsConfig.Twitch.ParseCheermotes)].ToLower();
-                SettingsConfig.Twitch.ParseCheermotes = l_PostValue == "true" || l_PostValue == "on" || l_PostValue == "1";
-            }
-        }
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        private static string BuildSwitchHTML(string p_Name, bool p_Value)
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.Append($"<label class=\"form-switch\">\r\n");
-            sb.Append($"\t<input type=\"hidden\" value=\"off\" name=\"{p_Name}\">\r\n");
-            sb.Append($"\t<input name=\"{p_Name}\" type=\"checkbox\" {(p_Value ? "checked" : "")}>\r\n");
-            sb.Append($"\t<i class=\"form-icon\"></i> {Uncamelcase(p_Name)}\r\n");
-            sb.Append($"</label>");
-            return sb.ToString();
-        }
-        private static string BuildNumberHTML(string p_Name, int p_Value)
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.Append($"<label class=\"form-label\">\r\n");
-            sb.Append($"\t<i class=\"form-icon\"></i> {Uncamelcase(p_Name)}\r\n");
-            sb.Append($"\t<input name=\"{p_Name}\" class=\"form-input\" type=\"number\" placeholder=\"00\" value=\"{p_Value.ToString()}\">\r\n");
-            sb.Append($"</label>");
-            return sb.ToString();
-        }
-        private static string BuildStringHTML(string p_Name, string p_Value)
-        {
-            var l_Builder = new StringBuilder();
-            l_Builder.Append($"<label class=\"form-label\">\r\n");
-            l_Builder.Append($"\t<i class=\"form-icon\"></i> {Uncamelcase(p_Name)}\r\n");
-            l_Builder.Append($"\t<input name=\"{p_Name}\" class=\"form-input\" type=\"text\" placeholder=\"00\" value=\"{p_Value}\">\r\n");
-            l_Builder.Append($"</label>");
-
-            return l_Builder.ToString();
-        }
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        public static string Uncamelcase(string p_Value)
-        {
-            var l_Builder       = new StringBuilder();
-            var l_UpperStreak   = 0;
-
-            for (int l_I = 0; l_I < p_Value.Length; l_I++)
-            {
-                if (l_I < p_Value.Length - 2)
-                {
-                    bool l_IsLower = char.IsLower(p_Value[l_I]);
-                    if (!l_IsLower)
-                        l_UpperStreak++;
-
-                    bool l_NextIsLower = char.IsLower(p_Value[l_I + 1]);
-                    if (l_IsLower && !l_NextIsLower)
-                    {
-                        l_Builder.Append(p_Value[l_I]);
-                        l_Builder.Append(" ");
-                    }
-                    else if (!l_IsLower && l_NextIsLower && l_UpperStreak > 1)
-                    {
-                        l_Builder.Append(" ");
-                        l_Builder.Append(p_Value[l_I]);
-                    }
-                    else
-                        l_Builder.Append(p_Value[l_I]);
-
-                    if (l_IsLower)
-                        l_UpperStreak = 0;
-                }
-                else
-                    l_Builder.Append(p_Value[l_I]);
-            }
-
-            return l_Builder.ToString();
         }
     }
 }

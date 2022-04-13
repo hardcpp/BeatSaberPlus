@@ -39,7 +39,7 @@ namespace BeatSaberPlus.UI
 
             foreach (var l_Module in Plugin.Instance.Modules.Where(x => x.Type == SDK.IModuleBaseType.Integrated))
             {
-                var l_Setting = SDK.UI.ToggleSetting.Create(m_SettingGrid.transform, l_Module.Name, l_Module.IsEnabled, (x) => {
+                var l_Setting = SDK.UI.ToggleSetting.Create(m_SettingGrid.transform, l_Module.FancyName, l_Module.IsEnabled, (x) => {
                     try
                     {
                         l_Module.SetEnabled(x);
@@ -47,10 +47,11 @@ namespace BeatSaberPlus.UI
                     }
                     catch (Exception p_InitException)
                     {
-                        Logger.Instance.Error($"[UI][SettingsView.OnViewCreation] Error on module \"{l_Module.Name}\" init");
+                        Logger.Instance.Error($"[UI][SettingsView.OnViewCreation] Error on module \"{l_Module.FancyName}\" init");
                         Logger.Instance.Error(p_InitException);
                     }
                 }, l_Module.Description);
+                l_Setting.text.fontSize = 2.5f;
 
                 m_ModulesSetting.Add(l_Module, l_Setting);
             }

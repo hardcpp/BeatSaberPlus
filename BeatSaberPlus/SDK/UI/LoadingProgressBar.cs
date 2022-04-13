@@ -97,17 +97,14 @@ namespace BeatSaberPlus.SDK.UI
         /// <param name="p_Time">Time before disapearing</param>
         public void ShowTimedMessage(string p_Message, float p_Time)
         {
-            Unity.MainThreadInvoker.Enqueue(() =>
-            {
-                StopAllCoroutines();
+            StopAllCoroutines();
 
-                m_HeaderText.text           = p_Message;
-                m_LoadingBar.enabled        = false;
-                m_LoadingBackground.enabled = false;
-                m_Canvas.enabled            = true;
+            m_HeaderText.text           = p_Message;
+            m_LoadingBar.enabled        = false;
+            m_LoadingBackground.enabled = false;
+            m_Canvas.enabled            = true;
 
-                StartCoroutine(Coroutine_DisableCanvas(p_Time));
-            });
+            StartCoroutine(Coroutine_DisableCanvas(p_Time));
         }
         /// <summary>
         /// Show loading progress bar with a message
@@ -116,16 +113,13 @@ namespace BeatSaberPlus.SDK.UI
         /// <param name="p_Progress">Current progress</param>
         public void ShowLoadingProgressBar(string p_Message, float p_Progress)
         {
-            Unity.MainThreadInvoker.Enqueue(() =>
-            {
-                StopAllCoroutines();
+            StopAllCoroutines();
 
-                m_HeaderText.text           = p_Message;
-                m_LoadingBar.enabled        = true;
-                m_LoadingBar.fillAmount     = p_Progress;
-                m_LoadingBackground.enabled = true;
-                m_Canvas.enabled            = true;
-            });
+            m_HeaderText.text           = p_Message;
+            m_LoadingBar.enabled        = true;
+            m_LoadingBar.fillAmount     = p_Progress;
+            m_LoadingBackground.enabled = true;
+            m_Canvas.enabled            = true;
         }
         /// <summary>
         /// Set current progress and displayed message
@@ -134,13 +128,10 @@ namespace BeatSaberPlus.SDK.UI
         /// <param name="p_Progress">Loading progress</param>
         public void SetProgress(string p_Message, float p_Progress)
         {
-            Unity.MainThreadInvoker.Enqueue(() =>
-            {
-                StopAllCoroutines();
+            StopAllCoroutines();
 
-                m_HeaderText.text       = p_Message;
-                m_LoadingBar.fillAmount = p_Progress;
-            });
+            m_HeaderText.text       = p_Message;
+            m_LoadingBar.fillAmount = p_Progress;
         }
         /// <summary>
         /// Set hide timer
@@ -148,11 +139,8 @@ namespace BeatSaberPlus.SDK.UI
         /// <param name="p_Time">Time in seconds</param>
         public void HideTimed(float p_Time)
         {
-            Unity.MainThreadInvoker.Enqueue(() =>
-            {
-                StopAllCoroutines();
-                StartCoroutine(Coroutine_DisableCanvas(p_Time));
-            });
+            StopAllCoroutines();
+            StartCoroutine(Coroutine_DisableCanvas(p_Time));
         }
 
         ////////////////////////////////////////////////////////////////////////////

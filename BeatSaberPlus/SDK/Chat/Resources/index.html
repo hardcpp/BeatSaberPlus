@@ -1,176 +1,195 @@
 ﻿<html>
-<head>
-    <title>BeatSaberPlusChatCore Settings</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/spectre.css/0.5.8/spectre.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre-icons.min.css">
-    <style type="text/css">
-        .borderless-input {
-            border: none;
-            background: transparent;
-            width: 100px;
-        }
+    <head>
+        <title>{APPLICATION_NAME} Settings</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    </head>
+    <body class="bg-dark">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-secondary bg-gradient">
+            <div class="container-fluid">
+              <a class="navbar-brand" href="#">{APPLICATION_NAME}</a>
+            </div>
+        </nav>
 
-        .oauth-input {
-            width: 100px;
-            padding-left: 100px;
-        }
+        <br/>
+        <br/>
 
-        .settings-panel {
-            align-content: center;
-            width: 454px;
-            height: 540px;
-            margin-bottom: 16px;
-            /*top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            overflow: visible;*/
-        }
-
-        .main {
-            margin-top: 10px;
-            margin-left: 7px;
-            margin-right: 7px;
-        }
-    </style>
-</head>
-<body>
-
-    <div id="content" class="container main">
-        <form id="settings-form" class="form-horizontal form-group" method="post" action="submit" onsubmit="return processForm()">
-            <div class="columns">
-                <div class="column col-auto">
-                    <div class="panel settings-panel">
-                        <div class="panel-header">
-                            <div class="panel-title">Twitch Settings</div>
-                        </div>
-                        <div class="panel-body">
-                            <label class="form-label">Login</label>
-                            <div class="oauth_input">
-                                <input id="twitch_oauth_input" name="twitch_oauthtoken" class="form-input my-2" type="password" placeholder="oauth:12abc3defg4p678arw9aq2xasd0gwa43" value="{TwitchOAuthToken}">
-                            </div>
-                            <label class="form-checkbox">
-                                <input type="checkbox" onclick="toggleTwitchOAuthVis()"><i class="form-icon"></i>Show
-                                <a href="javascript:openNewOAuthToken()" class="text-center" style="
-                                    display: block;
-                                    color: white;
-                                    background-color: #5755d9;
-                                    border-radius: 10px;
-                                    font-weight: bold;
-                                    padding: 10px;
-                                    ">Get new token!</a>
-                            </label>
-                            <br />
-
-                            <label class="form-label">Channels</label>
-                            <div id="twitch-channel-container" class="my-2">
-                                {TwitchChannelHtml}
-                                <span id="add_twitch_channel_button_span" class="chip">
-                                    <button id="add_twitch_channel_button" type="button" onclick="addTwitchChannel()" class="btn btn-link btn-sm" aria-label="Close" role="button">+</button>
-                                </span>
-                            </div>
-                            <br />
-                            {TwitchSettingsHTML}
-                        </div>
+        <form id="settings-form" class="form-horizontal form-group" method="post" action="submit" onsubmit="return Validate()">
+            <div class="col-lg-4 card text-center md mx-auto">
+                <h5 class="card-header">Settings</h5>
+                <div class="card-body">
+                    <h5 class="card-title">Twitch Token</h5>
+                    <p><em>Add twitch token to enable Twitch functionality</em></p>
+                    <div class="input-group mb-3">
+                        <input type="password" id="twitch_oauthtoken" name="twitch_oauthtoken" value="{TWITCH_OAUTH}" class="form-control" placeholder="oauth:xxxxxxxxxxxx" aria-label="oauth:xxxxxxxxxxxx" aria-describedby="button-addon2">
+                        <a class="btn btn-outline-secondary" href="javascript:ToggleTwitchOAuthVis()" id="button-addon2">Show</a>
                     </div>
-                </div>
-                <div class="column col-auto">
-                    <div class="panel settings-panel">
-                        <div class="panel-header">
-                            <div class="panel-title">Global Settings</div>
-                        </div>
-                        <div class="panel-body">
-                            {WebAppSettingsHTML}<br />
-                            {GlobalSettingsHTML}
-                        </div>
-                        <div class="panel-footer">
-                            <button class="btn my-2 mx-2 float-right" type="submit" style="
-                                display: block;
-                                color: white;
-                                background-color: #5755d9;
-                                border-radius: 10px;
-                                font-weight: bold;
-                                padding-left: 20px;
-                                padding-right: 20px;
-                            ">
-                                Save
-                            </button>
-                        </div>
+                    <div class="d-grid gap-8">
+                        <a
+                            href="https://id.twitch.tv/oauth2/authorize?client_id=23vjr9ec2cwoddv2fc3xfbx9nxv8vi&redirect_uri=http%3A%2F%2Flocalhost:8339&response_type=token&scope=chat:edit+chat:read+whispers:edit+whispers:read+channel:read:redemptions+bits:read+channel_subscriptions+channel:moderate+channel:manage:redemptions+user:edit:broadcast+clips:edit+channel:manage:polls+channel:manage:predictions+channel:read:hype_train+channel:read:predictions"
+                            class="btn btn-primary btn-lg"
+                            style="background-color: #6441a5;"
+                        >Get new token!</a>
+                    </div>
+
+                    <h5 class="card-title mt-4">Twitch Channels</h5>
+                    <p><em>Add channels to connect chat</em></p>
+                    <div class="input-group mb-3" id="twitch_channel1_grp">
+                        <span class="input-group-text" id="basic-addon1">Channel 1</span>
+                        <input value="{TWITCH_CHANNEL1}" type="text" id="twitch_channel1" name="twitch_channel1" class="form-control" onchange="OnTwitchChannels()" placeholder="Channel name" aria-label="Channel name" aria-describedby="basic-addon1">
+                    </div>
+                    <div class="input-group mb-3" id="twitch_channel2_grp">
+                        <span class="input-group-text" id="basic-addon1">Channel 2</span>
+                        <input value="{TWITCH_CHANNEL2}" type="text" id="twitch_channel2" name="twitch_channel2" class="form-control" onchange="OnTwitchChannels()" placeholder="Channel name" aria-label="Channel name" aria-describedby="basic-addon1">
+                    </div>
+                    <div class="input-group mb-3" id="twitch_channel3_grp">
+                        <span class="input-group-text" id="basic-addon1">Channel 3</span>
+                        <input value="{TWITCH_CHANNEL3}" type="text" id="twitch_channel3" name="twitch_channel3" class="form-control" onchange="OnTwitchChannels()" placeholder="Channel name" aria-label="Channel name" aria-describedby="basic-addon1">
+                    </div>
+                    <div class="input-group mb-3" id="twitch_channel4_grp">
+                        <span class="input-group-text" id="basic-addon1">Channel 4</span>
+                        <input value="{TWITCH_CHANNEL4}" type="text" id="twitch_channel4" name="twitch_channel4" class="form-control" onchange="OnTwitchChannels()" placeholder="Channel name" aria-label="Channel name" aria-describedby="basic-addon1">
+                    </div>
+                    <div class="input-group mb-3" id="twitch_channel5_grp">
+                        <span class="input-group-text" id="basic-addon1">Channel 5</span>
+                        <input value="{TWITCH_CHANNEL5}" type="text" id="twitch_channel5" name="twitch_channel5" class="form-control" onchange="OnTwitchChannels()" placeholder="Channel name" aria-label="Channel name" aria-describedby="basic-addon1">
+                    </div>
+
+                    <h5 class="card-title mt-4">Global Settings</h5>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" name="start_webapp" id="start_webapp" {START_WEBAPP}>
+                        <label class="form-check-label" for="start_webapp">Launch Web App On Startup</label>
+                    </div>
+
+                    <div class="d-grid gap-8 mt-4">
+                        <input type="submit" class="btn btn-primary btn-lg" value="Save" />
                     </div>
                 </div>
             </div>
+
         </form>
-    </div>
 
+        <div id="NoTwitchTokenModal" class="modal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Error</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>No OAuth token specified, please generate a new token by clicking on "Get new token!"!</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <script>
-        let twitchIdCounter = document.getElementById("twitch-channel-container").getElementsByTagName("input").length;
+        <div id="NoTwitchChannelModal" class="modal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Error</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>No twitch channel specified, please add your twitch channel name in Channels section!</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        function openNewOAuthToken() {
-            window.open("https://id.twitch.tv/oauth2/authorize?client_id=23vjr9ec2cwoddv2fc3xfbx9nxv8vi&redirect_uri=http%3A%2F%2Flocalhost:8339&response_type=token&scope=chat:edit+chat:read+whispers:edit+whispers:read+channel:read:redemptions+bits:read+channel_subscriptions+channel:moderate+channel:manage:redemptions+user:edit:broadcast+clips:edit+channel:manage:polls+channel:manage:predictions",'_blank');
-            var element = document.getElementById("content");
-            element.parentNode.removeChild(element);
-        }
+        <div id="TwitchTokenUpdatedModal" class="modal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Error</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Twitch token updated, don't forget to save to apply changes!</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        function toggleTwitchOAuthVis() {
-            let x = document.getElementById("twitch_oauth_input");
-            if (x.type === "password") {
-                x.type = "text";
-            } else {
-                x.type = "password";
-            }
-        }
-
-        function addTwitchChannel() {
-            let container = document.getElementById("twitch-channel-container");
-            let channelId = "twitch_channel_" + twitchIdCounter;
-            let span = document.createElement("span");
-            span.id = channelId;
-            span.className = "chip";
-            span.innerHTML =
-                "<input type=\"text\" class=\"borderless-input\" name=\"twitch_channel\" placeholder=\"Twitch Channel Name\" value=\"\" />" +
-                "<button type=\"button\" onclick=\"removeTwitchChannel('" + channelId + "')\" class=\"btn btn-clear\" aria-label=\"Close\" role=\"button\" />";
-            container.insertBefore(span, document.getElementById("add_twitch_channel_button_span"));
-            //container.appendChild(span);
-
-            twitchIdCounter++
-        }
-        function removeTwitchChannel(channelId) {
-            let container = document.getElementById("twitch-channel-container");
-            let channel = document.getElementById(channelId);
-            container.removeChild(channel);
-        }
-
-        var url = window.top.location.href;
-        if (url.includes("#access_token="))
-        {
-            var token = url.substring(url.indexOf("#access_token=") + "#access_token=".length, url.indexOf("&scope="));
-
-            var token_input = document.getElementById("twitch_oauth_input");
-            token_input.value = "oauth:" + token;
-
-            alert("Token updated, don't forget to save to apply changes");
-
-            window.top.history.replaceState("statedata", "BeatSaberPlusChatCore Settings", url.substring(0, url.indexOf("#")));
-        }
-
-        function processForm() {
-            if (document.getElementById('twitch_oauth_input').value == "") {
-                alert("No OAuth token specified, please generate a new token by clicking on \"Get new token!\"!");
-                return false;
-            }
-            if (!document.getElementById('twitch-channel-container')
-                || document.getElementById('twitch-channel-container').childElementCount == 1) {
-                alert("No twitch channel specified, please add your twitch channel name in Channels section by clicking on the + button!");
-                return false;
+        <script>
+            function ToggleTwitchOAuthVis()
+            {
+                let l_InputField = document.getElementById("twitch_oauthtoken");
+                if (l_InputField.type === "password")
+                    l_InputField.type = "text";
+                else
+                    l_InputField.type = "password";
             }
 
-            return true;
-        }
+            function OnTwitchChannels()
+            {
+                var l_Channel1 = document.getElementById('twitch_channel1').value != "";
+                var l_Channel2 = document.getElementById('twitch_channel2').value != "";
+                var l_Channel3 = document.getElementById('twitch_channel3').value != "";
+                var l_Channel4 = document.getElementById('twitch_channel4').value != "";
+                var l_Channel5 = document.getElementById('twitch_channel5').value != "";
 
-        if ({TwitchHasChannels} == false)
-            addTwitchChannel();
+                document.getElementById('twitch_channel2_grp').style.display = (l_Channel1) ? "flex" : "none";
+                document.getElementById('twitch_channel3_grp').style.display = (l_Channel2) ? "flex" : "none";
+                document.getElementById('twitch_channel4_grp').style.display = (l_Channel3) ? "flex" : "none";
+                document.getElementById('twitch_channel5_grp').style.display = (l_Channel4) ? "flex" : "none";
+            }
 
-    </script>
+            function Validate()
+            {
+                if (document.getElementById('twitch_oauthtoken').value == "")
+                {
+                    var l_NoTwitchTokenModal = new bootstrap.Modal(document.getElementById('NoTwitchTokenModal'));
+                    l_NoTwitchTokenModal.show();
+                    return false;
+                }
 
-</body>
+                var l_Channel1 = document.getElementById('twitch_channel1');
+                var l_Channel2 = document.getElementById('twitch_channel2');
+                var l_Channel3 = document.getElementById('twitch_channel3');
+                var l_Channel4 = document.getElementById('twitch_channel4');
+                var l_Channel5 = document.getElementById('twitch_channel5');
+
+                if (l_Channel1.value == "" && l_Channel2.value == "" && l_Channel3.value == "" && l_Channel4.value == "" && l_Channel5.value == "")
+                {
+                    var l_NoTwitchChannelModal = new bootstrap.Modal(document.getElementById('NoTwitchChannelModal'));
+                    l_NoTwitchChannelModal.show();
+                    return false;
+                }
+
+                return true;
+            }
+
+            OnTwitchChannels();
+
+            var l_URL = window.top.location.href;
+            if (l_URL.includes("#access_token="))
+            {
+                var l_NewToken      = l_URL.substring(l_URL.indexOf("#access_token=") + "#access_token=".length, l_URL.indexOf("&scope="));
+                var l_TokenInput    = document.getElementById("twitch_oauthtoken");
+                l_TokenInput.value = "oauth:" + l_NewToken;
+
+                var l_TwitchTokenUpdatedModal = new bootstrap.Modal(document.getElementById('TwitchTokenUpdatedModal'));
+                l_TwitchTokenUpdatedModal.show();
+
+                window.top.history.replaceState("statedata", "{APPLICATION_NAME} Settings", l_URL.substring(0, l_URL.indexOf("#")));
+            }
+
+            document.addEventListener('keypress', function (e) {
+                if (e.keyCode === 13 || e.which === 13) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+        </script>
+    </body>
 </html>

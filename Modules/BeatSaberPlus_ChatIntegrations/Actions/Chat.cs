@@ -28,7 +28,8 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             return new List<Interfaces.IActionBase>()
             {
                 new Chat_SendMessage(),
-                new Chat_ToggleEmoteOnly()
+                new Chat_ToggleEmoteOnly(),
+                new Chat_ToggleVisibility()
             };
         }
     }
@@ -177,6 +178,63 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             }
             else
                 p_Context.HasActionFailed = true;
+
+            yield return null;
+        }
+    }
+
+    public class Chat_ToggleVisibility : Interfaces.IAction<Chat_ToggleVisibility, Models.Actions.Chat_ToggleVisibility>
+    {
+        public override string Description => "Show or hide the chat ingame";
+
+#pragma warning disable CS0414
+        [UIComponent("TypeList")]
+        private ListSetting m_TypeList = null;
+        [UIValue("TypeList_Choices")]
+        private List<object> m_TypeListList_Choices = new List<object>() { "Toggle", "On", "Off" };
+        [UIValue("TypeList_Value")]
+        private string m_TypeList_Value;
+#pragma warning restore CS0414
+
+        public override sealed void BuildUI(Transform p_Parent)
+        {
+            m_TypeList_Value = (string)m_TypeListList_Choices.ElementAt(Model.ToggleType % m_TypeListList_Choices.Count);
+
+            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
+
+            var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
+
+            BeatSaberPlus.SDK.UI.ListSetting.Setup(m_TypeList, l_Event, false);
+
+            OnSettingChanged(null);
+        }
+        private void OnSettingChanged(object p_Value)
+        {
+            Model.ToggleType = m_TypeListList_Choices.Select(x => (string)x).ToList().IndexOf(m_TypeList.Value);
+        }
+
+        public override IEnumerator Eval(Models.EventContext p_Context)
+        {
+            if (!ModulePresence.Chat)
+            {
+                p_Context.HasActionFailed = true;
+                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("Chat: Action failed, Chat module is missing!");
+                yield break;
+            }
+
+            switch (Model.ToggleType)
+            {
+                case 0:
+                    BeatSaberPlus_Chat.Chat.Instance?.ToggleVisibility();
+                    break;
+                case 1:
+                    BeatSaberPlus_Chat.Chat.Instance?.SetVisible(true);
+                    break;
+                case 2:
+                    BeatSaberPlus_Chat.Chat.Instance?.SetVisible(false);
+                    break;
+            }
 
             yield return null;
         }

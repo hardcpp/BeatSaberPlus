@@ -22,7 +22,7 @@ namespace BeatSaberPlus.SDK.Chat.Models.Twitch
 
     ////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////
-    
+
     /*
     [Serializable]
     public class Helix_CreateReward
@@ -199,27 +199,109 @@ namespace BeatSaberPlus.SDK.Chat.Models.Twitch
         [Serializable]
         public class Choice
         {
-            [JsonProperty] public string id { get; protected set; } = "";
-            [JsonProperty] public string title { get; protected set; } = "";
-            [JsonProperty] public int votes { get; protected set; } = 0;
-            [JsonProperty] public int channel_points_votes { get; protected set; } = 0;
-            [JsonProperty] public int bits_votes { get; protected set; } = 0;
+            [JsonProperty] public string id { get; protected set; }
+            [JsonProperty] public string title { get; protected set; }
+            [JsonProperty] public int votes { get; protected set; }
+            [JsonProperty] public int channel_points_votes { get; protected set; }
+            [JsonProperty] public int bits_votes { get; protected set; }
         }
 
-        [JsonProperty] public string id { get; protected set; } = "";
-        [JsonProperty] public string broadcaster_id { get; protected set; } = "";
-        [JsonProperty] public string broadcaster_name { get; protected set; } = "";
-        [JsonProperty] public string broadcaster_login { get; protected set; } = "";
-        [JsonProperty] public string title { get; protected set; } = "";
+        [JsonProperty] public string id { get; protected set; }
+        [JsonProperty] public string broadcaster_id { get; protected set; }
+        [JsonProperty] public string broadcaster_name { get; protected set; }
+        [JsonProperty] public string broadcaster_login { get; protected set; }
+        [JsonProperty] public string title { get; protected set; }
         [JsonProperty] public List<Choice> choices { get; protected set; } = new List<Choice>();
-        [JsonProperty] public bool bits_voting_enabled { get; protected set; } = false;
-        [JsonProperty] public int bits_per_vote { get; protected set; } = 0;
-        [JsonProperty] public bool channel_points_voting_enabled { get; protected set; } = false;
-        [JsonProperty] public int channel_points_per_vote { get; protected set; } = 0;
+        [JsonProperty] public bool bits_voting_enabled { get; protected set; }
+        [JsonProperty] public int bits_per_vote { get; protected set; }
+        [JsonProperty] public bool channel_points_voting_enabled { get; protected set; }
+        [JsonProperty] public int channel_points_per_vote { get; protected set; }
         [JsonConverter(typeof(StringEnumConverter))]
-        [JsonProperty] public Status status { get; protected set; } = Status.INVALID;
-        [JsonProperty] public int duration { get; protected set; } = 15;
+        [JsonProperty] public Status status { get; protected set; }
+        [JsonProperty] public int duration { get; protected set; }
         [JsonProperty] public DateTime started_at { get; protected set; }
         [JsonProperty] public DateTime? ended_at { get; protected set; }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
+
+    [Serializable]
+    public class Helix_HypeTrain
+    {
+        [Serializable]
+        public class Event_Data
+        {
+            [Serializable]
+            public class Contribution
+            {
+                [JsonProperty] public int total { get; protected set; }
+                [JsonProperty] public string type { get; protected set; }
+                [JsonProperty] public string user { get; protected set; }
+            }
+
+            [JsonProperty] public string broadcaster_id { get; protected set; }
+            [JsonProperty] public DateTime cooldown_end_time { get; protected set; }
+            [JsonProperty] public DateTime expires_at { get; protected set; }
+            [JsonProperty] public int goal { get; protected set; }
+            [JsonProperty] public string id { get; protected set; }
+            [JsonProperty] public Contribution last_contribution { get; protected set; }
+            [JsonProperty] public int level { get; protected set; }
+            [JsonProperty] public DateTime started_at { get; protected set; }
+            [JsonProperty] public List<Contribution> top_contributions { get; protected set; } = new List<Contribution>();
+            [JsonProperty] public int total { get; protected set; }
+        }
+
+        [JsonProperty] public string id { get; protected set; }
+        [JsonProperty] public string event_type { get; protected set; }
+        [JsonProperty] public DateTime event_timestamp { get; protected set; }
+        [JsonProperty] public string version { get; protected set; }
+        [JsonProperty] public Event_Data event_data { get; protected set; }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
+
+    [Serializable]
+    public class Helix_Prediction
+    {
+        public enum Status
+        {
+            ACTIVE,
+            LOCKED,
+            RESOLVED,
+            CANCELED
+        }
+        public enum Color
+        {
+            BLUE,
+            PINK
+        }
+
+        [Serializable]
+        public class Outcome
+        {
+            [JsonProperty] public string id { get; protected set; }
+            [JsonProperty] public string title { get; protected set; }
+            [JsonProperty] public int users { get; protected set; }
+            [JsonProperty] public int channel_points { get; protected set; }
+            //[JsonProperty] public object top_predictors { get; protected set; }
+            [JsonConverter(typeof(StringEnumConverter))]
+            [JsonProperty] public Color color { get; protected set; }
+        }
+
+        [JsonProperty] public string id { get; protected set; }
+        [JsonProperty] public string broadcaster_id { get; protected set; }
+        [JsonProperty] public string broadcaster_name { get; protected set; }
+        [JsonProperty] public string broadcaster_login { get; protected set; }
+        [JsonProperty] public string title { get; protected set; }
+        [JsonProperty] public string winning_outcome_id { get; protected set; }
+        [JsonProperty] public List<Outcome> outcomes { get; protected set; } = new List<Outcome>();
+        [JsonProperty] public int prediction_window { get; protected set; }
+        [JsonConverter(typeof(StringEnumConverter))]
+        [JsonProperty] public Status status { get; protected set; }
+        [JsonProperty] public DateTime created_at { get; protected set; }
+        [JsonProperty] public DateTime? ended_at { get; protected set; }
+        [JsonProperty] public DateTime? locked_at { get; protected set; }
     }
 }

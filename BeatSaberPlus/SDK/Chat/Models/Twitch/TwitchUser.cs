@@ -2,6 +2,9 @@
 
 namespace BeatSaberPlus.SDK.Chat.Models.Twitch
 {
+    /// <summary>
+    /// Twitch user model
+    /// </summary>
     public class TwitchUser : IChatUser
     {
         public string Id { get; internal set; }
@@ -15,5 +18,12 @@ namespace BeatSaberPlus.SDK.Chat.Models.Twitch
         public bool IsTurbo { get; internal set; }
         public bool IsVip { get; internal set; }
         public IChatBadge[] Badges { get; internal set; }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        internal int _BadgesCache = 0;
+        internal bool _FancyNameReady = false;
+        internal bool _HadFollowed = false;
     }
 }

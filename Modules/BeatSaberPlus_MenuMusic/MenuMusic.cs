@@ -727,7 +727,7 @@ namespace BeatSaberPlus_MenuMusic
                             if (Mathf.Abs(p_EndTime - l_Channel.time) < 3f)
                             {
                                 m_WaitAndPlayNextSongCoroutine = null;
-                                if (MMConfig.Instance.LoopCurrentMusic)
+                                if (MMConfig.Instance.LoopCurrentMusic && l_Channel.clip.length >= 10f)
                                     SharedCoroutineStarter.instance.StartCoroutine(LoadAudioClip(false));
                                 else
                                     StartNextMusic();

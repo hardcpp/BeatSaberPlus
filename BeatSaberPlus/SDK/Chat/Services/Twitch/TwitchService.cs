@@ -32,7 +32,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
         /// <summary>
         /// Channels
         /// </summary>
-        public ReadOnlyCollection<(IChatService, IChatChannel)> Channels => m_Channels.Select(x => (this as IChatService, x.Value)).ToList().AsReadOnly();
+        public ReadOnlyCollection<(IChatService, IChatChannel)> Channels => m_Channels.Select(x => (this as IChatService, x.Value as IChatChannel)).ToList().AsReadOnly();
 
         /// <summary>
         /// OAuth token
@@ -54,6 +54,8 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
             "channel:manage:redemptions",
             "channel:moderate",
             "channel:read:redemptions",
+            "channel:read:hype_train",
+            "channel:read:predictions",
             "channel_subscriptions",
             "chat:edit",
             "chat:read",
@@ -126,7 +128,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
         /// <summary>
         /// Joined channels
         /// </summary>
-        private ConcurrentDictionary<string, IChatChannel> m_Channels = new ConcurrentDictionary<string, IChatChannel>();
+        private ConcurrentDictionary<string, TwitchChannel> m_Channels = new ConcurrentDictionary<string, TwitchChannel>();
         /// <summary>
         /// Joined topics
         /// </summary>
@@ -144,6 +146,10 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
         /// </summary>
         private object m_MessageReceivedLock = new object(), m_InitLock = new object();
         /// <summary>
+        /// Parsing buffer
+        /// </summary>
+        private List<TwitchMessage> m_MessageReceivedParsingBuffer = new List<TwitchMessage>(10);
+        /// <summary>
         /// Send message queue
         /// </summary>
         private ConcurrentQueue<string> m_TextMessageQueue = new ConcurrentQueue<string>();
@@ -156,10 +162,6 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
         /// </summary>
         private DateTime m_LastResetTime = DateTime.UtcNow;
         /// <summary>
-        /// PubSub sent messages
-        /// </summary>
-        private ConcurrentDictionary<string, bool> m_SentMessageIDs = new ConcurrentDictionary<string, bool>();
-        /// <summary>
         /// Last IRC ping
         /// </summary>
         private DateTime m_LastIRCSubPing = DateTime.UtcNow;
@@ -167,6 +169,10 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
         /// Last PubSub ping
         /// </summary>
         private DateTime m_LastPubSubPing = DateTime.UtcNow;
+        /// <summary>
+        /// Twitch users cache
+        /// </summary>
+        private ConcurrentDictionary<string, TwitchUser> m_TwitchUsers = new ConcurrentDictionary<string, TwitchUser>();
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -178,7 +184,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
         {
             /// Init
             m_DataProvider  = new TwitchDataProvider();
-            m_MessageParser = new TwitchMessageParser(m_DataProvider, new FrwTwemojiParser());
+            m_MessageParser = new TwitchMessageParser(this, m_DataProvider, new FrwTwemojiParser());
             m_Random        = new Random();
             HelixAPI        = new TwitchHelix();
 
@@ -274,13 +280,13 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
         /// When settings changed
         /// </summary>
         /// <param name="p_Credentials">New credential</param>
-        internal void OnCredentialsUpdated()
+        internal void OnCredentialsUpdated(bool p_Force)
         {
             if (!m_IsStarted)
                 return;
 
             /// Restart if OAuth token is different
-            if (m_OAuthToken != m_OAuthTokenCache || m_OAuthTokenAPI != m_OAuthTokenAPICache)
+            if (p_Force || (m_OAuthToken != m_OAuthTokenCache || m_OAuthTokenAPI != m_OAuthTokenAPICache))
             {
                 m_OAuthTokenCache       = m_OAuthToken;
                 m_OAuthTokenAPICache    = m_OAuthTokenAPI;
@@ -325,12 +331,12 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                     if (p_Result.scopes.Contains(l_Scope, StringComparer.InvariantCultureIgnoreCase))
                         continue;
 
-                    m_OnSystemMessageCallbacks?.InvokeAll(this, $"Your Twitch token is missing permission <b>{l_Scope}</b>, some features may not work, please update your token!");
+                    m_OnSystemMessageCallbacks?.InvokeAll(this, $"<color=yellow>Your Twitch token is missing permission <b>{l_Scope}</b>, some features may not work, please update your token!");
                 }
             }
             else
             {
-                m_OnSystemMessageCallbacks?.InvokeAll(this, "<b>Your Twitch token is invalid/expired</b>, please update it to make the chat work!");
+                m_OnSystemMessageCallbacks?.InvokeAll(this, "<color=red><b>Your Twitch token is invalid/expired</b>, please update it to make the chat work!");
             }
         }
 
@@ -437,13 +443,12 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
         /// <param name="p_Message">The text message to be sent</param>
         public void SendTextMessage(IChatChannel p_Channel, string p_Message)
         {
-            if (!(p_Channel is TwitchChannel))
+            if (!(p_Channel is TwitchChannel) || m_LoggedInUser == null)
                 return;
 
             string l_MessageID  = System.Guid.NewGuid().ToString();
-            string l_Message    = $"@id={l_MessageID} PRIVMSG #{p_Channel.Id} :{p_Message}";
-
-            m_SentMessageIDs.TryAdd(l_MessageID, true);
+            /// :{m_LoggedInUser.UserName}!{m_LoggedInUser.UserName}@{m_LoggedInUser.UserName}.tmi.twitch.tv
+            string l_Message    = $"@id={l_MessageID} PRIVMSG #{p_Channel.Id} :{new string(p_Message.Where(c => !char.IsControl(c)).ToArray())}\r\n";
 
             m_TextMessageQueue.Enqueue(l_Message);
         }
@@ -534,7 +539,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                     {
                         if (l_CurrentTopic == "video-playback")
                         {
-                            var l_Channel = m_Channels.Select(x => x.Value).Where(x => x.AsTwitchChannel().Roomstate.RoomId == l_CurrentChannel.Key).FirstOrDefault();
+                            var l_Channel = m_Channels.Select(x => x.Value).Where(x => x.Roomstate.RoomId == l_CurrentChannel.Key).FirstOrDefault();
                             if (l_Channel != null)
                                 l_Topics.Add(new JSONString(l_CurrentTopic + "." + l_Channel.Name));
                         }
@@ -649,152 +654,150 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
             lock (m_MessageReceivedLock)
             {
                 ///Logger.Instance.Info("RawMessage: " + p_RawMessage);
-                if (m_MessageParser.ParseRawMessage(p_RawMessage, m_Channels, m_LoggedInUser, out var l_ParsedMessages))
+                m_MessageReceivedParsingBuffer.Clear();
+                if (!m_MessageParser.ParseRawMessage(p_RawMessage, m_Channels, m_LoggedInUser, m_MessageReceivedParsingBuffer, m_LoggedInUsername))
                 {
-                    foreach (TwitchMessage l_TwitchMessage in l_ParsedMessages)
+                    Logger.Instance.Error("Failed to parse: " + p_RawMessage);
+                    return;
+                }
+
+                for (var l_MessageI = 0; l_MessageI < m_MessageReceivedParsingBuffer.Count; ++l_MessageI)
+                {
+                    var l_TwitchMessage = m_MessageReceivedParsingBuffer[l_MessageI];
+                    var l_TwitchChannel = l_TwitchMessage.Channel as TwitchChannel;
+                    var l_Sender        = l_TwitchMessage.Sender.AsTwitchUser();
+
+                    switch (l_TwitchMessage.Type)
                     {
-                        if (m_SentMessageIDs.TryRemove(l_TwitchMessage.Id, out var _))
-                            l_TwitchMessage.Sender = m_LoggedInUser;
-
-                        var l_TwitchChannel = (l_TwitchMessage.Channel as TwitchChannel);
-                        if (l_TwitchChannel.Roomstate == null)
-                            l_TwitchChannel.Roomstate = m_Channels.TryGetValue(l_TwitchMessage.Channel.Id, out var l_Channel) ? (l_Channel as TwitchChannel).Roomstate : new TwitchRoomstate();
-
-                        switch (l_TwitchMessage.Type)
-                        {
-                            case "PING":
-                                SendRawMessage("PONG :tmi.twitch.tv");
+                        case "PING":
+                            SendRawMessage("PONG :tmi.twitch.tv");
 #if DEBUG
-                                m_OnSystemMessageCallbacks?.InvokeAll(this, "[Debug] Received Ping");
+                            m_OnSystemMessageCallbacks?.InvokeAll(this, "[Debug] Received Ping");
 #endif
-                                continue;
-
-                            case "PONG":
+                            continue;
 #if DEBUG
-                                m_OnSystemMessageCallbacks?.InvokeAll(this, "[Debug] Received Pong");
+                        case "PONG":
+                            m_OnSystemMessageCallbacks?.InvokeAll(this, "[Debug] Received Pong");
+                            continue;
+
+                        case "RECONNECT":
+                            m_OnSystemMessageCallbacks?.InvokeAll(this, "[Debug] Received Reconnect");
 #endif
-                                continue;
+                            continue;
 
-                            case "RECONNECT":
-#if DEBUG
-                                m_OnSystemMessageCallbacks?.InvokeAll(this, "[Debug] Received Reconnect");
-#endif
-                                continue;
+                        /// Successful login
+                        case "376":
+                            m_DataProvider.TryRequestGlobalResources(m_OAuthTokenAPI);
+                            m_LoggedInUsername          = l_TwitchMessage.Channel.Id;
+                            m_LoggedInUser              = GetTwitchUser(null, m_LoggedInUsername, null);
+                            m_LoggedInUser.DisplayName  = m_LoggedInUsername;
 
-                            /// Successful login
-                            case "376":
-                                m_DataProvider.TryRequestGlobalResources();
-                                m_LoggedInUsername = l_TwitchMessage.Channel.Id;
+                            /// This isn't a typo, when you first sign in your username is in the channel id.
+                            Logger.Instance.Info($"Logged into Twitch as {m_LoggedInUsername}");
 
-                                /// This isn't a typo, when you first sign in your username is in the channel id.
-                                Logger.Instance.Info($"Logged into Twitch as {m_LoggedInUsername}");
+                            m_OnLoginCallbacks?.InvokeAll(this);
 
-                                m_OnLoginCallbacks?.InvokeAll(this);
+                            var l_ChannelList = AuthConfig.Twitch.Channels.Trim().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                            foreach (var l_ChannelToJoin in l_ChannelList)
+                                JoinChannel(l_ChannelToJoin);
 
-                                var l_ChannelList = AuthConfig.Twitch.Channels.Trim().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-                                foreach (var l_ChannelToJoin in l_ChannelList)
-                                    JoinChannel(l_ChannelToJoin);
+                            if (l_ChannelList.Count == 0)
+                                m_OnSystemMessageCallbacks?.InvokeAll(this, "<b><color=red>No channel configured, messages won't be displayed</color></b>");
 
-                                if (l_ChannelList.Count == 0)
-                                    m_OnSystemMessageCallbacks?.InvokeAll(this, "<b><color=red>No channel configured, messages won't be displayed</color></b>");
+                            continue;
 
-                                continue;
+                        case "NOTICE":
+                            switch (l_TwitchMessage.Message)
+                            {
+                                case "Login authentication failed":
+                                case "Invalid NICK":
+                                    m_IRCWebSocket.Disconnect();
+                                    break;
 
-                            case "NOTICE":
-                                switch (l_TwitchMessage.Message)
-                                {
-                                    case "Login authentication failed":
-                                    case "Invalid NICK":
-                                        m_IRCWebSocket.Disconnect();
-                                        break;
+                            }
+                            goto case "PRIVMSG";
 
-                                }
-                                goto case "PRIVMSG";
+                        case "USERNOTICE":
+                        case "PRIVMSG":
+                            m_OnTextMessageReceivedCallbacks?.InvokeAll(this, l_TwitchMessage);
+                            continue;
 
-                            case "USERNOTICE":
-                            case "PRIVMSG":
-                                m_OnTextMessageReceivedCallbacks?.InvokeAll(this, l_TwitchMessage);
-                                continue;
+                        case "JOIN":
+                            ///Logger.Instance.Info($"{twitchMessage.Sender.Name} JOINED {twitchMessage.Channel.Id}. LoggedInuser: {LoggedInUser.Name}");
+                            if (l_TwitchMessage.Sender.UserName == m_LoggedInUsername
+                                && !m_Channels.ContainsKey(l_TwitchMessage.Channel.Id))
+                            {
+                                m_Channels[l_TwitchMessage.Channel.Id] = l_TwitchMessage.Channel.AsTwitchChannel();
+                                Logger.Instance.Info($"Added channel {l_TwitchMessage.Channel.Id} to the channel list.");
+                                m_OnJoinRoomCallbacks?.InvokeAll(this, l_TwitchMessage.Channel);
+                            }
+                            continue;
 
-                            case "JOIN":
-                                ///Logger.Instance.Info($"{twitchMessage.Sender.Name} JOINED {twitchMessage.Channel.Id}. LoggedInuser: {LoggedInUser.Name}");
-                                if (l_TwitchMessage.Sender.UserName == m_LoggedInUsername
-                                    && !m_Channels.ContainsKey(l_TwitchMessage.Channel.Id))
-                                {
-                                    m_Channels[l_TwitchMessage.Channel.Id] = l_TwitchMessage.Channel.AsTwitchChannel();
-                                    Logger.Instance.Info($"Added channel {l_TwitchMessage.Channel.Id} to the channel list.");
-                                    m_OnJoinRoomCallbacks?.InvokeAll(this, l_TwitchMessage.Channel);
-                                }
-                                continue;
-
-                            case "PART":
-                                ///Logger.Instance.Info($"{twitchMessage.Sender.Name} PARTED {twitchMessage.Channel.Id}. LoggedInuser: {LoggedInUser.Name}");
-                                if (l_TwitchMessage.Sender.UserName == m_LoggedInUsername
-                                    && m_Channels.TryRemove(l_TwitchMessage.Channel.Id, out var l_Channel))
-                                {
-                                    m_DataProvider.TryReleaseChannelResources(l_TwitchMessage.Channel);
-                                    Logger.Instance.Info($"Removed channel {l_Channel.Id} from the channel list.");
-                                    m_OnLeaveRoomCallbacks?.InvokeAll(this, l_TwitchMessage.Channel);
-
-                                    if (!string.IsNullOrEmpty(m_OAuthTokenAPI))
-                                        UnsubscribeTopics(l_TwitchChannel.Roomstate.RoomId, l_TwitchChannel.Name);
-                                }
-                                continue;
-
-                            case "ROOMSTATE":
-                                m_Channels[l_TwitchMessage.Channel.Id] = l_TwitchMessage.Channel;
-                                m_DataProvider.TryRequestChannelResources(l_TwitchMessage.Channel, (x) => m_OnChannelResourceDataCached?.InvokeAll(this, l_TwitchMessage.Channel, x));
-
-                                m_OnRoomStateUpdatedCallbacks?.InvokeAll(this, l_TwitchMessage.Channel);
+                        case "PART":
+                            ///Logger.Instance.Info($"{twitchMessage.Sender.Name} PARTED {twitchMessage.Channel.Id}. LoggedInuser: {LoggedInUser.Name}");
+                            if (l_TwitchMessage.Sender.UserName == m_LoggedInUsername
+                                && m_Channels.TryRemove(l_TwitchMessage.Channel.Id, out var l_Channel))
+                            {
+                                m_DataProvider.TryReleaseChannelResources(l_TwitchMessage.Channel);
+                                Logger.Instance.Info($"Removed channel {l_Channel.Id} from the channel list.");
+                                m_OnLeaveRoomCallbacks?.InvokeAll(this, l_TwitchMessage.Channel);
 
                                 if (!string.IsNullOrEmpty(m_OAuthTokenAPI))
+                                    UnsubscribeTopics(l_TwitchChannel.Roomstate.RoomId, l_TwitchChannel.Name);
+                            }
+                            continue;
+
+                        case "ROOMSTATE":
+                            m_Channels[l_TwitchMessage.Channel.Id] = l_TwitchMessage.Channel as TwitchChannel;
+                            m_DataProvider.TryRequestChannelResources(l_TwitchMessage.Channel, m_OAuthTokenAPI, (x) => m_OnChannelResourceDataCached?.InvokeAll(this, l_TwitchMessage.Channel, x));
+
+                            m_OnRoomStateUpdatedCallbacks?.InvokeAll(this, l_TwitchMessage.Channel);
+
+                            if (!string.IsNullOrEmpty(m_OAuthTokenAPI))
+                            {
+                                SubscribeTopics(new string[] {
+                                    "following",
+                                    "channel-subscribe-events-v1",
+                                    "channel-bits-events-v2",
+                                    "channel-points-channel-v1",
+                                    "video-playback"
+                                }, l_TwitchChannel.Roomstate.RoomId, l_TwitchChannel.Name);
+                            }
+
+                            HelixAPI.OnBroadcasterIDChanged(m_Channels.First().Value.Roomstate.RoomId);
+                            continue;
+
+                        case "GLOBALUSERSTATE":
+                            if (l_Sender != null && m_LoggedInUser != null)
+                            {
+                                m_LoggedInUser.Id           = l_Sender.Id;
+                                m_LoggedInUser.DisplayName  = l_Sender.DisplayName;
+                                m_LoggedInUser.Color        = l_Sender.Color;
+
+                                if (m_DataProvider.IsReady && !string.IsNullOrEmpty(m_LoggedInUser.Id) && !string.IsNullOrEmpty(m_LoggedInUser.DisplayName))
                                 {
-                                    SubscribeTopics(new string[] {
-                                        "following",
-                                        "channel-subscribe-events-v1",
-                                        "channel-bits-events-v2",
-                                        "channel-points-channel-v1",
-                                        "video-playback"
-                                    }, l_TwitchChannel.Roomstate.RoomId, l_TwitchChannel.Name);
+                                    m_LoggedInUser.PaintedName      = m_DataProvider._7TVDataProvider.TryGetUserDisplayName(m_LoggedInUser.Id, m_LoggedInUser.DisplayName);
+                                    m_LoggedInUser._FancyNameReady  = true;
                                 }
+                            }
+                            continue;
 
-                                HelixAPI.OnBroadcasterIDChanged(m_Channels.First().Value.AsTwitchChannel().Roomstate.RoomId);
-                                continue;
+                        case "CLEARCHAT":
+                            m_OnChatClearedCallbacks?.InvokeAll(this, l_TwitchMessage.TargetUserId);
+                            continue;
 
-                            case "USERSTATE":
-                            case "GLOBALUSERSTATE":
-                                m_LoggedInUser = l_TwitchMessage.Sender.AsTwitchUser();
+                        case "CLEARMSG":
+                            if (!string.IsNullOrEmpty(l_TwitchMessage.TargetMsgId))
+                                m_OnMessageClearedCallbacks?.InvokeAll(this, l_TwitchMessage.TargetMsgId);
 
-                                if (string.IsNullOrEmpty(m_LoggedInUser.DisplayName))
-                                    m_LoggedInUser.DisplayName = m_LoggedInUsername;
+                            continue;
 
-                                if (l_TwitchMessage.Type == "GLOBALUSERSTATE")
-                                    m_LoggedInUserID = m_LoggedInUser.Id;
-                                else
-                                    m_LoggedInUser.Id = m_LoggedInUserID;
-
-                                m_LoggedInUser.PaintedName = m_DataProvider._7TVDataProvider.TryGetUserDisplayName(m_LoggedInUser.Id, m_LoggedInUser.DisplayName);
-
-                                continue;
-
-                            case "CLEARCHAT":
-                                l_TwitchMessage.Metadata.TryGetValue("target-user-id", out var l_TargetUser);
-                                m_OnChatClearedCallbacks?.InvokeAll(this, l_TargetUser);
-                                continue;
-
-                            case "CLEARMSG":
-                                if (l_TwitchMessage.Metadata.TryGetValue("target-msg-id", out var l_TargetMessage))
-                                    m_OnMessageClearedCallbacks?.InvokeAll(this, l_TargetMessage);
-
-                                continue;
-
-                            ///case "MODE":
-                            ///case "NAMES":
-                            ///case "HOSTTARGET":
-                            ///case "RECONNECT":
-                            ///    Logger.Instance.Info($"No handler exists for type {twitchMessage.Type}. {rawMessage}");
-                            ///    continue;
-                        }
+                        ///case "MODE":
+                        ///case "NAMES":
+                        ///case "HOSTTARGET":
+                        ///case "RECONNECT":
+                        ///    Logger.Instance.Info($"No handler exists for type {twitchMessage.Type}. {rawMessage}");
+                        ///    continue;
                     }
                 }
             }
@@ -854,22 +857,9 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                             case "channel-subscribe-events-v1":
                                 var l_SubscriptionMessage = l_Message.MessageData as PubSubChannelSubscription;
 
-                                var l_SubscriptionUser = new TwitchUser()
-                                {
-                                    Id              = l_SubscriptionMessage.UserId,
-                                    UserName        = l_SubscriptionMessage.Username,
-                                    DisplayName     = l_SubscriptionMessage.DisplayName,
-                                    PaintedName     = m_DataProvider._7TVDataProvider.TryGetUserDisplayName(l_SubscriptionMessage.UserId,  l_SubscriptionMessage.DisplayName),
-                                    Color           = "#FFFFFFFF",
-                                    Badges          = new IChatBadge[] { },
-                                    IsBroadcaster   = false,
-                                    IsModerator     = false,
-                                    IsSubscriber    = false,
-                                    IsTurbo         = false,
-                                    IsVip           = false
-                                };
-                                var l_SubscriptionChannel = m_Channels.Select(x => x.Value).FirstOrDefault(x => x.AsTwitchChannel().Roomstate.RoomId == l_SubscriptionMessage.ChannelId);
-                                var l_SubscriptionEvent = new TwitchSubscriptionEvent()
+                                var l_SubscriptionUser      = GetTwitchUser(l_SubscriptionMessage.UserId, l_SubscriptionMessage.Username, l_SubscriptionMessage.DisplayName);
+                                var l_SubscriptionChannel   = m_Channels.Select(x => x.Value).FirstOrDefault(x => x.Roomstate.RoomId == l_SubscriptionMessage.ChannelId);
+                                var l_SubscriptionEvent     = new TwitchSubscriptionEvent()
                                 {
                                     DisplayName             = l_SubscriptionMessage.DisplayName,
                                     SubPlan                 = l_SubscriptionMessage.SubscriptionPlan.ToString(),
@@ -884,21 +874,11 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                             case "channel-bits-events-v2":
                                 var l_ChannelBitsMessage = l_Message.MessageData as PubSubChannelBitsEvents;
 
-                                var l_BitsUser = new TwitchUser()
-                                {
-                                    Id              = !l_ChannelBitsMessage.IsAnonymous ? l_ChannelBitsMessage.UserId   : "AnAnonymousCheerer",
-                                    UserName        = !l_ChannelBitsMessage.IsAnonymous ? l_ChannelBitsMessage.Username : "AnAnonymousCheerer",
-                                    DisplayName     = !l_ChannelBitsMessage.IsAnonymous ? l_ChannelBitsMessage.Username : "AnAnonymousCheerer",
-                                    PaintedName     = !l_ChannelBitsMessage.IsAnonymous ?  m_DataProvider._7TVDataProvider.TryGetUserDisplayName(l_ChannelBitsMessage.UserId, l_ChannelBitsMessage.Username) : "AnAnonymousCheerer",
-                                    Color           = "#FFFFFFFF",
-                                    Badges          = new IChatBadge[] { },
-                                    IsBroadcaster   = false,
-                                    IsModerator     = false,
-                                    IsSubscriber    = false,
-                                    IsTurbo         = false,
-                                    IsVip           = false
-                                };
-                                var l_BitsChannel = m_Channels.Select(x => x.Value).FirstOrDefault(x => x.AsTwitchChannel().Roomstate.RoomId == l_ChannelBitsMessage.ChannelId);
+                                var l_BitsUser = GetTwitchUser(
+                                    !l_ChannelBitsMessage.IsAnonymous ? l_ChannelBitsMessage.UserId   : null,
+                                    !l_ChannelBitsMessage.IsAnonymous ? l_ChannelBitsMessage.Username : "AnAnonymousCheerer",
+                                    !l_ChannelBitsMessage.IsAnonymous ? l_ChannelBitsMessage.Username : "AnAnonymousCheerer");
+                                var l_BitsChannel = m_Channels.Select(x => x.Value).FirstOrDefault(x => x.Roomstate.RoomId == l_ChannelBitsMessage.ChannelId);
 
                                 m_OnChannelBitsCallbacks?.InvokeAll(this, l_BitsChannel, l_BitsUser, l_ChannelBitsMessage.BitsUsed);
                                 break;
@@ -906,21 +886,8 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                             case "channel-points-channel-v1":
                                 var l_ChannelPointsMessage = l_Message.MessageData as PubSubChannelPointsEvents;
 
-                                var l_PointsUser    = new TwitchUser()
-                                {
-                                    Id              = l_ChannelPointsMessage.UserId,
-                                    UserName        = l_ChannelPointsMessage.UserName,
-                                    DisplayName     = l_ChannelPointsMessage.UserDisplayName,
-                                    PaintedName     = m_DataProvider._7TVDataProvider.TryGetUserDisplayName(l_ChannelPointsMessage.UserId, l_ChannelPointsMessage.UserDisplayName),
-                                    Color           = "#FFFFFFFF",
-                                    Badges          = new IChatBadge[] { },
-                                    IsBroadcaster   = l_ChannelPointsMessage.UserId == m_LoggedInUser.Id,
-                                    IsModerator     = false,
-                                    IsSubscriber    = false,
-                                    IsTurbo         = false,
-                                    IsVip           = false
-                                };
-                                var l_PointsChannel = m_Channels.Select(x => x.Value).FirstOrDefault(x => x.AsTwitchChannel().Roomstate.RoomId == l_ChannelPointsMessage.ChannelId);
+                                var l_PointsUser    = GetTwitchUser(l_ChannelPointsMessage.UserId, l_ChannelPointsMessage.UserName, l_ChannelPointsMessage.UserDisplayName);
+                                var l_PointsChannel = m_Channels.Select(x => x.Value).FirstOrDefault(x => x.Roomstate.RoomId == l_ChannelPointsMessage.ChannelId);
                                 var l_PointsEvent   = new TwitchChannelPointEvent()
                                 {
                                     RewardID        = l_ChannelPointsMessage.RewardID,
@@ -940,23 +907,15 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                                 var l_FollowMessage = l_Message.MessageData as PubSubFollowing;
                                 l_FollowMessage.FollowedChannelId = l_Message.Topic.Split('.')[1];
 
-                                var l_FollowUser = new TwitchUser()
-                                {
-                                    Id              = l_FollowMessage.UserId,
-                                    UserName        = l_FollowMessage.Username,
-                                    DisplayName     = l_FollowMessage.DisplayName,
-                                    PaintedName     = m_DataProvider._7TVDataProvider.TryGetUserDisplayName(l_FollowMessage.UserId, l_FollowMessage.DisplayName),
-                                    Color           = "#FFFFFFFF",
-                                    Badges          = new IChatBadge[] { },
-                                    IsBroadcaster   = false,
-                                    IsModerator     = false,
-                                    IsSubscriber    = false,
-                                    IsTurbo         = false,
-                                    IsVip           = false
-                                };
-                                var l_FollowChannel = m_Channels.Select(x => x.Value).FirstOrDefault(x => x.AsTwitchChannel().Roomstate.RoomId == l_FollowMessage.FollowedChannelId);
+                                var l_FollowUser    = GetTwitchUser(l_FollowMessage.UserId, l_FollowMessage.Username, l_FollowMessage.DisplayName);
+                                var l_FollowChannel = m_Channels.Select(x => x.Value).FirstOrDefault(x => x.Roomstate.RoomId == l_FollowMessage.FollowedChannelId);
 
-                                m_OnChannelFollowCallbacks?.InvokeAll(this, l_FollowChannel, l_FollowUser);
+                                if (l_FollowUser != null && !l_FollowUser._HadFollowed)
+                                {
+                                    l_FollowUser._HadFollowed = true;
+                                    m_OnChannelFollowCallbacks?.InvokeAll(this, l_FollowChannel, l_FollowUser);
+                                }
+
                                 break;
 
                             case "video-playback":
@@ -973,6 +932,48 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
 
                 }
             }
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Get twitch user by username
+        /// </summary>
+        /// <param name="p_UserName">Username</param>
+        /// <returns></returns>
+        internal TwitchUser GetTwitchUser(string p_UserId, string p_UserName, string p_DisplayName, string p_Color = null)
+        {
+            if (m_TwitchUsers.TryGetValue(p_UserName, out var l_User))
+            {
+                if (m_DataProvider.IsReady && !l_User._FancyNameReady && !string.IsNullOrEmpty(l_User.Id) && !string.IsNullOrEmpty(l_User.DisplayName))
+                {
+                    l_User.PaintedName      = m_DataProvider._7TVDataProvider.TryGetUserDisplayName(l_User.Id, l_User.DisplayName);
+                    l_User._FancyNameReady  = true;
+                }
+
+                return l_User;
+            }
+
+            l_User = new TwitchUser()
+            {
+                Id          = p_UserId ?? string.Empty,
+                UserName    = p_UserName,
+                DisplayName = p_DisplayName ?? p_UserName,
+                PaintedName = p_DisplayName ?? p_UserName,
+                Color       = string.IsNullOrEmpty(p_Color) ? ChatUtils.GetNameColor(p_UserName) : p_Color,
+            };
+
+            if (m_DataProvider.IsReady && !string.IsNullOrEmpty(p_UserId) && !string.IsNullOrEmpty(p_DisplayName))
+            {
+                l_User.PaintedName      = m_DataProvider._7TVDataProvider.TryGetUserDisplayName(p_UserId, p_DisplayName);
+                l_User._FancyNameReady  = true;
+            }
+
+            if (!string.IsNullOrEmpty(p_UserName))
+                m_TwitchUsers.TryAdd(p_UserName, l_User);
+
+            return l_User;
         }
     }
 }

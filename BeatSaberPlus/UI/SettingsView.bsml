@@ -4,7 +4,7 @@
   </horizontal>
 
   <horizontal min-height='55' horizontal-fit='PreferredSize'>
-    <grid id='SettingGrid' cell-size-y='9' cell-size-x='50' spacing-x='10' spacing-y='2' align='Center'>
+    <grid id='SettingGrid' cell-size-y='9' cell-size-x='45' spacing-x='10' spacing-y='2' align='Center'>
 
     </grid>
   </horizontal>

@@ -34,7 +34,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
         /// </summary>
         /// <param name="p_Category">Category / Channel</param>
         /// <returns></returns>
-        public async Task TryRequestResources(string p_Category)
+        public async Task TryRequestResources(string p_Category, string p_Token)
         {
             bool l_IsGlobal = string.IsNullOrEmpty(p_Category);
 

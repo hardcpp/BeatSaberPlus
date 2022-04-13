@@ -57,8 +57,11 @@ namespace BeatSaberPlus_SongChartVisualizer.Components
                 return;
             }
 
-            var l_DifficultyBeatmap = BeatSaberPlus.SDK.Game.Logic.LevelData?.Data?.difficultyBeatmap;
-            if ((l_DifficultyBeatmap != null && l_DifficultyBeatmap.beatmapData != null) || BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Menu)
+            var l_TransformedBeatmapData    = BeatSaberPlus.SDK.Game.Logic.LevelData?.Data?.transformedBeatmapData;
+            var l_PreviewBeatmapLevel       = BeatSaberPlus.SDK.Game.Logic.LevelData?.Data?.previewBeatmapLevel;
+            var l_DifficultyBeatmap         = BeatSaberPlus.SDK.Game.Logic.LevelData?.Data?.difficultyBeatmap;
+
+            if ((l_TransformedBeatmapData != null && l_PreviewBeatmapLevel != null && l_DifficultyBeatmap != null) || BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Menu)
             {
                 var l_SongDuration = -1f;
 
@@ -74,10 +77,10 @@ namespace BeatSaberPlus_SongChartVisualizer.Components
                         FillGraphDataWithDemoValues();
                     else if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Playing)
                     {
-                        m_FlyingGameHUDRotation = l_DifficultyBeatmap.beatmapData.spawnRotationEventsCount > 0 ? Resources.FindObjectsOfTypeAll<FlyingGameHUDRotation>().FirstOrDefault()?.gameObject : null;
+                        m_FlyingGameHUDRotation = l_TransformedBeatmapData.spawnRotationEventsCount > 0 ? Resources.FindObjectsOfTypeAll<FlyingGameHUDRotation>().FirstOrDefault()?.gameObject : null;
 
-                        var l_Notes = l_DifficultyBeatmap.beatmapData.beatmapObjectsData
-                                    .Where(x => x.beatmapObjectType == BeatmapObjectType.Note)
+                        var l_Notes = l_TransformedBeatmapData.allBeatmapDataItems
+                                    .Where(x => x.type == BeatmapDataItem.BeatmapDataItemType.BeatmapObject && x is NoteData)
                                     .Select(x => x as NoteData)
                                     .Where(x => x.colorType != ColorType.None)
                                     .OrderBy(x => x.time)
@@ -128,7 +131,7 @@ namespace BeatSaberPlus_SongChartVisualizer.Components
 
                                 Dictionary<int, int> l_SPSR = new Dictionary<int, int>();
                                 Dictionary<int, int> l_SPSB = new Dictionary<int, int>();
-                                for (int l_I = 0; l_I < (l_SongDuration / l_DifficultyBeatmap.level.beatsPerMinute * 60f) + 1; ++l_I)
+                                for (int l_I = 0; l_I < (l_SongDuration / l_PreviewBeatmapLevel.beatsPerMinute * 60f) + 1; ++l_I)
                                 {
                                     l_SPSR.Add(l_I, 0);
                                     l_SPSB.Add(l_I, 0);
@@ -136,15 +139,15 @@ namespace BeatSaberPlus_SongChartVisualizer.Components
 
                                 foreach (var l_Note in l_Notes)
                                 {
-                                    var real_time = l_Note.time / l_DifficultyBeatmap.level.beatsPerMinute * 60f;
+                                    var real_time = l_Note.time / l_PreviewBeatmapLevel.beatsPerMinute * 60f;
 
                                     if (l_Note.colorType == ColorType.ColorA)
                                     {
                                         if (l_LastRed != null)
                                         {
                                             bool l_IsWindow = Mathf.Max(Mathf.Abs(l_Note.lineIndex - l_LastRed.lineIndex), Mathf.Abs(l_Note.noteLineLayer - l_LastRed.noteLineLayer)) >= 2;
-                                            if (l_IsWindow && (((l_Note.time - l_LastRed.time) / l_DifficultyBeatmap.level.beatsPerMinute * 60f) > maximum_window_tolerance)
-                                                || (((l_Note.time - l_LastRed.time) / l_DifficultyBeatmap.level.beatsPerMinute * 60f) > maximum_tolerance)
+                                            if (l_IsWindow && (((l_Note.time - l_LastRed.time) / l_PreviewBeatmapLevel.beatsPerMinute * 60f) > maximum_window_tolerance)
+                                                || (((l_Note.time - l_LastRed.time) / l_PreviewBeatmapLevel.beatsPerMinute * 60f) > maximum_tolerance)
                                                 )
                                                 l_SPSR[(int)Mathf.Floor(real_time)]++;
                                         }
@@ -159,8 +162,8 @@ namespace BeatSaberPlus_SongChartVisualizer.Components
                                         if (l_LastBlue != null)
                                         {
                                             bool l_IsWindow = Mathf.Max(Mathf.Abs(l_Note.lineIndex - l_LastBlue.lineIndex), Mathf.Abs(l_Note.noteLineLayer - l_LastBlue.noteLineLayer)) >= 2;
-                                            if (l_IsWindow && (((l_Note.time - l_LastBlue.time) / l_DifficultyBeatmap.level.beatsPerMinute * 60f) > maximum_window_tolerance)
-                                                || (((l_Note.time - l_LastBlue.time) / l_DifficultyBeatmap.level.beatsPerMinute * 60f) > maximum_tolerance)
+                                            if (l_IsWindow && (((l_Note.time - l_LastBlue.time) / l_PreviewBeatmapLevel.beatsPerMinute * 60f) > maximum_window_tolerance)
+                                                || (((l_Note.time - l_LastBlue.time) / l_PreviewBeatmapLevel.beatsPerMinute * 60f) > maximum_tolerance)
                                                 )
                                                 l_SPSB[(int)Mathf.Floor(real_time)]++;
                                         }
@@ -182,8 +185,8 @@ namespace BeatSaberPlus_SongChartVisualizer.Components
 
                                 for (int l_I = 0; l_I < swing_count_list.Count; ++l_I)
                                 {
-                                    float l_StartTime = (l_I / 60f) * l_DifficultyBeatmap.level.beatsPerMinute;
-                                    float l_SectionEndTime = (((l_I == swing_count_list.Count - 1) ? (l_SongDuration / l_DifficultyBeatmap.level.beatsPerMinute * 60f) : l_I + 1) / 60f) * l_DifficultyBeatmap.level.beatsPerMinute;
+                                    float l_StartTime = (l_I / 60f) * l_PreviewBeatmapLevel.beatsPerMinute;
+                                    float l_SectionEndTime = (((l_I == swing_count_list.Count - 1) ? (l_SongDuration / l_PreviewBeatmapLevel.beatsPerMinute * 60f) : l_I + 1) / 60f) * l_PreviewBeatmapLevel.beatsPerMinute;
                                     l_GraphData.Add((swing_count_list[l_I], l_StartTime, l_SectionEndTime));
                                 }
 

@@ -5,40 +5,67 @@ namespace BeatSaberPlus_GameTweaker
 {
     internal class GTConfig : BeatSaberPlus.SDK.Config.JsonConfig<GTConfig>
     {
+        internal class _Environment
+        {
+            [JsonProperty] internal bool RemoveMusicBandLogo = false;
+            [JsonProperty] internal bool RemoveFullComboLossAnimation = false;
+            [JsonProperty] internal bool NoFake360HUD = true;
+        }
+        internal class _LevelSelection
+        {
+            [JsonProperty] internal bool RemoveBaseGameFilterButton = false;
+            [JsonProperty] internal bool DeleteSongButton = true;
+            [JsonProperty] internal bool DeleteSongBrowserTrashcan = true;
+            [JsonProperty] internal bool HighlightEnabled = true;
+            [JsonProperty] internal Color32 HighlightPlayed = new Color32(248,230,0,255);
+            [JsonProperty] internal Color32 HighlightAllPlayed = new Color32(82,247,0,255);
+        }
+        internal class _PlayerOptions
+        {
+            [JsonProperty] internal int JumpDurationIncrement = 1;
+            [JsonProperty] internal bool ReorderPlayerSettings = true;
+            [JsonProperty] internal bool MergeLightPressetOptions = true;
+            [JsonProperty] internal bool OverrideLightIntensityOption = true;
+            [JsonProperty] internal float OverrideLightIntensity = 1.0f;
+        }
+        internal class _MainMenu
+        {
+            [JsonProperty] internal bool OverrideMenuEnvColors = false;
+            [JsonProperty] internal Color BaseColor = new Color(0.421376616f, 0.201642916f, 0.6745098f, 1f);
+            [JsonProperty] internal Color LevelClearedColor = new Color(0.203647852f, 0.479708f, 0.07326582f, 1f);
+            [JsonProperty] internal Color LevelFailedColor = new Color(0.796078444f, 0.137425855f, 0.0f, 1f);
+            [JsonProperty] internal bool DisableEditorButtonOnMainMenu = true;
+            [JsonProperty] internal bool RemoveNewContentPromotional = true;
+        }
+        internal class _Tools
+        {
+            [JsonProperty] internal bool RemoveOldLogs = true;
+            [JsonProperty] internal int LogEntriesToKeep = 8;
+            [JsonProperty] internal bool FPFCEscape = false;
+        }
+
         [JsonProperty] internal bool Enabled = false;
 
         /// Gameplay
-        [JsonProperty] internal bool RemoveDebris                 = false;
-        [JsonProperty] internal bool RemoveAllCutParticles        = false;
-        [JsonProperty] internal bool RemoveObstacleParticles      = false;
-        [JsonProperty] internal bool RemoveSaberBurnMarks         = false;
-        [JsonProperty] internal bool RemoveSaberBurnMarkSparkles  = false;
-        [JsonProperty] internal bool RemoveSaberClashEffects      = false;
-        [JsonProperty] internal bool RemoveWorldParticles         = false;
-        [JsonProperty] internal bool RemoveMusicBandLogo          = false;
-        [JsonProperty] internal bool RemoveFullComboLossAnimation = false;
-        [JsonProperty] internal bool NoFake360HUD                 = false;
+        [JsonProperty] internal bool RemoveDebris = false;
+        [JsonProperty] internal bool RemoveAllCutParticles = false;
+        [JsonProperty] internal bool RemoveObstacleParticles = false;
+        [JsonProperty] internal bool RemoveSaberBurnMarks = false;
+        [JsonProperty] internal bool RemoveSaberBurnMarkSparkles = false;
+        [JsonProperty] internal bool RemoveSaberClashEffects = false;
+        [JsonProperty] internal bool RemoveWorldParticles = false;
 
-        /// Main menu
-        [JsonProperty] internal bool DisableBeatMapEditorButtonOnMainMenu = true;
-        [JsonProperty] internal bool RemoveNewContentPromotional          = true;
 
-        /// Level selection
-        [JsonProperty] internal bool RemoveBaseGameFilterButton       = true;
-        [JsonProperty] internal bool ReorderPlayerSettings            = true;
-        [JsonProperty] internal bool AddOverrideLightIntensityOption  = true;
-        [JsonProperty] internal bool MergeLightPressetOptions         = true;
-        [JsonProperty] internal float OverrideLightIntensity          = 1.0f;
-        [JsonProperty] internal bool DeleteSongButton                 = true;
-        [JsonProperty] internal bool DeleteSongBrowserTrashcan        = false;
-        [JsonProperty] internal bool HighlightPlayedSong              = true;
-
-        /// Logs
-        [JsonProperty] internal bool RemoveOldLogs = true;
-        [JsonProperty] internal int LogEntriesToKeep = 8;
-
-        /// FPFC escape
-        [JsonProperty] internal bool FPFCEscape = true;
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        internal _Environment Environment = new _Environment();
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        internal _LevelSelection LevelSelection = new _LevelSelection();
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        internal _PlayerOptions PlayerOptions = new _PlayerOptions();
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        internal _MainMenu MainMenu = new _MainMenu();
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        internal _Tools Tools = new _Tools();
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -59,45 +86,6 @@ namespace BeatSaberPlus_GameTweaker
         /// <param name="p_OnCreation">On creation</param>
         protected override void OnInit(bool p_OnCreation)
         {
-            if (BeatSaberPlus.Config.GameTweaker.OldConfigMigrated)
-            {
-                Save();
-                return;
-            }
-
-            Enabled = BeatSaberPlus.Config.GameTweaker.Enabled;
-
-            RemoveDebris                 = BeatSaberPlus.Config.GameTweaker.RemoveDebris;
-            RemoveAllCutParticles        = BeatSaberPlus.Config.GameTweaker.RemoveAllCutParticles;
-            RemoveObstacleParticles      = BeatSaberPlus.Config.GameTweaker.RemoveObstacleParticles;
-            RemoveSaberBurnMarks         = BeatSaberPlus.Config.GameTweaker.RemoveSaberBurnMarks;
-            RemoveSaberBurnMarkSparkles  = BeatSaberPlus.Config.GameTweaker.RemoveSaberBurnMarkSparkles;
-            RemoveSaberClashEffects      = BeatSaberPlus.Config.GameTweaker.RemoveSaberClashEffects;
-            RemoveWorldParticles         = BeatSaberPlus.Config.GameTweaker.RemoveWorldParticles;
-            RemoveMusicBandLogo          = BeatSaberPlus.Config.GameTweaker.RemoveMusicBandLogo;
-            RemoveFullComboLossAnimation = BeatSaberPlus.Config.GameTweaker.RemoveFullComboLossAnimation;
-            NoFake360HUD                 = BeatSaberPlus.Config.GameTweaker.NoFake360HUD;
-
-            DisableBeatMapEditorButtonOnMainMenu    = BeatSaberPlus.Config.GameTweaker.DisableBeatMapEditorButtonOnMainMenu;
-            RemoveNewContentPromotional             = BeatSaberPlus.Config.GameTweaker.RemoveNewContentPromotional;
-
-            RemoveBaseGameFilterButton       = BeatSaberPlus.Config.GameTweaker.RemoveBaseGameFilterButton;
-            ReorderPlayerSettings            = BeatSaberPlus.Config.GameTweaker.ReorderPlayerSettings;
-            AddOverrideLightIntensityOption  = BeatSaberPlus.Config.GameTweaker.AddOverrideLightIntensityOption;
-            MergeLightPressetOptions         = BeatSaberPlus.Config.GameTweaker.MergeLightPressetOptions;
-            OverrideLightIntensity           = BeatSaberPlus.Config.GameTweaker.OverrideLightIntensity;
-            DeleteSongButton                 = BeatSaberPlus.Config.GameTweaker.DeleteSongButton;
-            DeleteSongBrowserTrashcan        = BeatSaberPlus.Config.GameTweaker.DeleteSongBrowserTrashcan;
-            HighlightPlayedSong              = BeatSaberPlus.Config.GameTweaker.HighlightPlayedSong;
-
-            RemoveOldLogs       = BeatSaberPlus.Config.GameTweaker.RemoveOldLogs;
-            LogEntriesToKeep    = BeatSaberPlus.Config.GameTweaker.LogEntriesToKeep;
-
-            FPFCEscape = BeatSaberPlus.Config.GameTweaker.FPFCEscape;
-
-            ////////////////////////////////////////////////////////////////////////////
-
-            BeatSaberPlus.Config.GameTweaker.OldConfigMigrated = true;
             Save();
         }
     }

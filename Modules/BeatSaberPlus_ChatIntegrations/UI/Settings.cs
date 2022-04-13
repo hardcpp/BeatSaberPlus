@@ -87,6 +87,23 @@ namespace BeatSaberPlus_ChatIntegrations.UI
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
+        [UIObject("EventFrame_OnFailActionsTab")]
+        private GameObject m_EventFrame_OnFailActionsTab = null;
+
+        [UIComponent("EventFrame_OnFailActionsTab_UpButton")]
+        private Button m_EventFrame_OnFailActionsTab_UpButton = null;
+        [UIObject("EventFrame_OnFailActionsTab_List")]
+        private GameObject m_EventFrame_OnFailActionsTab_ListView = null;
+        private BeatSaberPlus.SDK.UI.DataSource.SimpleTextList m_EventFrame_OnFailActionsTab_List = null;
+        [UIComponent("EventFrame_OnFailActionsTab_DownButton")]
+        private Button m_EventFrame_OnFailActionsTab_DownButton = null;
+
+        [UIObject("EventFrame_OnFailActionsTab_ActionContent")]
+        private GameObject m_EventFrame_OnFailActionsTab_ActionContent = null;
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
         [UIComponent("InputKeyboard")]
         private ModalKeyboard m_InputKeyboard = null;
         [UIValue("InputKeyboardValue")]
@@ -101,6 +118,8 @@ namespace BeatSaberPlus_ChatIntegrations.UI
         private int m_SelectedCondition = -1;
         private int m_ActionListPage = 1;
         private int m_SelectedAction = -1;
+        private int m_OnFailActionListPage = 1;
+        private int m_SelectedOnFailAction = -1;
 
         private Dictionary<string, System.Type> m_ConditionAddingMatches = new Dictionary<string, System.Type>();
 
@@ -128,13 +147,17 @@ namespace BeatSaberPlus_ChatIntegrations.UI
             BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_EventFrame_ConditionsTab_ConditionContent,   0.50f);
             BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_EventFrame_ActionsTab,                       0.50f);
             BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_EventFrame_ActionsTab_ActionContent,         0.50f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_EventFrame_OnFailActionsTab,                 0.50f);
+            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_EventFrame_OnFailActionsTab_ActionContent,   0.50f);
             BeatSaberPlus.SDK.UI.ModalView.SetOpacity(m_InputKeyboard.modalView,                          0.75f);
 
             /// Scale down up & down button
-            m_EventFrame_ConditionsTab_UpButton.transform.localScale    = Vector3.one * 0.6f;
-            m_EventFrame_ConditionsTab_DownButton.transform.localScale  = Vector3.one * 0.6f;
-            m_EventFrame_ActionsTab_UpButton.transform.localScale       = Vector3.one * 0.6f;
-            m_EventFrame_ActionsTab_DownButton.transform.localScale     = Vector3.one * 0.6f;
+            m_EventFrame_ConditionsTab_UpButton.transform.localScale        = Vector3.one * 0.6f;
+            m_EventFrame_ConditionsTab_DownButton.transform.localScale      = Vector3.one * 0.6f;
+            m_EventFrame_ActionsTab_UpButton.transform.localScale           = Vector3.one * 0.6f;
+            m_EventFrame_ActionsTab_DownButton.transform.localScale         = Vector3.one * 0.6f;
+            m_EventFrame_OnFailActionsTab_UpButton.transform.localScale     = Vector3.one * 0.6f;
+            m_EventFrame_OnFailActionsTab_DownButton.transform.localScale   = Vector3.one * 0.6f;
 
             /// Setup condition list
             if (m_EventFrame_ConditionsTab_ListView.GetComponent<LayoutElement>())
@@ -178,12 +201,32 @@ namespace BeatSaberPlus_ChatIntegrations.UI
                 m_EventFrame_ActionsTab_DownButton.onClick.AddListener(OnActionPageDownPressed);
             }
 
+            /// Setup on fail action list
+            if (m_EventFrame_OnFailActionsTab_ListView.GetComponent<LayoutElement>())
+            {
+                var l_LayoutElement = m_EventFrame_OnFailActionsTab_ListView.GetComponent<LayoutElement>();
+                l_LayoutElement.preferredWidth  = 45;
+                l_LayoutElement.preferredHeight = 40;
+
+                var l_BSMLTableView = m_EventFrame_OnFailActionsTab_ListView.GetComponentInChildren<BSMLTableView>();
+                l_BSMLTableView.SetDataSource(null, false);
+                GameObject.DestroyImmediate(m_EventFrame_OnFailActionsTab_ListView.GetComponentInChildren<CustomListTableData>());
+                m_EventFrame_OnFailActionsTab_List = l_BSMLTableView.gameObject.AddComponent<BeatSaberPlus.SDK.UI.DataSource.SimpleTextList>();
+                m_EventFrame_OnFailActionsTab_List.TableViewInstance = l_BSMLTableView;
+                m_EventFrame_OnFailActionsTab_List.CellSizeValue = 5f;
+                l_BSMLTableView.didSelectCellWithIdxEvent += OnOnFailActionSelected;
+                l_BSMLTableView.SetDataSource(m_EventFrame_OnFailActionsTab_List, false);
+
+                /// Bind events
+                m_EventFrame_OnFailActionsTab_UpButton.onClick.AddListener(OnOnFailActionPageUpPressed);
+                m_EventFrame_OnFailActionsTab_DownButton.onClick.AddListener(OnOnFailActionPageDownPressed);
+            }
             SetupAddConditionFrame();
             SetupAddActionFrame();
 
             /// Create type selector
             m_EventFrame_TabSelectorControl = BeatSaberPlus.SDK.UI.TextSegmentedControl.Create(m_EventFrame_TabSelector.transform as RectTransform, false);
-            m_EventFrame_TabSelectorControl.SetTexts(new string[] { "Trigger", "Conditions", "Actions" });
+            m_EventFrame_TabSelectorControl.SetTexts(new string[] { "Trigger", "Conditions", "On Success Actions", "On Fail Actions" });
             m_EventFrame_TabSelectorControl.ReloadData();
             m_EventFrame_TabSelectorControl.didSelectCellEvent += OnTabSelected;
 
@@ -211,6 +254,41 @@ namespace BeatSaberPlus_ChatIntegrations.UI
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
+        /// On GUI event
+        /// </summary>
+        private void OnGUI()
+        {
+            if (!m_InputKeyboard || !m_InputKeyboard.modalView.gameObject.activeInHierarchy)
+                return;
+
+            var l_Event = Event.current;
+            if (l_Event.isKey && l_Event.type == EventType.KeyDown)
+            {
+                var l_KeyCode = l_Event.keyCode;
+
+                /// Convert top row keyboard numbers to numpad numbers
+                if (l_KeyCode >= KeyCode.Alpha0 && l_KeyCode <= KeyCode.Alpha9)
+                    l_KeyCode += 208;
+
+                switch (l_KeyCode)
+                {
+                    case KeyCode.Backspace:
+                        if (m_InputKeyboard.keyboard.KeyboardText.text.Length > 0)
+                            m_InputKeyboard.SetText(m_InputKeyboard.keyboard.KeyboardText.text.Substring(0, m_InputKeyboard.keyboard.KeyboardText.text.Length - 1));
+                        break;
+
+                    default:
+                        if (l_Event.character != '\0' && !char.IsControl(l_Event.character))
+                            m_InputKeyboard.SetText(m_InputKeyboard.keyboard.KeyboardText.text + l_Event.character);
+                        break;
+                }
+            }
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
         /// Select event to edit
         /// </summary>
         /// <param name="p_Event"></param>
@@ -218,6 +296,9 @@ namespace BeatSaberPlus_ChatIntegrations.UI
         {
             ChatIntegrations.Instance.OnBroadcasterChatMessage = null;
             ChatIntegrations.Instance.OnVoiceAttackCommandExecuted = null;
+
+            CloseAllModals();
+            HideKeyboard();
 
             m_CurrentEvent = p_Event;
 
@@ -227,6 +308,7 @@ namespace BeatSaberPlus_ChatIntegrations.UI
 
             OnConditionSelected(null, -1);
             OnActionSelected(null, -1);
+            OnOnFailActionSelected(null, -1);
 
             /// Hide everything if no event selection
             if (p_Event == null)
@@ -253,6 +335,11 @@ namespace BeatSaberPlus_ChatIntegrations.UI
             m_SelectedAction = -1;
             RebuildActionList(m_CurrentEvent.Actions.FirstOrDefault());
             ////////////////////////////////////////////////////////////////////////////
+            /// OnFailActions
+            m_OnFailActionListPage = 1;
+            m_SelectedOnFailAction = -1;
+            RebuildOnFailActionList(m_CurrentEvent.OnFailActions.FirstOrDefault());
+            ////////////////////////////////////////////////////////////////////////////
 
             /// Update UI
             m_MessageFrame.SetActive(false);
@@ -278,6 +365,7 @@ namespace BeatSaberPlus_ChatIntegrations.UI
             m_EventFrame_TriggerTab.SetActive(p_TabIndex == 0);
             m_EventFrame_ConditionsTab.SetActive(p_TabIndex == 1);
             m_EventFrame_ActionsTab.SetActive(p_TabIndex == 2);
+            m_EventFrame_OnFailActionsTab.SetActive(p_TabIndex == 3);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -336,10 +424,10 @@ namespace BeatSaberPlus_ChatIntegrations.UI
                 ++l_I)
             {
                 var l_Condition     = m_CurrentEvent.Conditions[l_I];
-                var l_Name          = FancyShortTypeName(l_Condition.GetTypeNameShort());
+                var l_Name          = FancyShortTypeName(l_Condition.GetTypeNameShort(), l_Condition.IsEnabled);
                 var l_Description   = l_Condition.Description;
 
-                m_EventFrame_ConditionsTab_List.Data.Add(("<align=\"left\">" + (l_Condition.IsEnabled ? "" : "<alpha=#70><s>") + l_Name, l_Description));
+                m_EventFrame_ConditionsTab_List.Data.Add((l_Name, l_Description));
 
                 if (l_Condition == p_ConditionToFocus)
                     l_RelIndexToFocus = m_EventFrame_ConditionsTab_List.Data.Count - 1;
@@ -524,10 +612,10 @@ namespace BeatSaberPlus_ChatIntegrations.UI
                 ++l_I)
             {
                 var l_Action        = m_CurrentEvent.Actions[l_I];
-                var l_Name          = FancyShortTypeName(l_Action.GetTypeNameShort());
+                var l_Name          = FancyShortTypeName(l_Action.GetTypeNameShort(), l_Action.IsEnabled);
                 var l_Description   = l_Action.Description;
 
-                m_EventFrame_ActionsTab_List.Data.Add(("<align=\"left\">" + (l_Action.IsEnabled ? "" : "<alpha=#70><s>") + l_Name, l_Description));
+                m_EventFrame_ActionsTab_List.Data.Add((l_Name, l_Description));
 
                 if (l_Action == p_ActionToFocus)
                     l_RelIndexToFocus = m_EventFrame_ActionsTab_List.Data.Count - 1;
@@ -660,6 +748,194 @@ namespace BeatSaberPlus_ChatIntegrations.UI
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
+        /// Go to previous action page
+        /// </summary>
+        private void OnOnFailActionPageUpPressed()
+        {
+            /// Underflow check
+            if (m_OnFailActionListPage < 2)
+                return;
+
+            /// Decrement current page
+            m_OnFailActionListPage--;
+
+            /// Rebuild list
+            RebuildOnFailActionList(null);
+        }
+        /// <summary>
+        /// Rebuilt action list
+        /// </summary>
+        /// <param name="p_KeepFocus">Should keep actual focus</param>
+        private void RebuildOnFailActionList(Interfaces.IActionBase p_OnFailActionToFocus)
+        {
+            if (!UICreated)
+                return;
+
+            /// Update page count
+            var l_PageCount  = Math.Max(1, Mathf.CeilToInt((float)(m_CurrentEvent.OnFailActions.Count) / (float)(s_CONDITION_ACTION_PER_PAGE)));
+
+            if (p_OnFailActionToFocus != null)
+            {
+                var l_Index = m_CurrentEvent.OnFailActions.IndexOf(p_OnFailActionToFocus);
+                if (l_Index != -1)
+                    m_OnFailActionListPage = (l_Index / s_CONDITION_ACTION_PER_PAGE) + 1;
+                else
+                    OnOnFailActionSelected(null, -1);
+            }
+
+            /// Update overflow
+            m_OnFailActionListPage = Math.Max(1, Math.Min(m_OnFailActionListPage, l_PageCount));
+
+            /// Update UI
+            m_EventFrame_OnFailActionsTab_UpButton.interactable   = m_OnFailActionListPage > 1;
+            m_EventFrame_OnFailActionsTab_DownButton.interactable = m_OnFailActionListPage < l_PageCount;
+
+            /// Clear old entries
+            m_EventFrame_OnFailActionsTab_List.TableViewInstance.ClearSelection();
+            m_EventFrame_OnFailActionsTab_List.Data.Clear();
+
+            int l_RelIndexToFocus = -1;
+            for (int l_I = (m_OnFailActionListPage - 1) * s_CONDITION_ACTION_PER_PAGE;
+                l_I < m_CurrentEvent.OnFailActions.Count && l_I < (m_OnFailActionListPage * s_CONDITION_ACTION_PER_PAGE);
+                ++l_I)
+            {
+                var l_OnFailAction  = m_CurrentEvent.OnFailActions[l_I];
+                var l_Name          = FancyShortTypeName(l_OnFailAction.GetTypeNameShort(), l_OnFailAction.IsEnabled);
+                var l_Description   = l_OnFailAction.Description;
+
+                m_EventFrame_OnFailActionsTab_List.Data.Add((l_Name, l_Description));
+
+                if (l_OnFailAction == p_OnFailActionToFocus)
+                    l_RelIndexToFocus = m_EventFrame_OnFailActionsTab_List.Data.Count - 1;
+            }
+
+            /// Refresh
+            m_EventFrame_OnFailActionsTab_List.TableViewInstance.ReloadData();
+
+            /// Update focus
+            if (m_CurrentEvent.OnFailActions.Count == 0)
+                OnOnFailActionSelected(null, -1);
+            else if (l_RelIndexToFocus != -1)
+                m_EventFrame_OnFailActionsTab_List.TableViewInstance.SelectCellWithIdx(l_RelIndexToFocus, true);
+        }
+        /// <summary>
+        /// When an on fail action is selected
+        /// </summary>
+        /// <param name="p_List">List instance</param>
+        /// <param name="p_RelIndex">Selected index</param>
+        private void OnOnFailActionSelected(TableView p_List, int p_RelIndex)
+        {
+            /// Clean up action specific UI
+            if (m_EventFrame_OnFailActionsTab_ActionContent.transform.childCount != 0)
+                GameObject.DestroyImmediate(m_EventFrame_OnFailActionsTab_ActionContent.transform.GetChild(0).gameObject);
+
+            int l_OnFailActionIndex = ((m_OnFailActionListPage - 1) * s_CONDITION_ACTION_PER_PAGE) + p_RelIndex;
+
+            if (p_RelIndex < 0 || p_RelIndex >= m_CurrentEvent.OnFailActions.Count)
+            {
+                m_SelectedOnFailAction = -1;
+                return;
+            }
+
+            m_SelectedOnFailAction = l_OnFailActionIndex;
+
+            var l_OnFailAction = m_CurrentEvent.OnFailActions[l_OnFailActionIndex];
+            l_OnFailAction.BuildUI(m_EventFrame_OnFailActionsTab_ActionContent.transform);
+        }
+        /// <summary>
+        /// Go to next on fail action page
+        /// </summary>
+        private void OnOnFailActionPageDownPressed()
+        {
+            /// Increment current page
+            m_OnFailActionListPage++;
+
+            /// Rebuild list
+            RebuildOnFailActionList(null);
+        }
+        /// <summary>
+        /// Move on fail action down
+        /// </summary>
+        [UIAction("click-onfailaction-movedown-btn-pressed")]
+        private void OnOnFailActionMoveDownPressed()
+        {
+            if (m_SelectedOnFailAction == -1)
+                return;
+
+            var l_OnFailAction      = m_CurrentEvent.OnFailActions[m_SelectedOnFailAction];
+            m_SelectedOnFailAction  = m_CurrentEvent.MoveOnFailAction(l_OnFailAction, false);
+
+            RebuildOnFailActionList(l_OnFailAction);
+        }
+        /// <summary>
+        /// Move on fail action up
+        /// </summary>
+        [UIAction("click-onfailaction-moveup-btn-pressed")]
+        private void OnOnFailActionMoveUpPressed()
+        {
+            if (m_SelectedOnFailAction == -1)
+                return;
+
+            var l_OnFailAction      = m_CurrentEvent.OnFailActions[m_SelectedOnFailAction];
+            m_SelectedOnFailAction  = m_CurrentEvent.MoveOnFailAction(l_OnFailAction, true);
+
+            RebuildOnFailActionList(l_OnFailAction);
+        }
+        /// <summary>
+        /// Toggle on fail action button
+        /// </summary>
+        [UIAction("click-onfailaction-toggle-btn-pressed")]
+        private void OnOnFailActionToggleButton()
+        {
+            if (m_SelectedOnFailAction == -1)
+            {
+                ShowMessageModal("Please select an action first!");
+                return;
+            }
+
+            var l_OnFailAction = m_CurrentEvent.OnFailActions[m_SelectedOnFailAction];
+            if (l_OnFailAction.IsEnabled)
+            {
+                ShowConfirmationModal($"Do you want to disable action\n\"{l_OnFailAction.GetTypeNameShort()}\"?", () =>
+                {
+                    l_OnFailAction.IsEnabled = false;
+                    RebuildOnFailActionList(l_OnFailAction);
+                });
+            }
+            else
+            {
+                ShowConfirmationModal($"Do you want to enable action\n\"{l_OnFailAction.GetTypeNameShort()}\"?", () =>
+                {
+                    l_OnFailAction.IsEnabled = true;
+                    RebuildOnFailActionList(l_OnFailAction);
+                });
+            }
+        }
+        /// <summary>
+        /// On delete on fail action button
+        /// </summary>
+        [UIAction("click-onfailaction-delete-btn-pressed")]
+        private void OnOnFailActionDeleteButton()
+        {
+            if (m_SelectedOnFailAction == -1)
+            {
+                ShowMessageModal("Please select an action first!");
+                return;
+            }
+
+            var l_OnFailAction = m_CurrentEvent.OnFailActions[m_SelectedOnFailAction];
+            ShowConfirmationModal($"<color=red>Do you want to delete action</color>\n\"{l_OnFailAction.GetTypeNameShort()}\"?", () =>
+            {
+                OnOnFailActionSelected(null, -1);
+                m_CurrentEvent.DeleteOnFailAction(l_OnFailAction);
+                RebuildOnFailActionList(null);
+            });
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
         /// Show input keyboard
         /// </summary>
         /// <param name="p_Value">Start value</param>
@@ -733,6 +1009,13 @@ namespace BeatSaberPlus_ChatIntegrations.UI
         {
             m_InputKeyboardCallback?.Invoke(p_Text);
         }
+        /// <summary>
+        /// Close keyboard
+        /// </summary>
+        private void HideKeyboard()
+        {
+            m_InputKeyboard.modalView.Hide(false);
+        }
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -743,6 +1026,13 @@ namespace BeatSaberPlus_ChatIntegrations.UI
         public void UIShowLoading()
         {
             ShowLoadingModal();
+        }
+        /// <summary>
+        /// Show message modal
+        /// </summary>
+        public void UIShowMessageModal(string p_Message)
+        {
+            ShowMessageModal(p_Message);
         }
         /// <summary>
         /// Hide loading modal
@@ -763,9 +1053,9 @@ namespace BeatSaberPlus_ChatIntegrations.UI
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        private string FancyShortTypeName(string p_Input)
+        private string FancyShortTypeName(string p_Input, bool p_Enabled)
         {
-            return p_Input.Replace("_", "::");
+            return "<align=\"left\">" + (p_Enabled ? "<color=yellow>" + p_Input.Replace("_", "::</color><b>") : "<alpha=#70><s>" + p_Input.Replace("_", "::"));
         }
     }
 }

@@ -30,8 +30,14 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
     /// </summary>
     public class TwitchHelix
     {
-        internal const int POLL_UPDATE_INTERVAL = 30 * 1000;
-        internal const int ACTIVE_POLL_UPDATE_INTERVAL = 5 * 1000;
+        internal const int POLL_UPDATE_INTERVAL = 10000;
+        internal const int ACTIVE_POLL_UPDATE_INTERVAL = 2000;
+
+        internal const int HYPETRAIN_UPDATE_INTERVAL = 10000;
+        internal const int ACTIVE_HYPETRAIN_UPDATE_INTERVAL = 2000;
+
+        internal const int PREDICTION_UPDATE_INTERVAL = 10000;
+        internal const int ACTIVE_PREDICTION_UPDATE_INTERVAL = 2000;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -53,13 +59,29 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
         /// </summary>
         private List<string> m_APITokenScopes = new List<string>();
         /// <summary>
-        /// Last polling date
+        /// Last poll check date
         /// </summary>
-        private DateTime m_LastPolling = DateTime.MinValue;
+        private DateTime m_LastPollCheckTime = DateTime.MinValue;
         /// <summary>
         /// Last poll
         /// </summary>
         private Helix_Poll m_LastPoll = null;
+        /// <summary>
+        /// Last hype train check date
+        /// </summary>
+        private DateTime m_LastHypeTrainCheckTime = DateTime.MinValue;
+        /// <summary>
+        /// Last hype train
+        /// </summary>
+        private Helix_HypeTrain m_LastHypeTrain = null;
+        /// <summary>
+        /// Last prediction check date
+        /// </summary>
+        private DateTime m_LastPredictionCheckTime = DateTime.MinValue;
+        /// <summary>
+        /// Last prediction
+        /// </summary>
+        private Helix_Prediction m_LastPrediction = null;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -72,6 +94,14 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
         /// On active poll changed
         /// </summary>
         public event Action<Helix_Poll> OnActivePollChanged;
+        /// <summary>
+        /// On active hype train changed
+        /// </summary>
+        public event Action<Helix_HypeTrain> OnActiveHypeTrainChanged;
+        /// <summary>
+        /// On active prediction changed
+        /// </summary>
+        public event Action<Helix_Prediction> OnActivePredictionChanged;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -138,14 +168,17 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
             if (string.IsNullOrEmpty(m_BroadcasterID))
                 return;
 
+            #region Poll
             int l_Interval = POLL_UPDATE_INTERVAL;
-            if (m_LastPoll != null && m_LastPoll.status == Helix_Poll.Status.ACTIVE)
+            if (m_LastPoll != null && (m_LastPoll.status == Helix_Poll.Status.ACTIVE || m_LastPoll.status == Helix_Poll.Status.COMPLETED || m_LastPoll.status == Helix_Poll.Status.TERMINATED))
                 l_Interval = ACTIVE_POLL_UPDATE_INTERVAL;
 
-            if ((DateTime.Now - m_LastPolling).TotalMilliseconds > l_Interval)
+            if ((DateTime.Now - m_LastPollCheckTime).TotalMilliseconds > l_Interval)
             {
-                GetActivePoll((p_Status, p_Result) =>
+                GetLastPoll((p_Status, p_Result) =>
                 {
+                    m_LastPollCheckTime = DateTime.Now;
+
                     if (p_Status == TwitchHelixResult.OK
                         && (m_LastPoll == null
                             || m_LastPoll.id != p_Result.id
@@ -157,12 +190,68 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                         m_LastPoll = p_Result;
                         OnActivePollChanged?.Invoke(p_Result);
                     }
-                    else
+                    else if (p_Status != TwitchHelixResult.OK)
                         m_LastPoll = null;
                 });
-
-                m_LastPolling = DateTime.Now;
             }
+            #endregion
+
+            #region Hype train
+            l_Interval = HYPETRAIN_UPDATE_INTERVAL;
+            if (m_LastHypeTrain != null && m_LastHypeTrain.event_data.expires_at > DateTime.UtcNow)
+                l_Interval = ACTIVE_HYPETRAIN_UPDATE_INTERVAL;
+
+            if ((DateTime.Now - m_LastHypeTrainCheckTime).TotalMilliseconds > l_Interval)
+            {
+                GetLastHypeTrain((p_Status, p_Result) =>
+                {
+                    m_LastHypeTrainCheckTime = DateTime.Now;
+
+                    if (p_Status == TwitchHelixResult.OK
+                        && (m_LastHypeTrain == null
+                            || m_LastHypeTrain.id != p_Result.id
+                            || m_LastHypeTrain.event_data.started_at != p_Result.event_data.started_at
+                            || m_LastHypeTrain.event_data.level != p_Result.event_data.level
+                            || m_LastHypeTrain.event_data.total != p_Result.event_data.total
+                            )
+                        )
+                    {
+                        m_LastHypeTrain = p_Result;
+                        OnActiveHypeTrainChanged?.Invoke(p_Result);
+                    }
+                    else if (p_Status != TwitchHelixResult.OK)
+                        m_LastHypeTrain = null;
+                });
+            }
+            #endregion
+
+            #region Prediction
+            l_Interval = PREDICTION_UPDATE_INTERVAL;
+            if (m_LastPrediction != null && m_LastPrediction.status == Helix_Prediction.Status.ACTIVE)
+                l_Interval = ACTIVE_PREDICTION_UPDATE_INTERVAL;
+
+            if ((DateTime.Now - m_LastPredictionCheckTime).TotalMilliseconds > l_Interval)
+            {
+                GetLastPrediction((p_Status, p_Result) =>
+                {
+                    m_LastPredictionCheckTime = DateTime.Now;
+
+                    if (p_Status == TwitchHelixResult.OK
+                        && (m_LastPrediction == null
+                            || m_LastPrediction.id != p_Result.id
+                            || m_LastPrediction.status != p_Result.status
+                            || m_LastPrediction.outcomes.Sum(x => x.channel_points) != p_Result.outcomes.Sum(x => x.channel_points)
+                            )
+                        )
+                    {
+                        m_LastPrediction = p_Result;
+                        OnActivePredictionChanged?.Invoke(p_Result);
+                    }
+                    else if (p_Status != TwitchHelixResult.OK)
+                        m_LastPrediction = null;
+                });
+            }
+            #endregion
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -283,7 +372,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                             m_LastPoll = l_HelixResult;
                     }
 
-                    p_Callback?.Invoke(TwitchHelixResult.NetworkError, l_HelixResult);
+                    p_Callback?.Invoke(TwitchHelixResult.OK, l_HelixResult);
                 }
                 else
                     p_Callback?.Invoke(TwitchHelixResult.NetworkError, null);
@@ -293,7 +382,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
         /// Get active poll
         /// </summary>
         /// <param name="p_Callback">Result callback</param>
-        public void GetActivePoll(Action<TwitchHelixResult, Helix_Poll> p_Callback)
+        public void GetLastPoll(Action<TwitchHelixResult, Helix_Poll> p_Callback)
         {
             if (!HasTokenPermission("channel:manage:polls"))
             {
@@ -301,19 +390,19 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                 return;
             }
 
-            m_APIClient.GetAsync("polls?broadcaster_id=" + m_BroadcasterID, CancellationToken.None, true).ContinueWith((p_Result) =>
+            m_APIClient.GetAsync("polls?broadcaster_id=" + m_BroadcasterID + "&first=1", CancellationToken.None, true).ContinueWith((p_Result) =>
             {
 #if DEBUG
                 if (p_Result.Result != null)
                 {
-                    Logger.Instance.Debug("[SDK.Chat.Service.Twitch][TwitchHelix.GetActivePoll] Receiving:");
+                    Logger.Instance.Debug("[SDK.Chat.Service.Twitch][TwitchHelix.GetLastPoll] Receiving:");
                     Logger.Instance.Debug(p_Result.Result.BodyString);
                 }
 #endif
 
                 if (p_Result.Result != null && !p_Result.Result.IsSuccessStatusCode)
                 {
-                    Logger.Instance.Error("[SDK.Chat.Service.Twitch][TwitchHelix.GetActivePoll] Failed with message:");
+                    Logger.Instance.Error("[SDK.Chat.Service.Twitch][TwitchHelix.GetLastPoll] Failed with message:");
                     Logger.Instance.Error(p_Result.Result.BodyString);
                 }
 
@@ -331,7 +420,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                     if (l_Reply.ContainsKey("data") && l_Reply["data"].Type == JTokenType.Array && (l_Reply["data"] as JArray).Count > 0)
                         GetObjectFromJsonString<Helix_Poll>((l_Reply["data"] as JArray)[0].ToString(), out l_HelixResult);
 
-                    p_Callback?.Invoke(TwitchHelixResult.NetworkError, l_HelixResult);
+                    p_Callback?.Invoke(TwitchHelixResult.OK, l_HelixResult);
                 }
                 else
                     p_Callback?.Invoke(TwitchHelixResult.NetworkError, null);
@@ -395,7 +484,172 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                     if (l_Reply.ContainsKey("data") && l_Reply["data"].Type == JTokenType.Array && (l_Reply["data"] as JArray).Count > 0)
                         GetObjectFromJsonString<Helix_Poll>((l_Reply["data"] as JArray)[0].ToString(), out l_HelixResult);
 
-                    p_Callback?.Invoke(TwitchHelixResult.NetworkError, l_HelixResult);
+                    p_Callback?.Invoke(TwitchHelixResult.OK, l_HelixResult);
+                }
+                else
+                    p_Callback?.Invoke(TwitchHelixResult.NetworkError, null);
+            });
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Get last hype train
+        /// </summary>
+        /// <param name="p_Callback">Result callback</param>
+        public void GetLastHypeTrain(Action<TwitchHelixResult, Helix_HypeTrain> p_Callback)
+        {
+            if (!HasTokenPermission("channel:read:hype_train"))
+            {
+                p_Callback?.Invoke(TwitchHelixResult.TokenMissingPermission, null);
+                return;
+            }
+
+            m_APIClient.GetAsync("hypetrain/events?broadcaster_id=" + m_BroadcasterID + "&first=1", CancellationToken.None, true).ContinueWith((p_Result) =>
+            {
+#if DEBUG
+                if (p_Result.Result != null)
+                {
+                    Logger.Instance.Debug("[SDK.Chat.Service.Twitch][TwitchHelix.GetLastHypeTrain] Receiving:");
+                    Logger.Instance.Debug(p_Result.Result.BodyString);
+                }
+#endif
+
+                if (p_Result.Result != null && !p_Result.Result.IsSuccessStatusCode)
+                {
+                    Logger.Instance.Error("[SDK.Chat.Service.Twitch][TwitchHelix.GetLastHypeTrain] Failed with message:");
+                    Logger.Instance.Error(p_Result.Result.BodyString);
+                }
+
+                if (p_Result.Result == null)
+                    p_Callback?.Invoke(TwitchHelixResult.NetworkError, null);
+                else if (p_Result.Result.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                    p_Callback?.Invoke(TwitchHelixResult.InvalidRequest, null);
+                else if (p_Result.Result.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                    p_Callback?.Invoke(TwitchHelixResult.AuthorizationFailed, null);
+                else if (p_Result.Result.IsSuccessStatusCode)
+                {
+                    JObject l_Reply = JObject.Parse(p_Result.Result.BodyString);
+                    Helix_HypeTrain l_HelixResult = null;
+
+                    if (l_Reply.ContainsKey("data") && l_Reply["data"].Type == JTokenType.Array && (l_Reply["data"] as JArray).Count > 0)
+                        GetObjectFromJsonString<Helix_HypeTrain>((l_Reply["data"] as JArray)[0].ToString(), out l_HelixResult);
+
+                    p_Callback?.Invoke(TwitchHelixResult.OK, l_HelixResult);
+                }
+                else
+                    p_Callback?.Invoke(TwitchHelixResult.NetworkError, null);
+            });
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Get last prediction
+        /// </summary>
+        /// <param name="p_Callback">Result callback</param>
+        public void GetLastPrediction(Action<TwitchHelixResult, Helix_Prediction> p_Callback)
+        {
+            if (!HasTokenPermission("channel:read:predictions"))
+            {
+                p_Callback?.Invoke(TwitchHelixResult.TokenMissingPermission, null);
+                return;
+            }
+
+            m_APIClient.GetAsync("predictions?broadcaster_id=" + m_BroadcasterID + "&first=1", CancellationToken.None, true).ContinueWith((p_Result) =>
+            {
+#if DEBUG
+                if (p_Result.Result != null)
+                {
+                    Logger.Instance.Debug("[SDK.Chat.Service.Twitch][TwitchHelix.GetLastPrediction] Receiving:");
+                    Logger.Instance.Debug(p_Result.Result.BodyString);
+                }
+#endif
+
+                if (p_Result.Result != null && !p_Result.Result.IsSuccessStatusCode)
+                {
+                    Logger.Instance.Error("[SDK.Chat.Service.Twitch][TwitchHelix.GetLastPrediction] Failed with message:");
+                    Logger.Instance.Error(p_Result.Result.BodyString);
+                }
+
+                if (p_Result.Result == null)
+                    p_Callback?.Invoke(TwitchHelixResult.NetworkError, null);
+                else if (p_Result.Result.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                    p_Callback?.Invoke(TwitchHelixResult.InvalidRequest, null);
+                else if (p_Result.Result.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                    p_Callback?.Invoke(TwitchHelixResult.AuthorizationFailed, null);
+                else if (p_Result.Result.IsSuccessStatusCode)
+                {
+                    JObject l_Reply = JObject.Parse(p_Result.Result.BodyString);
+                    Helix_Prediction l_HelixResult = null;
+
+                    if (l_Reply.ContainsKey("data") && l_Reply["data"].Type == JTokenType.Array && (l_Reply["data"] as JArray).Count > 0)
+                        GetObjectFromJsonString<Helix_Prediction>((l_Reply["data"] as JArray)[0].ToString(), out l_HelixResult);
+
+                    p_Callback?.Invoke(TwitchHelixResult.OK, l_HelixResult);
+                }
+                else
+                    p_Callback?.Invoke(TwitchHelixResult.NetworkError, null);
+            });
+        }
+        /// <summary>
+        /// End a prediction
+        /// </summary>
+        /// <param name="p_ID">Prediction ID</param>
+        /// <param name="p_Status">New status</param>
+        /// <param name="p_WinningOutcomeID">Winning outcome id if status is RESOLVED</param>
+        /// <param name="p_Callback">Result callback</param>
+        public void EndPrediction(string p_ID, Helix_Prediction.Status p_Status, string p_WinningOutcomeID, Action<TwitchHelixResult, Helix_Prediction> p_Callback)
+        {
+            if (!HasTokenPermission("channel:read:predictions"))
+            {
+                p_Callback?.Invoke(TwitchHelixResult.TokenMissingPermission, null);
+                return;
+            }
+
+            var l_Body = new JObject();
+            l_Body["broadcaster_id"]    = m_BroadcasterID;
+            l_Body["id"]                = p_ID;
+            l_Body["status"]            = p_Status.ToString();
+
+            if (p_Status == Helix_Prediction.Status.RESOLVED)
+                l_Body["winning_outcome_id"] = p_WinningOutcomeID;
+
+            var l_ContentStr = new StringContent(l_Body.ToString(Formatting.None), Encoding.UTF8, "application/json");
+
+            m_APIClient.PatchAsync("predictions", l_ContentStr, CancellationToken.None, true).ContinueWith((p_Result) =>
+            {
+#if DEBUG
+                if (p_Result.Result != null)
+                {
+                    Logger.Instance.Debug("[SDK.Chat.Service.Twitch][TwitchHelix.EndPrediction] Receiving:");
+                    Logger.Instance.Debug(p_Result.Result.BodyString);
+                }
+#endif
+
+                if (p_Result.Result != null && !p_Result.Result.IsSuccessStatusCode)
+                {
+                    Logger.Instance.Error("[SDK.Chat.Service.Twitch][TwitchHelix.EndPrediction] Failed with message:");
+                    Logger.Instance.Error(p_Result.Result.BodyString);
+                }
+
+                if (p_Result.Result == null)
+                    p_Callback?.Invoke(TwitchHelixResult.NetworkError, null);
+                else if (p_Result.Result.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                    p_Callback?.Invoke(TwitchHelixResult.InvalidRequest, null);
+                else if (p_Result.Result.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                    p_Callback?.Invoke(TwitchHelixResult.AuthorizationFailed, null);
+                else if (p_Result.Result.IsSuccessStatusCode)
+                {
+                    JObject l_Reply = JObject.Parse(p_Result.Result.BodyString);
+                    Helix_Prediction l_HelixResult = null;
+
+                    if (l_Reply.ContainsKey("data") && l_Reply["data"].Type == JTokenType.Array && (l_Reply["data"] as JArray).Count > 0)
+                        GetObjectFromJsonString<Helix_Prediction>((l_Reply["data"] as JArray)[0].ToString(), out l_HelixResult);
+
+                    p_Callback?.Invoke(TwitchHelixResult.OK, l_HelixResult);
                 }
                 else
                     p_Callback?.Invoke(TwitchHelixResult.NetworkError, null);

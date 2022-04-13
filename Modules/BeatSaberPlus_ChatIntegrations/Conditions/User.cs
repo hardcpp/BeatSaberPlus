@@ -49,6 +49,9 @@ namespace BeatSaberPlus_ChatIntegrations.Conditions
 
             if (p_Context.User is BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchUser l_TwitchUser)
             {
+                if (l_TwitchUser.IsBroadcaster)
+                    return true;
+
                 l_IsSuscriber   = l_TwitchUser.IsSubscriber;
                 l_IsVIP         = l_TwitchUser.IsVip;
             }

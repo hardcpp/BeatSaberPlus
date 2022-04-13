@@ -14,6 +14,8 @@ namespace BeatSaberPlus_NoteTweaker.Patches
         private static bool m_TempEnabled = false;
         private static Vector3 m_NoteScale;
         private static Vector3 m_NoteInvScale;
+        private static Vector3 m_TempNoteScale;
+        private static Vector3 m_TempNoteInvScale;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -29,13 +31,13 @@ namespace BeatSaberPlus_NoteTweaker.Patches
             if (!m_Enabled && !m_TempEnabled)
                 return;
 
-            __instance.gameObject.transform.localScale = m_NoteScale;
+            __instance.gameObject.transform.localScale = m_TempEnabled ? m_TempNoteScale : m_NoteScale;
 
             for (int l_I = 0; l_I < ____bigCuttableBySaberList.Length; ++l_I)
-                ____bigCuttableBySaberList[l_I].transform.localScale = m_NoteInvScale;
+                ____bigCuttableBySaberList[l_I].transform.localScale = m_TempEnabled ? m_TempNoteInvScale : m_NoteInvScale;
 
             for (int l_I = 0; l_I < ____smallCuttableBySaberList.Length; ++l_I)
-                ____smallCuttableBySaberList[l_I].transform.localScale = m_NoteInvScale;
+                ____smallCuttableBySaberList[l_I].transform.localScale = m_TempEnabled ? m_TempNoteInvScale : m_NoteInvScale;
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -47,9 +49,8 @@ namespace BeatSaberPlus_NoteTweaker.Patches
         /// <param name="p_OnSceneSwitch">Reset on scene switch</param>
         internal static void SetFromConfig(bool p_OnSceneSwitch)
         {
-            float l_NoteScale = NTConfig.Instance.Enabled ? NTConfig.Instance.Scale : 1.0f;
-            l_NoteScale = Mathf.Max(l_NoteScale, 0.1f);
-            l_NoteScale = Mathf.Min(l_NoteScale, 1.2f);
+            var l_Profile           = NTConfig.Instance.GetActiveProfile();
+            var l_NoteScale         = FilterScale(NTConfig.Instance.Enabled ? l_Profile.NotesScale : 1.0f);
 
             m_Enabled               = IsScaleAllowed() ? NTConfig.Instance.Enabled : false;
             m_NoteScale             = (     l_NoteScale) * Vector3.one;
@@ -61,17 +62,18 @@ namespace BeatSaberPlus_NoteTweaker.Patches
         /// <summary>
         /// Set temp config
         /// </summary>
+        /// <param name="p_Enabled">Is it enabled</param>
         /// <param name="p_Scale">New scale</param>
-        internal static void SetTemp(float p_Scale)
+        public static void SetTemp(bool p_Enabled, float p_Scale)
         {
             if (!IsScaleAllowed())
                 return;
 
             p_Scale = FilterScale(p_Scale);
 
-            m_TempEnabled           = true;
-            m_NoteScale             =       (p_Scale) * Vector3.one;
-            m_NoteInvScale          = (1f / (p_Scale))* Vector3.one;
+            m_TempEnabled           = p_Enabled;
+            m_TempNoteScale         =       (p_Scale) * Vector3.one;
+            m_TempNoteInvScale      = (1f / (p_Scale))* Vector3.one;
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -98,7 +100,7 @@ namespace BeatSaberPlus_NoteTweaker.Patches
         private static float FilterScale(float p_Scale)
         {
             p_Scale = Mathf.Max(p_Scale, 0.4f);
-            p_Scale = Mathf.Min(p_Scale, 1.2f);
+            p_Scale = Mathf.Min(p_Scale, 1.5f);
 
             return p_Scale;
         }

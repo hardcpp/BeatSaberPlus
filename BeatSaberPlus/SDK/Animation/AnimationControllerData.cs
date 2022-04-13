@@ -10,14 +10,13 @@ namespace BeatSaberPlus.SDK.Animation
         public Sprite sprite;
 
         public int uvIndex = 0;
-        public DateTime lastSwitch = DateTime.UtcNow;
+        public float lastSwitch;
         public Rect[] uvs;
         public float[] delays;
         public Sprite[] sprites;
-        public bool IsPlaying { get; set; } = true;
         private bool _isDelayConsistent = true;
 
-        public List<Image> activeImages = new List<Image>();
+        public List<Image> activeImages = new List<Image>(50);
 
         public AnimationControllerData(Texture2D tex, Rect[] uvs, float[] delays)
         {
@@ -36,21 +35,23 @@ namespace BeatSaberPlus.SDK.Animation
             sprite = Unity.Sprite.CreateFromTexture(tex, 100f, Vector2.zero);
             this.uvs = uvs;
             this.delays = delays;
+
+            lastSwitch = Time.realtimeSinceStartup;
         }
 
-        internal void CheckFrame(DateTime now)
+        internal void CheckFrame(float now)
         {
             if (activeImages.Count == 0)
                 return;
-            double differenceMs = (now - lastSwitch).TotalMilliseconds;
+
+
+            double differenceMs = (now - lastSwitch) * 1000f;
             if (differenceMs < delays[uvIndex])
                 return;
 
+            // Bump animations with consistently 10ms or lower frame timings to 100ms
             if (_isDelayConsistent && delays[uvIndex] <= 10 && differenceMs < 100)
-            {
-                // Bump animations with consistently 10ms or lower frame timings to 100ms
                 return;
-            }
 
             lastSwitch = now;
             do
@@ -61,10 +62,8 @@ namespace BeatSaberPlus.SDK.Animation
             }
             while (!_isDelayConsistent && delays[uvIndex] == 0);
 
-            foreach (Image image in activeImages)
-            {
-                image.sprite = sprites[uvIndex];
-            }
+            for (int l_I = 0; l_I < activeImages.Count; ++l_I)
+                activeImages[l_I].sprite = sprites[uvIndex];
         }
     }
 }

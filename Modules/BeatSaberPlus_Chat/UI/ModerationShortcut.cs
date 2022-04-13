@@ -102,6 +102,7 @@ namespace BeatSaberPlus_Chat.UI
         protected override void OnViewDeactivation()
         {
             CConfig.Instance.ModerationKeys = new List<string>(m_FilteredList);
+            CConfig.Instance.Save();
         }
 
         ////////////////////////////////////////////////////////////////////////////

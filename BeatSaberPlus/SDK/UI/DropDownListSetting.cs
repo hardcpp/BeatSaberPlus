@@ -40,10 +40,21 @@ namespace BeatSaberPlus.SDK.UI
 
             p_Setting.gameObject.SetActive(true);
 
-            /// Patch for rich text
+            /// Patch for rich text & style
             var l_Text = p_Setting.dropdown.GetField<TextMeshProUGUI, HMUI.SimpleTextDropdown>("_text");
-            if (l_Text != null && l_Text)
-                l_Text.richText = true;
+            if (l_Text)
+            {
+                l_Text.rectTransform.SetInsetAndSizeFromParentEdge(UnityEngine.RectTransform.Edge.Bottom,   0, 0);
+                l_Text.rectTransform.SetInsetAndSizeFromParentEdge(UnityEngine.RectTransform.Edge.Top,      0, 0);
+                l_Text.rectTransform.SetInsetAndSizeFromParentEdge(UnityEngine.RectTransform.Edge.Left,     0, 0);
+                l_Text.rectTransform.SetInsetAndSizeFromParentEdge(UnityEngine.RectTransform.Edge.Right,    0, 0);
+                l_Text.rectTransform.anchorMin = UnityEngine.Vector2.zero;
+                l_Text.rectTransform.anchorMax = UnityEngine.Vector2.one;
+                l_Text.alignment    = TextAlignmentOptions.MidlineLeft;
+                l_Text.overflowMode = TextOverflowModes.Ellipsis;
+                l_Text.margin       = new UnityEngine.Vector4(2.5f, 0, 10, 0);
+                l_Text.richText     = true;
+            }
         }
     }
 }

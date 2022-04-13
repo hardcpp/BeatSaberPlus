@@ -95,6 +95,10 @@ namespace BeatSaberPlus_ChatIntegrations.Interfaces
         [UIValue("BSPCIUIPlaceHolder")]
         public string UIPlaceHolder { get; protected set; } = "<alpha=#AA><i>No available settings...</i>";
         /// <summary>
+        /// Should display a test button?
+        /// </summary>
+        public bool UIPlaceHolderTestButton { get; protected set; } = false;
+        /// <summary>
         /// Is enabled
         /// </summary>
         public bool IsEnabled { get => Model.Enabled; set { Model.Enabled = value; } }
@@ -158,8 +162,25 @@ namespace BeatSaberPlus_ChatIntegrations.Interfaces
         /// <param name="p_Parent">Parent transform</param>
         public virtual void BuildUI(Transform p_Parent)
         {
-            BSMLParser.instance.Parse("<text text=\"~BSPCIUIPlaceHolder\" align=\"Center\" />", p_Parent.gameObject, this);
+            BSMLParser.instance.Parse(
+                "<vertical>"
+                +
+                "<text text=\"~BSPCIUIPlaceHolder\" align=\"Center\" />"
+                +
+                (UIPlaceHolderTestButton ?
+                    "<primary-button on-click='UIPlaceholderTestButton' text='Test' min-width='20'></primary-button>"
+                    :
+                    ""
+                )
+                +
+                "</vertical>",
+            p_Parent.gameObject, this);
         }
+        /// <summary>
+        /// On UI placeholder test button pressed
+        /// </summary>
+        [UIAction("UIPlaceholderTestButton")]
+        protected virtual void OnUIPlaceholderTestButton() { }
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////

@@ -7,6 +7,8 @@ namespace BeatSaberPlus_ChatIntegrations.Models.Actions
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         public uint Delay = 10;
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
+        public uint DelayMs = 0;
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         public bool PreventNextActionFailure = true;
     }
 
@@ -15,6 +17,10 @@ namespace BeatSaberPlus_ChatIntegrations.Models.Actions
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         public float Volume = 0;
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
-        public float Pitch = 1;
+        public float PitchMin = 1;
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
+        public float PitchMax = 1;
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
+        public bool KillOnSceneSwitch = false;
     }
 }

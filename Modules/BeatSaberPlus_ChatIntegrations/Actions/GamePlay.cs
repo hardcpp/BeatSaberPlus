@@ -26,13 +26,17 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
 
             return new List<Interfaces.IActionBase>()
             {
-                new GamePlay_Pause(),
-                new GamePlay_Quit(),
+                new GamePlay_ChangeBombColor(),
+                new GamePlay_ChangeBombScale(),
                 new GamePlay_ChangeDebris(),
                 new GamePlay_ChangeLightIntensity(),
                 new GamePlay_ChangeMusicVolume(),
                 new GamePlay_ChangeNoteColors(),
+                new GamePlay_ChangeNoteScale(),
+                new GamePlay_Pause(),
+                new GamePlay_Quit(),
                 new GamePlay_Restart(),
+                new GamePlay_Resume(),
                 new GamePlay_SpawnBombPatterns(),
                 new GamePlay_SpawnSquatWalls(),
                 new GamePlay_ToggleHUD()
@@ -42,6 +46,255 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
 
     ////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////
+
+
+    public class GamePlay_ChangeBombColor : Interfaces.IAction<GamePlay_ChangeBombColor, Models.Actions.GamePlay_ChangeBombColor>
+    {
+        public override string Description => "Change bomb color";
+
+#pragma warning disable CS0414
+        [UIComponent("TypeList")]           private     ListSetting     m_TypeList = null;
+        [UIValue("TypeList_Choices")]       private     List<object>    m_TypeListList_Choices = new List<object>() { "Default", "Input", "EventInput" };
+        [UIValue("TypeList_Value")]         private     string          m_TypeList_Value;
+        [UIComponent("Color")]              protected   ColorSetting    m_Color = null;
+        [UIComponent("SendMessageToggle")]  private     ToggleSetting   m_SendMessageToggle = null;
+#pragma warning restore CS0414
+
+        private Color? m_ColorCache;
+
+        public override sealed void BuildUI(Transform p_Parent)
+        {
+            if (Event.GetType() != typeof(Events.ChatCommand)
+                && Event.GetType() != typeof(Events.ChatPointsReward))
+            {
+                m_TypeListList_Choices.Remove("EventInput");
+            }
+
+            m_TypeList_Value = (string)m_TypeListList_Choices.ElementAt(Model.ValueType % m_TypeListList_Choices.Count);
+
+            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
+
+            EnsureColorCache();
+
+            var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
+
+            BeatSaberPlus.SDK.UI.ListSetting.Setup(m_TypeList,              l_Event,                            false);
+            BeatSaberPlus.SDK.UI.ColorSetting.Setup(m_Color,                l_Event,    m_ColorCache.Value,     false);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_SendMessageToggle,   l_Event,    Model.SendChatMessage,  false);
+
+            OnSettingChanged(null);
+
+            if (!ModulePresence.NoteTweaker)
+                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: NoteTweaker module is missing!");
+        }
+        private void OnSettingChanged(object p_Value)
+        {
+            Model.ValueType         = m_TypeListList_Choices.Select(x => (string)x).ToList().IndexOf(m_TypeList.Value);
+            m_ColorCache            = m_Color.CurrentColor;
+            Model.SendChatMessage   = m_SendMessageToggle.Value;
+
+            Model.Color  = "#" + ColorUtility.ToHtmlStringRGB(m_ColorCache.Value);
+
+            m_Color.interactable    = Model.ValueType == 1;
+        }
+
+        public override IEnumerator Eval(Models.EventContext p_Context)
+        {
+            if (!ModulePresence.NoteTweaker)
+            {
+                p_Context.HasActionFailed = true;
+                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, NoteTweaker module is missing!");
+                yield break;
+            }
+
+            bool l_Failed = true;
+            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Playing
+                || Model.ValueType == 0)
+            {
+                if (Model.ValueType == 0)
+                {
+                    BeatSaberPlus_NoteTweaker.Patches.PBombController.SetBombColorOverride(false, Color.black);
+
+                    if (Model.SendChatMessage && p_Context.ChatService != null && p_Context.Channel != null && p_Context.User != null)
+                        p_Context.ChatService.SendTextMessage(p_Context.Channel, $"! @{p_Context.User.DisplayName} bomb color is back to default!");
+
+                    l_Failed = false;
+                }
+                else
+                {
+                    var l_Hex = "#" + Model.Color;
+
+                    if (Model.ValueType == 2 && (p_Context.Message != null || p_Context.PointsEvent != null)) /// Event user input
+                    {
+                        var l_Src   = (p_Context.Message?.Message ?? p_Context.PointsEvent?.UserInput) ?? "";
+                        var l_Parts = l_Src.Split(new char[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
+                        if (l_Parts.Length >= 1
+                            && ColorUtility.TryParseHtmlString(l_Parts[l_Parts.Length - 1], out var l_LeftColor))
+                        {
+                            m_ColorCache        = l_LeftColor;
+                            l_Hex               = l_Parts[l_Parts.Length - 2];
+                            l_Failed            = false;
+                        }
+                        else if (p_Context.ChatService != null && p_Context.Channel != null && p_Context.User != null)
+                        {
+                            p_Context.ChatService.SendTextMessage(p_Context.Channel, $"! @{p_Context.User.DisplayName} the syntax is: #HEXCOLOR");
+                        }
+                    }
+                    else
+                    {
+                        l_Failed = false;
+                        EnsureColorCache();
+                    }
+
+                    if (!l_Failed)
+                    {
+                        BeatSaberPlus_NoteTweaker.Patches.PBombController.SetBombColorOverride(true, m_ColorCache.Value);
+
+                        if (Model.SendChatMessage && p_Context.ChatService != null && p_Context.Channel != null && p_Context.User != null)
+                            p_Context.ChatService.SendTextMessage(p_Context.Channel, $"! @{p_Context.User.DisplayName} bomb color is changed to {l_Hex}");
+                    }
+                }
+            }
+
+            if (l_Failed)
+                p_Context.HasActionFailed = true;
+
+            yield return null;
+        }
+
+        private void EnsureColorCache()
+        {
+            if (!m_ColorCache.HasValue)
+            {
+                if (ColorUtility.TryParseHtmlString(Model.Color, out var l_Color))
+                    m_ColorCache = l_Color;
+                else
+                    m_ColorCache = Color.black;
+            }
+        }
+    }
+
+    public class GamePlay_ChangeBombScale : Interfaces.IAction<GamePlay_ChangeBombScale, Models.Actions.GamePlay_ChangeBombScale>
+    {
+        public override string Description => "Choose a random bomb scale";
+
+#pragma warning disable CS0414
+        [UIComponent("TypeList")]
+        private ListSetting m_TypeList = null;
+        [UIValue("TypeList_Choices")]
+        private List<object> m_TypeListList_Choices = new List<object>() { "Random", "Input", "EventInput", "Config" };
+        [UIValue("TypeList_Value")]
+        private string m_TypeList_Value;
+        [UIComponent("UserIncrement")]
+        protected IncrementSetting m_UserIncrement = null;
+        [UIComponent("MinIncrement")]
+        protected IncrementSetting m_MinIncrement = null;
+        [UIComponent("MaxIncrement")]
+        protected IncrementSetting m_MaxIncrement = null;
+        [UIComponent("SendMessageToggle")]
+        private ToggleSetting m_SendMessageToggle = null;
+#pragma warning restore CS0414
+
+        public override sealed void BuildUI(Transform p_Parent)
+        {
+            m_TypeList_Value = (string)m_TypeListList_Choices.ElementAt(Model.ValueType % m_TypeListList_Choices.Count);
+
+            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
+
+            var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
+
+            BeatSaberPlus.SDK.UI.ListSetting.Setup(m_TypeList,            l_Event,                                                                                  false);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_UserIncrement,  l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Percentage,   Model.UserValue,        false);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_MinIncrement,   l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Percentage,   Model.Min,              false);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_MaxIncrement,   l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Percentage,   Model.Max,              false);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_SendMessageToggle, l_Event,                                                          Model.SendChatMessage,  false);
+
+            OnSettingChanged(null);
+
+            if (!ModulePresence.GameTweaker)
+                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: GameTweaker module is missing!");
+        }
+        private void OnSettingChanged(object p_Value)
+        {
+            Model.ValueType         = m_TypeListList_Choices.Select(x => (string)x).ToList().IndexOf(m_TypeList.Value);
+            Model.UserValue         = m_UserIncrement.Value;
+            Model.Min               = m_MinIncrement.Value;
+            Model.Max               = m_MaxIncrement.Value;
+            Model.SendChatMessage   = m_SendMessageToggle.Value;
+
+            m_MinIncrement.interactable     = Model.ValueType == 0 || Model.ValueType == 2;
+            m_MaxIncrement.interactable     = Model.ValueType == 0 || Model.ValueType == 2;
+            m_UserIncrement.interactable    = Model.ValueType == 1;
+        }
+
+        public override IEnumerator Eval(Models.EventContext p_Context)
+        {
+            if (!ModulePresence.NoteTweaker)
+            {
+                p_Context.HasActionFailed = true;
+                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, NoteTweaker module is missing!");
+                yield break;
+            }
+
+            bool l_Failed = true;
+            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Playing
+                || Model.ValueType == 3)
+            {
+                if (Model.ValueType == 3)
+                {
+                    BeatSaberPlus_NoteTweaker.Patches.PBombController.SetTemp(false, 0f);
+
+                    if (Model.SendChatMessage && p_Context.ChatService != null && p_Context.Channel != null && p_Context.User != null)
+                        p_Context.ChatService.SendTextMessage(p_Context.Channel, $"! @{p_Context.User.DisplayName} note scale was set to default");
+                }
+                else
+                {
+                    var l_NewValue = 0f;
+
+                    /// Random
+                    if (Model.ValueType == 0)
+                        l_NewValue = UnityEngine.Random.Range(Model.Min, Model.Max);
+                    /// User input
+                    else if (Model.ValueType == 1)
+                        l_NewValue = Model.UserValue;
+                    /// Event input
+                    else if (Model.ValueType == 2)
+                    {
+                        var l_FirstInteger  = p_Context.GetFirstValueOfType(Interfaces.IValueType.Integer);
+                        var l_EventInput    = 1f;
+
+                        if (l_FirstInteger != default && p_Context.GetIntegerValue(l_FirstInteger.Item2, out var l_ContextVar))
+                        {
+                            l_EventInput = (((float)l_ContextVar.Value) / 100.0f);
+                            l_EventInput = Mathf.Max(Model.Min, l_EventInput);
+                            l_EventInput = Mathf.Min(Model.Max, l_EventInput);
+                        }
+
+                        l_NewValue = l_EventInput;
+                    }
+
+                    BeatSaberPlus_NoteTweaker.Patches.PBombController.SetTemp(true, l_NewValue);
+
+                    if (Model.SendChatMessage && p_Context.ChatService != null && p_Context.Channel != null && p_Context.User != null)
+                        p_Context.ChatService.SendTextMessage(p_Context.Channel, $"! @{p_Context.User.DisplayName} bomb scale was set to {Mathf.RoundToInt(l_NewValue * 100f)}%");
+                }
+
+                l_Failed = false;
+            }
+
+            if (l_Failed)
+            {
+                if (Model.SendChatMessage && p_Context.ChatService != null && p_Context.Channel != null && p_Context.User != null)
+                    p_Context.ChatService.SendTextMessage(p_Context.Channel, $"! @{p_Context.User.DisplayName} no map is currently played!");
+
+                p_Context.HasActionFailed = true;
+            }
+
+            yield return null;
+        }
+    }
 
     public class GamePlay_ChangeDebris : Interfaces.IAction<GamePlay_ChangeDebris, Models.Actions.GamePlay_ChangeDebris>
     {
@@ -149,6 +402,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             {
                 p_Context.HasActionFailed = true;
                 BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, GameTweaker module is missing!");
+                yield break;
             }
 
             bool l_Failed = true;
@@ -197,7 +451,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
                         BeatSaberPlus_GameTweaker.Patches.Lights.PLightsPatches.SetTempLightIntensity(l_NewValue);
 
                         if (Model.SendChatMessage && p_Context.ChatService != null && p_Context.Channel != null && p_Context.User != null)
-                            p_Context.ChatService.SendTextMessage(p_Context.Channel, $"! @{p_Context.User.DisplayName} lights was set to {Mathf.RoundToInt(l_NewValue * 100f)}]%");
+                            p_Context.ChatService.SendTextMessage(p_Context.Channel, $"! @{p_Context.User.DisplayName} lights was set to {Mathf.RoundToInt(l_NewValue * 100f)}%");
                     }
 
                     l_Failed = false;
@@ -311,6 +565,129 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
         }
     }
 
+    public class GamePlay_ChangeNoteScale : Interfaces.IAction<GamePlay_ChangeNoteScale, Models.Actions.GamePlay_ChangeNoteScale>
+    {
+        public override string Description => "Choose a random note scale";
+
+#pragma warning disable CS0414
+        [UIComponent("TypeList")]
+        private ListSetting m_TypeList = null;
+        [UIValue("TypeList_Choices")]
+        private List<object> m_TypeListList_Choices = new List<object>() { "Random", "Input", "EventInput", "Config" };
+        [UIValue("TypeList_Value")]
+        private string m_TypeList_Value;
+        [UIComponent("UserIncrement")]
+        protected IncrementSetting m_UserIncrement = null;
+        [UIComponent("MinIncrement")]
+        protected IncrementSetting m_MinIncrement = null;
+        [UIComponent("MaxIncrement")]
+        protected IncrementSetting m_MaxIncrement = null;
+        [UIComponent("SendMessageToggle")]
+        private ToggleSetting m_SendMessageToggle = null;
+#pragma warning restore CS0414
+
+        public override sealed void BuildUI(Transform p_Parent)
+        {
+            m_TypeList_Value = (string)m_TypeListList_Choices.ElementAt(Model.ValueType % m_TypeListList_Choices.Count);
+
+            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
+
+            var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
+
+            BeatSaberPlus.SDK.UI.ListSetting.Setup(m_TypeList,            l_Event,                                                                                  false);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_UserIncrement,  l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Percentage,   Model.UserValue,        false);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_MinIncrement,   l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Percentage,   Model.Min,              false);
+            BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_MaxIncrement,   l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Percentage,   Model.Max,              false);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_SendMessageToggle, l_Event,                                                          Model.SendChatMessage,  false);
+
+            OnSettingChanged(null);
+
+            if (!ModulePresence.GameTweaker)
+                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: GameTweaker module is missing!");
+        }
+        private void OnSettingChanged(object p_Value)
+        {
+            Model.ValueType         = m_TypeListList_Choices.Select(x => (string)x).ToList().IndexOf(m_TypeList.Value);
+            Model.UserValue         = m_UserIncrement.Value;
+            Model.Min               = m_MinIncrement.Value;
+            Model.Max               = m_MaxIncrement.Value;
+            Model.SendChatMessage   = m_SendMessageToggle.Value;
+
+            m_MinIncrement.interactable     = Model.ValueType == 0 || Model.ValueType == 2;
+            m_MaxIncrement.interactable     = Model.ValueType == 0 || Model.ValueType == 2;
+            m_UserIncrement.interactable    = Model.ValueType == 1;
+        }
+
+        public override IEnumerator Eval(Models.EventContext p_Context)
+        {
+            if (!ModulePresence.NoteTweaker)
+            {
+                p_Context.HasActionFailed = true;
+                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, NoteTweaker module is missing!");
+                yield break;
+            }
+
+            bool l_Failed = true;
+            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Playing
+                || Model.ValueType == 3)
+            {
+                if (Model.ValueType == 3)
+                {
+                    BeatSaberPlus_NoteTweaker.Patches.PGameNoteController.SetTemp(false, 0f);
+                    BeatSaberPlus_NoteTweaker.Patches.PBurstSliderGameNoteController.SetTemp(false, 0f);
+
+                    if (Model.SendChatMessage && p_Context.ChatService != null && p_Context.Channel != null && p_Context.User != null)
+                        p_Context.ChatService.SendTextMessage(p_Context.Channel, $"! @{p_Context.User.DisplayName} note scale was set to default");
+                }
+                else
+                {
+                    var l_NewValue = 0f;
+
+                    /// Random
+                    if (Model.ValueType == 0)
+                        l_NewValue = UnityEngine.Random.Range(Model.Min, Model.Max);
+                    /// User input
+                    else if (Model.ValueType == 1)
+                        l_NewValue = Model.UserValue;
+                    /// Event input
+                    else if (Model.ValueType == 2)
+                    {
+                        var l_FirstInteger  = p_Context.GetFirstValueOfType(Interfaces.IValueType.Integer);
+                        var l_EventInput    = 1f;
+
+                        if (l_FirstInteger != default && p_Context.GetIntegerValue(l_FirstInteger.Item2, out var l_ContextVar))
+                        {
+                            l_EventInput = (((float)l_ContextVar.Value) / 100.0f);
+                            l_EventInput = Mathf.Max(Model.Min, l_EventInput);
+                            l_EventInput = Mathf.Min(Model.Max, l_EventInput);
+                        }
+
+                        l_NewValue = l_EventInput;
+                    }
+
+                    BeatSaberPlus_NoteTweaker.Patches.PGameNoteController.SetTemp(true, l_NewValue);
+                    BeatSaberPlus_NoteTweaker.Patches.PBurstSliderGameNoteController.SetTemp(true, l_NewValue);
+
+                    if (Model.SendChatMessage && p_Context.ChatService != null && p_Context.Channel != null && p_Context.User != null)
+                        p_Context.ChatService.SendTextMessage(p_Context.Channel, $"! @{p_Context.User.DisplayName} note scale was set to {Mathf.RoundToInt(l_NewValue * 100f)}%");
+                }
+
+                l_Failed = false;
+            }
+
+            if (l_Failed)
+            {
+                if (Model.SendChatMessage && p_Context.ChatService != null && p_Context.Channel != null && p_Context.User != null)
+                    p_Context.ChatService.SendTextMessage(p_Context.Channel, $"! @{p_Context.User.DisplayName} no map is currently played!");
+
+                p_Context.HasActionFailed = true;
+            }
+
+            yield return null;
+        }
+    }
+
     public class GamePlay_ChangeNoteColors : Interfaces.IAction<GamePlay_ChangeNoteColors, Models.Actions.GamePlay_ChangeNoteColors>
     {
         public override string Description => "Change notes colors";
@@ -367,8 +744,8 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             m_RightColorCache       = m_RightColor.CurrentColor;
             Model.SendChatMessage   = m_SendMessageToggle.Value;
 
-            Model.Left  = ColorUtility.ToHtmlStringRGB(m_LeftColorCache.Value);
-            Model.Right = ColorUtility.ToHtmlStringRGB(m_RightColorCache.Value);
+            Model.Left  = "#" + ColorUtility.ToHtmlStringRGB(m_LeftColorCache.Value);
+            Model.Right = "#" + ColorUtility.ToHtmlStringRGB(m_RightColorCache.Value);
 
             m_LeftColor.interactable    = Model.ValueType == 1;
             m_RightColor.interactable   = Model.ValueType == 1;
@@ -384,7 +761,8 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             }
 
             bool l_Failed = true;
-            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Playing)
+            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Playing
+                || Model.ValueType == 0)
             {
                 if (Model.ValueType == 0)
                 {
@@ -520,25 +898,65 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
         }
     }
 
-
-    public class GamePlay_Pause : Interfaces.IAction<GamePlay_Pause, Models.Action>
+    public class GamePlay_Pause : Interfaces.IAction<GamePlay_Pause, Models.Actions.GamePlay_Pause>
     {
         public override string Description => "Trigger a pause during a song";
 
-        public GamePlay_Pause() => UIPlaceHolder = "Will pause the current map";
+#pragma warning disable CS0414
+        [UIComponent("HideUI")]
+        private ToggleSetting m_HideUI = null;
+#pragma warning restore CS0414
+
+        public override void BuildUI(Transform p_Parent)
+        {
+            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
+
+            var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
+
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_HideUI, l_Event, Model.HideUI, false);
+
+            OnSettingChanged(null);
+
+            if (!ModulePresence.GameTweaker)
+                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: GameTweaker module is missing!");
+        }
+        private void OnSettingChanged(object p_Value)
+        {
+            Model.HideUI = m_HideUI.Value;
+        }
 
         public override IEnumerator Eval(Models.EventContext p_Context)
         {
             if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Playing)
             {
-                var l_PauseController = Resources.FindObjectsOfTypeAll<PauseController>().FirstOrDefault();
-                if (l_PauseController != null && l_PauseController)
+                var l_PauseController   = Resources.FindObjectsOfTypeAll<PauseController>().FirstOrDefault();
+                var l_PauseMenuManager  = Resources.FindObjectsOfTypeAll<PauseMenuManager>().FirstOrDefault();
+                if (l_PauseController && l_PauseMenuManager)
+                {
                     l_PauseController.Pause();
+                    if (Model.HideUI)
+                    {
+                        l_PauseController.didResumeEvent += PauseController_didResumeEvent;
+                        l_PauseMenuManager.transform.Find("Wrapper/MenuWrapper/Canvas")?.gameObject?.SetActive(false);
+                    }
+                }
             }
             else
                 p_Context.HasActionFailed = true;
 
             yield return null;
+        }
+
+        private void PauseController_didResumeEvent()
+        {
+            var l_PauseController = Resources.FindObjectsOfTypeAll<PauseController>().FirstOrDefault();
+            if (l_PauseController)
+                l_PauseController.didResumeEvent -= PauseController_didResumeEvent;
+
+            var l_PauseMenuManager = Resources.FindObjectsOfTypeAll<PauseMenuManager>().FirstOrDefault();
+            if (l_PauseMenuManager)
+                l_PauseMenuManager.transform.Find("Wrapper/MenuWrapper/Canvas")?.gameObject?.SetActive(true);
         }
     }
 
@@ -576,6 +994,27 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
                 var l_PauseMenuManager = Resources.FindObjectsOfTypeAll<PauseMenuManager>().FirstOrDefault();
                 if (l_PauseMenuManager)
                     l_PauseMenuManager.RestartButtonPressed();
+            }
+            else
+                p_Context.HasActionFailed = true;
+
+            yield return null;
+        }
+    }
+
+    public class GamePlay_Resume : Interfaces.IAction<GamePlay_Resume, Models.Action>
+    {
+        public override string Description => "Resume current song";
+
+        public GamePlay_Resume() => UIPlaceHolder = "Will resume the map";
+
+        public override IEnumerator Eval(Models.EventContext p_Context)
+        {
+            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Playing)
+            {
+                var l_PauseMenuManager = Resources.FindObjectsOfTypeAll<PauseMenuManager>().FirstOrDefault();
+                if (l_PauseMenuManager)
+                    l_PauseMenuManager.ContinueButtonPressed();
             }
             else
                 p_Context.HasActionFailed = true;
@@ -632,18 +1071,18 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_IntervalIncrement, l_Event, null, Model.Interval, false);
             BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_CountIncrement, l_Event, null, Model.Count, false);
 
-            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_L0R2, l_Event, (Model.L0 & (1 << 0)) != 0, true);
-            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_L1R2, l_Event, (Model.L1 & (1 << 0)) != 0, true);
-            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_L2R2, l_Event, (Model.L2 & (1 << 0)) != 0, true);
-            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_L3R2, l_Event, (Model.L3 & (1 << 0)) != 0, true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_L0R2, l_Event, (Model.L0 & (1 << 2)) != 0, true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_L1R2, l_Event, (Model.L1 & (1 << 2)) != 0, true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_L2R2, l_Event, (Model.L2 & (1 << 2)) != 0, true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_L3R2, l_Event, (Model.L3 & (1 << 2)) != 0, true);
             BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_L0R1, l_Event, (Model.L0 & (1 << 1)) != 0, true);
             BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_L1R1, l_Event, (Model.L1 & (1 << 1)) != 0, true);
             BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_L2R1, l_Event, (Model.L2 & (1 << 1)) != 0, true);
             BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_L3R1, l_Event, (Model.L3 & (1 << 1)) != 0, true);
-            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_L0R0, l_Event, (Model.L0 & (1 << 2)) != 0, true);
-            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_L1R0, l_Event, (Model.L1 & (1 << 2)) != 0, true);
-            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_L2R0, l_Event, (Model.L2 & (1 << 2)) != 0, true);
-            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_L3R0, l_Event, (Model.L3 & (1 << 2)) != 0, true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_L0R0, l_Event, (Model.L0 & (1 << 0)) != 0, true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_L1R0, l_Event, (Model.L1 & (1 << 0)) != 0, true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_L2R0, l_Event, (Model.L2 & (1 << 0)) != 0, true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_L3R0, l_Event, (Model.L3 & (1 << 0)) != 0, true);
 
             m_L0R2.transform.localScale = 0.8f * Vector3.one;
             m_L1R2.transform.localScale = 0.8f * Vector3.one;
@@ -663,10 +1102,10 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
         {
             Model.Interval  = m_IntervalIncrement.Value;
             Model.Count     = (int)m_CountIncrement.Value;
-            Model.L0        = (byte)((m_L0R0.Value ? 1 : 0) | (m_L0R1.Value ? (1 << 1) : 0) | (m_L0R2.Value ? (1 << 2) : 0));
-            Model.L1        = (byte)((m_L1R0.Value ? 1 : 0) | (m_L1R1.Value ? (1 << 1) : 0) | (m_L1R2.Value ? (1 << 2) : 0));
-            Model.L2        = (byte)((m_L2R0.Value ? 1 : 0) | (m_L2R1.Value ? (1 << 1) : 0) | (m_L2R2.Value ? (1 << 2) : 0));
-            Model.L3        = (byte)((m_L3R0.Value ? 1 : 0) | (m_L3R1.Value ? (1 << 1) : 0) | (m_L3R2.Value ? (1 << 2) : 0));
+            Model.L0        = (byte)((m_L0R0.Value ? (1 << 0) : 0) | (m_L0R1.Value ? (1 << 1) : 0) | (m_L0R2.Value ? (1 << 2) : 0));
+            Model.L1        = (byte)((m_L1R0.Value ? (1 << 0) : 0) | (m_L1R1.Value ? (1 << 1) : 0) | (m_L1R2.Value ? (1 << 2) : 0));
+            Model.L2        = (byte)((m_L2R0.Value ? (1 << 0) : 0) | (m_L2R1.Value ? (1 << 1) : 0) | (m_L2R2.Value ? (1 << 2) : 0));
+            Model.L3        = (byte)((m_L3R0.Value ? (1 << 0) : 0) | (m_L3R1.Value ? (1 << 1) : 0) | (m_L3R2.Value ? (1 << 2) : 0));
         }
 
         public override IEnumerator Eval(Models.EventContext p_Context)
@@ -676,8 +1115,8 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
                 && !BeatSaberPlus.SDK.Game.Logic.LevelData.IsNoodle
                 && !BeatSaberPlus.SDK.Game.Logic.IsInReplay)
             {
-                var l_AudioTimeSyncController = UnityEngine.Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().FirstOrDefault();
-                var l_BeatmapObjectSpawnController = UnityEngine.Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().FirstOrDefault();
+                var l_AudioTimeSyncController       = UnityEngine.Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().FirstOrDefault();
+                var l_BeatmapObjectSpawnController  = UnityEngine.Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().FirstOrDefault();
 
                 if (l_AudioTimeSyncController != null && l_AudioTimeSyncController
                     && l_BeatmapObjectSpawnController != null && l_BeatmapObjectSpawnController)
@@ -700,21 +1139,15 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
                     float l_Time = 2f;
                     for (int l_I = 0; l_I < Model.Count; ++l_I)
                     {
-                        foreach (var l_Current in l_SpawnList)
+                        for (int l_S = 0; l_S < l_SpawnList.Count; ++l_S)
                         {
-                            l_BeatmapObjectSpawnController.SpawnBombNote(new NoteData(l_AudioTimeSyncController.songTime + l_Time,
+                            var l_Current = l_SpawnList[l_S];
+                            l_BeatmapObjectSpawnController.HandleNoteDataCallback(NoteData.CreateBombNoteData(
+                                l_AudioTimeSyncController.songTime + l_Time,
                                 l_Current.Item1,
-                                (NoteLineLayer)l_Current.Item2,
-                                (NoteLineLayer)l_Current.Item2,
-                                ColorType.None,
-                                NoteCutDirection.None,
-                                0f,
-                                0f,
-                                0,
-                                0f,
-                                1f,
-                                false,
-                                false));
+                                (NoteLineLayer)l_Current.Item2
+                                )
+                            );
                         }
 
                         l_Time += Model.Interval;
@@ -771,7 +1204,9 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
                     float l_Time = 2f;
                     for (int l_I = 0; l_I < Model.Count; ++l_I)
                     {
-                        l_BeatmapObjectSpawnController.SpawnObstacle(new ObstacleData(l_AudioTimeSyncController.songTime + l_Time, 4, ObstacleType.Top, 0.3f, -4));
+                        l_BeatmapObjectSpawnController.HandleObstacleDataCallback(new ObstacleData(
+                            l_AudioTimeSyncController.songTime + l_Time, 4, NoteLineLayer.Top, 0.3f, -4, 3
+                        ));
                         l_Time += Model.Interval;
                     }
                 }
@@ -783,11 +1218,36 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
         }
     }
 
-    public class GamePlay_ToggleHUD : Interfaces.IAction<GamePlay_ToggleHUD, Models.Action>
+    public class GamePlay_ToggleHUD : Interfaces.IAction<GamePlay_ToggleHUD, Models.Actions.GamePlay_ToggleHUD>
     {
         public override string Description => "Toggle HUD visibility";
 
-        public GamePlay_ToggleHUD() => UIPlaceHolder = "Will show or hide HUD";
+#pragma warning disable CS0414
+        [UIComponent("TypeList")]
+        private ListSetting m_TypeList = null;
+        [UIValue("TypeList_Choices")]
+        private List<object> m_TypeListList_Choices = new List<object>() { "Toggle", "On", "Off" };
+        [UIValue("TypeList_Value")]
+        private string m_TypeList_Value;
+#pragma warning restore CS0414
+
+        public override sealed void BuildUI(Transform p_Parent)
+        {
+            m_TypeList_Value = (string)m_TypeListList_Choices.ElementAt(Model.ToggleType % m_TypeListList_Choices.Count);
+
+            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
+
+            var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
+
+            BeatSaberPlus.SDK.UI.ListSetting.Setup(m_TypeList, l_Event, false);
+
+            OnSettingChanged(null);
+        }
+        private void OnSettingChanged(object p_Value)
+        {
+            Model.ToggleType = m_TypeListList_Choices.Select(x => (string)x).ToList().IndexOf(m_TypeList.Value);
+        }
 
         public override IEnumerator Eval(Models.EventContext p_Context)
         {
@@ -795,7 +1255,104 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             {
                 var l_CoreGameHUDController = Resources.FindObjectsOfTypeAll<CoreGameHUDController>().FirstOrDefault();
                 if (l_CoreGameHUDController != null && l_CoreGameHUDController)
-                    l_CoreGameHUDController.gameObject.SetActive(!l_CoreGameHUDController.gameObject.activeSelf);
+                {
+                    switch(Model.ToggleType)
+                    {
+                        case 0:
+                            l_CoreGameHUDController.gameObject.SetActive(!l_CoreGameHUDController.gameObject.activeSelf);
+                            break;
+                        case 1:
+                            l_CoreGameHUDController.gameObject.SetActive(true);
+                            break;
+                        case 2:
+                            l_CoreGameHUDController.gameObject.SetActive(false);
+                            break;
+                    }
+                }
+
+                var l_NoteCutScoreSpawner = Resources.FindObjectsOfTypeAll<NoteCutScoreSpawner>().FirstOrDefault();
+                if (l_NoteCutScoreSpawner != null && l_NoteCutScoreSpawner)
+                {
+                    switch (Model.ToggleType)
+                    {
+                        case 0:
+                            if (l_NoteCutScoreSpawner.gameObject.activeSelf)
+                            {
+                                l_NoteCutScoreSpawner.OnDestroy();
+                                l_NoteCutScoreSpawner.gameObject.SetActive(false);
+                            }
+                            else
+                            {
+                                l_NoteCutScoreSpawner.gameObject.SetActive(true);
+                                l_NoteCutScoreSpawner.Start();
+                            }
+                            break;
+                        case 1:
+                            l_NoteCutScoreSpawner.gameObject.SetActive(true);
+                            l_NoteCutScoreSpawner.Start();
+                            break;
+                        case 2:
+                            l_NoteCutScoreSpawner.OnDestroy();
+                            l_NoteCutScoreSpawner.gameObject.SetActive(false);
+                            break;
+                    }
+                }
+
+                var l_BadNoteCutEffectSpawner = Resources.FindObjectsOfTypeAll<BadNoteCutEffectSpawner>().FirstOrDefault();
+                if (l_BadNoteCutEffectSpawner != null && l_BadNoteCutEffectSpawner)
+                {
+                    switch (Model.ToggleType)
+                    {
+                        case 0:
+                            if (l_BadNoteCutEffectSpawner.gameObject.activeSelf)
+                            {
+                                l_BadNoteCutEffectSpawner.OnDestroy();
+                                l_BadNoteCutEffectSpawner.gameObject.SetActive(false);
+                            }
+                            else
+                            {
+                                l_BadNoteCutEffectSpawner.gameObject.SetActive(true);
+                                l_BadNoteCutEffectSpawner.Start();
+                            }
+                            break;
+                        case 1:
+                            l_BadNoteCutEffectSpawner.gameObject.SetActive(true);
+                            l_BadNoteCutEffectSpawner.Start();
+                            break;
+                        case 2:
+                            l_BadNoteCutEffectSpawner.OnDestroy();
+                            l_BadNoteCutEffectSpawner.gameObject.SetActive(false);
+                            break;
+                    }
+                }
+
+                var l_MissedNoteEffectSpawner = Resources.FindObjectsOfTypeAll<MissedNoteEffectSpawner>().FirstOrDefault();
+                if (l_MissedNoteEffectSpawner != null && l_BadNoteCutEffectSpawner)
+                {
+                    switch (Model.ToggleType)
+                    {
+                        case 0:
+                            if (l_MissedNoteEffectSpawner.gameObject.activeSelf)
+                            {
+                                l_MissedNoteEffectSpawner.OnDestroy();
+                                l_MissedNoteEffectSpawner.gameObject.SetActive(false);
+                            }
+                            else
+                            {
+                                l_MissedNoteEffectSpawner.gameObject.SetActive(true);
+                                l_MissedNoteEffectSpawner.Start();
+                            }
+                            break;
+                        case 1:
+                            l_MissedNoteEffectSpawner.gameObject.SetActive(true);
+                            l_MissedNoteEffectSpawner.Start();
+                            break;
+                        case 2:
+                            l_MissedNoteEffectSpawner.OnDestroy();
+                            l_MissedNoteEffectSpawner.gameObject.SetActive(false);
+                            break;
+                    }
+                }
             }
             else
                 p_Context.HasActionFailed = true;

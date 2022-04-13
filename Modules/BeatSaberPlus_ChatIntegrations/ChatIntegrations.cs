@@ -15,29 +15,29 @@ namespace BeatSaberPlus_ChatIntegrations
     public partial class ChatIntegrations : BeatSaberPlus.SDK.ModuleBase<ChatIntegrations>
     {
         /// <summary>
-        /// Database file path
+        /// Old database file
         /// </summary>
-        private static string s_DATABASE_FOLDER = "UserData/BeatSaberPlus/";
+        private static string s_OLD_DATABASE_FILE = "UserData/BeatSaberPlus/ChatIntegrations.json";
         /// <summary>
         /// Database file path
         /// </summary>
-        private static string s_DATABASE_PATH = s_DATABASE_FOLDER + "ChatIntegrations.json";
+        private static string s_DATABASE_FILE { get => Path.Combine(CIConfig.Instance.DataLocation, "Database.json"); }
         /// <summary>
         /// Export folder
         /// </summary>
-        public static string s_EXPORT_PATH = s_DATABASE_FOLDER + "ChatIntegrations/Export/";
+        public static string s_EXPORT_PATH { get => Path.Combine(CIConfig.Instance.DataLocation, "Export/"); }
         /// <summary>
         /// Import folder
         /// </summary>
-        public static string s_IMPORT_PATH = s_DATABASE_FOLDER + "ChatIntegrations/Import/";
+        public static string s_IMPORT_PATH { get => Path.Combine(CIConfig.Instance.DataLocation, "Import/"); }
         /// <summary>
         /// EmoteRain assets folder
         /// </summary>
-        public static string s_EMOTE_RAIN_ASSETS_PATH = s_DATABASE_FOLDER + "ChatIntegrations/Assets/EmoteRain/";
+        public static string s_EMOTE_RAIN_ASSETS_PATH { get => Path.Combine(CIConfig.Instance.DataLocation, "Assets/EmoteRain/"); }
         /// <summary>
         /// Sound clips assets folder
         /// </summary>
-        public static string s_SOUND_CLIPS_ASSETS_PATH = s_DATABASE_FOLDER + "ChatIntegrations/Assets/SoundClips/";
+        public static string s_SOUND_CLIPS_ASSETS_PATH { get => Path.Combine(CIConfig.Instance.DataLocation, "Assets/SoundClips/"); }
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -87,6 +87,8 @@ namespace BeatSaberPlus_ChatIntegrations
             new Events.ChatSubscription(),
             new Events.Dummy(),
             new Events.LevelEnded(),
+            new Events.LevelPaused(),
+            new Events.LevelResumed(),
             new Events.LevelStarted(),
             new Events.VoiceAttackCommand()
             /// todo GameStart
@@ -116,6 +118,10 @@ namespace BeatSaberPlus_ChatIntegrations
         /// Chat core instance
         /// </summary>
         private bool m_ChatCoreAcquired = false;
+        /// <summary>
+        /// OBS instance
+        /// </summary>
+        private bool m_OBSAcquired = false;
         /// <summary>
         /// Voice attack instance
         /// </summary>
@@ -186,6 +192,13 @@ namespace BeatSaberPlus_ChatIntegrations
                 BeatSaberPlus.SDK.Chat.Service.Multiplexer.OnTextMessageReceived   += ChatCoreMutiplixer_OnTextMessageReceived;
             }
 
+            if (!m_OBSAcquired)
+            {
+                /// Init OBS
+                m_OBSAcquired = true;
+                BeatSaberPlus.SDK.OBS.Service.Acquire();
+            }
+
             if (!m_VoiceAttackAcquired)
             {
                 /// Init voice attack
@@ -243,6 +256,13 @@ namespace BeatSaberPlus_ChatIntegrations
                 /// Stop all voice attack services
                 BeatSaberPlus.SDK.VoiceAttack.Service.Release();
                 m_VoiceAttackAcquired = false;
+            }
+
+            if (m_OBSAcquired)
+            {
+                /// Release OBS service
+                BeatSaberPlus.SDK.OBS.Service.Release();
+                m_OBSAcquired = false;
             }
 
             /// Un-init chat core
@@ -384,7 +404,7 @@ namespace BeatSaberPlus_ChatIntegrations
         /// </summary>
         /// <param name="p_GUID">Event name</param>
         /// <returns></returns>
-        internal Interfaces.IEventBase GetEventByName(string p_Name)
+        public Interfaces.IEventBase GetEventByName(string p_Name)
         {
             lock (m_Events)
             {
@@ -396,7 +416,7 @@ namespace BeatSaberPlus_ChatIntegrations
         /// </summary>
         /// <param name="p_GUID">Event GUID</param>
         /// <returns></returns>
-        internal Interfaces.IEventBase GetEventByGUID(string p_GUID)
+        public Interfaces.IEventBase GetEventByGUID(string p_GUID)
         {
             lock (m_Events)
             {
@@ -408,7 +428,7 @@ namespace BeatSaberPlus_ChatIntegrations
         /// </summary>
         /// <param name="p_Type">Type</param>
         /// <returns></returns>
-        internal List<Interfaces.IEventBase> GetEventsByType(Type p_Type)
+        public List<Interfaces.IEventBase> GetEventsByType(Type p_Type)
         {
             lock (m_Events)
             {

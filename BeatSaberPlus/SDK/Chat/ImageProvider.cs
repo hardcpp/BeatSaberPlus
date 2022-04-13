@@ -4,44 +4,24 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 
 namespace BeatSaberPlus.SDK.Chat
 {
-    /*
-       Code from https://github.com/brian91292/EnhancedStreamChat-v3
-
-       MIT License
-
-       Copyright (c) 2020 brian91292
-
-       Permission is hereby granted, free of charge, to any person obtaining a copy
-       of this software and associated documentation files (the "Software"), to deal
-       in the Software without restriction, including without limitation the rights
-       to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-       copies of the Software, and to permit persons to whom the Software is
-       furnished to do so, subject to the following conditions:
-
-       The above copyright notice and this permission notice shall be included in all
-       copies or substantial portions of the Software.
-
-       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-       IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-       FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-       AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-       LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-       SOFTWARE.
-    */
-
     /// <summary>
     /// Image provider for twitch
     /// </summary>
     public class ImageProvider
     {
+        /// <summary>
+        /// Animated gif byte pattern for fast lookup
+        /// </summary>
+        private static byte[] ANIMATED_GIF_PATTERN = new byte[] { 0x4E, 0x45, 0x54, 0x53, 0x43, 0x41, 0x50, 0x45, 0x32, 0x2E, 0x30 };
+        /// <summary>
+        /// Is caching enabled
+        /// </summary>
         private static bool m_CacheEnabled = true;
         /// <summary>
         /// Forced emote height
@@ -173,7 +153,7 @@ namespace BeatSaberPlus.SDK.Chat
             {
                 if (p_Animation == Animation.AnimationType.MAYBE_GIF)
                 {
-                    if (p_Bytes.Length > (0x310 + 12) && System.Text.Encoding.ASCII.GetString(p_Bytes.Skip(0x310).Take(11).ToArray()) == "NETSCAPE2.0")
+                    if (p_Bytes.Length > 3 && p_Bytes[0] == 0x47 && ContainBytePattern(p_Bytes, ANIMATED_GIF_PATTERN))
                         p_Animation = Animation.AnimationType.GIF;
                     else
                         p_Animation = Animation.AnimationType.NONE;
@@ -206,55 +186,6 @@ namespace BeatSaberPlus.SDK.Chat
                     }, m_ForcedHeight);
                 }
             }));
-        }
-        /// <summary>
-        /// Try to cache sprite sheet
-        /// </summary>
-        /// <param name="p_ID">ID of the sprite sheet</param>
-        /// <param name="p_URI">The resource location</param>
-        /// <param name="p_Rect">Sheet rect</param>
-        /// <param name="p_Finally">A callback that occurs after the resource is retrieved. This will always occur even if the resource is already cached.</param>
-        /// <returns></returns>
-        public static void TryCacheSpriteSheetImage(Interfaces.EChatResourceCategory p_Category, string p_ID, string p_URI, ImageRect p_Rect, Action<Unity.EnhancedImage> p_Finally = null)
-        {
-            if (m_CachedImageInfo.TryGetValue(p_ID, out var l_Info))
-            {
-                p_Finally?.Invoke(l_Info);
-                return;
-            }
-
-            if (m_CachedSpriteSheets.TryGetValue(p_URI, out var l_Texture))
-            {
-                SDK.Unity.MainThreadInvoker.Enqueue(() =>
-                {
-                    CacheSpriteSheetImage(p_ID, l_Texture, p_Rect, p_Finally, m_ForcedHeight);
-                });
-            }
-            else
-            {
-                if (string.IsNullOrEmpty(p_URI))
-                {
-                    Logger.Instance.Error($"[SDK.Chat][ImageProvider.DownloadContent] URI is null or empty in request for resource {p_URI}. Aborting!");
-
-                    m_CachedSpriteSheets[p_URI] = null;
-                    p_Finally?.Invoke(null);
-
-                    return;
-                }
-
-                string l_CacheID = "";
-                if (m_CacheEnabled)
-                    l_CacheID = "Emote_" + SDK.Cryptography.SHA1.GetHashString(p_URI) + ".dat";
-
-                Task.Run(() => LoadFromCacheOrDownload(p_URI, l_CacheID, (p_Bytes) =>
-                {
-                    Unity.Texture2D.CreateFromRawEx(p_Bytes, (p_Texture) =>
-                    {
-                        m_CachedSpriteSheets[p_URI] = p_Texture;
-                        CacheSpriteSheetImage(p_ID, p_Texture, p_Rect, p_Finally, m_ForcedHeight);
-                    });
-                }));
-            }
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -386,6 +317,34 @@ namespace BeatSaberPlus.SDK.Chat
 
                 File.WriteAllBytes(m_CacheFolder + p_CacheID, p_Content);
             });
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Fast lookup for byte pattern
+        /// </summary>
+        /// <param name="p_Array">Input array</param>
+        /// <param name="p_Pattern">Lookup pattern</param>
+        /// <returns></returns>
+        static bool ContainBytePattern(byte[] p_Array, byte[] p_Pattern)
+        {
+            var l_PatternPosition = 0;
+            for (int l_I = 0; l_I < p_Array.Length; ++l_I)
+            {
+                if (p_Array[l_I] != p_Pattern[l_PatternPosition])
+                {
+                    l_PatternPosition = 0;
+                    continue;
+                }
+
+                l_PatternPosition++;
+                if (l_PatternPosition == p_Pattern.Length)
+                    return true;
+            }
+
+            return l_PatternPosition == p_Pattern.Length;
         }
     }
 }

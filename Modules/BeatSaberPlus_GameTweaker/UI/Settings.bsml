@@ -1,86 +1,237 @@
 ﻿<vertical child-control-height='false'>
-  <horizontal bg='panel-top' pad-left='15' pad-right='15' horizontal-fit='PreferredSize'>
-    <text text='Game Tweaker' align='Center' font-size='4.2'/>
-  </horizontal>
+	<horizontal bg='panel-top' pad-left='15' pad-right='15' horizontal-fit='PreferredSize'>
+		<text text='Game Tweaker' align='Center' font-size='4.2'/>
+	</horizontal>
 
-  <!-- =============================== -->
+	<horizontal spacing='0' pad-top='0' min-width='145'>
+		<vertical spacing='0' pad-top='0' >
+			<horizontal id='TabSelector' pad-top='2' pref-height='7' pad-left='8' pad-right='8' min-width='145'>
+			</horizontal>
 
-  <horizontal>
-    <text text='Particles / Effects' font-color='yellow' bold='true' align='Center' font-size='3'/>
-  </horizontal>
-  <horizontal min-width='110'>
-    <vertical spacing='0' pad-right='5' size-delta-x='36' min-width='36'>
-      <vertical size-delta-x='30' min-width='30' pad-top='0'>
-        <text font-size='3.5' text='Remove all debris spawn'></text>
-        <bool-setting id='removedebris-toggle'></bool-setting>
-      </vertical>
-      <vertical size-delta-x='30' min-width='30'>
-        <text font-size='3.5' text='Remove floor burn particles'></text>
-        <bool-setting id='removefloorburnmarkparticles-toggle'></bool-setting>
-      </vertical>
-      <vertical size-delta-x='30' min-width='30' pad-bottom='0'>
-        <text font-size='3.5' text='Remove world particles'></text>
-        <bool-setting id='removeworldparticles-toggle'></bool-setting>
-      </vertical>
-    </vertical>
+			<horizontal min-height='2'></horizontal>
 
-    <vertical spacing='0' size-delta-x='36' min-width='36'>
-      <vertical size-delta-x='30' min-width='30' pad-top='0'>
-        <text font-size='3.5' text='Remove cut particles'></text>
-        <bool-setting id='removeallcutparticles-toggle'></bool-setting>
-      </vertical>
-      <vertical size-delta-x='30' min-width='30'>
-        <text font-size='3.5' text='Remove floor burn marks'></text>
-        <bool-setting id='removefloorburnmarkeffects-toggle'></bool-setting>
-      </vertical>
-      <vertical size-delta-x='30' min-width='30' pad-bottom='0'>
-        <text font-size='3.5' text=' '></text>
-        <text text=' '></text>
-      </vertical>
-    </vertical>
+			<!-- =========================================== -->
 
-    <vertical spacing='0' pad-left='5' size-delta-x='36' min-width='36'>
-      <vertical size-delta-x='30' min-width='30' pad-top='0'>
-        <text font-size='3.5' text='Remove obstacle particles'></text>
-        <bool-setting id='removeobstacleparticles-toggle'></bool-setting>
-      </vertical>
-      <vertical size-delta-x='30' min-width='30'>
-        <text font-size='3.5' text='Remove saber clash effect'></text>
-        <bool-setting id='removesaberclasheffects-toggle'></bool-setting>
-      </vertical>
-      <vertical size-delta-x='30' min-width='30' pad-bottom='0'>
-        <text font-size='3.5' text=' '></text>
-        <text text=' '></text>
-      </vertical>
-    </vertical>
-  </horizontal>
+			<horizontal id='ParticlesTab' bg='round-rect-panel' min-height='65' spacing='0' pad='0'>
+				<vertical>
+					<horizontal>
+						<vertical min-width='40'>
+							<text font-size='3.5' align='Center' font-color='yellow' text='Remove all debris spawn'></text>
+							<bool-setting id='ParticlesTab_RemoveDebris'></bool-setting>
+						</vertical>
+					</horizontal>
 
-  <!-- =============================== -->
+					<horizontal>
+						<vertical min-width='40'>
+							<text font-size='3.5' align='Center' font-color='yellow' text='Remove world particles'></text>
+							<bool-setting id='ParticlesTab_RemoveWorldParticles'></bool-setting>
+						</vertical>
+						<vertical min-width='40'>
+							<text font-size='3.5' align='Center' font-color='yellow' text='Remove cut particles'></text>
+							<bool-setting id='ParticlesTab_RemoveCutParticles'></bool-setting>
+						</vertical>
+						<vertical min-width='40'>
+							<text font-size='3.5' align='Center' font-color='yellow' text='Remove obstacle particles'></text>
+							<bool-setting id='ParticlesTab_RemoveObstacleParticles'></bool-setting>
+						</vertical>
+					</horizontal>
 
-  <horizontal>
-    <text text='Environment' font-color='yellow' bold='true' align='Center' font-size='3'/>
-  </horizontal>
-  <horizontal min-width='110'>
-    <vertical spacing='0' pad-right='5' size-delta-x='36' min-width='36'>
-      <vertical size-delta-x='30' min-width='30' pad-top='0' pad-bottom='2'>
-        <text font-size='3.5' text='Remove music band logo'></text>
-        <bool-setting id='removemusicbandlogo-toggle'></bool-setting>
-      </vertical>
-    </vertical>
+					<horizontal>
+						<vertical min-width='40'>
+							<text font-size='3.5' align='Center' font-color='yellow' text='Remove floor burn particles'></text>
+							<bool-setting id='ParticlesTab_RemoveFloorBurnMarkParticles'></bool-setting>
+						</vertical>
+						<vertical min-width='40'>
+							<text font-size='3.5' align='Center' font-color='yellow' text='Remove floor burn marks'></text>
+							<bool-setting id='ParticlesTab_RemoveFloorBurnMarkEffects'></bool-setting>
+						</vertical>
+						<vertical min-width='40'>
+							<text font-size='3.5' align='Center' font-color='yellow' text='Remove saber clash effect'></text>
+							<bool-setting id='ParticlesTab_RemoveSaberClashEffects'></bool-setting>
+						</vertical>
+					</horizontal>
 
-    <vertical spacing='0' size-delta-x='36' min-width='36'>
-      <vertical size-delta-x='30' min-width='30' pad-top='0' pad-bottom='2'>
-        <text font-size='3.5' text='Remove full combo loss animation'></text>
-        <bool-setting id='removefullcombolossanimation-toggle'></bool-setting>
-      </vertical>
-    </vertical>
+					<horizontal min-height='20'>
+					</horizontal>
+				</vertical>
+			</horizontal>
 
-    <vertical spacing='0' pad-left='5' size-delta-x='36' min-width='36'>
-      <vertical size-delta-x='30' min-width='30' pad-top='0' pad-bottom='2'>
-        <text font-size='3.5' text='Remove fake 360 HUD'></text>
-        <bool-setting id='nofake360hud-toggle'></bool-setting>
-      </vertical>
-    </vertical>
-  </horizontal>
+			<!-- =========================================== -->
+
+			<horizontal id='EnvironmentTab' bg='round-rect-panel' min-height='65' spacing='0' pad='0'>
+				<vertical>
+					<horizontal>
+						<vertical>
+							<text font-size='3.5' align='Center' font-color='yellow'  text='Remove music group logos (BTS, LinkinPark...) in environments'></text>
+							<bool-setting id='EnvironmentTab_RemoveMusicBandLogo'></bool-setting>
+						</vertical>
+					</horizontal>
+					<horizontal>
+						<vertical>
+							<text font-size='3.5' align='Center' font-color='yellow'  text='Remove full combo loss animation'></text>
+							<bool-setting id='EnvironmentTab_RemoveFullComboLossAnimation'></bool-setting>
+						</vertical>
+					</horizontal>
+					<horizontal>
+						<vertical>
+							<text font-size='3.5' align='Center' font-color='yellow'  text='No fake 360 maps'></text>
+							<bool-setting id='EnvironmentTab_NoFake360Maps'></bool-setting>
+						</vertical>
+					</horizontal>
+
+					<horizontal min-height='20'>
+					</horizontal>
+				</vertical>
+			</horizontal>
+
+			<!-- =========================================== -->
+
+			<horizontal id='LevelSelectionTab' bg='round-rect-panel' min-height='65' spacing='0' pad='0'>
+				<vertical>
+					<horizontal>
+						<vertical min-width='40'>
+							<text font-size='3.5' align='Center' font-color='yellow' text='Played color'></text>
+							<color-setting id='LevelSelectionTab_HighlightPlayedSongColor' apply-on-change='true'></color-setting>
+						</vertical>
+						<vertical min-width='40'>
+							<text font-size='3.5' align='Center' font-color='yellow' text='Highlight played song'></text>
+							<bool-setting id='LevelSelectionTab_HighlightPlayedSong'></bool-setting>
+						</vertical>
+						<vertical min-width='40'>
+							<text font-size='3.5' align='Center' font-color='yellow' text='All played color'></text>
+							<color-setting id='LevelSelectionTab_HighlightPlayedSongAllColor' apply-on-change='true'></color-setting>
+						</vertical>
+					</horizontal>
+					<horizontal>
+						<vertical>
+							<text font-size='3.5' align='Center' font-color='yellow' text='Remove base game filter'></text>
+							<bool-setting id='LevelSelectionTab_RemoveBaseGameFilterButton' hover-hint='Remove the top right filter option from the game'></bool-setting>
+						</vertical>
+					</horizontal>
+					<horizontal>
+						<vertical>
+							<text font-size='3.5' align='Center' font-color='yellow' text='Song delete button'></text>
+							<bool-setting id='LevelSelectionTab_DeleteSongButton'></bool-setting>
+						</vertical>
+					</horizontal>
+					<horizontal>
+						<vertical>
+							<text font-size='3.5' align='Center' font-color='yellow' text='Remove SongBrowser trashcan'></text>
+							<bool-setting id='LevelSelectionTab_RemoveSongBrowserTrashcan'></bool-setting>
+						</vertical>
+					</horizontal>
+
+					<horizontal min-height='5'>
+					</horizontal>
+				</vertical>
+			</horizontal>
+
+			<!-- =========================================== -->
+
+			<horizontal id='PlayerOptionsTab' bg='round-rect-panel' min-height='65' spacing='0' pad='0'>
+				<vertical>
+					<horizontal>
+						<vertical>
+							<text font-size='3.5' align='Center' font-color='yellow' text='Jump Duration increment '></text>
+							<list-setting id='PlayerOptionsTab_JumpDurationIncrement' value='PlayerOptionsTab_JumpDurationIncrementValue' choices='PlayerOptionsTab_JumpDurationIncrementChoices' apply-on-change='true' ></list-setting>
+						</vertical>
+					</horizontal>
+					<horizontal>
+						<vertical>
+							<text font-size='3.5' align='Center' font-color='yellow' text='Better player options menu'></text>
+							<bool-setting id='PlayerOptionsTab_ReorderPlayerSettings' hover-hint='Move all important options to the top'></bool-setting>
+						</vertical>
+					</horizontal>
+					<horizontal>
+						<vertical>
+							<text font-size='3.5' align='Center' font-color='yellow' text='Add override lights intensity option'></text>
+							<bool-setting id='PlayerOptionsTab_AddOverrideLightIntensityOption'></bool-setting>
+						</vertical>
+					</horizontal>
+					<horizontal>
+						<vertical>
+							<text font-size='3.5' align='Center' font-color='yellow' text='Merge light effect filter options'></text>
+							<bool-setting id='PlayerOptionsTab_MergeLightEffectFilterOptions'></bool-setting>
+						</vertical>
+					</horizontal>
+
+					<horizontal min-height='5'>
+					</horizontal>
+				</vertical>
+			</horizontal>
+
+			<!-- =========================================== -->
+
+			<horizontal id='MainMenuTab' bg='round-rect-panel' min-height='65' spacing='0' pad='0'>
+				<vertical>
+					<horizontal>
+						<vertical>
+							<text font-size='3.5' align='Center' font-color='yellow' text='Override menu environment colors?'></text>
+							<bool-setting id='MainMenuTab_OverrideMenuEnvColors'></bool-setting>
+						</vertical>
+					</horizontal>
+
+					<horizontal min-width='135'>
+						<vertical min-width='40'>
+							<text font-size='3.5' pad-right='8' align='Center' font-color='yellow' text='Base color'></text>
+							<color-setting id='MainMenuTab_BaseColor' apply-on-change='true'></color-setting>
+						</vertical>
+						<vertical min-width='40'>
+							<text font-size='3.5' align='Center' font-color='yellow' text='Level cleared color'></text>
+							<color-setting id='MainMenuTab_LevelClearedColor' apply-on-change='true'></color-setting>
+						</vertical>
+						<vertical min-width='40'>
+							<text font-size='3.5' pad-left='8' align='Center' font-color='yellow' text='Level failed color'></text>
+							<color-setting id='MainMenuTab_LevelFailedColor' apply-on-change='true'></color-setting>
+						</vertical>
+					</horizontal>
+					<horizontal>
+						<vertical>
+							<text font-size='3.5' align='Center' font-color='yellow' text='Disable Editor button'></text>
+							<bool-setting id='MainMenuTab_DisableEditorButton'></bool-setting>
+						</vertical>
+					</horizontal>
+					<horizontal>
+						<vertical>
+							<text font-size='3.5' align='Center' font-color='yellow'  text='Remove new content promotional'></text>
+							<bool-setting id='MainMenuTab_RemoveNewContentPromotional'></bool-setting>
+						</vertical>
+					</horizontal>
+
+					<horizontal min-height='10'>
+					</horizontal>
+				</vertical>
+			</horizontal>
+
+			<!-- =========================================== -->
+
+			<horizontal id='ToolsTab' bg='round-rect-panel' min-height='65' spacing='0' pad='0'>
+				<vertical>
+					<horizontal>
+						<vertical>
+							<text font-size='3.5' align='Center' font-color='yellow' text='Remove old logs'></text>
+							<bool-setting id='ToolsTab_RemoveOldLogs' hover-hint='Should delete old logs entries?'></bool-setting>
+						</vertical>
+					</horizontal>
+					<horizontal>
+						<vertical>
+							<text font-size='3.5' align='Center' font-color='yellow' text='Amount of logs to keep'></text>
+							<increment-setting id='ToolsTab_LogEntriesToKeep' min='4' max='20' integer-only='true' increment='1'/>
+						</vertical>
+					</horizontal>
+					<horizontal>
+						<vertical>
+							<text font-size='3.5' align='Center' font-color='yellow' text='FPFC Escape'></text>
+							<bool-setting id='ToolsTab_FPFCEscape' hover-hint='Allow to press Escape key to pause a music'></bool-setting>
+						</vertical>
+					</horizontal>
+
+					<horizontal min-height='20'>
+					</horizontal>
+				</vertical>
+			</horizontal>
+
+		</vertical>
+	</horizontal>
 
 </vertical>

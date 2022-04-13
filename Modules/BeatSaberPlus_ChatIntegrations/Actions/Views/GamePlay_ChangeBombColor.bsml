@@ -1,0 +1,9 @@
+﻿<vertical min-height='55' child-align='UpperCenter'>
+
+  <list-setting id='TypeList' value='TypeList_Value' choices='TypeList_Choices' apply-on-change='true' text='Value type' />
+  <color-setting id='Color' text='Color'></color-setting>
+  <bool-setting id='SendMessageToggle' text='Send chat message'></bool-setting>
+
+  <horizontal min-height='45'></horizontal>
+
+</vertical>

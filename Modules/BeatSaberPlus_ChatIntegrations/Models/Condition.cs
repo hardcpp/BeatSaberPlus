@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 
 namespace BeatSaberPlus_ChatIntegrations.Models
@@ -13,7 +14,17 @@ namespace BeatSaberPlus_ChatIntegrations.Models
         public string Type = "?";
         [JsonProperty]
         public bool Enabled = false;
-        [JsonProperty]
-        public string EncodedUserValue = "";
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// On deserialized
+        /// </summary>
+        /// <param name="p_Serialized">Input data</param>
+        public virtual void OnDeserialized(JObject p_Serialized)
+        {
+
+        }
     }
 }

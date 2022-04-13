@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace BeatSaberPlus_GameTweaker.Patches
 {
+    /*
     /// <summary>
     /// 360 HUD remover
     /// </summary>
@@ -28,7 +29,7 @@ namespace BeatSaberPlus_GameTweaker.Patches
         /// <param name="____sceneSetupData">GameplayCoreSceneSetupData instance</param>
         internal static void Prefix(ref GameplayCoreSceneSetupData ____sceneSetupData)
         {
-            if (!(GTConfig.Instance.Enabled && GTConfig.Instance.NoFake360HUD))
+            if (!(GTConfig.Instance.Enabled && GTConfig.Instance.Environment.NoFake360HUD))
                 return;
 
             IDifficultyBeatmap              l_IDifficultyBeatmap        = ____sceneSetupData.difficultyBeatmap;
@@ -85,4 +86,5 @@ namespace BeatSaberPlus_GameTweaker.Patches
             m_BeatMapToRestore = null;
         }
     }
+    */
 }

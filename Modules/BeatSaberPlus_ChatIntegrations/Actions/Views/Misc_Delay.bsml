@@ -1,7 +1,8 @@
 ﻿<vertical min-height='55' child-align='UpperCenter'>
 
   <text text='Delay' align='Center' />
-  <slider-setting min='1' max='1200' increment='1' id='DelaySlider' integer-only='true' apply-on-change='true' />
+	<slider-setting min='0' max='1200' increment='1' id='DelaySlider' integer-only='true' apply-on-change='true' />
+	<slider-setting min='0' max='1000' increment='1' id='DelayMsSlider' integer-only='true' apply-on-change='true' />
   <bool-setting id='PreventFailureToggle' text='Prevent next actions failure' />
 
   <vertical id='InfoPanel_Background' bg='round-rect-panel' size-delta-x='60' min-width='60' pad-top='2' pad-bottom='2' pad-left='2' pad-right='2'>

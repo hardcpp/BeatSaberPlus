@@ -318,6 +318,33 @@ namespace BeatSaberPlus_ChatRequest.UI
                 m_SongInfo_Detail.SetPlayButtonText("Download");
         }
         /// <summary>
+        /// Select random song
+        /// </summary>
+        internal void SelectRandom()
+        {
+            OnQueueTypeChanged(null, 0);
+
+            var l_SongIndex = 0;
+            lock (ChatRequest.Instance.SongQueue)
+            {
+                var l_SongCount = ChatRequest.Instance.SongQueue.Count;
+
+                if (l_SongCount > 0)
+                {
+                    var l_Random = UnityEngine.Random.Range(0, l_SongCount);
+                    m_SelectedSong  = ChatRequest.Instance.SongQueue[l_Random];
+                    m_CurrentPage   = (l_Random / s_SONG_PER_PAGE) + 1;
+                    l_SongIndex     = l_Random % s_SONG_PER_PAGE;
+                }
+
+            }
+
+            /// Rebuild song list
+            RebuildSongList();
+            /// Select
+            OnSongSelected(null, l_SongIndex);
+        }
+        /// <summary>
         /// On song cover fetched
         /// </summary>
         /// <param name="p_RowData">Row data</param>

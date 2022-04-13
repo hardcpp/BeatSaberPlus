@@ -12,7 +12,5 @@ namespace BeatSaberPlus_ChatIntegrations.Models.Actions
     {
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         public int ChangeType = 0;
-        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
-        public bool Continue = true;
     }
 }

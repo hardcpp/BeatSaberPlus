@@ -2,6 +2,30 @@
 
 namespace BeatSaberPlus_ChatIntegrations.Models.Actions
 {
+    public class GamePlay_ChangeBombColor : Action
+    {
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
+        public int ValueType = 0;
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
+        public string Color = "#CCCCCC";
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
+        public bool SendChatMessage = true;
+    }
+
+    public class GamePlay_ChangeBombScale : Action
+    {
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
+        public int ValueType = 0;
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
+        public float UserValue = 0.5f;
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
+        public float Min = 0.4f;
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
+        public float Max = 1.5f;
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
+        public bool SendChatMessage = true;
+    }
+
     public class GamePlay_ChangeDebris : Action
     {
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
@@ -48,6 +72,26 @@ namespace BeatSaberPlus_ChatIntegrations.Models.Actions
         public bool SendChatMessage = true;
     }
 
+    public class GamePlay_ChangeNoteScale : Action
+    {
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
+        public int ValueType = 0;
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
+        public float UserValue = 0.5f;
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
+        public float Min = 0.4f;
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
+        public float Max = 1.5f;
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
+        public bool SendChatMessage = true;
+    }
+
+    public class GamePlay_Pause : Action
+    {
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
+        public bool HideUI = false;
+    }
+
     public class GamePlay_SpawnSquatWalls : Action
     {
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
@@ -70,6 +114,12 @@ namespace BeatSaberPlus_ChatIntegrations.Models.Actions
         public byte L2 = 0b00000111;
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         public byte L3 = 0b00000111;
+    }
+
+    public class GamePlay_ToggleHUD : Action
+    {
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
+        public int ToggleType = 0;
     }
 
     public class GamePlay_ToggleLights : Action

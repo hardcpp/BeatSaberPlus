@@ -87,6 +87,8 @@ namespace BeatSaberPlus_ChatEmoteRain.UI
         public ToggleSetting m_CommandsTab_VIPPowerToggle;
         [UIComponent("CommandsTab_SubscriberPowerToggle")]
         public ToggleSetting m_CommandsTab_SubscriberPowerToggle;
+        [UIComponent("CommandsTab_UserPowerToggle")]
+        public ToggleSetting m_CommandsTab_UserPowerToggle;
 #pragma warning restore CS0649
 
         ////////////////////////////////////////////////////////////////////////////
@@ -213,6 +215,7 @@ namespace BeatSaberPlus_ChatEmoteRain.UI
                 BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_CommandsTab_ModeratorPowerToggle,  l_Event,        CERConfig.Instance.ChatCommands.ModeratorPower,    true);
                 BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_CommandsTab_VIPPowerToggle,        l_Event,        CERConfig.Instance.ChatCommands.VIPPower,          true);
                 BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_CommandsTab_SubscriberPowerToggle, l_Event,        CERConfig.Instance.ChatCommands.SubscriberPower,   true);
+                BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_CommandsTab_UserPowerToggle,       l_Event,        CERConfig.Instance.ChatCommands.UserPower,         true);
             }
 
             /// Show first tab by default
@@ -543,6 +546,7 @@ namespace BeatSaberPlus_ChatEmoteRain.UI
                 CERConfig.Instance.ChatCommands.ModeratorPower     = m_CommandsTab_ModeratorPowerToggle.Value;
                 CERConfig.Instance.ChatCommands.VIPPower           = m_CommandsTab_VIPPowerToggle.Value;
                 CERConfig.Instance.ChatCommands.SubscriberPower    = m_CommandsTab_SubscriberPowerToggle.Value;
+                CERConfig.Instance.ChatCommands.UserPower          = m_CommandsTab_UserPowerToggle.Value;
             }
 
             ChatEmoteRain.Instance.OnSettingsChanged();
@@ -580,6 +584,7 @@ namespace BeatSaberPlus_ChatEmoteRain.UI
                 m_CommandsTab_ModeratorPowerToggle.Value    = CERConfig.Instance.ChatCommands.ModeratorPower;
                 m_CommandsTab_VIPPowerToggle.Value          = CERConfig.Instance.ChatCommands.VIPPower;
                 m_CommandsTab_SubscriberPowerToggle.Value   = CERConfig.Instance.ChatCommands.SubscriberPower;
+                m_CommandsTab_UserPowerToggle.Value         = CERConfig.Instance.ChatCommands.UserPower;
             }
 
             m_PreventChanges = false;
