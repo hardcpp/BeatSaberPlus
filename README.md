@@ -6,7 +6,7 @@
 **Discord** https://discord.gg/63ebPMC (**Download, Support, Testing, Early releases** and cool new mods coming soon)
 **Patreon** [https://www.patreon.com/BeatSaberPlus](https://www.patreon.com/BeatSaberPlus) **if you want to support this project development!**
 
-Current version : 3.4.3
+Current version : 4.1.0
 
 IMPORTANT All modules are disabled by default, you can enable then in BeatSaberPlus -> Settings
 IMPORTANT When you enable Chat module, it will open a page in your browser for configuring it.
