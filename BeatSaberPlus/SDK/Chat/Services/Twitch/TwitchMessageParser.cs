@@ -214,7 +214,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                         IsActionMessage     = l_IsActionMessage,
                         IsSystemMessage     = l_MessageType == "NOTICE" || l_MessageType == "USERNOTICE",
                         IsHighlighted       = false,
-                        IsPing              = !string.IsNullOrEmpty(l_MessageText) && p_LoggedInUser != null && l_MessageText.Contains(p_LoggedInUser.DisplayName, StringComparison.OrdinalIgnoreCase),
+                        IsPing              = !string.IsNullOrEmpty(l_MessageText) && p_LoggedInUser != null && l_MessageText.Contains("@" + p_LoggedInUser.DisplayName, StringComparison.OrdinalIgnoreCase),
                         Bits                = l_MessageBits,
                         TargetUserId        = l_Tags.ContainsKey("target-user-id") ? l_Tags["target-user-id"] : string.Empty,
                         TargetMsgId         = l_Tags.ContainsKey("target-msg-id") ? l_Tags["target-msg-id"] : string.Empty,
@@ -257,6 +257,17 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                                     l_SystemMsgText                 = l_SystemMsgText.Replace(@"\s", " ");
                                     l_SystemMessage.IsHighlighted   = true;
                                     l_SystemMessage.IsSystemMessage = true;
+
+                                    if (l_MsgIdValue == "raid")
+                                    {
+                                        l_SystemMessage.IsRaid = true;
+
+                                        if (l_Tags.TryGetValue("msg-param-viewerCount", out var l_RaidViewerCountStr)
+                                            && int.TryParse(l_RaidViewerCountStr, out var l_RaidViewerCount))
+                                            l_SystemMessage.RaidViewerCount = l_RaidViewerCount;
+                                        else
+                                            l_SystemMessage.RaidViewerCount = 0;
+                                    }
 
                                     ///Logger.Instance.Information($"Message: {match.Value}");
                                     if (l_Tags.TryGetValue("msg-param-sub-plan", out var l_SubPlanName))
@@ -387,9 +398,10 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                     {
                         l_Badges.Add(new TwitchBadge()
                         {
-                            Id = $"{l_BadgeInfo.Type}_{l_BadgeId}",
-                            Name = l_Parts[l_I].Split('/')[0],
-                            Uri = l_BadgeInfo.Uri
+                            Id      = $"{l_BadgeInfo.Type}_{l_BadgeId}",
+                            Name    = l_Parts[l_I].Split('/')[0],
+                            Type    = EBadgeType.Image,
+                            Content     = l_BadgeInfo.Uri
                         });
                     }
                     else

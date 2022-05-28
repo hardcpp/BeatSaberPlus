@@ -33,6 +33,18 @@ namespace BeatSaberPlus.SDK.VoiceAttack
         /// Lock object
         /// </summary>
         private static object m_Object = new object();
+        /// <summary>
+        /// Receive header buffer
+        /// </summary>
+        private static byte[] m_ReceiveHeaderBuffer = new byte[sizeof(UInt32)];
+        /// <summary>
+        /// Receive data buffer
+        /// </summary>
+        private static byte[] m_ReceiveDataBuffer = new byte[4096];
+        /// <summary>
+        /// Send buffer
+        /// </summary>
+        private static byte[] m_SendBuffer = new byte[sizeof(UInt32) + 4096];
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -132,6 +144,7 @@ namespace BeatSaberPlus.SDK.VoiceAttack
         /// </summary>
         private static void ThreadFunction()
         {
+            var l_ReceivedMessages = new List<string>();
             while (m_Running)
             {
                 try
@@ -153,19 +166,20 @@ namespace BeatSaberPlus.SDK.VoiceAttack
                     }
                     else
                     {
-                        if (!ReadMessages(m_Client, out var l_Messages))
+                        if (!ReadMessages(l_ReceivedMessages))
                         {
                             /// Disconnect on next tick
                             m_LastPing = DateTime.MinValue;
                         }
                         else
                         {
-                            foreach (var l_Message in l_Messages)
+                            for (var l_I = 0; l_I < l_ReceivedMessages.Count; ++l_I)
                             {
+                                var l_Message = l_ReceivedMessages[l_I];
                                 if (l_Message == "ping")
                                 {
                                     m_LastPing = DateTime.Now;
-                                    SendMessage(m_Client, "pong");
+                                    SendMessage("pong");
                                 }
                                 else if (l_Message.StartsWith("command_completed;"))
                                 {
@@ -183,11 +197,18 @@ namespace BeatSaberPlus.SDK.VoiceAttack
                 }
                 catch
                 {
+                    if (!m_Client.Connected)
+                    {
+                        m_Client.Dispose();
+                        m_Client = new System.Net.Sockets.TcpClient();
+                        m_Client.ReceiveTimeout = 2 * 1000;
+                        m_Client.SendTimeout    = 2 * 1000;
+                    }
 
+                    System.Threading.Thread.Sleep(30 * 1000);
                 }
             }
         }
-
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -195,58 +216,57 @@ namespace BeatSaberPlus.SDK.VoiceAttack
         /// <summary>
         /// Send message
         /// </summary>
-        /// <param name="p_Client">Socket</param>
         /// <param name="p_Message">Message</param>
-        private static void SendMessage(System.Net.Sockets.TcpClient p_Client, string p_Message)
+        private static void SendMessage(string p_Message)
         {
-            try
+            lock (m_SendBuffer)
             {
-                var l_StringBytes = System.Text.Encoding.UTF8.GetBytes(p_Message);
-                var l_SizeBytes = BitConverter.GetBytes((uint)p_Message.Length);
+                try
+                {
+                    var l_SizeBytes = BitConverter.GetBytes((uint)p_Message.Length);
+                    Array.Copy(l_SizeBytes, m_SendBuffer, l_SizeBytes.Length);
+                    var l_TotalSize = l_SizeBytes.Length + System.Text.Encoding.UTF8.GetBytes(p_Message, 0, p_Message.Length, m_SendBuffer, l_SizeBytes.Length);
 
-                p_Client.GetStream().Write(l_SizeBytes,   0, l_SizeBytes.Length);
-                p_Client.GetStream().Write(l_StringBytes, 0, l_StringBytes.Length);
-            }
-            catch
-            {
+                    m_Client.GetStream().Write(m_SendBuffer, 0, l_TotalSize);
+                }
+                catch
+                {
 
+                }
             }
         }
         /// <summary>
         /// Read messages
         /// </summary>
-        /// <param name="p_Client">Socket</param>
         /// <param name="p_Results">Out messages</param>
         /// <returns></returns>
-        private static bool ReadMessages(System.Net.Sockets.TcpClient p_Client, out List<string> p_Results)
+        private static bool ReadMessages(List<string> p_Results)
         {
-            p_Results = new List<string>();
-
-            try
+            lock (m_ReceiveHeaderBuffer)
             {
-                while (p_Client.Available >= sizeof(UInt32))
+                p_Results.Clear();
+
+                try
                 {
-                    var l_SizeBytes = new byte[sizeof(UInt32)];
-                    p_Client.GetStream().Read(l_SizeBytes, 0, l_SizeBytes.Length);
+                    while (m_Client.Available >= sizeof(UInt32))
+                    {
+                        m_Client.GetStream().Read(m_ReceiveHeaderBuffer, 0, m_ReceiveHeaderBuffer.Length);
 
-                    var l_SizeToRead = BitConverter.ToUInt32(l_SizeBytes, 0);
+                        var l_SizeToRead = BitConverter.ToUInt32(m_ReceiveHeaderBuffer, 0);
+                        if (l_SizeToRead > m_ReceiveDataBuffer.Length)
+                            return false;
 
-                    if (l_SizeToRead > 4000)
-                        return false;
-
-                    var l_MessageBytes = new byte[l_SizeToRead];
-
-                    p_Client.GetStream().Read(l_MessageBytes, 0, l_MessageBytes.Length);
-
-                    p_Results.Add(System.Text.Encoding.UTF8.GetString(l_MessageBytes));
+                        m_Client.GetStream().Read(m_ReceiveDataBuffer, 0, (int)l_SizeToRead);
+                        p_Results.Add(System.Text.Encoding.UTF8.GetString(m_ReceiveDataBuffer));
+                    }
                 }
-            }
-            catch
-            {
-                return false;
-            }
+                catch
+                {
+                    return false;
+                }
 
-            return true;
+                return true;
+            }
         }
     }
 }

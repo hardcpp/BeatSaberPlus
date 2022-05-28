@@ -3,16 +3,16 @@
   "id": "BeatSaberPlus_SongChartVisualizer",
   "name": "BeatSaberPlus_SongChartVisualizer",
   "author": "HardCPP#1985",
-  "version": "4.3.1",
+  "version": "4.4.0",
   "description": "",
   "gameVersion": "1.20.0",
   "dependsOn": {
     "BSIPA": "^4.0.1",
     "BeatSaberMarkupLanguage": "^1.3.4",
-    "BeatSaberPlusCORE": "^4.3.1"
+    "BeatSaberPlusCORE": "^4.4.0"
   },
   "links": {
-    "project-home": "https://discord.gg/63ebPMC",
-    "donate": "https://www.patreon.com/BeatSaberPlus"
+    "project-home": "https://discord.chatplex.org",
+    "donate": "https://donate.chatplex.org"
   }
 }

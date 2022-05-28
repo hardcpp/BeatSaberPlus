@@ -73,18 +73,20 @@ namespace BeatSaberPlus.SDK.Config
             try
             {
                 var l_Default           = new T();
-                var l_DefaultSerialized = JsonConvert.SerializeObject(l_Default);
                 var l_Params            = new JsonSerializerSettings();
-
                 m_JsonConverters.ForEach(x => l_Params.Converters.Add(x));
+                l_Params.DefaultValueHandling   = DefaultValueHandling.Include;
+                l_Params.NullValueHandling      = NullValueHandling.Ignore;
+
+                var l_DefaultSerialized = JsonConvert.SerializeObject(l_Default, l_Params);
                 JsonConvert.PopulateObject(l_DefaultSerialized, m_Instance, l_Params);
 
                 Save();
             }
             catch (System.Exception l_Exception)
             {
-                Logger.Instance?.Error($"[SDK.Config][Reset<{typeof(T).Name}>.Reset] Failed");
-                Logger.Instance?.Error(l_Exception);
+                Logger.Instance.Error($"[SDK.Config][Reset<{typeof(T).Name}>.Reset] Failed");
+                Logger.Instance.Error(l_Exception);
             }
         }
         /// <summary>
@@ -95,12 +97,16 @@ namespace BeatSaberPlus.SDK.Config
             try
             {
                 string l_Data = JsonConvert.SerializeObject(m_Instance, Formatting.Indented, m_JsonConverters.ToArray());
+#if !TEST_APP
                 SharedCoroutineStarter.instance.StartCoroutine(WriteFile(GetFullPath(), l_Data));
+#else
+                WriteFile(GetFullPath(), l_Data);
+#endif
             }
             catch (System.Exception l_Exception)
             {
-                Logger.Instance?.Error($"[SDK.Config][JSONConfig<{typeof(T).Name}>.Save] Failed to serialize config");
-                Logger.Instance?.Error(l_Exception);
+                Logger.Instance.Error($"[SDK.Config][JSONConfig<{typeof(T).Name}>.Save] Failed to serialize config");
+                Logger.Instance.Error(l_Exception);
             }
         }
         /// <summary>
@@ -145,8 +151,8 @@ namespace BeatSaberPlus.SDK.Config
             }
             catch (System.Exception l_Exception)
             {
-                Logger.Instance?.Error($"[SDK.Config][JSONConfig<{typeof(T).Name}>.Init] Failed to create directory " + Path.GetDirectoryName(GetFullPath()));
-                Logger.Instance?.Error(l_Exception);
+                Logger.Instance.Error($"[SDK.Config][JSONConfig<{typeof(T).Name}>.Init] Failed to create directory " + Path.GetDirectoryName(GetFullPath()));
+                Logger.Instance.Error(l_Exception);
             }
 
             bool l_FileExist = false;
@@ -182,8 +188,8 @@ namespace BeatSaberPlus.SDK.Config
             }
             catch (System.Exception l_Exception)
             {
-                Logger.Instance?.Error($"[SDK.Config][JSONConfig<{typeof(T).Name}>.Init] Failed to read config " + Path.GetDirectoryName(GetFullPath()));
-                Logger.Instance?.Error(l_Exception);
+                Logger.Instance.Error($"[SDK.Config][JSONConfig<{typeof(T).Name}>.Init] Failed to read config " + Path.GetDirectoryName(GetFullPath()));
+                Logger.Instance.Error(l_Exception);
 
                 try
                 {
@@ -217,11 +223,16 @@ namespace BeatSaberPlus.SDK.Config
         /// <param name="p_FullPath">File path</param>
         /// <param name="p_Content">Content to write</param>
         /// <returns></returns>
+#if !TEST_APP
         private static IEnumerator WriteFile(string p_FullPath, string p_Content)
+#else
+        private static void WriteFile(string p_FullPath, string p_Content)
+#endif
         {
+#if !TEST_APP
             /// Wait until menu scene
             yield return new WaitUntil(() => Game.Logic.ActiveScene == Game.Logic.SceneType.Menu);
-
+#endif
             try
             {
                 var l_Directory = Path.GetDirectoryName(p_FullPath);
@@ -230,8 +241,8 @@ namespace BeatSaberPlus.SDK.Config
             }
             catch (System.Exception l_Exception)
             {
-                Logger.Instance?.Error($"[SDK.Config][JSONConfig<{typeof(T).Name}>.WriteFile] Failed to create directory " + Path.GetDirectoryName(p_FullPath));
-                Logger.Instance?.Error(l_Exception);
+                Logger.Instance.Error($"[SDK.Config][JSONConfig<{typeof(T).Name}>.WriteFile] Failed to create directory " + Path.GetDirectoryName(p_FullPath));
+                Logger.Instance.Error(l_Exception);
             }
 
             Task.Run(() =>
@@ -248,8 +259,8 @@ namespace BeatSaberPlus.SDK.Config
                 }
                 catch (System.Exception l_Exception)
                 {
-                    Logger.Instance?.Error($"[SDK.Config][JSONConfig<{typeof(T).Name}>.WriteFile] Failed to write file " + p_FullPath);
-                    Logger.Instance?.Error(l_Exception);
+                    Logger.Instance.Error($"[SDK.Config][JSONConfig<{typeof(T).Name}>.WriteFile] Failed to write file " + p_FullPath);
+                    Logger.Instance.Error(l_Exception);
                 }
             });
         }

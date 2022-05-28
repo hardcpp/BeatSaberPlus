@@ -7,9 +7,12 @@
 		<primary-button on-click='click-btn-random' text='Select random' min-height='10' min-width='70' />
 	</horizontal>
 
-	<horizontal min-height='10'>
+	<horizontal min-height='5'>
 	</horizontal>
 
+	<horizontal>
+		<primary-button id='SafeButton' on-click='click-btn-safe' text='ENABLE SAFE MODE' min-height='10' min-width='70' />
+	</horizontal>
 	<horizontal>
 		<button text='Remove all request from queue' on-click='click-clear-queue-btn-pressed' min-height='10' min-width='70'></button>
 	</horizontal>
@@ -17,7 +20,7 @@
 		<button text='Reset blacklist' on-click='click-reset-blacklist-btn-pressed' min-height='10' min-width='70'></button>
 	</horizontal>
 
-	<horizontal min-height='10'>
+	<horizontal min-height='5'>
 	</horizontal>
 
 	<horizontal>

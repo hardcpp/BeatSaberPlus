@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using BSP_WebSocketSharp;
 
 namespace BeatSaberPlus.SDK.Network
 {
@@ -17,7 +18,7 @@ namespace BeatSaberPlus.SDK.Network
         /// <summary>
         /// Web socket client
         /// </summary>
-        private WebSocket m_Client;
+        private System.Net.WebSockets.ClientWebSocket m_Client;
         /// <summary>
         /// Start time
         /// </summary>
@@ -31,6 +32,18 @@ namespace BeatSaberPlus.SDK.Network
         /// </summary>
         private CancellationTokenSource m_CancellationToken;
         /// <summary>
+        /// Receive buffer
+        /// </summary>
+        private byte[] m_ReceiveBuffer = new byte[1024 * 10];
+        /// <summary>
+        /// Send buffer
+        /// </summary>
+        private byte[] m_SendBuffer = new byte[1024 * 10];
+        /// <summary>
+        /// Send buffer lock
+        /// </summary>
+        private SemaphoreSlim m_SendSemaphoreSlim = new SemaphoreSlim(1, 1);
+        /// <summary>
         /// Reconnect lock semaphore
         /// </summary>
         private SemaphoreSlim m_ReconnectLock = new SemaphoreSlim(1, 1);
@@ -41,7 +54,7 @@ namespace BeatSaberPlus.SDK.Network
         /// <summary>
         /// Is connected
         /// </summary>
-        public bool IsConnected => !(m_Client is null) && (m_Client.ReadyState == WebSocketState.Open || m_Client.ReadyState == WebSocketState.Connecting);
+        public bool IsConnected => !(m_Client is null) && (m_Client.State == System.Net.WebSockets.WebSocketState.Open || m_Client.State == System.Net.WebSockets.WebSocketState.Connecting);
         /// <summary>
         /// Should auto reconnect
         /// </summary>
@@ -84,9 +97,10 @@ namespace BeatSaberPlus.SDK.Network
                 if (IsConnected)
                 {
                     m_CancellationToken?.Cancel();
-                    m_Client.Close();
+                    m_Client.Abort();
                 }
 
+                m_Client.Dispose();
                 m_Client = null;
             }
         }
@@ -111,19 +125,53 @@ namespace BeatSaberPlus.SDK.Network
                     m_URI               = p_URI;
                     m_CancellationToken = new CancellationTokenSource();
 
-                    Task.Run(() =>
+                    Task.Run(async () =>
                     {
                         try
                         {
-                            m_Client = new WebSocket(p_URI);
-                            m_Client.OnOpen     += Client_OnOpen;
-                            m_Client.OnClose    += Client_OnClose;
-                            m_Client.OnError    += Client_OnError;
-                            m_Client.OnMessage  += Client_OnMessageReceived;
-
+                            m_Client = new System.Net.WebSockets.ClientWebSocket();
                             m_StartTime = DateTime.UtcNow;
 
-                            m_Client.ConnectAsync();
+                            try
+                            {
+                                await m_Client.ConnectAsync(new Uri(p_URI), m_CancellationToken.Token);
+                            }
+                            catch (System.Exception)
+                            {
+
+                            }
+
+                            if (m_Client.State == System.Net.WebSockets.WebSocketState.Open)
+                            {
+                                Client_OnOpen(this);
+
+                                try
+                                {
+                                    var l_ReceiveArraySegment = new ArraySegment<byte>(m_ReceiveBuffer);
+
+                                    var l_Message = "";
+                                    while (m_Client.State == System.Net.WebSockets.WebSocketState.Open)
+                                    {
+                                        var l_Received = await m_Client.ReceiveAsync(l_ReceiveArraySegment, CancellationToken.None);
+
+                                        l_Message += Encoding.UTF8.GetString(m_ReceiveBuffer, l_ReceiveArraySegment.Offset, l_Received.Count);
+
+                                        if (l_Received.EndOfMessage)
+                                        {
+                                            Client_OnMessageReceived(this, l_Message);
+                                            l_Message = string.Empty;
+                                        }
+                                    }
+                                }
+                                catch (System.Exception)
+                                {
+
+                                }
+
+                                Client_OnClose(this);
+                            }
+                            else
+                                Client_OnError(this);
                         }
                         catch (TaskCanceledException)
                         {
@@ -161,27 +209,35 @@ namespace BeatSaberPlus.SDK.Network
         /// Send a message
         /// </summary>
         /// <param name="p_Message">Message to send</param>
-        public void SendMessage(string p_Message)
+        public async void SendMessage(string p_Message)
         {
+            if (!IsConnected)
+            {
+                Logger.Instance.Debug("[SDK.Network][WebSocketClient.SendMessage] WebSocket not connected, can't send message! " + m_Client.State);
+                return;
+            }
+
+            await m_SendSemaphoreSlim.WaitAsync();
             try
             {
-                if (IsConnected)
-                {
 #if DEBUG
-                    /// Only log this in debug builds, since it can potentially contain sensitive auth data
-                    Logger.Instance.Debug($"Sending {p_Message}");
+                /// Only log this in debug builds, since it can potentially contain sensitive auth data
+                Logger.Instance.Debug($"Sending {p_Message}");
 #endif
-                    m_Client.Send(p_Message);
-                }
-                else
-                {
-                    Logger.Instance.Debug("[SDK.Network][WebSocketClient.SendMessage] WebSocket not connected, can't send message!");
-                }
+
+                var l_Writen    = Encoding.UTF8.GetBytes(p_Message, 0, p_Message.Length, m_SendBuffer, 0);
+                var l_Segment   = new ArraySegment<byte>(m_SendBuffer, 0, l_Writen);
+
+                await m_Client.SendAsync(l_Segment, System.Net.WebSockets.WebSocketMessageType.Text, true, m_CancellationToken.Token);
             }
             catch (Exception l_Exception)
             {
                 Logger.Instance.Error($"[SDK.Network][WebSocketClient.SendMessage] An exception occurred while trying to send message to {m_URI}");
                 Logger.Instance.Error(l_Exception);
+            }
+            finally
+            {
+                m_SendSemaphoreSlim.Release();
             }
         }
 
@@ -196,10 +252,11 @@ namespace BeatSaberPlus.SDK.Network
             if (!m_ReconnectLock.Wait(0))
                 return;
 
-            m_Client.OnOpen     -= Client_OnOpen;
-            m_Client.OnClose    -= Client_OnClose;
-            m_Client.OnError    -= Client_OnError;
-            m_Client.OnMessage  -= Client_OnMessageReceived;
+            m_CancellationToken.Cancel();
+            m_CancellationToken = new CancellationTokenSource();
+
+            m_Client.Abort();
+            m_Client.Dispose();
             m_Client = null;
 
             if (AutoReconnect && !m_CancellationToken.IsCancellationRequested)
@@ -232,8 +289,7 @@ namespace BeatSaberPlus.SDK.Network
         /// On client connected
         /// </summary>
         /// <param name="p_Sender">Event sender</param>
-        /// <param name="p_Event">Event data</param>
-        private void Client_OnOpen(object p_Sender, EventArgs p_Event)
+        private void Client_OnOpen(object p_Sender)
         {
             Logger.Instance.Debug($"[SDK.Network][WebSocketClient.Client_OnOpen] Connection to {m_URI} opened successfully!");
             OnOpen?.Invoke();
@@ -242,10 +298,9 @@ namespace BeatSaberPlus.SDK.Network
         /// On client closed
         /// </summary>
         /// <param name="p_Sender">Event sender</param>
-        /// <param name="p_Event">Event data</param>
-        private void Client_OnClose(object p_Sender, CloseEventArgs p_Event)
+        private void Client_OnClose(object p_Sender)
         {
-            Logger.Instance.Debug($"[SDK.Network][WebSocketClient.Client_OnClose] WebSocket connection to {m_URI} was closed : " + p_Event);
+            Logger.Instance.Debug($"[SDK.Network][WebSocketClient.Client_OnClose] WebSocket connection to {m_URI} was closed");
             OnClose?.Invoke();
 
             TryHandleReconnect();
@@ -254,11 +309,9 @@ namespace BeatSaberPlus.SDK.Network
         /// On error
         /// </summary>
         /// <param name="p_Sender">Event sender</param>
-        /// <param name="p_Event">Event data</param>
-        private void Client_OnError(object p_Sender, ErrorEventArgs p_Event)
+        private void Client_OnError(object p_Sender)
         {
             Logger.Instance.Error($"[SDK.Network][WebSocketClient.Client_OnError] An error occurred in WebSocket while connected to {m_URI}");
-            Logger.Instance.Error(p_Event.Exception);
 
             OnError?.Invoke();
 
@@ -268,14 +321,14 @@ namespace BeatSaberPlus.SDK.Network
         /// On message received
         /// </summary>
         /// <param name="p_Sender">Event sender</param>
-        /// <param name="p_Event">Event data</param>
-        private void Client_OnMessageReceived(object p_Sender, MessageEventArgs p_Event)
+        /// <param name="p_Message">Event data</param>
+        private void Client_OnMessageReceived(object p_Sender, string p_Message)
         {
 #if DEBUG
             /// Only log this in debug builds, since it can potentially contain sensitive auth data
-            Logger.Instance.Debug($"[SDK.Network][WebSocketClient.Client_OnMessageReceived] Message received from {m_URI}: {p_Event.Data}");
+            Logger.Instance.Debug($"[SDK.Network][WebSocketClient.Client_OnMessageReceived] Message received from {m_URI}: {p_Message}");
 #endif
-            OnMessageReceived?.Invoke(p_Event.Data);
+            OnMessageReceived?.Invoke(p_Message);
         }
     }
 }

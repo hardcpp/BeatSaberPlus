@@ -1042,15 +1042,10 @@ namespace BeatSaberPlus_ChatEmoteRain
             if (CERConfig.Instance.ChatCommands.UserPower)
                 return true;
 
-            if (p_User is BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchUser l_TwitchUser)
-            {
-                return l_TwitchUser.IsBroadcaster
-                    || (CERConfig.Instance.ChatCommands.ModeratorPower     && l_TwitchUser.IsModerator)
-                    || (CERConfig.Instance.ChatCommands.VIPPower           && l_TwitchUser.IsVip)
-                    || (CERConfig.Instance.ChatCommands.SubscriberPower    && l_TwitchUser.IsSubscriber);
-            }
-
-            return false;
+            return p_User.IsBroadcaster
+                || (CERConfig.Instance.ChatCommands.ModeratorPower     && p_User.IsModerator)
+                || (CERConfig.Instance.ChatCommands.VIPPower           && p_User.IsVip)
+                || (CERConfig.Instance.ChatCommands.SubscriberPower    && p_User.IsSubscriber);
         }
     }
 }

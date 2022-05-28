@@ -10,6 +10,9 @@ namespace BeatSaberPlus_ChatRequest.UI
     internal class ManagerLeft : BeatSaberPlus.SDK.UI.ResourceViewController<ManagerLeft>
     {
 #pragma warning disable CS0649
+        [UIComponent("SafeButton")]
+        private Button m_SafeButton = null;
+
         [UIComponent("QueueButton")]
         private Button m_QueueButton = null;
 #pragma warning restore CS0649
@@ -22,7 +25,7 @@ namespace BeatSaberPlus_ChatRequest.UI
         /// </summary>
         protected override sealed void OnViewCreation()
         {
-            /// Update queue status
+            UpdateSafeMode();
             UpdateQueueStatus();
         }
         /// <summary>
@@ -30,12 +33,26 @@ namespace BeatSaberPlus_ChatRequest.UI
         /// </summary>
         protected override sealed void OnViewActivation()
         {
+            UpdateSafeMode();
             UpdateQueueStatus();
         }
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
+        /// <summary>
+        /// Update safe mode
+        /// </summary>
+        internal void UpdateSafeMode()
+        {
+            if (m_SafeButton == null)
+                return;
+
+            if (CRConfig.Instance.SafeMode)
+                m_SafeButton.GetComponentInChildren<CurvedTextMeshPro>().text = "DISABLE SAFE MODE";
+            else
+                m_SafeButton.GetComponentInChildren<CurvedTextMeshPro>().text = "ENABLE SAFE MODE";
+        }
         /// <summary>
         /// Update queue status
         /// </summary>
@@ -66,7 +83,30 @@ namespace BeatSaberPlus_ChatRequest.UI
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
-        /// Cleat queue button
+        /// Safe mode button
+        /// </summary>
+        [UIAction("click-btn-safe")]
+        private void OnSafeModeButton()
+        {
+            if (CRConfig.Instance.SafeMode)
+            {
+                ShowConfirmationModal("<color=yellow><b>Do you really want to disable safe mode?", () =>
+                {
+                    CRConfig.Instance.SafeMode = false;
+                    UpdateSafeMode();
+                });
+            }
+            else
+            {
+                ShowConfirmationModal("<color=yellow><b>Do you really want to enable safe mode?\nThis will hide all song name & uploader in chat.", () =>
+                {
+                    CRConfig.Instance.SafeMode = true;
+                    UpdateSafeMode();
+                });
+            }
+        }
+        /// <summary>
+        /// Clear queue button
         /// </summary>
         [UIAction("click-clear-queue-btn-pressed")]
         private void OnClearQueueButton()
@@ -87,10 +127,10 @@ namespace BeatSaberPlus_ChatRequest.UI
                 ChatRequest.Instance.ResetBlacklist();
             });
         }
-        
+
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
-        
+
         /// <summary>
         /// On queue button
         /// </summary>

@@ -116,7 +116,7 @@ namespace BeatSaberPlus.SDK.Unity
                 var l_AnimControllerData = SDK.Animation.AnimationController.instance.Register(p_ID, p_Texture, p_Atlas, p_Delays);
 
                 Unity.EnhancedImage l_AnimResult = null;
-                if (l_AnimControllerData.sprite != null)
+                if (l_AnimControllerData != null && l_AnimControllerData.sprite != null)
                 {
                     if (p_ForcedHeight != -1)
                         ComputeImageSizeForHeight(ref p_Width, ref p_Height, p_ForcedHeight);

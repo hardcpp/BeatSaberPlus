@@ -119,7 +119,7 @@ namespace BeatSaberPlus.SDK.Network
                         }
                     }
 
-                    if (p_DontRetry || l_Reply.IsSuccessStatusCode || l_Reply.StatusCode == HttpStatusCode.NotFound)
+                    if (p_DontRetry || l_Reply.IsSuccessStatusCode || l_Reply.StatusCode == HttpStatusCode.NotFound || l_Reply.StatusCode == HttpStatusCode.BadRequest)
                     {
                         /// Read reply
                         var l_Buffer            = await l_Reply.Content.ReadAsByteArrayAsync();
@@ -170,7 +170,7 @@ namespace BeatSaberPlus.SDK.Network
                 {
                     l_Reply = await m_Client.PostAsync(p_URL, p_Content, p_Token);
 
-                    if (p_DontRetry || l_Reply.IsSuccessStatusCode || l_Reply.StatusCode == HttpStatusCode.NotFound)
+                    if (p_DontRetry || l_Reply.IsSuccessStatusCode || l_Reply.StatusCode == HttpStatusCode.NotFound || l_Reply.StatusCode == HttpStatusCode.BadRequest)
                     {
                         /// Read reply
                         var l_Buffer            = await l_Reply.Content.ReadAsByteArrayAsync();
@@ -226,7 +226,7 @@ namespace BeatSaberPlus.SDK.Network
                 {
                     l_Reply = await m_Client.SendAsync(l_Request, p_Token);
 
-                    if (p_DontRetry || l_Reply.IsSuccessStatusCode || l_Reply.StatusCode == HttpStatusCode.NotFound)
+                    if (p_DontRetry || l_Reply.IsSuccessStatusCode || l_Reply.StatusCode == HttpStatusCode.NotFound || l_Reply.StatusCode == HttpStatusCode.BadRequest)
                     {
                         /// Read reply
                         var l_Buffer = await l_Reply.Content.ReadAsByteArrayAsync();
@@ -277,7 +277,7 @@ namespace BeatSaberPlus.SDK.Network
                 {
                     l_Reply = await m_Client.DeleteAsync(p_URL, p_Token);
 
-                    if (p_DontRetry || l_Reply.IsSuccessStatusCode || l_Reply.StatusCode == HttpStatusCode.NotFound)
+                    if (p_DontRetry || l_Reply.IsSuccessStatusCode || l_Reply.StatusCode == HttpStatusCode.NotFound || l_Reply.StatusCode == HttpStatusCode.BadRequest)
                     {
                         /// Read reply
                         var l_Buffer = await l_Reply.Content.ReadAsByteArrayAsync();

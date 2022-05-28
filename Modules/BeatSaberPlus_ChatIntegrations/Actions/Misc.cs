@@ -26,7 +26,9 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             return new List<Interfaces.IActionBase>()
             {
                 new Misc_Delay(),
-                new Misc_PlaySound()
+                new Misc_PlaySound(),
+                new Misc_WaitMenuScene(),
+                new Misc_WaitPlayingScene()
             };
         }
     }
@@ -231,6 +233,30 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
                 m_AudioSource.pitch         = UnityEngine.Random.Range(Model.PitchMin, Model.PitchMax);
                 m_AudioSource.Play();
             }
+        }
+    }
+
+    public class Misc_WaitMenuScene : Interfaces.IAction<Misc_WaitMenuScene, Models.Action>
+    {
+        public override string Description => "Wait for menu scene";
+
+        public Misc_WaitMenuScene() { UIPlaceHolder = "Wait for menu scene"; UIPlaceHolderTestButton = false; }
+
+        public override IEnumerator Eval(EventContext p_Context)
+        {
+            yield return new WaitUntil(() => BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Menu);
+        }
+    }
+
+    public class Misc_WaitPlayingScene : Interfaces.IAction<Misc_WaitPlayingScene, Models.Action>
+    {
+        public override string Description => "Wait for playing scene";
+
+        public Misc_WaitPlayingScene() { UIPlaceHolder = "Wait for playing scene"; UIPlaceHolderTestButton = false; }
+
+        public override IEnumerator Eval(EventContext p_Context)
+        {
+            yield return new WaitUntil(() => BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Playing);
         }
     }
 }

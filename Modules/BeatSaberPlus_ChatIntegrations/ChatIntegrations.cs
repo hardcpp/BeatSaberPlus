@@ -84,6 +84,7 @@ namespace BeatSaberPlus_ChatIntegrations
             new Events.ChatCommand(),
             new Events.ChatFollow(),
             new Events.ChatPointsReward(),
+            new Events.ChatRaid(),
             new Events.ChatSubscription(),
             new Events.Dummy(),
             new Events.LevelEnded(),
@@ -188,6 +189,7 @@ namespace BeatSaberPlus_ChatIntegrations
                 BeatSaberPlus.SDK.Chat.Service.Multiplexer.OnChannelFollow         += ChatCoreMutiplixer_OnChannelFollow;
                 BeatSaberPlus.SDK.Chat.Service.Multiplexer.OnChannelBits           += ChatCoreMutiplixer_OnChannelBits;
                 BeatSaberPlus.SDK.Chat.Service.Multiplexer.OnChannelPoints         += ChatCoreMutiplixer_OnChannelPoints;
+                BeatSaberPlus.SDK.Chat.Service.Multiplexer.OnChannelRaid           += ChatCoreMutiplexer_OnChannelRaid;
                 BeatSaberPlus.SDK.Chat.Service.Multiplexer.OnChannelSubscription   += ChatCoreMutiplixer_OnChannelSubscription;
                 BeatSaberPlus.SDK.Chat.Service.Multiplexer.OnTextMessageReceived   += ChatCoreMutiplixer_OnTextMessageReceived;
             }
@@ -273,6 +275,7 @@ namespace BeatSaberPlus_ChatIntegrations
                 BeatSaberPlus.SDK.Chat.Service.Multiplexer.OnChannelFollow       -= ChatCoreMutiplixer_OnChannelFollow;
                 BeatSaberPlus.SDK.Chat.Service.Multiplexer.OnChannelBits         -= ChatCoreMutiplixer_OnChannelBits;
                 BeatSaberPlus.SDK.Chat.Service.Multiplexer.OnChannelPoints       -= ChatCoreMutiplixer_OnChannelPoints;
+                BeatSaberPlus.SDK.Chat.Service.Multiplexer.OnChannelRaid         -= ChatCoreMutiplexer_OnChannelRaid;
                 BeatSaberPlus.SDK.Chat.Service.Multiplexer.OnChannelSubscription -= ChatCoreMutiplixer_OnChannelSubscription;
                 BeatSaberPlus.SDK.Chat.Service.Multiplexer.OnTextMessageReceived -= ChatCoreMutiplixer_OnTextMessageReceived;
 

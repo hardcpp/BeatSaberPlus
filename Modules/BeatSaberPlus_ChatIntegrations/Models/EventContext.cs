@@ -44,6 +44,10 @@ namespace BeatSaberPlus_ChatIntegrations.Models
         /// </summary>
         public int? BitsEvent = null;
         /// <summary>
+        /// Raider count
+        /// </summary>
+        public int? RaidEvent = null;
+        /// <summary>
         /// Points
         /// </summary>
         public IChatChannelPointEvent PointsEvent = null;

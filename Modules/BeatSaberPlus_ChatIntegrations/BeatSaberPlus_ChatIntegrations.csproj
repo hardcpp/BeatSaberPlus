@@ -170,6 +170,7 @@
     <Compile Include="Actions\SongChartVisualizer.cs" />
     <Compile Include="CIConfig.cs" />
     <Compile Include="Conditions\OBS.cs" />
+    <Compile Include="Events\ChatRaid.cs" />
     <Compile Include="Events\LevelPaused.cs" />
     <Compile Include="Events\LevelResumed.cs" />
     <Compile Include="Logger.cs" />
@@ -289,6 +290,7 @@
     <EmbeddedResource Include="Actions\Views\GamePlay_Pause.bsml" />
     <EmbeddedResource Include="Actions\Views\GamePlay_ChangeBombColor.bsml" />
     <EmbeddedResource Include="Actions\Views\NoteTweaker_SwitchProfile.bsml" />
+    <EmbeddedResource Include="Actions\Views\OBS_RenameLastRecord.bsml" />
     <None Include="BuildTargets.targets" />
     <EmbeddedResource Include="Events\Views\ChatBits.bsml" />
     <EmbeddedResource Include="Events\Views\ChatCommand.bsml" />
@@ -310,6 +312,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Events\Views\LevelPaused.bsml" />
     <EmbeddedResource Include="Events\Views\LevelResumed.bsml" />
+    <EmbeddedResource Include="Events\Views\ChatRaid.bsml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\BeatSaberPlus\BeatSaberPlus.csproj">

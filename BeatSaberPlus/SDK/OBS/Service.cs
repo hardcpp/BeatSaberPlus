@@ -91,6 +91,10 @@ namespace BeatSaberPlus.SDK.OBS
         /// </summary>
         public static bool IsRecording { get; private set; } = false;
         /// <summary>
+        /// Last recorded file name
+        /// </summary>
+        public static string LastRecordedFileName { get; private set; } = string.Empty;
+        /// <summary>
         /// Active scene
         /// </summary>
         public static Models.Scene ActiveScene { get; private set; } = null;

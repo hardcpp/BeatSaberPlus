@@ -24,7 +24,7 @@
   </horizontal>
 
   <horizontal>
-    <primary-button on-click='click-patreon-btn-pressed'                      min-width='54' text='Patreon' ></primary-button>
+    <primary-button on-click='click-patreon-btn-pressed'                      min-width='54' text='Donate - Patreon' ></primary-button>
     <primary-button on-click='click-discord-btn-pressed'                      min-width='54' text='Discord' ></primary-button>
   </horizontal>
 

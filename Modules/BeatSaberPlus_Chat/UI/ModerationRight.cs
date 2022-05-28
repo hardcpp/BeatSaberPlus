@@ -228,6 +228,12 @@ namespace BeatSaberPlus_Chat.UI
                 return;
             }
 
+            if (!(m_Users[m_SelectedIndex].Item1 is BeatSaberPlus.SDK.Chat.Services.Twitch.TwitchService))
+            {
+                ShowMessageModal("Only twitch is supported at the moment!");
+                return;
+            }
+
             ShowConfirmationModal($"Do you really want to <b>TimeOut</b> user\n{m_Users[m_SelectedIndex].Item2.DisplayName}?", () => {
                 foreach (var l_Current in BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels)
                 {
@@ -245,6 +251,12 @@ namespace BeatSaberPlus_Chat.UI
             if (m_SelectedIndex == -1)
             {
                 ShowMessageModal("Please select an user first!");
+                return;
+            }
+
+            if (!(m_Users[m_SelectedIndex].Item1 is BeatSaberPlus.SDK.Chat.Services.Twitch.TwitchService))
+            {
+                ShowMessageModal("Only twitch is supported at the moment!");
                 return;
             }
 
@@ -268,6 +280,12 @@ namespace BeatSaberPlus_Chat.UI
                 return;
             }
 
+            if (!(m_Users[m_SelectedIndex].Item1 is BeatSaberPlus.SDK.Chat.Services.Twitch.TwitchService))
+            {
+                ShowMessageModal("Only twitch is supported at the moment!");
+                return;
+            }
+
             ShowConfirmationModal($"Do you really want to <b>Mod</b> user\n{m_Users[m_SelectedIndex].Item2.DisplayName}?", () => {
                 foreach (var l_Current in BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels)
                 {
@@ -285,6 +303,12 @@ namespace BeatSaberPlus_Chat.UI
             if (m_SelectedIndex == -1)
             {
                 ShowMessageModal("Please select an user first!");
+                return;
+            }
+
+            if (!(m_Users[m_SelectedIndex].Item1 is BeatSaberPlus.SDK.Chat.Services.Twitch.TwitchService))
+            {
+                ShowMessageModal("Only twitch is supported at the moment!");
                 return;
             }
 
@@ -311,15 +335,12 @@ namespace BeatSaberPlus_Chat.UI
             string l_Text = "<align=\"left\">[" + p_Item.Item1.DisplayName + "] ";
 
             /// Handle request limits
-            if (p_Item.Item2 is BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchUser l_TwitchUser)
-            {
-                if (l_TwitchUser.IsModerator || l_TwitchUser.IsBroadcaster)
-                    l_Text += "🗡 <color=yellow>";
-                else if (l_TwitchUser.IsVip)
-                    l_Text += "💎 <color=red>";
-                else if (l_TwitchUser.IsSubscriber)
-                    l_Text += "👑 <color=#008eff>";
-            }
+            if (p_Item.Item2.IsModerator || p_Item.Item2.IsBroadcaster)
+                l_Text += "🗡 <color=yellow>";
+            else if (p_Item.Item2.IsVip)
+                l_Text += "💎 <color=red>";
+            else if (p_Item.Item2.IsSubscriber)
+                l_Text += "👑 <color=#008eff>";
 
             l_Text += p_Item.Item2.DisplayName;
 

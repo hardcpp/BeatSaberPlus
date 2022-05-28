@@ -171,8 +171,8 @@ namespace BeatSaberPlus_Chat.UI
             if (BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels.Count == 0)
                 return;
 
-            var l_Channel = BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels.First();
-            l_Channel.Item1.SendTextMessage(l_Channel.Item2, p_Text);
+            foreach (var l_Channel in BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels)
+                l_Channel.Item1.SendTextMessage(l_Channel.Item2, p_Text);
 
             m_MessageContent = "";
             ShowModal("OpenMessageModal");

@@ -25,6 +25,14 @@ namespace BeatSaberPlus.SDK.Misc
             return (Int64)(DateTime.UtcNow - s_UnixEpoch).TotalSeconds;
         }
         /// <summary>
+        /// Get UnixTimestamp
+        /// </summary>
+        /// <returns>Unix timestamp</returns>
+        public static Int64 UnixTimeNowMS()
+        {
+            return (Int64)(DateTime.UtcNow - s_UnixEpoch).TotalMilliseconds;
+        }
+        /// <summary>
         /// Convert DateTime to UnixTimestamp
         /// </summary>
         /// <param name="p_DateTime">The DateTime to convert</param>
@@ -32,6 +40,15 @@ namespace BeatSaberPlus.SDK.Misc
         public static Int64 ToUnixTime(DateTime p_DateTime)
         {
             return (Int64)p_DateTime.ToUniversalTime().Subtract(s_UnixEpoch).TotalSeconds;
+        }
+        /// <summary>
+        /// Convert DateTime to UnixTimestamp
+        /// </summary>
+        /// <param name="p_DateTime">The DateTime to convert</param>
+        /// <returns></returns>
+        public static Int64 ToUnixTimeMS(DateTime p_DateTime)
+        {
+            return (Int64)p_DateTime.ToUniversalTime().Subtract(s_UnixEpoch).TotalMilliseconds;
         }
         /// <summary>
         /// Convert UnixTimestamp to DateTime

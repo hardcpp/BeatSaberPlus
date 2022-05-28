@@ -47,28 +47,6 @@ namespace BeatSaberPlus_NoteTweaker.UI
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
-        /// Reset button
-        /// </summary>
-        [UIAction("click-reset-btn-pressed")]
-        private void OnResetButton()
-        {
-            ShowConfirmationModal("<color=yellow><b>Do you really want to reset\nnote tweaker configuration?", () =>
-            {
-                /// Reset config
-                NTConfig.Instance.Reset();
-                NTConfig.Instance.Enabled = true;
-                NTConfig.Instance.Save();
-
-                /// Refresh values
-                Settings.Instance.RefreshSettings();
-                SettingsRight.Instance.RefreshSettings();
-            });
-        }
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        /// <summary>
         /// Documentation button
         /// </summary>
         [UIAction("click-documentation-btn-pressed")]

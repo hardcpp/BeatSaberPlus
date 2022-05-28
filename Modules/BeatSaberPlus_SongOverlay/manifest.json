@@ -3,7 +3,7 @@
   "id": "BeatSaberPlus_SongOverlay",
   "name": "BeatSaberPlus_SongOverlay",
   "author": "HardCPP#1985",
-  "version": "4.3.1",
+  "version": "4.4.0",
   "description": "BeatSaberPlus song overlay module.",
   "gameVersion": "1.20.0",
   "dependsOn": {
@@ -12,7 +12,7 @@
     "BeatSaberPlusCORE": "^4.0.2"
   },
   "links": {
-    "project-home": "https://discord.gg/63ebPMC",
-    "donate": "https://www.patreon.com/BeatSaberPlus"
+    "project-home": "https://discord.chatplex.org",
+    "donate": "https://donate.chatplex.org"
   }
 }

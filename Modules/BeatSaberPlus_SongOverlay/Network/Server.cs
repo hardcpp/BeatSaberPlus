@@ -340,15 +340,15 @@ namespace BeatSaberPlus_SongOverlay.Network
         /// <returns></returns>
         private static IEnumerator Coroutine_WaitForGameplayReady()
         {
-            yield return new WaitUntil(() => Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().FirstOrDefault());
+            yield return new WaitUntil(() => Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().LastOrDefault());
             yield return new WaitUntil(() => Resources.FindObjectsOfTypeAll<ScoreController>().LastOrDefault());
             yield return new WaitUntil(() => Resources.FindObjectsOfTypeAll<ComboController>().LastOrDefault());
-            yield return new WaitUntil(() => Resources.FindObjectsOfTypeAll<PauseController>().FirstOrDefault());
+            yield return new WaitUntil(() => Resources.FindObjectsOfTypeAll<PauseController>().LastOrDefault());
 
-            m_AudioTimeSyncController = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().FirstOrDefault();
+            m_AudioTimeSyncController = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().LastOrDefault();
             m_ScoreController = Resources.FindObjectsOfTypeAll<ScoreController>().LastOrDefault();
             m_ComboController = Resources.FindObjectsOfTypeAll<ComboController>().LastOrDefault();
-            m_PauseController = Resources.FindObjectsOfTypeAll<PauseController>().FirstOrDefault();
+            m_PauseController = Resources.FindObjectsOfTypeAll<PauseController>().LastOrDefault();
 
             m_ComboController.comboDidChangeEvent           += ComboController_comboDidChangeEvent;
             m_ScoreController.scoreDidChangeEvent           += ScoreController_scoreDidChangeEvent;

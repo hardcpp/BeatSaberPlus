@@ -192,9 +192,9 @@ namespace BeatSaberPlus_ChatRequest
             if (p_ContextMap != null)
             {
                 p_Message = p_Message.Replace("$BSRKey",            p_ContextMap.id);
-                p_Message = p_Message.Replace("$SongName",          p_ContextMap.metadata.songName.Replace(".", " . "));
-                p_Message = p_Message.Replace("$LevelAuthorName",   p_ContextMap.metadata.levelAuthorName.Replace(".", " . "));
-                p_Message = p_Message.Replace("$UploaderName",      p_ContextMap.uploader.name.Replace(".", " . "));
+                p_Message = p_Message.Replace("$SongName",          CRConfig.Instance.SafeMode ? p_ContextMap.id : p_ContextMap.metadata.songName.Replace(".", " . "));
+                p_Message = p_Message.Replace("$LevelAuthorName",   CRConfig.Instance.SafeMode ? p_ContextMap.id : p_ContextMap.metadata.levelAuthorName.Replace(".", " . "));
+                p_Message = p_Message.Replace("$UploaderName",      CRConfig.Instance.SafeMode ? p_ContextMap.id : p_ContextMap.uploader.name.Replace(".", " . "));
                 p_Message = p_Message.Replace("$Vote",              Math.Round((double)p_ContextMap.stats.score * 100f, 0).ToString());
             }
 
@@ -220,13 +220,7 @@ namespace BeatSaberPlus_ChatRequest
         /// <returns></returns>
         private bool HasPower(IChatUser p_User)
         {
-            if (p_User is BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchUser)
-            {
-                var l_TwitchUser = p_User as BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchUser;
-                return l_TwitchUser.IsBroadcaster || (CRConfig.Instance.ModeratorPower && l_TwitchUser.IsModerator);
-            }
-
-            return false;
+            return p_User.IsBroadcaster || (CRConfig.Instance.ModeratorPower && p_User.IsModerator);
         }
 
         ////////////////////////////////////////////////////////////////////////////

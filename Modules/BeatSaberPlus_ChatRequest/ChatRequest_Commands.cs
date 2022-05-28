@@ -123,6 +123,12 @@ namespace BeatSaberPlus_ChatRequest
 
             if (!OnlyHexInString(l_Key))
             {
+                if (CRConfig.Instance.SafeMode)
+                {
+                    SendChatMessage("@$UserName Search is disabled", p_Service, p_Message);
+                    return;
+                }
+
                 BeatSaberPlus.SDK.Game.BeatMapsClient.GetOnlineBySearch(l_Key, (p_Valid, p_SearchTaskResult) =>
                 {
                     if (!p_Valid || p_SearchTaskResult.Length == 0)
@@ -197,22 +203,19 @@ namespace BeatSaberPlus_ChatRequest
             string l_NamePrefix = "";
 
             /// Handle request limits
-            if (p_Service is BeatSaberPlus.SDK.Chat.Services.Twitch.TwitchService)
             {
-                var l_TwitchUser = p_Message.Sender as BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchUser;
-
                 (int, string) l_Limit = (CRConfig.Instance.UserMaxRequest, "Users");
 
-                if (l_TwitchUser.IsVip && !l_TwitchUser.IsSubscriber)       l_Limit = (l_Limit.Item1 + CRConfig.Instance.VIPBonusRequest,                                             "VIPs");
-                if (l_TwitchUser.IsSubscriber && !l_TwitchUser.IsVip)       l_Limit = (l_Limit.Item1 + CRConfig.Instance.SubscriberBonusRequest,                                      "Subscribers");
-                if (l_TwitchUser.IsSubscriber &&  l_TwitchUser.IsVip)       l_Limit = (l_Limit.Item1 + CRConfig.Instance.VIPBonusRequest + CRConfig.Instance.SubscriberBonusRequest,  "VIP Subscribers");
-                if (l_TwitchUser.IsModerator || l_TwitchUser.IsBroadcaster) l_Limit = (1000,                                                                                          "Moderators");
+                if (p_Message.Sender.IsVip          && !p_Message.Sender.IsSubscriber)  l_Limit = (l_Limit.Item1 + CRConfig.Instance.VIPBonusRequest,                                             "VIPs");
+                if (p_Message.Sender.IsSubscriber   && !p_Message.Sender.IsVip)         l_Limit = (l_Limit.Item1 + CRConfig.Instance.SubscriberBonusRequest,                                      "Subscribers");
+                if (p_Message.Sender.IsSubscriber   && p_Message.Sender.IsVip)          l_Limit = (l_Limit.Item1 + CRConfig.Instance.VIPBonusRequest + CRConfig.Instance.SubscriberBonusRequest,  "VIP Subscribers");
+                if (p_Message.Sender.IsModerator    || p_Message.Sender.IsBroadcaster)  l_Limit = (1000,                                                                                          "Moderators");
 
-                if (l_TwitchUser.IsModerator || l_TwitchUser.IsBroadcaster)
+                if (p_Message.Sender.IsModerator || p_Message.Sender.IsBroadcaster)
                     l_NamePrefix = "🗡";
-                else if (l_TwitchUser.IsVip)
+                else if (p_Message.Sender.IsVip)
                     l_NamePrefix = "💎";
-                else if (l_TwitchUser.IsSubscriber)
+                else if (p_Message.Sender.IsSubscriber)
                     l_NamePrefix = "👑";
 
                 if (l_UserRequestCount >= l_Limit.Item1)
@@ -220,8 +223,8 @@ namespace BeatSaberPlus_ChatRequest
                     SendChatMessage(CRConfig.Instance.Commands.BSRCommand_RequestLimit
                                     .Replace("$UserName",           p_Message.Sender.UserName)
                                     .Replace("$UserRequestCount",   l_UserRequestCount.ToString())
-                                    .Replace("$UserType",           l_Limit.Item2)
-                                    .Replace("$UserTypeLimit",      l_Limit.Item1.ToString())/*Fix old variable*/.Replace("$UsersLimit", l_Limit.Item1.ToString()),
+                                    .Replace("$UserTypeLimit",      l_Limit.Item1.ToString())/*Fix old variable*/.Replace("$UsersLimit", l_Limit.Item1.ToString())
+                                    .Replace("$UserType",           l_Limit.Item2),
                                     p_Service, p_Message);
                     return;
                 }
@@ -354,7 +357,7 @@ namespace BeatSaberPlus_ChatRequest
                         if (l_I != 0)
                             l_Reply += ", ";
 
-                        l_Reply += " (bsr " + SongQueue[l_I].BeatMap.id.ToLower() + ") " + SongQueue[l_I].BeatMap.name;
+                        l_Reply += " (bsr " + SongQueue[l_I].BeatMap.id.ToLower() + ") " + (CRConfig.Instance.SafeMode ? string.Empty : SongQueue[l_I].BeatMap.name);
                     }
 
                     if (l_I < SongQueue.Count)

@@ -6,8 +6,10 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace BeatSaberPlus.SDK.Chat.Services.Twitch
 {
@@ -122,10 +124,6 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
         /// </summary>
         private string m_LoggedInUsername;
         /// <summary>
-        /// Logged in user ID
-        /// </summary>
-        private string m_LoggedInUserID = "";
-        /// <summary>
         /// Joined channels
         /// </summary>
         private ConcurrentDictionary<string, TwitchChannel> m_Channels = new ConcurrentDictionary<string, TwitchChannel>();
@@ -211,7 +209,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
         /// <summary>
         /// Start the service
         /// </summary>
-        internal void Start()
+        public void Start()
         {
             lock (m_InitLock)
             {
@@ -235,7 +233,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
         /// <summary>
         /// Stop the service
         /// </summary>
-        internal void Stop()
+        public void Stop()
         {
             if (!m_IsStarted)
                 return;
@@ -263,6 +261,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                 {
                     m_DataProvider.TryReleaseChannelResources(l_Channel.Value);
                     Logger.Instance.Info($"Removed channel {l_Channel.Value.Id} from the channel list.");
+                    m_OnRoomVideoPlaybackUpdatedCallbacks?.InvokeAll(this, l_Channel.Value, false, 0);
                     m_OnLeaveRoomCallbacks?.InvokeAll(this, l_Channel.Value);
                 }
                 m_Channels.Clear();
@@ -270,6 +269,97 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
 
                 m_LoggedInUser      = null;
                 m_LoggedInUsername  = null;
+            }
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Web page HTML content
+        /// </summary>
+        /// <returns></returns>
+        public string WebPageHTMLForm()
+        {
+            var l_ChannelList = AuthConfig.Twitch.Channels.Trim().Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            var l_Content     = System.Text.Encoding.UTF8.GetString(Plugin.GetResource(Assembly.GetExecutingAssembly(), "BeatSaberPlus.SDK.Chat.Services.Twitch.TwitchHTMLForm.html"));
+
+            l_Content = l_Content.Replace("{TWITCH_CLIENTID}", TWITCH_CLIENT_ID);
+            l_Content = l_Content.Replace("{TWITCH_SCOPES}",   string.Join("+", RequiredTokenScopes));
+            l_Content = l_Content.Replace("{TWITCH_OAUTH}",    AuthConfig.Twitch.OAuthToken);
+            l_Content = l_Content.Replace("{TWITCH_CHANNEL1}", l_ChannelList.Count >= 1 ? l_ChannelList[0] : "");
+            l_Content = l_Content.Replace("{TWITCH_CHANNEL2}", l_ChannelList.Count >= 2 ? l_ChannelList[1] : "");
+            l_Content = l_Content.Replace("{TWITCH_CHANNEL3}", l_ChannelList.Count >= 3 ? l_ChannelList[2] : "");
+            l_Content = l_Content.Replace("{TWITCH_CHANNEL4}", l_ChannelList.Count >= 4 ? l_ChannelList[3] : "");
+            l_Content = l_Content.Replace("{TWITCH_CHANNEL5}", l_ChannelList.Count >= 5 ? l_ChannelList[4] : "");
+
+            return l_Content;
+        }
+        /// <summary>
+        /// Web page HTML content
+        /// </summary>
+        /// <returns></returns>
+        public string WebPageHTML()
+            => System.Text.Encoding.UTF8.GetString(Plugin.GetResource(Assembly.GetExecutingAssembly(), "BeatSaberPlus.SDK.Chat.Services.Twitch.TwitchHTML.html"));
+        /// <summary>
+        /// Web page javascript content
+        /// </summary>
+        /// <returns></returns>
+        public string WebPageJS()
+            => System.Text.Encoding.UTF8.GetString(Plugin.GetResource(Assembly.GetExecutingAssembly(), "BeatSaberPlus.SDK.Chat.Services.Twitch.TwitchJS.js"));
+        /// <summary>
+        /// Web page javascript content
+        /// </summary>
+        /// <returns></returns>
+        public string WebPageJSValidate()
+            => System.Text.Encoding.UTF8.GetString(Plugin.GetResource(Assembly.GetExecutingAssembly(), "BeatSaberPlus.SDK.Chat.Services.Twitch.TwitchJSValidate.js"));
+        /// <summary>
+        /// On web page post data
+        /// </summary>
+        /// <param name="p_PostData">Post data</param>
+        public void WebPageOnPost(Dictionary<string, string> p_PostData)
+        {
+            var l_NewTwitchChannels = new List<string>();
+
+            foreach (var l_Data in p_PostData)
+            {
+                switch (l_Data.Key)
+                {
+                    case "twitch_oauthtoken":
+                        var l_NewTwitchOauthToken    = HttpUtility.UrlDecode(l_Data.Value);
+                        AuthConfig.Twitch.OAuthToken = l_NewTwitchOauthToken.StartsWith("oauth:")
+                                                        ?
+                                                            l_NewTwitchOauthToken
+                                                        :
+                                                            !string.IsNullOrEmpty(l_NewTwitchOauthToken)
+                                                            ?
+                                                                $"oauth:{l_NewTwitchOauthToken}"
+                                                            :
+                                                                ""
+                                                        ;
+                        break;
+
+                    case "twitch_channel1":
+                    case "twitch_channel2":
+                    case "twitch_channel3":
+                    case "twitch_channel4":
+                    case "twitch_channel5":
+                        var l_Value = l_Data.Value.ToLower().Trim();
+                        if (!string.IsNullOrEmpty(l_Value))
+                            l_NewTwitchChannels.Add(l_Data.Value.ToLower().Trim());
+                        break;
+                }
+            }
+
+            try
+            {
+                AuthConfig.Twitch.Channels = string.Join(",", l_NewTwitchChannels.Distinct());
+                OnCredentialsUpdated(false);
+            }
+            catch (Exception l_Exception)
+            {
+                Logger.Instance.Error("[SDK.Chat.Services.Twitch][TwitchService.WebPageOnPost] An exception occurred while updating config");
+                Logger.Instance.Error(l_Exception);
             }
         }
 
@@ -395,7 +485,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                     m_CurrentSentMessageCount++;
                 }
 
-                Thread.Sleep(50);
+                Thread.Sleep(100);
             }
         }
         /// <summary>
@@ -404,6 +494,9 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
         /// <returns></returns>
         private async Task UpdateHelix()
         {
+            /// Make compiler happy
+            await Task.Delay((int)100);
+
             while (m_IsStarted)
             {
                 HelixAPI.Update();
@@ -447,7 +540,6 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                 return;
 
             string l_MessageID  = System.Guid.NewGuid().ToString();
-            /// :{m_LoggedInUser.UserName}!{m_LoggedInUser.UserName}@{m_LoggedInUser.UserName}.tmi.twitch.tv
             string l_Message    = $"@id={l_MessageID} PRIVMSG #{p_Channel.Id} :{new string(p_Message.Where(c => !char.IsControl(c)).ToArray())}\r\n";
 
             m_TextMessageQueue.Enqueue(l_Message);
@@ -653,6 +745,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
         {
             lock (m_MessageReceivedLock)
             {
+                //System.IO.File.AppendAllText("out.txt", p_RawMessage + "\r\n");
                 ///Logger.Instance.Info("RawMessage: " + p_RawMessage);
                 m_MessageReceivedParsingBuffer.Clear();
                 if (!m_MessageParser.ParseRawMessage(p_RawMessage, m_Channels, m_LoggedInUser, m_MessageReceivedParsingBuffer, m_LoggedInUsername))
@@ -682,8 +775,8 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
 
                         case "RECONNECT":
                             m_OnSystemMessageCallbacks?.InvokeAll(this, "[Debug] Received Reconnect");
-#endif
                             continue;
+#endif
 
                         /// Successful login
                         case "376":
@@ -720,6 +813,10 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                         case "USERNOTICE":
                         case "PRIVMSG":
                             m_OnTextMessageReceivedCallbacks?.InvokeAll(this, l_TwitchMessage);
+
+                            if (l_TwitchMessage.IsRaid)
+                                m_OnChannelRaidCallbacks?.InvokeAll(this, l_TwitchChannel, l_Sender, l_TwitchMessage.RaidViewerCount);
+
                             continue;
 
                         case "JOIN":
@@ -740,6 +837,7 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
                             {
                                 m_DataProvider.TryReleaseChannelResources(l_TwitchMessage.Channel);
                                 Logger.Instance.Info($"Removed channel {l_Channel.Id} from the channel list.");
+                                m_OnRoomVideoPlaybackUpdatedCallbacks?.InvokeAll(this, l_TwitchMessage.Channel, false, 0);
                                 m_OnLeaveRoomCallbacks?.InvokeAll(this, l_TwitchMessage.Channel);
 
                                 if (!string.IsNullOrEmpty(m_OAuthTokenAPI))

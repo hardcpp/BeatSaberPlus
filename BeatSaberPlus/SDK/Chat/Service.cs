@@ -14,6 +14,10 @@ namespace BeatSaberPlus.SDK.Chat
         /// <summary>
         /// Chat core instance
         /// </summary>
+        private static List<Interfaces.IChatService> m_ExternalServices = new List<IChatService>();
+        /// <summary>
+        /// Chat core instance
+        /// </summary>
         private static List<Interfaces.IChatService> m_Services = null;
         /// <summary>
         /// Chat core multiplexer
@@ -48,6 +52,18 @@ namespace BeatSaberPlus.SDK.Chat
             SettingsConfig.Init();
 
             m_UsingFastLoad = System.Environment.CommandLine.ToLower().Contains("-fastload");
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Register external chat service
+        /// </summary>
+        /// <param name="p_Service"></param>
+        public static void RegisterExternalService(Interfaces.IChatService p_Service)
+        {
+            m_ExternalServices.Add(p_Service);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -130,10 +146,11 @@ namespace BeatSaberPlus.SDK.Chat
                 return;
 
             /// Init services
-            m_Services = new List<Interfaces.IChatService>()
-            {
-                new Services.Twitch.TwitchService()
-            };
+            m_Services = new List<IChatService>();
+#if !TEST_APP
+            m_Services.Add(new Services.Twitch.TwitchService());
+#endif
+            m_Services.AddRange(m_ExternalServices);
 
             /// Run all services
             m_ChatCoreMutiplixer = new Services.ChatServiceMultiplexer(m_Services);
@@ -142,10 +159,7 @@ namespace BeatSaberPlus.SDK.Chat
 
             /// Start services
             foreach (var l_Service in m_Services)
-            {
-                if (l_Service is Services.Twitch.TwitchService l_TwitchService)
-                    l_TwitchService.Start();
-            }
+                l_Service.Start();
 
             /// WebApp
             WebApp.Start();
@@ -163,8 +177,10 @@ namespace BeatSaberPlus.SDK.Chat
             /// WebApp
             WebApp.Stop();
 
+#if !TEST_APP
             /// Clear cache
             ImageProvider.ClearCache();
+#endif
 
             /// Unbind services
             m_ChatCoreMutiplixer.OnChannelResourceDataCached -= ChatCoreMutiplixer_OnChannelResourceDataCached;
@@ -173,10 +189,7 @@ namespace BeatSaberPlus.SDK.Chat
 
             /// Stop all chat services
             foreach (var l_Service in m_Services)
-            {
-                if (l_Service is Services.Twitch.TwitchService l_TwitchService)
-                    l_TwitchService.Stop();
-            }
+                l_Service.Stop();
 
             m_Services = null;
         }
@@ -217,11 +230,14 @@ namespace BeatSaberPlus.SDK.Chat
                 return;
             }
 
+#if !TEST_APP
             int l_Count = 0;
             int l_Loaded = 0;
+#endif
 
             OnLoadingStateChanged?.Invoke(true);
 
+#if !TEST_APP
             Unity.MainThreadInvoker.Enqueue(() => UI.LoadingProgressBar.instance.ShowLoadingProgressBar("Loading animated emotes...", 0f));
 
             foreach (var l_Current in p_Resources)
@@ -262,6 +278,7 @@ namespace BeatSaberPlus.SDK.Chat
                 Unity.MainThreadInvoker.Enqueue(() => UI.LoadingProgressBar.instance.SetProgress("Loaded 0 animated emotes...", 1f));
                 Unity.MainThreadInvoker.Enqueue(() => UI.LoadingProgressBar.instance.HideTimed(4f));
             }
+#endif
         }
         /// <summary>
         /// On text message received
@@ -270,6 +287,7 @@ namespace BeatSaberPlus.SDK.Chat
         /// <param name="p_Message">Chat message</param>
         private static void ChatCoreMutiplixer_OnTextMessageReceived(IChatService p_Service, IChatMessage p_Message)
         {
+#if !TEST_APP
             if (p_Message.Message.Length > 2 && p_Message.Message[0] == '!')
             {
                 string l_LMessage = p_Message.Message.ToLower();
@@ -289,6 +307,7 @@ namespace BeatSaberPlus.SDK.Chat
                         + $"https://scoresaber.com/u/{Game.UserPlatform.GetUserID() ?? "unk"}");
                 }
             }
+#endif
 
             try
             {

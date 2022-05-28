@@ -67,6 +67,15 @@ namespace BeatSaberPlus_ChatIntegrations
             }
         }
         /// <summary>
+        /// On channel raid
+        /// </summary>
+        /// <param name="p_ChatService">Chat service</param>
+        /// <param name="p_Channel">Channel instance</param>
+        /// <param name="p_User">User instance</param>
+        /// <param name="p_Event">Event</param>
+        private void ChatCoreMutiplexer_OnChannelRaid(IChatService p_ChatService, IChatChannel p_Channel, IChatUser p_User, int p_Event)
+            => HandleEvents(new Models.EventContext() { Type = Interfaces.TriggerType.ChatRaid, ChatService = p_ChatService, Channel = p_Channel, User = p_User, RaidEvent = p_Event });
+        /// <summary>
         /// On channel subscription
         /// </summary>
         /// <param name="p_ChatService">Chat service</param>

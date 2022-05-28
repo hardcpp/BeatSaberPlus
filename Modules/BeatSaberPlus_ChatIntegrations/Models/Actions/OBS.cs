@@ -2,6 +2,12 @@
 
 namespace BeatSaberPlus_ChatIntegrations.Models.Actions
 {
+    public class OBS_RenameLastRecord : Action
+    {
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
+        public string Format = "$OriginalName (Completed!)";
+    }
+
     public class OBS_SetRecordFilenameFormat : Action
     {
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]

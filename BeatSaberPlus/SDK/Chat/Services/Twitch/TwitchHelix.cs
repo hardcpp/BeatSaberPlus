@@ -112,13 +112,20 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
         /// <param name="p_Token">New token</param>
         internal void OnTokenChanged(string p_Token)
         {
-            if (!m_APIClient.InternalClient.DefaultRequestHeaders.Contains("client-id"))
-                m_APIClient.InternalClient.DefaultRequestHeaders.Add("client-id", TwitchService.TWITCH_CLIENT_ID);
+            try
+            {
+                if (!m_APIClient.InternalClient.DefaultRequestHeaders.Contains("client-id"))
+                    m_APIClient.InternalClient.DefaultRequestHeaders.Add("client-id", TwitchService.TWITCH_CLIENT_ID);
 
-            if (m_APIClient.InternalClient.DefaultRequestHeaders.Contains("Authorization"))
-                m_APIClient.InternalClient.DefaultRequestHeaders.Remove("Authorization");
+                if (m_APIClient.InternalClient.DefaultRequestHeaders.Contains("Authorization"))
+                    m_APIClient.InternalClient.DefaultRequestHeaders.Remove("Authorization");
 
-            m_APIClient.InternalClient.DefaultRequestHeaders.Add("Authorization",   "Bearer " + p_Token.Replace("oauth:", ""));
+                m_APIClient.InternalClient.DefaultRequestHeaders.Add("Authorization",   "Bearer " + p_Token.Replace("oauth:", ""));
+            }
+            catch
+            {
+
+            }
 
             m_APITokenScopes    = new List<string>();
             m_APIToken          = p_Token;
@@ -132,29 +139,6 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
         internal void OnBroadcasterIDChanged(string p_BroadcasterID)
         {
             m_BroadcasterID = p_BroadcasterID;
-
-            /*
-            CreatePoll(new Helix_CreatePoll()
-            {
-                title = "Hello from BS+",
-                choices = new System.Collections.Generic.List<Helix_CreatePoll.Choice>()
-                {
-                    new Helix_CreatePoll.Choice()
-                    {
-                        title ="POG"
-                    },
-
-                    new Helix_CreatePoll.Choice()
-                    {
-                        title ="POG?"
-                    }
-                },
-                duration = 60
-            }, (x, y) => { EndPoll(y, Helix_Poll.Status.TERMINATED, (xx, yy) => { }); });
-
-            */
-           // GetActivePoll((x, y) => { if (y != null) EndPoll(y, Helix_Poll.Status.TERMINATED, (xx, yy) => { }); });
-
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -263,7 +247,14 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
         private void ValidateToken()
         {
             var l_APIClient = new Network.APIClient("", TimeSpan.FromSeconds(10), false);
-            l_APIClient.InternalClient.DefaultRequestHeaders.Add("Authorization", "OAuth " + m_APIToken.Replace("oauth:", ""));
+            try
+            {
+                l_APIClient.InternalClient.DefaultRequestHeaders.Add("Authorization", "OAuth " + m_APIToken.Replace("oauth:", ""));
+            }
+            catch
+            {
+
+            }
 
             l_APIClient.GetAsync("https://id.twitch.tv/oauth2/validate", CancellationToken.None, true).ContinueWith((p_Result) =>
             {

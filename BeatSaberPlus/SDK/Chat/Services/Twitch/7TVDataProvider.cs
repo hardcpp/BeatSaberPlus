@@ -27,9 +27,11 @@ namespace BeatSaberPlus.SDK.Chat.Services.Twitch
         }
         private struct CustomPaint
         {
+#pragma warning disable CS0649
             [JsonProperty] internal string Name;
             [JsonProperty] internal CachedPaintStop[] Stops;
             [JsonProperty] internal (string, string)[] Users;
+#pragma warning restore CS0649
         }
 
         ////////////////////////////////////////////////////////////////////////////

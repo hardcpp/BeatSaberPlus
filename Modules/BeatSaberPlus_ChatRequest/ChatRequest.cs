@@ -294,7 +294,7 @@ namespace BeatSaberPlus_ChatRequest
                         if (m_LastPlayingLevel != l_CurrentMap.level)
                         {
                             m_LastPlayingLevel          = l_CurrentMap.level;
-                            m_LastPlayingLevelResponse  = l_CurrentMap.level.songName.Replace(".", " . ") + " by " + l_CurrentMap.level.levelAuthorName.Replace(".", " . ");
+                            m_LastPlayingLevelResponse  = CRConfig.Instance.SafeMode ? "" : l_CurrentMap.level.songName.Replace(".", " . ") + " by " + l_CurrentMap.level.levelAuthorName.Replace(".", " . ");
 
                             if (l_CurrentMap.level is CustomBeatmapLevel
                                 && l_CurrentMap.level.levelID.StartsWith("custom_level_"))

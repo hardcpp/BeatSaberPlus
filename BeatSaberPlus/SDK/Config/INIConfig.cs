@@ -20,6 +20,7 @@ namespace BeatSaberPlus.SDK.Config
         /// </summary>
         private ConcurrentDictionary<(string, string), string>  m_StringCache   = new ConcurrentDictionary<(string, string), string>();
         private ConcurrentDictionary<(string, string), int>     m_IntCache      = new ConcurrentDictionary<(string, string), int>();
+        private ConcurrentDictionary<(string, string), long>    m_LongCache     = new ConcurrentDictionary<(string, string), long>();
         private ConcurrentDictionary<(string, string), float>   m_FloatCache    = new ConcurrentDictionary<(string, string), float>();
         private ConcurrentDictionary<(string, string), bool>    m_BoolCache     = new ConcurrentDictionary<(string, string), bool>();
 
@@ -124,6 +125,51 @@ namespace BeatSaberPlus.SDK.Config
                 m_IntCache[(p_Section, p_Name)] = p_Value;
             else
                 m_IntCache.TryAdd((p_Section, p_Name), p_Value);
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Gets an long from the ini.
+        /// </summary>
+        /// <param name="p_Section">Section of the key.</param>
+        /// <param name="p_Name">Name of the key.</param>
+        /// <param name="p_DefaultValue">Value that should be used when no value is found.</param>
+        /// <param name="p_AutoSave">Whether or not the default value should be written if no value is found.</param>
+        /// <returns></returns>
+        public long GetLong(string p_Section, string p_Name, long p_DefaultValue = 0, bool p_AutoSave = false)
+        {
+            p_AutoSave = false;
+
+            if (m_LongCache.TryGetValue((p_Section, p_Name), out var l_Cache))
+                return l_Cache;
+
+            var l_RawValue = m_Instance.GetSetting(p_Section, p_Name);
+            if (l_RawValue != null && long.TryParse(l_RawValue, NumberStyles.Integer, NumberFormatInfo.InvariantInfo, out long l_Value))
+            {
+                m_LongCache.TryAdd((p_Section, p_Name), l_Value);
+                return l_Value;
+            }
+            else if (p_AutoSave)
+                SetLong(p_Section, p_Name, p_DefaultValue);
+
+            return p_DefaultValue;
+        }
+        /// <summary>
+        /// Sets an long in the ini.
+        /// </summary>
+        /// <param name="p_Section">Section of the key.</param>
+        /// <param name="p_Name">Name of the key.</param>
+        /// <param name="p_Value">Value that should be written.</param>
+        public void SetLong(string p_Section, string p_Name, long p_Value)
+        {
+            m_Instance.SetSetting(p_Section, p_Name, p_Value.ToString(CultureInfo.InvariantCulture));
+
+            if (m_LongCache.ContainsKey((p_Section, p_Name)))
+                m_LongCache[(p_Section, p_Name)] = p_Value;
+            else
+                m_LongCache.TryAdd((p_Section, p_Name), p_Value);
         }
 
         ////////////////////////////////////////////////////////////////////////////

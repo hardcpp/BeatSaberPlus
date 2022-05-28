@@ -11,6 +11,7 @@
         ChatMessage,
         ChatFollow,
         ChatPointsReward,
+        ChatRaid,
         ChatSubscription,
         LevelStarted,
         LevelPaused,

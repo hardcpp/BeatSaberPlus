@@ -37,6 +37,8 @@ namespace BeatSaberPlus.SDK.Chat.Services
             = new ConcurrentDictionary<ChatServiceBase, Action<IChatService, IChatChannel, IChatUser, IChatChannelPointEvent>>();
         protected ConcurrentDictionary<ChatServiceBase, Action<IChatService, IChatChannel, IChatUser, IChatSubscriptionEvent>>     m_OnChannelSubscriptionCallbacks
             = new ConcurrentDictionary<ChatServiceBase, Action<IChatService, IChatChannel, IChatUser, IChatSubscriptionEvent>>();
+        protected ConcurrentDictionary<ChatServiceBase, Action<IChatService, IChatChannel, IChatUser, int>>                        m_OnChannelRaidCallbacks
+            = new ConcurrentDictionary<ChatServiceBase, Action<IChatService, IChatChannel, IChatUser, int>>();
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -109,6 +111,11 @@ namespace BeatSaberPlus.SDK.Chat.Services
         {
             add     => m_OnChannelSubscriptionCallbacks.AddAction(this, value);
             remove  => m_OnChannelSubscriptionCallbacks.RemoveAction(this, value);
+        }
+        public event Action<IChatService, IChatChannel, IChatUser, int> OnChannelRaid
+        {
+            add     => m_OnChannelRaidCallbacks.AddAction(this, value);
+            remove  => m_OnChannelRaidCallbacks.RemoveAction(this, value);
         }
 
         ////////////////////////////////////////////////////////////////////////////

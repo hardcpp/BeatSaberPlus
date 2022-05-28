@@ -11,6 +11,8 @@ namespace BeatSaberPlus.SDK.Chat.Models.Twitch
         public bool IsActionMessage { get; internal set; }
         public bool IsHighlighted { get; internal set; }
         public bool IsPing { get; internal set; }
+        public bool IsRaid { get; internal set; }
+        public int RaidViewerCount { get; internal set; }
         public IChatUser Sender { get; internal set; }
         public IChatChannel Channel { get; internal set; }
         public IChatEmote[] Emotes { get; internal set; }

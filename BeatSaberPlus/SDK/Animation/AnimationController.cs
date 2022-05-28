@@ -14,9 +14,16 @@ namespace BeatSaberPlus.SDK.Animation
         {
             if(!registeredAnimations.TryGetValue(identifier, out AnimationControllerData animationData))
             {
-                animationData = new AnimationControllerData(tex, uvs, delays);
-                registeredAnimations.Add(identifier, animationData);
-                m_QuickUpdateList.Add(animationData);
+                try
+                {
+                    animationData = new AnimationControllerData(tex, uvs, delays);
+                    registeredAnimations.Add(identifier, animationData);
+                    m_QuickUpdateList.Add(animationData);
+                }
+                catch
+                {
+
+                }
             }
             else
             {

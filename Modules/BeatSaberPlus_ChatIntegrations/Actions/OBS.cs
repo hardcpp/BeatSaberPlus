@@ -26,6 +26,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
 
             return new List<Interfaces.IActionBase>()
             {
+                new OBS_RenameLastRecord(),
                 new OBS_StartRecording(),
                 new OBS_StartStreaming(),
                 new OBS_SetRecordFilenameFormat(),
@@ -43,6 +44,219 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
 
     ////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////
+
+    public class OBS_RenameLastRecord : Interfaces.IAction<OBS_RenameLastRecord, Models.Actions.OBS_RenameLastRecord>
+    {
+        public override string Description => "Rename last record file";
+
+        private BSMLParserParams m_ParserParams;
+
+#pragma warning disable CS0414
+        [UIComponent("CurrentMessageText")]
+        private HMUI.TextPageScrollView m_CurrentMessageText = null;
+
+        [UIComponent("ChatInputModal")]
+        protected HMUI.ModalView m_ChatInputModal = null;
+        [UIComponent("ChatInputModal_Text")]
+        protected TextMeshProUGUI m_ChatInputModal_Text = null;
+#pragma warning restore CS0414
+
+        public override sealed void BuildUI(Transform p_Parent)
+        {
+            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            m_ParserParams = BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
+
+            /// Change opacity
+            BeatSaberPlus.SDK.UI.ModalView.SetOpacity(m_ChatInputModal, 0.75f);
+
+            /// Update UI
+            UpdateUI();
+        }
+        private void UpdateUI()
+        {
+            m_CurrentMessageText.SetText(Model.Format);
+        }
+
+        [UIAction("click-set-game-btn-pressed")]
+        private void OnSetFromGameButton()
+        {
+            var l_Variables = Event.ProvidedValues.Where(x => x.Item1 == Interfaces.IValueType.String || x.Item1 == Interfaces.IValueType.Integer || x.Item1 == Interfaces.IValueType.Floating).ToArray();
+            var l_Keys = new List<(string, System.Action)>();
+
+            l_Keys.Add(("$OriginalName", () => UI.Settings.Instance.UIInputKeyboardAppend("$OriginalName")));
+            foreach (var l_Var in l_Variables)
+                l_Keys.Add(("$" + l_Var.Item2, () => UI.Settings.Instance.UIInputKeyboardAppend("$" + l_Var.Item2)));
+
+            UI.Settings.Instance.UIShowInputKeyboard(Model.Format, (p_Result) =>
+            {
+                Model.Format = p_Result;
+
+                /// Update UI
+                UpdateUI();
+
+            }, l_Keys);
+        }
+        [UIAction("click-set-chat-btn-pressed")]
+        private void OnSetFromChatButton()
+        {
+            ChatIntegrations.Instance.OnBroadcasterChatMessage += Instance_OnBroadcasterChatMessage;
+
+            var l_Variables = Event.ProvidedValues.Where(x => x.Item1 == Interfaces.IValueType.String || x.Item1 == Interfaces.IValueType.Integer || x.Item1 == Interfaces.IValueType.Floating).ToList();
+            var l_Message   = "Please input a message in chat with your streaming account.\nProvided values:\n";
+
+            l_Variables.Insert(0, (Interfaces.IValueType.String, "$OriginalName"));
+            l_Message += string.Join(", ", l_Variables.Select(x => "$" + x.Item2).ToArray());
+
+            m_ChatInputModal_Text.text = l_Message;
+
+            m_ParserParams.EmitEvent("ShowChatInputModal");
+        }
+        private void Instance_OnBroadcasterChatMessage(BeatSaberPlus.SDK.Chat.Interfaces.IChatMessage p_Message)
+        {
+            Model.Format = p_Message.Message;
+            ChatIntegrations.Instance.OnBroadcasterChatMessage -= Instance_OnBroadcasterChatMessage;
+
+            m_ParserParams.EmitEvent("CloseChatInputModal");
+
+            UpdateUI();
+        }
+        [UIAction("click-cancel-set-chat-btn-pressed")]
+        private void OnCancelSetFromChatButton()
+        {
+            m_ParserParams.EmitEvent("CloseChatInputModal");
+            ChatIntegrations.Instance.OnBroadcasterChatMessage -= Instance_OnBroadcasterChatMessage;
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        public override IEnumerator Eval(Models.EventContext p_Context)
+        {
+            if (OBSService.Status != OBSService.EStatus.Connected)
+            {
+                p_Context.HasActionFailed = true;
+                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
+                yield break;
+            }
+
+            var l_ExistingFile = OBSService.LastRecordedFileName;
+            if (string.IsNullOrEmpty(l_ExistingFile) || !System.IO.File.Exists(l_ExistingFile))
+            {
+                p_Context.HasActionFailed = true;
+                yield break;
+            }
+
+            var l_Path      = System.IO.Path.GetDirectoryName(l_ExistingFile);
+            var l_Result    = Model.Format;
+            var l_Variables = p_Context.GetValues(Interfaces.IValueType.String, Interfaces.IValueType.Integer, Interfaces.IValueType.Floating);
+            l_Variables.Add((Interfaces.IValueType.String, "OriginalName"));
+
+            for (int l_I = 0; l_I < l_Variables.Count; ++l_I)
+            {
+                var l_Var           = l_Variables[l_I];
+                var l_Key           = "$" + l_Var.Item2;
+                var l_ReplaceValue  = l_Var.Item1 == Interfaces.IValueType.String ? "" : "0";
+
+                if (l_Var.Item1 == Interfaces.IValueType.String && l_Var.Item2 == "OriginalName")
+                    l_ReplaceValue = !string.IsNullOrEmpty(l_ExistingFile) ? System.IO.Path.GetFileNameWithoutExtension(l_ExistingFile) : "";
+                else if (l_Var.Item1 == Interfaces.IValueType.Integer && p_Context.GetIntegerValue(l_Var.Item2, out var l_IntegerVal))
+                    l_ReplaceValue = l_IntegerVal.Value.ToString();
+                else if (l_Var.Item1 == Interfaces.IValueType.Floating && p_Context.GetFloatingValue(l_Var.Item2, out var l_FloatVal))
+                    l_ReplaceValue = l_FloatVal.Value.ToString();
+                else if (l_Var.Item1 == Interfaces.IValueType.String && p_Context.GetStringValue(l_Var.Item2, out var l_StringVal))
+                    l_ReplaceValue = string.Join("_", l_StringVal.Split(System.IO.Path.GetInvalidFileNameChars()));
+
+                l_Result = l_Result.Replace(l_Key, l_ReplaceValue);
+            }
+
+            var l_NewFile = System.IO.Path.Combine(l_Path, l_Result + System.IO.Path.GetExtension(l_ExistingFile));
+
+            System.Threading.Tasks.Task.Run(async () =>
+            {
+                /// Wait for OBS to finish IO
+                await System.Threading.Tasks.Task.Delay(System.TimeSpan.FromSeconds(10));
+
+                try
+                {
+                    if (System.IO.File.Exists(l_NewFile))
+                    {
+                        l_NewFile = System.IO.Path.Combine(l_Path, l_Result + BeatSaberPlus.SDK.Misc.Time.UnixTimeNow() + System.IO.Path.GetExtension(l_ExistingFile));
+                        System.IO.File.Move(l_ExistingFile, l_NewFile);
+                    }
+                    else
+                        System.IO.File.Move(l_ExistingFile, l_NewFile);
+                }
+                catch (System.Exception)
+                {
+
+                }
+            });
+
+            yield return null;
+        }
+    }
+
+    public class OBS_StartRecording : Interfaces.IAction<OBS_StartRecording, Models.Action>
+    {
+        public override string Description => "Start recording";
+
+        public OBS_StartRecording() { UIPlaceHolder = "Start recording"; UIPlaceHolderTestButton = true; }
+
+        public override IEnumerator Eval(EventContext p_Context)
+        {
+            if (OBSService.Status != OBSService.EStatus.Connected)
+            {
+                p_Context.HasActionFailed = true;
+                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
+                yield break;
+            }
+
+            OBSService.StartRecording();
+
+            yield return null;
+        }
+        protected override void OnUIPlaceholderTestButton()
+        {
+            if (OBSService.Status != OBSService.EStatus.Connected)
+            {
+                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
+                return;
+            }
+
+            OBSService.StartRecording();
+        }
+    }
+
+    public class OBS_StartStreaming : Interfaces.IAction<OBS_StartStreaming, Models.Action>
+    {
+        public override string Description => "Start streaming";
+
+        public OBS_StartStreaming() { UIPlaceHolder = "Start streaming"; UIPlaceHolderTestButton = true; }
+
+        public override IEnumerator Eval(EventContext p_Context)
+        {
+            if (OBSService.Status != OBSService.EStatus.Connected)
+            {
+                p_Context.HasActionFailed = true;
+                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
+                yield break;
+            }
+
+            OBSService.StartStreaming();
+
+            yield return null;
+        }
+        protected override void OnUIPlaceholderTestButton()
+        {
+            if (OBSService.Status != OBSService.EStatus.Connected)
+            {
+                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
+                return;
+            }
+
+            OBSService.StartStreaming();
+        }
+    }
 
     public class OBS_SetRecordFilenameFormat : Interfaces.IAction<OBS_SetRecordFilenameFormat, Models.Actions.OBS_SetRecordFilenameFormat>
     {
@@ -149,7 +363,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
                 else if (l_Var.Item1 == Interfaces.IValueType.Floating && p_Context.GetFloatingValue(l_Var.Item2, out var l_FloatVal))
                     l_ReplaceValue = l_FloatVal.Value.ToString();
                 else if (l_Var.Item1 == Interfaces.IValueType.String && p_Context.GetStringValue(l_Var.Item2, out var l_StringVal))
-                    l_ReplaceValue = l_StringVal;
+                    l_ReplaceValue = string.Join("_", l_StringVal.Split(System.IO.Path.GetInvalidFileNameChars()));
 
                 l_Result = l_Result.Replace(l_Key, l_ReplaceValue);
             }
@@ -157,68 +371,6 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             OBSService.SetRecordFilenameFormat(l_Result);
 
             yield return null;
-        }
-    }
-
-    public class OBS_StartRecording : Interfaces.IAction<OBS_StartRecording, Models.Action>
-    {
-        public override string Description => "Start recording";
-
-        public OBS_StartRecording() { UIPlaceHolder = "Start recording"; UIPlaceHolderTestButton = true; }
-
-        public override IEnumerator Eval(EventContext p_Context)
-        {
-            if (OBSService.Status != OBSService.EStatus.Connected)
-            {
-                p_Context.HasActionFailed = true;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
-                yield break;
-            }
-
-            OBSService.StartRecording();
-
-            yield return null;
-        }
-        protected override void OnUIPlaceholderTestButton()
-        {
-            if (OBSService.Status != OBSService.EStatus.Connected)
-            {
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
-                return;
-            }
-
-            OBSService.StartRecording();
-        }
-    }
-
-    public class OBS_StartStreaming : Interfaces.IAction<OBS_StartStreaming, Models.Action>
-    {
-        public override string Description => "Start streaming";
-
-        public OBS_StartStreaming() { UIPlaceHolder = "Start streaming"; UIPlaceHolderTestButton = true; }
-
-        public override IEnumerator Eval(EventContext p_Context)
-        {
-            if (OBSService.Status != OBSService.EStatus.Connected)
-            {
-                p_Context.HasActionFailed = true;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
-                yield break;
-            }
-
-            OBSService.StartStreaming();
-
-            yield return null;
-        }
-        protected override void OnUIPlaceholderTestButton()
-        {
-            if (OBSService.Status != OBSService.EStatus.Connected)
-            {
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
-                return;
-            }
-
-            OBSService.StartStreaming();
         }
     }
 

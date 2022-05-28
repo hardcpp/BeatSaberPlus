@@ -36,8 +36,8 @@ namespace BeatSaberPlus.SDK.Config
             }
             catch(System.Exception l_Exception)
             {
-                Logger.Instance?.Error("[SDK.Config][IniFile] Failed to create directory " + p_FilePath);
-                Logger.Instance?.Error(l_Exception);
+                Logger.Instance.Error("[SDK.Config][IniFile] Failed to create directory " + p_FilePath);
+                Logger.Instance.Error(l_Exception);
             }
 
             TextReader l_TextReader = null;
@@ -73,8 +73,8 @@ namespace BeatSaberPlus.SDK.Config
                                 var l_Key = l_Left.Trim();
                                 var l_Val = l_Right.Trim();
 
-                                if (l_Val.Contains("//"))
-                                    l_Val = l_Val.Substring(0, l_Val.IndexOf("//")).Trim();
+                                //if (l_Val.Contains("//"))
+                                //    l_Val = l_Val.Substring(0, l_Val.IndexOf("//")).Trim();
 
                                 if (l_Val.StartsWith("\"") && l_Val.EndsWith("\""))
                                     l_Val = l_Val.Substring(1, l_Val.Length - 2);
@@ -91,8 +91,8 @@ namespace BeatSaberPlus.SDK.Config
                 }
                 catch (Exception l_Exception)
                 {
-                    Logger.Instance?.Error("[SDK.Config][IniFile] Failed to read configuration");
-                    Logger.Instance?.Error(l_Exception);
+                    Logger.Instance.Error("[SDK.Config][IniFile] Failed to read configuration");
+                    Logger.Instance.Error(l_Exception);
                     throw l_Exception;
                 }
                 finally
@@ -148,19 +148,24 @@ namespace BeatSaberPlus.SDK.Config
                     l_Section.Add(p_Key, p_Value);
             }
 
+#if !TEST_APP
             /// Do save on main thread
             SDK.Unity.MainThreadInvoker.Enqueue(() =>
             {
+#endif
                 try
                 {
                     SaveSettings();
                 }
                 catch (System.Exception l_Exception)
                 {
-                    Logger.Instance?.Error("[SDK.Config][IniFile.SetSetting] failed to save configuration");
-                    Logger.Instance?.Error(l_Exception);
+                    Logger.Instance.Error("[SDK.Config][IniFile.SetSetting] failed to save configuration");
+                    Logger.Instance.Error(l_Exception);
                 }
+#if !TEST_APP
             });
+#endif
+
         }
 
         ////////////////////////////////////////////////////////////////////////////

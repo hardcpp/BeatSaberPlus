@@ -3,14 +3,9 @@
     <text text='Credits' align='Center' font-size='4.2'/>
   </horizontal>
 
-  <horizontal bg='round-rect-panel' id='Background' min-width='110' min-height='55' spacing='0' pad='0'>
+  <horizontal bg='round-rect-panel' id='Background' min-width='110' min-height='60' spacing='0' pad='0'>
     <text-page id='Informations' text=''></text-page>
   </horizontal>
-
-  <horizontal>
-    <primary-button on-click='click-reset-btn-pressed'                        min-width='110' text='Reset'></primary-button>
-  </horizontal>
-
   <horizontal>
     <primary-button on-click='click-documentation-btn-pressed'                min-width='110' text='Documentation' ></primary-button>
   </horizontal>

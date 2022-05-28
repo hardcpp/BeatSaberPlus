@@ -38,8 +38,15 @@ namespace BeatSaberPlus.SDK.Chat
         /// </summary>
         internal static void Init()
         {
-            var l_Path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), ".beatsaberpluschatcore");
-            m_Config = new SDK.Config.INIConfig(System.IO.Path.Combine(l_Path, "settings.ini"), true);
+            try
+            {
+                var l_Path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), ".beatsaberpluschatcore");
+                m_Config = new SDK.Config.INIConfig(System.IO.Path.Combine(l_Path, "settings.ini"), true);
+            }
+            catch
+            {
+
+            }
         }
     }
 }

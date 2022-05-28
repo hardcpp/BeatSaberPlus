@@ -43,18 +43,12 @@ namespace BeatSaberPlus_ChatIntegrations.Conditions
 
         public override bool Eval(Models.EventContext p_Context)
         {
-            bool l_IsSuscriber  = false;
-            bool l_IsVIP        = false;
-            bool l_IsModerator  = p_Context.User.IsBroadcaster || p_Context.User.IsModerator;
+            if (p_Context.User.IsBroadcaster)
+                return true;
 
-            if (p_Context.User is BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchUser l_TwitchUser)
-            {
-                if (l_TwitchUser.IsBroadcaster)
-                    return true;
-
-                l_IsSuscriber   = l_TwitchUser.IsSubscriber;
-                l_IsVIP         = l_TwitchUser.IsVip;
-            }
+            var l_IsModerator   = p_Context.User.IsBroadcaster || p_Context.User.IsModerator;
+            var l_IsSuscriber   = p_Context.User.IsSubscriber;
+            var l_IsVIP         = p_Context.User.IsVip;
 
             if (Model.Subscriber && l_IsSuscriber)
                 return true;

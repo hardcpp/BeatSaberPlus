@@ -9,6 +9,8 @@
         string Color { get; }
         bool IsBroadcaster { get; }
         bool IsModerator { get; }
+        bool IsSubscriber { get; }
+        bool IsVip { get; }
         IChatBadge[] Badges { get; }
     }
 }

@@ -56,7 +56,7 @@ namespace BeatSaberPlus_Chat.Utils
                 for (int l_I = 0; l_I < p_Message.Sender.Badges.Length; ++l_I)
                 {
                     var l_Badge = p_Message.Sender.Badges[l_I];
-                    if (l_PendingImageDownloads.Contains(l_Badge.Id))
+                    if (l_Badge.Type != EBadgeType.Image || l_PendingImageDownloads.Contains(l_Badge.Id))
                         continue;
 
                     if (!p_Font.HasReplaceCharacter(l_Badge.Id))
@@ -64,7 +64,7 @@ namespace BeatSaberPlus_Chat.Utils
                         l_PendingImageDownloads.Add(l_Badge.Id);
                         var l_TaskCompletionSource = new TaskCompletionSource<BeatSaberPlus.SDK.Unity.EnhancedImage>();
 
-                        BeatSaberPlus.SDK.Chat.ImageProvider.TryCacheSingleImage(EChatResourceCategory.Badge, l_Badge.Id, l_Badge.Uri, BeatSaberPlus.SDK.Animation.AnimationType.NONE, (p_Info) => {
+                        BeatSaberPlus.SDK.Chat.ImageProvider.TryCacheSingleImage(EChatResourceCategory.Badge, l_Badge.Id, l_Badge.Content, BeatSaberPlus.SDK.Animation.AnimationType.NONE, (p_Info) => {
                             if (p_Info != null && !p_Font.TryRegisterImageInfo(p_Info, out var l_Character))
                                 Logger.Instance.Warn($"Failed to register badge \"{l_Badge.Id}\" in font {p_Font.Font.name}.");
 
@@ -158,14 +158,19 @@ namespace BeatSaberPlus_Chat.Utils
                         for (int l_BadgeI = 0; l_BadgeI < p_Message.Sender.Badges.Length; ++l_BadgeI)
                         {
                             var l_Badge = p_Message.Sender.Badges[l_BadgeI];
-                            if (!BeatSaberPlus.SDK.Chat.ImageProvider.CachedImageInfo.TryGetValue(l_Badge.Id, out var l_BadgeInfo))
+                            if (l_Badge.Type == EBadgeType.Image)
                             {
-                                Logger.Instance.Warn($"Failed to find cached image info for badge \"{l_Badge.Id}\"!");
-                                continue;
-                            }
+                                if (!BeatSaberPlus.SDK.Chat.ImageProvider.CachedImageInfo.TryGetValue(l_Badge.Id, out var l_BadgeInfo))
+                                {
+                                    Logger.Instance.Warn($"Failed to find cached image info for badge \"{l_Badge.Id}\"!");
+                                    continue;
+                                }
 
-                            if (p_Font.TryGetReplaceCharacter(l_BadgeInfo.ImageID, out var l_Character))
-                                l_StringBuilder.Insert(0, $"{char.ConvertFromUtf32((int)l_Character)} ");
+                                if (p_Font.TryGetReplaceCharacter(l_BadgeInfo.ImageID, out var l_Character))
+                                    l_StringBuilder.Insert(0, $"{char.ConvertFromUtf32((int)l_Character)} ");
+                            }
+                            else if (l_Badge.Type == EBadgeType.Emoji)
+                                l_StringBuilder.Insert(0, $"{l_Badge.Content} ");
                         }
                     }
                 }

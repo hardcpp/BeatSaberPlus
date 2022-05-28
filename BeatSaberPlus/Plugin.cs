@@ -187,7 +187,7 @@ namespace BeatSaberPlus
         /// <summary>
         /// Plugin version
         /// </summary>
-        internal static SemVer.Version Version => IPA.Loader.PluginManager.GetPluginFromId("BeatSaberPlusCORE").Version;
+        internal static Hive.Versioning.Version Version => IPA.Loader.PluginManager.GetPluginFromId("BeatSaberPlusCORE").HVersion;
         /// <summary>
         /// Plugin name
         /// </summary>

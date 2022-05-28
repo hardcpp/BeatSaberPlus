@@ -14,7 +14,7 @@ namespace BeatSaberPlus.SDK.Chat.Services
         /// <summary>
         /// The display name of the service(s)
         /// </summary>
-        public string DisplayName { get; private set; } = "Generic";
+        public string DisplayName { get; private set; } = "System";
 
         /// <summary>
         /// p_Channels
@@ -71,15 +71,16 @@ namespace BeatSaberPlus.SDK.Chat.Services
                 l_Service.OnSystemMessage               += Service_OnSystemMessage;
                 l_Service.OnLogin                       += Service_OnLogin;
 
-                l_Service.OnJoinChannel                 += Service_OnJoinp_Channel;
-                l_Service.OnLeaveChannel                += Service_OnLeavep_Channel;
+                l_Service.OnJoinChannel                 += Service_OnJoinChannel;
+                l_Service.OnLeaveChannel                += Service_OnLeaveChannel;
                 l_Service.OnRoomStateUpdated            += Service_OnRoomStateUpdated;
                 l_Service.OnRoomVideoPlaybackUpdated    += Service_OnRoomVideoPlaybackUpdated;
-                l_Service.OnChannelResourceDataCached   += Service_Onp_ChannelResourceDataCached;
-                l_Service.OnChannelFollow               += Service_Onp_ChannelFollow;
-                l_Service.OnChannelBits                 += Service_Onp_ChannelBits;
-                l_Service.OnChannelPoints               += Service_Onp_ChannelPoints;
-                l_Service.OnChannelSubscription         += Service_Onp_ChannelSubscription;
+                l_Service.OnChannelResourceDataCached   += Service_OnChannelResourceDataCached;
+                l_Service.OnChannelFollow               += Service_OnChannelFollow;
+                l_Service.OnChannelBits                 += Service_OnChannelBits;
+                l_Service.OnChannelPoints               += Service_OnChannelPoints;
+                l_Service.OnChannelSubscription         += Service_OnChannelSubscription;
+                l_Service.OnChannelRaid                 += Service_OnChannelRaid;
 
                 l_Service.OnTextMessageReceived         += Service_OnTextMessageReceived;
                 l_Service.OnChatCleared                 += Service_OnChatCleared;
@@ -92,6 +93,76 @@ namespace BeatSaberPlus.SDK.Chat.Services
             }
 
             DisplayName = l_NameBuilder.ToString();
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Start the service
+        /// </summary>
+        public void Start()
+        {
+            throw new System.NotImplementedException();
+        }
+        /// <summary>
+        /// Stop the service
+        /// </summary>
+        public void Stop()
+        {
+            throw new System.NotImplementedException();
+        }
+
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Web page HTML content
+        /// </summary>
+        /// <returns></returns>
+        public string WebPageHTMLForm()
+        {
+            throw new System.NotImplementedException();
+        }
+        /// Web page HTML content
+        /// </summary>
+        /// <returns></returns>
+        public string WebPageHTML()
+        {
+            throw new System.NotImplementedException();
+        }
+        /// <summary>
+        /// Web page javascript content
+        /// </summary>
+        /// <returns></returns>
+        public string WebPageJS()
+        {
+            throw new System.NotImplementedException();
+        }
+        /// <summary>
+        /// Web page javascript content
+        /// </summary>
+        /// <returns></returns>
+        public string WebPageJSValidate()
+        {
+            throw new System.NotImplementedException();
+        }
+        /// <summary>
+        /// On web page get data
+        /// </summary>
+        /// <param name="p_DataToReplace">Data to replace</param>
+        public void WebPageOnGet(Dictionary<string, string> p_DataToReplace)
+        {
+            throw new System.NotImplementedException();
+        }
+        /// <summary>
+        /// On web page post data
+        /// </summary>
+        /// <param name="p_PostData">Post data</param>
+        public void WebPageOnPost(Dictionary<string, string> p_PostData)
+        {
+            throw new System.NotImplementedException();
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -113,8 +184,7 @@ namespace BeatSaberPlus.SDK.Chat.Services
         /// <param name="p_Message">System message to broadcast</param>
         public void InternalBroadcastSystemMessage(string p_Message)
         {
-            foreach (var l_Service in m_Services)
-                Service_OnSystemMessage(l_Service, p_Message);
+            m_OnSystemMessageCallbacks?.InvokeAll(this, p_Message);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -134,12 +204,12 @@ namespace BeatSaberPlus.SDK.Chat.Services
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        private void Service_OnJoinp_Channel(IChatService p_ChatService, IChatChannel p_Channel)
+        private void Service_OnJoinChannel(IChatService p_ChatService, IChatChannel p_Channel)
         {
             lock (m_InvokeLock)
                 m_OnJoinRoomCallbacks.InvokeAll(p_ChatService, p_Channel);
         }
-        private void Service_OnLeavep_Channel(IChatService p_ChatService, IChatChannel p_Channel)
+        private void Service_OnLeaveChannel(IChatService p_ChatService, IChatChannel p_Channel)
         {
             lock (m_InvokeLock)
                 m_OnLeaveRoomCallbacks.InvokeAll(p_ChatService, p_Channel);
@@ -156,30 +226,35 @@ namespace BeatSaberPlus.SDK.Chat.Services
                 m_OnRoomVideoPlaybackUpdatedCallbacks.InvokeAll(p_ChatService, p_Channel, isup, count);
         }
 
-        private void Service_Onp_ChannelResourceDataCached(IChatService p_ChatService, IChatChannel p_Channel, Dictionary<string, IChatResourceData> resources)
+        private void Service_OnChannelResourceDataCached(IChatService p_ChatService, IChatChannel p_Channel, Dictionary<string, IChatResourceData> resources)
         {
             lock (m_InvokeLock)
                 m_OnChannelResourceDataCached.InvokeAll(p_ChatService, p_Channel, resources);
         }
-        private void Service_Onp_ChannelFollow(IChatService p_Service, IChatChannel p_p_Channel, IChatUser p_User)
+        private void Service_OnChannelFollow(IChatService p_Service, IChatChannel p_Channel, IChatUser p_User)
         {
             lock (m_InvokeLock)
-                m_OnChannelFollowCallbacks.InvokeAll(p_Service, p_p_Channel, p_User);
+                m_OnChannelFollowCallbacks.InvokeAll(p_Service, p_Channel, p_User);
         }
-        private void Service_Onp_ChannelBits(IChatService p_Service, IChatChannel p_p_Channel, IChatUser p_User, int p_BitsUsed)
+        private void Service_OnChannelBits(IChatService p_Service, IChatChannel p_Channel, IChatUser p_User, int p_BitsUsed)
         {
             lock (m_InvokeLock)
-                m_OnChannelBitsCallbacks.InvokeAll(p_Service, p_p_Channel, p_User, p_BitsUsed);
+                m_OnChannelBitsCallbacks.InvokeAll(p_Service, p_Channel, p_User, p_BitsUsed);
         }
-        private void Service_Onp_ChannelPoints(IChatService p_Service, IChatChannel p_p_Channel, IChatUser p_User, IChatChannelPointEvent p_Event)
+        private void Service_OnChannelPoints(IChatService p_Service, IChatChannel p_Channel, IChatUser p_User, IChatChannelPointEvent p_Event)
         {
             lock (m_InvokeLock)
-                m_OnChannelPointsCallbacks.InvokeAll(p_Service, p_p_Channel, p_User, p_Event);
+                m_OnChannelPointsCallbacks.InvokeAll(p_Service, p_Channel, p_User, p_Event);
         }
-        private void Service_Onp_ChannelSubscription(IChatService p_Service, IChatChannel p_p_Channel, IChatUser p_User, IChatSubscriptionEvent p_Event)
+        private void Service_OnChannelSubscription(IChatService p_Service, IChatChannel p_Channel, IChatUser p_User, IChatSubscriptionEvent p_Event)
         {
             lock (m_InvokeLock)
-                m_OnChannelSubscriptionCallbacks.InvokeAll(p_Service, p_p_Channel, p_User, p_Event);
+                m_OnChannelSubscriptionCallbacks.InvokeAll(p_Service, p_Channel, p_User, p_Event);
+        }
+        private void Service_OnChannelRaid(IChatService p_Service, IChatChannel p_Channel, IChatUser p_User, int p_Raiders)
+        {
+            lock (m_InvokeLock)
+                m_OnChannelRaidCallbacks.InvokeAll(p_Service, p_Channel, p_User, p_Raiders);
         }
 
         ////////////////////////////////////////////////////////////////////////////

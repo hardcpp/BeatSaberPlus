@@ -1,0 +1,39 @@
+﻿<div class="col-lg-4 card text-center md mx-auto">
+    <h5 class="card-header">Twitch Settings</h5>
+    <div class="card-body">
+        <h5 class="card-title">Twitch Token</h5>
+        <p><em>Add twitch token to enable Twitch functionality</em></p>
+        <div class="input-group mb-3">
+            <input type="password" id="twitch_oauthtoken" name="twitch_oauthtoken" value="{TWITCH_OAUTH}" class="form-control" placeholder="oauth:xxxxxxxxxxxx" aria-label="oauth:xxxxxxxxxxxx" aria-describedby="button-addon2">
+            <a class="btn btn-outline-secondary" href="javascript:TogglePasswordVis('twitch_oauthtoken', 'twitch_oauthtokenbutton')" id="twitch_oauthtokenbutton">Show</a>
+        </div>
+        <div class="d-grid gap-8">
+            <a href="https://id.twitch.tv/oauth2/authorize?client_id={TWITCH_CLIENTID}&redirect_uri=http%3A%2F%2Flocalhost:8339&response_type=token&scope={TWITCH_SCOPES}"
+                class="btn btn-primary btn-lg"
+                style="background-color: #6441a5;">Get new token!</a>
+        </div>
+
+        <h5 class="card-title mt-4">Twitch Channels</h5>
+        <p><em>Add channels to connect chat</em></p>
+        <div class="input-group mb-3" id="twitch_channel1_grp">
+            <span class="input-group-text" id="basic-addon1">Channel 1</span>
+            <input value="{TWITCH_CHANNEL1}" type="text" id="twitch_channel1" name="twitch_channel1" class="form-control" onchange="OnTwitchChannels()" placeholder="Channel name" aria-label="Channel name" aria-describedby="basic-addon1">
+        </div>
+        <div class="input-group mb-3" id="twitch_channel2_grp">
+            <span class="input-group-text" id="basic-addon1">Channel 2</span>
+            <input value="{TWITCH_CHANNEL2}" type="text" id="twitch_channel2" name="twitch_channel2" class="form-control" onchange="OnTwitchChannels()" placeholder="Channel name" aria-label="Channel name" aria-describedby="basic-addon1">
+        </div>
+        <div class="input-group mb-3" id="twitch_channel3_grp">
+            <span class="input-group-text" id="basic-addon1">Channel 3</span>
+            <input value="{TWITCH_CHANNEL3}" type="text" id="twitch_channel3" name="twitch_channel3" class="form-control" onchange="OnTwitchChannels()" placeholder="Channel name" aria-label="Channel name" aria-describedby="basic-addon1">
+        </div>
+        <div class="input-group mb-3" id="twitch_channel4_grp">
+            <span class="input-group-text" id="basic-addon1">Channel 4</span>
+            <input value="{TWITCH_CHANNEL4}" type="text" id="twitch_channel4" name="twitch_channel4" class="form-control" onchange="OnTwitchChannels()" placeholder="Channel name" aria-label="Channel name" aria-describedby="basic-addon1">
+        </div>
+        <div class="input-group mb-3" id="twitch_channel5_grp">
+            <span class="input-group-text" id="basic-addon1">Channel 5</span>
+            <input value="{TWITCH_CHANNEL5}" type="text" id="twitch_channel5" name="twitch_channel5" class="form-control" onchange="OnTwitchChannels()" placeholder="Channel name" aria-label="Channel name" aria-describedby="basic-addon1">
+        </div>
+    </div>
+</div>

@@ -130,7 +130,8 @@ namespace BeatSaberPlus.SDK.OBS
             if (IsRecording)
                 return;
 
-            IsRecording = true;
+            LastRecordedFileName    = l_JObject["recordingFilename"]?.Value<string>() ?? string.Empty;
+            IsRecording             = true;
             OnRecordingStatusChanged?.Invoke(IsRecording);
         }
         /// <summary>
@@ -142,7 +143,9 @@ namespace BeatSaberPlus.SDK.OBS
             if (!IsRecording)
                 return;
 
-            IsRecording = false;
+            LastRecordedFileName    = l_JObject["recordingFilename"]?.Value<string>() ?? string.Empty;
+            IsRecording             = false;
+
             OnRecordingStatusChanged?.Invoke(IsRecording);
         }
     }

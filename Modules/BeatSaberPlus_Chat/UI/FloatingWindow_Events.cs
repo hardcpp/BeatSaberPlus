@@ -275,9 +275,7 @@ namespace BeatSaberPlus_Chat.UI
             /// Command filters
             if (m_FilterViewersCommands || m_FilterBroadcasterCommands)
             {
-                bool l_IsBroadcaster = false;
-                if (p_Message.Sender is BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchUser)
-                    l_IsBroadcaster = (p_Message.Sender as BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchUser).IsBroadcaster;
+                bool l_IsBroadcaster = p_Message.Sender.IsBroadcaster;
 
                 if (m_FilterViewersCommands && !l_IsBroadcaster && p_Message.Message.StartsWith("!"))
                     return;

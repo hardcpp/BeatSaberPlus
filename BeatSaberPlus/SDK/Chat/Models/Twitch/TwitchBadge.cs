@@ -6,6 +6,7 @@ namespace BeatSaberPlus.SDK.Chat.Models.Twitch
     {
         public string Id { get; internal set; }
         public string Name { get; internal set; }
-        public string Uri { get; internal set; }
+        public EBadgeType Type { get; internal set; }
+        public string Content { get; internal set; }
     }
 }

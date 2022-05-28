@@ -128,6 +128,8 @@ namespace BeatSaberPlus_ChatRequest
 
         [JsonProperty] internal bool Enabled = true;
 
+        [JsonProperty] internal bool SafeMode = false;
+
         [JsonProperty] internal bool QueueOpen = true;
 
         [JsonProperty] internal int UserMaxRequest = 2;

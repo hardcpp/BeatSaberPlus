@@ -15,7 +15,7 @@ namespace BeatSaberPlus.UI
         [UIValue("Line1")]
         private readonly string m_Line1 = "<u><b>Welcome to BeatSaberPlus by HardCPP#1985</b></u>";
         [UIValue("Line2")]
-        private readonly string m_Line2 = "Version 4.3.1";
+        private readonly string m_Line2 = "Version 4.4.0";
         [UIValue("Line3")]
         private readonly string m_Line3 = " ";
         [UIValue("Line4")]
@@ -45,7 +45,7 @@ namespace BeatSaberPlus.UI
         private void OnPatreonButton()
         {
             ShowMessageModal("URL opened in your desktop browser.");
-            Process.Start("https://www.patreon.com/BeatSaberPlus");
+            Process.Start("https://donate.chatplex.org");
         }
         /// <summary>
         /// Go to discord
@@ -54,7 +54,7 @@ namespace BeatSaberPlus.UI
         private void OnDiscordButton()
         {
             ShowMessageModal("URL opened in your desktop browser.");
-            Process.Start("https://discord.gg/63ebPMC");
+            Process.Start("https://discord.chatplex.org");
         }
 
         ////////////////////////////////////////////////////////////////////////////

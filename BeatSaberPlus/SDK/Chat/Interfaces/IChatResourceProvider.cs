@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace BeatSaberPlus.SDK.Chat.Interfaces
 {
-    internal interface IChatResourceProvider<T>
+    public interface IChatResourceProvider<T>
     {
         ConcurrentDictionary<string, T> Resources { get; }
         Task TryRequestResources(string category, string p_Token);
