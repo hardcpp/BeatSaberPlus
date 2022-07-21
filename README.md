@@ -1,15 +1,13 @@
-
-
-
 # BeatSaberPlus (BS+)
 
 **Discord** https://discord.gg/63ebPMC (**Download, Support, Testing, Early releases** and cool new mods coming soon)
 **Patreon** [https://www.patreon.com/BeatSaberPlus](https://www.patreon.com/BeatSaberPlus) **if you want to support this project development!**
 
-Current version : 4.4.0
+Current version : 4.6.0
 
-IMPORTANT Most of the modules are disabled by default, you can enable then in BeatSaberPlus -> Settings
-IMPORTANT When you enable Chat module, it will open a page in your browser for configuring it.
+IMPORTANT Most of the modules are disabled by default, you can enable then in BeatSaberPlus -> Settings  
+IMPORTANT When you enable Chat module, it will open a page in your browser for configuring it  
+IMPORTANT When you enable Multiplayer+ module, you can setup then in BeatSaberPlus -> Multiplayer+  
 
 ## Main features:
 
@@ -24,6 +22,11 @@ IMPORTANT When you enable Chat module, it will open a page in your browser for c
 	 - Support **GIF / APNG / PNG / WEBP** files.
 	 - Custom emote rain when someone subscribe to your Twitch channel.
 	 - Advanced configuration options.
+- **ChatIntegration:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-Chat-Integrations)) <!-- Change this part later after making changes in the wiki -->
+ 	 - Make some differents actions with events
+	 - Events can use -> **Chat events / Level status / VoiceAttackCommands(plugin install requied)**
+	 - Conditions -> **Chat Request / Event enabled ? / Playing map ? / Cooldown / OBS Status**
+	 - Actions -> **Camera2 / Chat / EmoteRain / Event / GamePlay / Misc(waiting events) / NoteTweaker(profile changing) / OBS interact / SongChartVisualizer / Twitch**
  - **ChatRequest:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki#chat-request))
 	 - Chat request system that allow your viewers to make requests with [https://beatsaver.com/](https://beatsaver.com/) website.
 	 - Display information about all difficulties for a song including NPS/Offset.
@@ -44,10 +47,20 @@ IMPORTANT When you enable Chat module, it will open a page in your browser for c
 	 - Play any songs from your custom levels or you own selection of music!
 	 - Player interface shows in the menu on left with Prev/Random/Play/Pause/Next buttons and with a volume selector.
 	 - **A play button to play the current song level**.
+ - **Multiplayer+:** (Documentation under construction!!)  
+	We are making a separate Multiplayer for Beat Saber. It can had some functionnalities for players and streamers. This part of BS+ is under developpment but players can now test and play it now. Stability and performance improvements have been seen for a better experience !
+	 - Functionnalities work for Quick Play, Server creation, Joining code and room finding with basic search
+	 - In the rooms, you can change room code, hide and show the code, play up to 20 peoples (30 with one patreon present)
+	 - With your multiplayer+ setup, you can give permission to Moderator, Vip or user to show the code in chat with "!room" command
+	 - Custom Songs with BeatSaver support
+	 - ScoreSaber and BeatLeader support
+	 - Noodle & Chroma & 360/90 maps support
+	 - In game avatars & movement sync (Require a Patreon in the lobby)
  - **SongChartVisualizer:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki#song-chart-visualizer))
 	 - Preview map difficulty with a nice and beautiful graph in game that illustrate NPS (Notes per second).
 	 - Support for 90 & 360 levels.
 	 - Lot of customization options (Colors, Legend, Dash lines...).
+
 
 ## Dependencies:
 
@@ -79,4 +92,3 @@ https://discord.gg/63ebPMC
 ![](https://puu.sh/GH9Rn/d9d4966a04.png)
 ![](https://puu.sh/GH9RA/f6dc522cd1.png)
 ![](https://puu.sh/GL7BX/0e5f12cfce.jpg)
-
