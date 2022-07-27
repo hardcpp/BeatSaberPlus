@@ -62,7 +62,7 @@ IMPORTANT When you enable Multiplayer+ module, you can setup them in BeatSaberPl
 	 - A preview of your changes is on the right panel
 	 - Hide/show dot on directional notes support
  - **SongChartVisualizer:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki#song-chart-visualizer))
-	 - Preview map difficulty with a nice and beautiful graph in game that illustrate NPS (Notes per second).
+	 - Preview map difficulty with a nice and beautiful graph in game that illustrates NPS (Notes per second).
 	 - Support for 90 & 360 levels.
 	 - Lot of customization options (Colors, Legend, Dash lines...).
 
