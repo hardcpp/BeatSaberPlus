@@ -51,14 +51,14 @@ IMPORTANT When you enable Multiplayer+ module, you can setup then in BeatSaberPl
  - **Multiplayer+:** (Documentation under construction!!)  
 	We are making a separate Multiplayer for Beat Saber. It can have some functionalities for players and streamers. This part of BS+ is under development, but players can now test and play it now. Stability and performance improvements have been seen for a better experience !
 	 - Functionalities work for Quick Play, Server creation, Joining code and room finding with basic search
-	 - In the rooms, you can change room code, hide and show the code, play up to 20 peoples (30 with one patreon present)
-	 - With your multiplayer+ setup, you can give permission to Moderator, Vip or user to show the code in chat with "!room" command
+	 - In the rooms, you can change room code, hide and show the code, play up to 20 peoples (40 with one patreon present)
+	 - With your multiplayer+ setup, you can manage the permission for Mods, Vips or users to show the code in chat with "!room" command
 	 - Custom Songs with BeatSaver support
 	 - ScoreSaber and BeatLeader support
-	 - Noodle & Chroma & 360/90 maps support
+	 - Noodle/Chroma & 360/90 maps support
 	 - In game avatars & movement sync
  - **NoteTeaker:** (Documentation under construction!!)   
-	 - Profiles can be created and [ChatIntegration](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-Chat-Integrations) can switch it with your events
+	 - Profiles can be created and [ChatIntegrations](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-Chat-Integrations) can switch it with your events
 	 - Changing any parts of notes like dots(with sliders or not), arrow, arcs, note or bomb scale
 	 - A preview of your changes is on the right panel
 	 - Hide/show dot on directional notes support
