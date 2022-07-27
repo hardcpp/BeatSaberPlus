@@ -7,7 +7,7 @@ Current version : 4.6.1
 
 IMPORTANT Most of the modules are disabled by default, you can enable then in BeatSaberPlus -> Settings  
 IMPORTANT When you enable Chat module, it will open a page in your browser for configuring it  
-IMPORTANT When you enable Multiplayer+ module, you can setup then in BeatSaberPlus -> Multiplayer+. To use the Multiplayer+ mod, don't use the **Online** button but use the **Multiplayer+** button on the left panel !   
+IMPORTANT When you enable Multiplayer+ module, you can setup them in BeatSaberPlus -> Multiplayer+. To use the Multiplayer+ mod, don't use the **Online** button but use the **Multiplayer+** button on the left panel !   
 
 ## **Main features**
 
@@ -45,14 +45,13 @@ IMPORTANT When you enable Multiplayer+ module, you can setup then in BeatSaberPl
 	 - Can re-order player options menu for better accessibility.
  - **MenuMusic:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki#menu-music))
 	 - Replace menu ambient sounds with music!
-	 - Play any songs from your custom levels or you own selection of music!
+	 - Play any songs from your custom levels or your own selection of music!
 	 - Player interface shows in the menu on left with Prev/Random/Play/Pause/Next buttons and with a volume selector.
 	 - **A play button to play the current song level**.
  - **Multiplayer+:** (Documentation under construction!!)  
-	We are making a separate Multiplayer for Beat Saber. It can have some functionalities for players and streamers. This part of BS+ is under development, but players can now test and play it now. Stability and performance improvements have been seen for a better experience !
-	 - Functionalities work for Quick Play, Server creation, Joining code and room finding with basic search
-	 - In the rooms, you can change room code, hide and show the code, play up to 20 peoples (40 with one patreon present)
-	 - With your multiplayer+ setup, you can manage the permission for Mods, Vips or users to show the code in chat with "!room" command
+	 - Basic features included like Quick Play, Server creation, Joining code and room finding with basic search
+	 - In the rooms, you can change room code, hide and show the code, play up to 20 people (40 with one patreon present)
+	 - With your multiplayer+ setup, you can manage the permission for Mods, Vips or users to be able to get the code in chat with ‘!room’ or no
 	 - Custom Songs with BeatSaver support
 	 - ScoreSaber and BeatLeader support
 	 - Noodle/Chroma & 360/90 maps support
