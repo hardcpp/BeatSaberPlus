@@ -13,6 +13,7 @@ IMPORTANT When you enable Multiplayer+ module, you can setup them in BeatSaberPl
 
  - **Chat:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki#chat))
 	 - Display in game your Twitch & Youtube (Patreons only) chat (7TV & FFZ & BTTV support).
+	 - **Emotes cache system to save bandwidth on game start!** 
 	 - See subscriptions, follow, raid, bits events, channel redeems (channel points).
 	 - Twitch: Polls, Predictions(bets), HypeTrains
 	 - Viewer count.
@@ -37,18 +38,21 @@ IMPORTANT When you enable Multiplayer+ module, you can setup them in BeatSaberPl
 	 - Safe mode that hide any sensitive informations (Song name, artist, uploader..)
 	 - History & blacklist tab that let you see your request history and manage your blacklist.
 	 **- An intelligent "!link" command that show current played song or last one and provide a link to beatsaver.com if the map is public, the command also works outside of request and in multiplayer!**
- - **GameTweaker:**  ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki#game-tweaker))
+ - **GameTweaker:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki#game-tweaker))  
+     - **Can remove note debris even with the Liv capture**
 	 - **Can remove note debris, cut particles, obstacles particles, floor burn particles, floor burn effects, saber clash particles, world particles.**
 	 - **Precise reaction time (AKA offset) selection**
 	 - **Add an override light intensity option that let you boost/dim lights from 0% to 2000% (also work in static lights).**
 	 - Can remove BTS/LinkinPark assets in a play environment, FullCombo loss animation, Editor button on the main menu, Promotional content from the menu.
 	 - Can re-order player options menu for better accessibility.
+	 - Can automatically clean all old logs entry from your game folder to keep it clean.
+	 - Can add keyboard bindings to pause/continue/restart/exit a song in FPFC mode.
  - **MenuMusic:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki#menu-music))
 	 - Replace menu ambient sounds with music!
 	 - Play any songs from your custom levels or your own selection of music!
 	 - Player interface shows in the menu on left with Prev/Random/Play/Pause/Next buttons and with a volume selector.
 	 - **A play button to play the current song level**.
- - **Multiplayer+:** (Documentation under construction!!)  
+ - **Multiplayer+:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki#multiplayer-plus))  
 	 - Basic features included like Quick Play, Server creation, Joining code and room finding with basic search
 	 - In the rooms, you can change room code, hide and show the code, play up to 20 people (40 with one patreon present)
 	 - With your multiplayer+ setup, you can manage the permission for Mods, Vips or users to be able to get the code in chat with ‘!room’ or no
@@ -56,8 +60,9 @@ IMPORTANT When you enable Multiplayer+ module, you can setup them in BeatSaberPl
 	 - ScoreSaber and BeatLeader support
 	 - Noodle/Chroma & 360/90 maps support
 	 - In game avatars & movement sync
- - **NoteTeaker:** (Documentation under construction!!)   
-	 - Profiles can be created and [ChatIntegrations](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-Chat-Integrations) can switch it with your events
+	 - An option inside the room to see/not see other player while playing included
+ - **NoteTeaker:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki#note-tweaker))   
+	 - Profiles can be created and [ChatIntegrations](https://github.com/hardcpp/BeatSaberPlus/wiki#chat-integrations) can switch it with your events
 	 - Changing any parts of notes like dots(with sliders or not), arrow, arcs, note or bomb scale
 	 - A preview of your changes is on the right panel
 	 - Hide/show dot on directional notes support
