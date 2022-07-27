@@ -29,18 +29,19 @@ IMPORTANT When you enable Multiplayer+ module, you can setup them in BeatSaberPl
 	 - Conditions -> **Chat Request / Event enabled ? / Playing map ? / Cooldown / OBS Status**
 	 - Actions -> **Camera2 / Chat / EmoteRain / Event / GamePlay / Misc(waiting events) / NoteTweaker(profile changing) / OBS interact / SongChartVisualizer / Twitch**
  - **ChatRequest:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki#chat-request))
-	 - Chat request system that allow your viewers to make requests with [https://beatsaver.com/](https://beatsaver.com/) website.
+	 - Chat request system that allows your viewers to make requests with [https://beatsaver.com/](https://beatsaver.com/) website.
 	 - Display information about all difficulties for a song including NPS/Offset.
 	 - Display song description, votes, upload date when you select a song.
-	 - Display scores on song when you over one.
+	 - Display scores on songs when you over one.
 	 - User, Mapper, Song ban system
-	 - Safe mode that hide any sensitive informations (Song name, artist, uploader..)
-	 - History & blacklist tab that let you see your request history and manage your blacklist.
-	 **- An intelligent "!link" command that show current played song or last one and provide a link to beatsaver.com if the map is public, the command also works outside of request and in multiplayer!**
+	 - Safe mode that hides any sensitive informations (Song name, artist, uploader..)
+	 - History & blacklist tab that lets you see your request history and manage your blacklist.  
+	 - **An intelligent "!link" command that shows the currently played song or last one and provides a link to beatsaver.com if the map is public, the command also works outside of request and in multiplayer!  
+	 There are lots of other useful commands you can find in the [the wiki](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-Chat-Request#4---Chat-commands)**
  - **GameTweaker:**  ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki#game-tweaker))
 	 - **Can remove note debris, cut particles, obstacles particles, floor burn particles, floor burn effects, saber clash particles, world particles.**
 	 - **Precise reaction time (AKA offset) selection**
-	 - **Add an override light intensity option that let you boost/dim lights from 0% to 2000% (also work in static lights).**
+	 - **Add an override light intensity option that let you boost/dim lights from 0% to 2000% (also works in static lights).**
 	 - Can remove BTS/LinkinPark assets in a play environment, FullCombo loss animation, Editor button on the main menu, Promotional content from the menu.
 	 - Can re-order player options menu for better accessibility.
  - **MenuMusic:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki#menu-music))
@@ -48,7 +49,7 @@ IMPORTANT When you enable Multiplayer+ module, you can setup them in BeatSaberPl
 	 - Play any songs from your custom levels or your own selection of music!
 	 - Player interface shows in the menu on left with Prev/Random/Play/Pause/Next buttons and with a volume selector.
 	 - **A play button to play the current song level**.
- - **Multiplayer+:** (Documentation under construction!!)  
+ - **Multiplayer+:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki#multiplayer-plus))  
 	 - Basic features included like Quick Play, Server creation, Joining code and room finding with basic search
 	 - In the rooms, you can change room code, hide and show the code, play up to 20 people (40 with one patreon present)
 	 - With your multiplayer+ setup, you can manage the permission for Mods, Vips or users to be able to get the code in chat with ‘!room’ or no
@@ -56,7 +57,7 @@ IMPORTANT When you enable Multiplayer+ module, you can setup them in BeatSaberPl
 	 - ScoreSaber and BeatLeader support
 	 - Noodle/Chroma & 360/90 maps support
 	 - In game avatars & movement sync
- - **NoteTeaker:** (Documentation under construction!!)   
+ - **NoteTeaker:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki#note-tweaker))   
 	 - Profiles can be created and [ChatIntegrations](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-Chat-Integrations) can switch it with your events
 	 - Changing any parts of notes like dots(with sliders or not), arrow, arcs, note or bomb scale
 	 - A preview of your changes is on the right panel
