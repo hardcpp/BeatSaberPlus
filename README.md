@@ -37,7 +37,8 @@ IMPORTANT When you enable Multiplayer+ module, you can setup them in BeatSaberPl
 	 - User, Mapper, Song ban system
 	 - Safe mode that hide any sensitive informations (Song name, artist, uploader..)
 	 - History & blacklist tab that let you see your request history and manage your blacklist.
-	 **- An intelligent "!link" command that show current played song or last one and provide a link to beatsaver.com if the map is public, the command also works outside of request and in multiplayer!**
+	 - **An intelligent "!link" command that show current played song or last one and provide a link to beatsaver.com if the map is public, the command also works outside of request and in multiplayer!  
+	 There are lots of other useful commands you can find in [the wiki](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-Chat-Request#4---chat-commands)**
  - **GameTweaker:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki#game-tweaker))  
      - **Can remove note debris even with the Liv capture**
 	 - **Can remove note debris, cut particles, obstacles particles, floor burn particles, floor burn effects, saber clash particles, world particles.**
@@ -60,7 +61,7 @@ IMPORTANT When you enable Multiplayer+ module, you can setup them in BeatSaberPl
 	 - ScoreSaber and BeatLeader support
 	 - Noodle/Chroma & 360/90 maps support
 	 - In game avatars & movement sync
-	 - An option inside the room to see/not see other player while playing included
+	 - An option inside the room to see/not see other player while playing included (arena)
  - **NoteTeaker:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki#note-tweaker))   
 	 - Profiles can be created and [ChatIntegrations](https://github.com/hardcpp/BeatSaberPlus/wiki#chat-integrations) can switch it with your events
 	 - Changing any parts of notes like dots(with sliders or not), arrow, arcs, note or bomb scale
