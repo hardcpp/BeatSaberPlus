@@ -78,6 +78,8 @@ IMPORTANT When you enable Multiplayer+ module, you can setup them in BeatSaberPl
 - SongCore [https://github.com/Kylemc1413/SongCore](https://github.com/Kylemc1413/SongCore)
 - BeatSaberMarkupLanguage [https://github.com/monkeymanboy/BeatSaberMarkupLanguage](https://github.com/monkeymanboy/BeatSaberMarkupLanguage)
 
+## **Other questions? See the FAQ [Here](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-FAQ)**
+
 ## **Special Thanks**:
 - **Vred#0001** For art & documentation
 - **Brase#6969** For documentation
