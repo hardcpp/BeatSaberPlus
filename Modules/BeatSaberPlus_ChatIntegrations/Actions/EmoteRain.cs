@@ -39,7 +39,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
         public override string Description => "Make rain custom emotes";
 
         private BSMLParserParams m_ParserParams;
-        private BeatSaberPlus.SDK.Unity.EnhancedImage m_LoadedImage = null;
+        private CP_SDK.Unity.EnhancedImage m_LoadedImage = null;
         private string m_LoadedImageID = "";
         private string m_LoadedImageName = "";
 
@@ -59,7 +59,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
 
         public override sealed void BuildUI(Transform p_Parent)
         {
-            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             m_ParserParams = BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             /// Change opacity
@@ -93,7 +93,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             m_File_DropDown.UpdateChoices();
 
             if (!ModulePresence.ChatEmoteRain)
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: ChatEmoteRain module is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: ChatEmoteRain module is missing!");
         }
         private void OnSettingChanged(object p_Value)
         {
@@ -107,7 +107,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
         [UIAction("click-test-btn-pressed")]
         private void OnTestButton()
         {
-            if (BeatSaberPlus_ChatEmoteRain.ChatEmoteRain.Instance == null || !BeatSaberPlus_ChatEmoteRain.ChatEmoteRain.Instance.IsEnabled)
+            if (ChatPlexMod_ChatEmoteRain.ChatEmoteRain.Instance == null || !ChatPlexMod_ChatEmoteRain.ChatEmoteRain.Instance.IsEnabled)
             {
                 m_ParserParams.EmitEvent("ShowEmoteRainNotEnabledModal");
                 return;
@@ -121,11 +121,11 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             if (!ModulePresence.ChatEmoteRain)
             {
                 p_Context.HasActionFailed = true;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, ChatEmoteRain module is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, ChatEmoteRain module is missing!");
                 yield break;
             }
 
-            if (BeatSaberPlus_ChatEmoteRain.ChatEmoteRain.Instance != null && BeatSaberPlus_ChatEmoteRain.ChatEmoteRain.Instance.IsEnabled)
+            if (ChatPlexMod_ChatEmoteRain.ChatEmoteRain.Instance != null && ChatPlexMod_ChatEmoteRain.ChatEmoteRain.Instance.IsEnabled)
                 MakeItRain();
             else
                 p_Context.HasActionFailed = true;
@@ -140,10 +140,10 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
                 if (m_LoadedImage == null)
                     return;
 
-                BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() =>
+                CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() =>
                 {
-                    SharedCoroutineStarter.instance.StartCoroutine(
-                        BeatSaberPlus_ChatEmoteRain.ChatEmoteRain.Instance.StartParticleSystem(m_LoadedImageID, m_LoadedImage, Model.Count)
+                    CP_SDK.Unity.MTCoroutineStarter.Start(
+                        ChatPlexMod_ChatEmoteRain.ChatEmoteRain.Instance.StartParticleSystem(m_LoadedImageID, m_LoadedImage, Model.Count)
                     );
                 });
             }
@@ -161,7 +161,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
                 if (File.Exists(l_Path))
                 {
                     m_LoadedImageID = "$BSP$CI$_" + Model.BaseValue;
-                    BeatSaberPlus_ChatEmoteRain.ChatEmoteRain.Instance.LoadExternalEmote(l_Path, m_LoadedImageID, (p_Result) => {
+                    ChatPlexMod_ChatEmoteRain.ChatEmoteRain.Instance.LoadExternalEmote(l_Path, m_LoadedImageID, (p_Result) => {
                         m_LoadedImage = p_Result;
 
                         if (m_LoadedImage != null && p_MakeItRainAfterLoad)
@@ -194,7 +194,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
 
         public override sealed void BuildUI(Transform p_Parent)
         {
-            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             m_ParserParams = BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             /// Change opacity
@@ -206,7 +206,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_CountIncrement, l_Event, null, Model.CountPerEmote,  false);
 
             if (!ModulePresence.ChatEmoteRain)
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: ChatEmoteRain module is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: ChatEmoteRain module is missing!");
         }
         private void OnSettingChanged(object p_Value)
         {
@@ -217,13 +217,13 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
         [UIAction("click-test-btn-pressed")]
         private void OnTestButton()
         {
-            if (BeatSaberPlus_ChatEmoteRain.ChatEmoteRain.Instance == null || !BeatSaberPlus_ChatEmoteRain.ChatEmoteRain.Instance.IsEnabled)
+            if (ChatPlexMod_ChatEmoteRain.ChatEmoteRain.Instance == null || !ChatPlexMod_ChatEmoteRain.ChatEmoteRain.Instance.IsEnabled)
             {
                 m_ParserParams.EmitEvent("ShowEmoteRainNotEnabledModal");
                 return;
             }
 
-            SharedCoroutineStarter.instance.StartCoroutine(Eval(null));
+            CP_SDK.Unity.MTCoroutineStarter.Start(Eval(null));
         }
 
         public override IEnumerator Eval(Models.EventContext p_Context)
@@ -231,17 +231,17 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             if (!ModulePresence.ChatEmoteRain)
             {
                 p_Context.HasActionFailed = true;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, ChatEmoteRain module is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, ChatEmoteRain module is missing!");
                 yield break;
             }
 
-            if (BeatSaberPlus_ChatEmoteRain.ChatEmoteRain.Instance != null && BeatSaberPlus_ChatEmoteRain.ChatEmoteRain.Instance.IsEnabled)
+            if (ChatPlexMod_ChatEmoteRain.ChatEmoteRain.Instance != null && ChatPlexMod_ChatEmoteRain.ChatEmoteRain.Instance.IsEnabled)
             {
                 var l_Emotes =
-                    BeatSaberPlus.SDK.Chat.ImageProvider.CachedEmoteInfo.Values.OrderBy(_ => Random.Range(0, 1000)).Take((int)Model.EmoteKindCount);
+                    CP_SDK.Chat.ChatImageProvider.CachedEmoteInfo.Values.OrderBy(_ => Random.Range(0, 1000)).Take((int)Model.EmoteKindCount);
 
                 foreach (var l_Emote in l_Emotes)
-                    yield return BeatSaberPlus_ChatEmoteRain.ChatEmoteRain.Instance.StartParticleSystem(l_Emote.ImageID, l_Emote, Model.CountPerEmote);
+                    yield return ChatPlexMod_ChatEmoteRain.ChatEmoteRain.Instance.StartParticleSystem(l_Emote.ImageID, l_Emote, Model.CountPerEmote);
             }
             else if (p_Context != null)
                 p_Context.HasActionFailed = true;
@@ -261,12 +261,12 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             if (!ModulePresence.ChatEmoteRain)
             {
                 p_Context.HasActionFailed = true;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, ChatEmoteRain module is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, ChatEmoteRain module is missing!");
                 yield break;
             }
 
-            if (BeatSaberPlus_ChatEmoteRain.ChatEmoteRain.Instance != null && BeatSaberPlus_ChatEmoteRain.ChatEmoteRain.Instance.IsEnabled)
-                BeatSaberPlus_ChatEmoteRain.ChatEmoteRain.Instance.StartSubRain();
+            if (ChatPlexMod_ChatEmoteRain.ChatEmoteRain.Instance != null && ChatPlexMod_ChatEmoteRain.ChatEmoteRain.Instance.IsEnabled)
+                ChatPlexMod_ChatEmoteRain.ChatEmoteRain.Instance.StartSubRain();
             else
                 p_Context.HasActionFailed = true;
 

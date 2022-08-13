@@ -28,13 +28,13 @@ namespace BeatSaberPlus.UI
             /// Change opacity
             SDK.UI.Backgroundable.SetOpacity(m_Background, 0.5f);
 
-            new SDK.Network.APIClient("https://plugin.beatsaberplus.com/", System.TimeSpan.FromSeconds(20), false)
+            new CP_SDK.Network.APIClient("https://plugin.beatsaberplus.com/", System.TimeSpan.FromSeconds(20), false)
             .GetAsync("?/API/ChangeLog", System.Threading.CancellationToken.None, false).ContinueWith(p_Result =>
             {
                 if (p_Result.Status != System.Threading.Tasks.TaskStatus.RanToCompletion
                  || p_Result.Result == null || !p_Result.Result.IsSuccessStatusCode)
                 {
-                    SDK.Unity.MainThreadInvoker.Enqueue(() =>
+                    CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() =>
                     {
                         if (CanBeUpdated)
                         {
@@ -50,7 +50,7 @@ namespace BeatSaberPlus.UI
                 var l_ChangeLog = l_Result.ContainsKey("ChangeLog") ? l_Result["ChangeLog"] : "Error";
                 bool l_IsUpdated = true;
 
-                SDK.Unity.MainThreadInvoker.Enqueue(() =>
+                CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() =>
                 {
                     if (CanBeUpdated)
                     {
@@ -61,7 +61,7 @@ namespace BeatSaberPlus.UI
                             ShowConfirmationModal("An update is available, do you want to download it?", OnDownloadPressed);
                     }
                 });
-            });
+            }).ConfigureAwait(false);
         }
 
         ////////////////////////////////////////////////////////////////////////////

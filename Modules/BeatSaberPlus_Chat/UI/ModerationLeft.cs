@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 
-namespace BeatSaberPlus_Chat.UI
+namespace ChatPlexMod_Chat.UI
 {
     /// <summary>
     /// Moderation left screen
@@ -42,12 +42,12 @@ namespace BeatSaberPlus_Chat.UI
 
             var l_States = new List<string>();
 
-            if (BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels.Count != 0)
+            if (CP_SDK.Chat.Service.Multiplexer.Channels.Count != 0)
             {
-                var l_Channel = BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels.First();
-                if (l_Channel.Item2 is BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchChannel)
+                var l_Channel = CP_SDK.Chat.Service.Multiplexer.Channels.First();
+                if (l_Channel.Item2 is CP_SDK.Chat.Models.Twitch.TwitchChannel)
                 {
-                    var l_TwitchChannel = l_Channel.Item2 as BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchChannel;
+                    var l_TwitchChannel = l_Channel.Item2 as CP_SDK.Chat.Models.Twitch.TwitchChannel;
 
                     if (l_TwitchChannel.Roomstate.EmoteOnly)
                         l_States.Add("Emotes only");
@@ -73,7 +73,7 @@ namespace BeatSaberPlus_Chat.UI
         /// <returns></returns>
         private bool CheckForModeratorPermissions()
         {
-            if (BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels.Count == 0)
+            if (CP_SDK.Chat.Service.Multiplexer.Channels.Count == 0)
             {
                 ShowMessageModal("You are not connected to a chat channel!");
                 return false;
@@ -96,10 +96,10 @@ namespace BeatSaberPlus_Chat.UI
             if (!CheckForModeratorPermissions())
                 return;
 
-            var l_Channel = BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels.First();
-            if (l_Channel.Item2 is BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchChannel)
+            var l_Channel = CP_SDK.Chat.Service.Multiplexer.Channels.First();
+            if (l_Channel.Item2 is CP_SDK.Chat.Models.Twitch.TwitchChannel)
             {
-                var l_TwitchChannel = l_Channel.Item2 as BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchChannel;
+                var l_TwitchChannel = l_Channel.Item2 as CP_SDK.Chat.Models.Twitch.TwitchChannel;
 
                 if (l_TwitchChannel.Roomstate.EmoteOnly)
                     ShowConfirmationModal("Do you really want to <b>disable</b> emote only mode?", () => l_Channel.Item1.SendTextMessage(l_Channel.Item2, "/emoteonlyoff"));
@@ -116,10 +116,10 @@ namespace BeatSaberPlus_Chat.UI
             if (!CheckForModeratorPermissions())
                 return;
 
-            var l_Channel = BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels.First();
-            if (l_Channel.Item2 is BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchChannel)
+            var l_Channel = CP_SDK.Chat.Service.Multiplexer.Channels.First();
+            if (l_Channel.Item2 is CP_SDK.Chat.Models.Twitch.TwitchChannel)
             {
-                var l_TwitchChannel = l_Channel.Item2 as BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchChannel;
+                var l_TwitchChannel = l_Channel.Item2 as CP_SDK.Chat.Models.Twitch.TwitchChannel;
 
                 if (l_TwitchChannel.Roomstate.FollowersOnly)
                     ShowConfirmationModal("Do you really want to <b>disable</b> follower only mode?", () => l_Channel.Item1.SendTextMessage(l_Channel.Item2, "/followersoff"));
@@ -136,10 +136,10 @@ namespace BeatSaberPlus_Chat.UI
             if (!CheckForModeratorPermissions())
                 return;
 
-            var l_Channel = BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels.First();
-            if (l_Channel.Item2 is BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchChannel)
+            var l_Channel = CP_SDK.Chat.Service.Multiplexer.Channels.First();
+            if (l_Channel.Item2 is CP_SDK.Chat.Models.Twitch.TwitchChannel)
             {
-                var l_TwitchChannel = l_Channel.Item2 as BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchChannel;
+                var l_TwitchChannel = l_Channel.Item2 as CP_SDK.Chat.Models.Twitch.TwitchChannel;
 
                 if (l_TwitchChannel.Roomstate.SlowModeInterval != 0)
                     ShowConfirmationModal("Do you really want to <b>disable</b> slow mode?", () => l_Channel.Item1.SendTextMessage(l_Channel.Item2, "/slowoff"));

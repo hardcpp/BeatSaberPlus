@@ -310,7 +310,7 @@ namespace BeatSaberPlus.SDK.UI.DataSource
                             if (l_Cell.idx >= Data.Count || l_SongEntry != Data[l_Cell.idx])
                                 return;
 
-                            Unity.MainThreadInvoker.Enqueue(() =>
+                            CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() =>
                             {
                                 /// Update infos
                                 l_SongEntry.Cover = p_CoverTaskResult.Result;
@@ -334,7 +334,7 @@ namespace BeatSaberPlus.SDK.UI.DataSource
                         var l_CoverByte = Game.BeatMapsClient.GetCoverImageFromCacheByKey(l_SongEntry.BeatSaver_Map.id);
                         if (l_CoverByte != null && l_CoverByte.Length > 0)
                         {
-                            var l_Texture = Unity.Texture2D.CreateFromRaw(l_CoverByte);
+                            var l_Texture = CP_SDK.Unity.Texture2DU.CreateFromRaw(l_CoverByte);
                             if (l_Texture != null)
                             {
                                 l_SongEntry.Cover = UnityEngine.Sprite.Create(l_Texture, new UnityEngine.Rect(0, 0, l_Texture.width, l_Texture.height), new UnityEngine.Vector2(0.5f, 0.5f), 100);
@@ -358,9 +358,9 @@ namespace BeatSaberPlus.SDK.UI.DataSource
                                 if (l_Cell.idx >= Data.Count || l_SongEntry != Data[l_Cell.idx])
                                     return;
 
-                                Unity.MainThreadInvoker.Enqueue(() =>
+                                CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() =>
                                 {
-                                    var l_Texture = Unity.Texture2D.CreateFromRaw(p_CoverTaskResult);
+                                    var l_Texture = CP_SDK.Unity.Texture2DU.CreateFromRaw(p_CoverTaskResult);
                                     if (l_Texture != null)
                                     {
                                         l_SongEntry.Cover = UnityEngine.Sprite.Create(l_Texture, new UnityEngine.Rect(0, 0, l_Texture.width, l_Texture.height), new UnityEngine.Vector2(0.5f, 0.5f), 100);
@@ -412,7 +412,7 @@ namespace BeatSaberPlus.SDK.UI.DataSource
                 if (l_SongEntry.HoverHintTimeArg.HasValue && l_HoverHintText.Contains("$$time$$"))
                 {
                     var l_Replace = "";
-                    var l_Elapsed = Misc.Time.UnixTimeNow() - Misc.Time.ToUnixTime(l_SongEntry.HoverHintTimeArg.Value);
+                    var l_Elapsed = CP_SDK.Misc.Time.UnixTimeNow() - CP_SDK.Misc.Time.ToUnixTime(l_SongEntry.HoverHintTimeArg.Value);
                     if (l_Elapsed < (60 * 60))
                         l_Replace = Math.Max(1, l_Elapsed / 60).ToString() + " minute(s) ago";
                     else if (l_Elapsed < (60 * 60 * 24))

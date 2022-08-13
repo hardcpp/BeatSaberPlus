@@ -1,5 +1,6 @@
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.FloatingScreen;
+using CP_SDK.Chat.Interfaces;
 using HMUI;
 using IPA.Utilities;
 using System;
@@ -16,12 +17,12 @@ namespace BeatSaberPlus_MenuMusic
     /// <summary>
     /// Menu Music Module
     /// </summary>
-    internal class MenuMusic : BeatSaberPlus.SDK.ModuleBase<MenuMusic>
+    internal class MenuMusic : BeatSaberPlus.SDK.BSPModuleBase<MenuMusic>
     {
         /// <summary>
         /// Module type
         /// </summary>
-        public override BeatSaberPlus.SDK.IModuleBaseType Type => BeatSaberPlus.SDK.IModuleBaseType.Integrated;
+        public override CP_SDK.EIModuleBaseType Type => CP_SDK.EIModuleBaseType.Integrated;
         /// <summary>
         /// Name of the Module
         /// </summary>
@@ -41,7 +42,7 @@ namespace BeatSaberPlus_MenuMusic
         /// <summary>
         /// Activation kind
         /// </summary>
-        public override BeatSaberPlus.SDK.IModuleBaseActivationType ActivationType => BeatSaberPlus.SDK.IModuleBaseActivationType.OnMenuSceneLoaded;
+        public override CP_SDK.EIModuleBaseActivationType ActivationType => CP_SDK.EIModuleBaseActivationType.OnMenuSceneLoaded;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -166,14 +167,14 @@ namespace BeatSaberPlus_MenuMusic
             if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Menu)
                 Game_OnSceneChange(BeatSaberPlus.SDK.Game.Logic.SceneType.Menu);
 
-            BeatSaberPlus.SDK.Chat.Service.Discrete_OnTextMessageReceived += ChatService_Discrete_OnTextMessageReceived;
+            CP_SDK.Chat.Service.Discrete_OnTextMessageReceived += ChatService_Discrete_OnTextMessageReceived;
         }
         /// <summary>
         /// Disable the Module
         /// </summary>
         protected override void OnDisable()
         {
-            BeatSaberPlus.SDK.Chat.Service.Discrete_OnTextMessageReceived -= ChatService_Discrete_OnTextMessageReceived;
+            CP_SDK.Chat.Service.Discrete_OnTextMessageReceived -= ChatService_Discrete_OnTextMessageReceived;
 
             /// Unbind event
             BeatSaberPlus.SDK.Game.Logic.OnSceneChange -= Game_OnSceneChange;
@@ -181,7 +182,7 @@ namespace BeatSaberPlus_MenuMusic
             /// Stop wait and play next song coroutine
             if (m_WaitAndPlayNextSongCoroutine != null)
             {
-                SharedCoroutineStarter.instance.StopCoroutine(m_WaitAndPlayNextSongCoroutine);
+                CP_SDK.Unity.MTCoroutineStarter.Stop(m_WaitAndPlayNextSongCoroutine);
                 m_WaitAndPlayNextSongCoroutine = null;
             }
 
@@ -248,14 +249,14 @@ namespace BeatSaberPlus_MenuMusic
             if (MMConfig.Instance.StartANewMusicOnSceneChange)
                 StartNewMusic(false, true);
             else
-                SharedCoroutineStarter.instance.StartCoroutine(LoadAudioClip(true));
+                CP_SDK.Unity.MTCoroutineStarter.Start(LoadAudioClip(true));
         }
         /// <summary>
         /// On text message received
         /// </summary>
         /// <param name="p_Service">Chat service</param>
         /// <param name="p_Message">Chat message</param>
-        private void ChatService_Discrete_OnTextMessageReceived(BeatSaberPlus.SDK.Chat.Interfaces.IChatService p_Service, BeatSaberPlus.SDK.Chat.Interfaces.IChatMessage p_Message)
+        private void ChatService_Discrete_OnTextMessageReceived(IChatService p_Service, IChatMessage p_Message)
         {
             if (p_Message.Message.Length < 2 || p_Message.Message[0] != '!')
                 return;
@@ -324,7 +325,7 @@ namespace BeatSaberPlus_MenuMusic
             if ((m_PlayerFloatingScreen != null && m_PlayerFloatingScreen) || m_CreateFloatingPlayerCoroutine != null)
                 return;
 
-            m_CreateFloatingPlayerCoroutine = SharedCoroutineStarter.instance.StartCoroutine(CreateFloatingPlayer_Coroutine());
+            m_CreateFloatingPlayerCoroutine = CP_SDK.Unity.MTCoroutineStarter.Start(CreateFloatingPlayer_Coroutine());
         }
         /// <summary>
         /// Create floating player window
@@ -400,7 +401,7 @@ namespace BeatSaberPlus_MenuMusic
             {
                 if (m_CreateFloatingPlayerCoroutine != null)
                 {
-                    SharedCoroutineStarter.instance.StopCoroutine(m_CreateFloatingPlayerCoroutine);
+                    CP_SDK.Unity.MTCoroutineStarter.Stop(m_CreateFloatingPlayerCoroutine);
                     m_CreateFloatingPlayerCoroutine = null;
                 }
 
@@ -470,7 +471,7 @@ namespace BeatSaberPlus_MenuMusic
             m_MusicToLoad = m_AllSongs[m_CurrentSongIndex];
 
             /// Load and play audio clip
-            SharedCoroutineStarter.instance.StartCoroutine(LoadAudioClip(false));
+            CP_SDK.Unity.MTCoroutineStarter.Start(LoadAudioClip(false));
         }
         /// <summary>
         /// Start a new music
@@ -499,7 +500,7 @@ namespace BeatSaberPlus_MenuMusic
             m_MusicToLoad = m_AllSongs[m_CurrentSongIndex];
 
             /// Load and play audio clip
-            SharedCoroutineStarter.instance.StartCoroutine(LoadAudioClip(p_OnSceneTransition));
+            CP_SDK.Unity.MTCoroutineStarter.Start(LoadAudioClip(p_OnSceneTransition));
         }
         /// <summary>
         /// Start a next music
@@ -523,7 +524,7 @@ namespace BeatSaberPlus_MenuMusic
             m_MusicToLoad = m_AllSongs[m_CurrentSongIndex];
 
             /// Load and play audio clip
-            SharedCoroutineStarter.instance.StartCoroutine(LoadAudioClip(false));
+            CP_SDK.Unity.MTCoroutineStarter.Start(LoadAudioClip(false));
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -537,7 +538,7 @@ namespace BeatSaberPlus_MenuMusic
         {
             if (m_WaitAndPlayNextSongCoroutine != null)
             {
-                SharedCoroutineStarter.instance.StopCoroutine(m_WaitAndPlayNextSongCoroutine);
+                CP_SDK.Unity.MTCoroutineStarter.Stop(m_WaitAndPlayNextSongCoroutine);
                 m_WaitAndPlayNextSongCoroutine = null;
             }
 
@@ -622,7 +623,7 @@ namespace BeatSaberPlus_MenuMusic
                     {
                         if (m_WaitAndPlayNextSongCoroutine != null)
                         {
-                            SharedCoroutineStarter.instance.StopCoroutine(m_WaitAndPlayNextSongCoroutine);
+                            CP_SDK.Unity.MTCoroutineStarter.Stop(m_WaitAndPlayNextSongCoroutine);
                             m_WaitAndPlayNextSongCoroutine = null;
                         }
 
@@ -641,7 +642,7 @@ namespace BeatSaberPlus_MenuMusic
                         if (m_PlayerFloatingScreenController != null)
                             m_PlayerFloatingScreenController.SetPlayingSong(GetCurrenltyPlayingSongName());
 
-                        m_WaitAndPlayNextSongCoroutine = SharedCoroutineStarter.instance.StartCoroutine(WaitAndPlayNextMusic(m_CurrentMusic.length));
+                        m_WaitAndPlayNextSongCoroutine = CP_SDK.Unity.MTCoroutineStarter.Start(WaitAndPlayNextMusic(m_CurrentMusic.length));
                     }
                     catch (Exception p_Exception)
                     {
@@ -728,7 +729,7 @@ namespace BeatSaberPlus_MenuMusic
                             {
                                 m_WaitAndPlayNextSongCoroutine = null;
                                 if (MMConfig.Instance.LoopCurrentMusic && l_Channel.clip.length >= 10f)
-                                    SharedCoroutineStarter.instance.StartCoroutine(LoadAudioClip(false));
+                                    CP_SDK.Unity.MTCoroutineStarter.Start(LoadAudioClip(false));
                                 else
                                     StartNextMusic();
                                 yield break;

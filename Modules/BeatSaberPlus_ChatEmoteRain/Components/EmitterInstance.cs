@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace BeatSaberPlus_ChatEmoteRain.Components
+namespace ChatPlexMod_ChatEmoteRain.Components
 {
     /// <summary>
     /// Emitter instance component
@@ -54,7 +54,7 @@ namespace BeatSaberPlus_ChatEmoteRain.Components
         /// <summary>
         /// Update from emitter config
         /// </summary>
-        internal void UpdateFromEmitter(BeatSaberPlus.SDK.Game.Logic.SceneType p_Scene)
+        internal void UpdateFromEmitter(CP_SDK.ChatPlexSDK.EGenericScene p_Scene)
         {
             if (Emitter == null)
                 return;
@@ -72,7 +72,7 @@ namespace BeatSaberPlus_ChatEmoteRain.Components
                 m_Preview.transform.localEulerAngles    = l_Shape.rotation;
             }
 
-            var l_IsMenu    = p_Scene == BeatSaberPlus.SDK.Game.Logic.SceneType.Menu;
+            var l_IsMenu    = p_Scene == CP_SDK.ChatPlexSDK.EGenericScene.Menu;
             var l_Size      = (l_IsMenu ? CERConfig.Instance.MenuSize  : CERConfig.Instance.SongSize)  * Emitter.Size;
             var l_Speed     = (l_IsMenu ? CERConfig.Instance.MenuSpeed : CERConfig.Instance.SongSpeed) * Emitter.Speed;
 

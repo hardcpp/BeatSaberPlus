@@ -78,13 +78,13 @@ namespace BeatSaberPlus_ChatIntegrations.Interfaces
                 {
                     if (l_Condition.IsEnabled && !l_Condition.Eval(p_Context))
                     {
-                        BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() => SharedCoroutineStarter.instance.StartCoroutine(DoOnFailActions(p_Context)));
+                        CP_SDK.Unity.MTCoroutineStarter.EnqueueFromThread(DoOnFailActions(p_Context));
                         OnEventFailed(p_Context);
                         return false;
                     }
                 }
 
-                BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() => SharedCoroutineStarter.instance.StartCoroutine(DoActions(p_Context)));
+                CP_SDK.Unity.MTCoroutineStarter.EnqueueFromThread(DoActions(p_Context));
             }
             catch (System.Exception l_Exception)
             {
@@ -201,7 +201,7 @@ namespace BeatSaberPlus_ChatIntegrations.Interfaces
             if (p_IsClone)
                 GenericModel.Name += " (Clone)";
 
-            GenericModel.CreationDate   = BeatSaberPlus.SDK.Misc.Time.UnixTimeNow();
+            GenericModel.CreationDate   = CP_SDK.Misc.Time.UnixTimeNow();
             GenericModel.LastUsageDate  = 0;
             GenericModel.UsageCount     = 0;
         }
@@ -363,7 +363,7 @@ namespace BeatSaberPlus_ChatIntegrations.Interfaces
         /// <summary>
         /// Model
         /// </summary>
-        public M Model { get; protected set; } = new M() { GUID = Guid.NewGuid().ToString(), Enabled = true, CreationDate = BeatSaberPlus.SDK.Misc.Time.UnixTimeNow() };
+        public M Model { get; protected set; } = new M() { GUID = Guid.NewGuid().ToString(), Enabled = true, CreationDate = CP_SDK.Misc.Time.UnixTimeNow() };
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////

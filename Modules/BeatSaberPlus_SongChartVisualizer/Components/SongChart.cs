@@ -267,7 +267,7 @@ namespace BeatSaberPlus_SongChartVisualizer.Components
                         (m_Pointer.transform as RectTransform).anchorMax         = Vector2.zero;
                         (m_Pointer.transform as RectTransform).anchoredPosition  = m_Points.Count > 0 ? m_Points[m_CurrentGraphDataIndex] : Vector2.zero;
 
-                        BeatSaberPlus.SDK.Unity.GameObject.ChangerLayerRecursive(gameObject, LayerMask.NameToLayer("UI"));
+                        CP_SDK.Unity.GameObjectU.ChangerLayerRecursive(gameObject, LayerMask.NameToLayer("UI"));
                     }
                 }
             }
@@ -404,7 +404,7 @@ namespace BeatSaberPlus_SongChartVisualizer.Components
                     (l_LegendLine.transform as RectTransform).offsetMin          = new Vector2(-448.1f, 247.6f);
                     (l_LegendLine.transform as RectTransform).offsetMax          = new Vector2(521.9f, 250.6f);
                     (l_LegendLine.transform as RectTransform).anchoredPosition   = new Vector2(-4f, l_NormalizedValue * m_GraphCanvas.sizeDelta.y);
-                    l_LegendLine.GetComponent<Image>().sprite                    = BeatSaberPlus.SDK.Unity.Sprite.CreateFromTexture(Texture2D.whiteTexture);
+                    l_LegendLine.GetComponent<Image>().sprite                    = CP_SDK.Unity.SpriteU.CreateFromTexture(Texture2D.whiteTexture);
                     l_LegendLine.GetComponent<Image>().type                      = Image.Type.Simple;
                     l_LegendLine.GetComponent<Image>().color                     = SCVConfig.Instance.DashLineColor;
                 }

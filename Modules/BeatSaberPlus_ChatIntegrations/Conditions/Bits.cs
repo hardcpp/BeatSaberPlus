@@ -27,7 +27,7 @@ namespace BeatSaberPlus_ChatIntegrations.Conditions
         {
             m_CheckTypeList_Value = (string)m_CheckTypeList_Choices.ElementAt(Model.IsGreaterThan ? 0 : 1);
 
-            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));

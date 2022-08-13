@@ -54,7 +54,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
 
         public override void BuildUI(Transform p_Parent)
         {
-            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_InfoPanel_Background, 0.75f);
@@ -110,7 +110,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
 
         public override void BuildUI(Transform p_Parent)
         {
-            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_InfoPanel_Background, 0.75f);
@@ -163,7 +163,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
         [UIAction("click-test-btn-pressed")]
         private void OnTestButton()
         {
-            SharedCoroutineStarter.instance.StartCoroutine(Eval(null));
+            CP_SDK.Unity.MTCoroutineStarter.Start(Eval(null));
         }
 
         public override IEnumerator Eval(EventContext p_Context)

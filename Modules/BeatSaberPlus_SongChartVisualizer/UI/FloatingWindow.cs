@@ -40,7 +40,7 @@ namespace BeatSaberPlus_SongChartVisualizer.UI
                     l_FloatingScreen.handle.transform.localRotation = Quaternion.identity;
 
                     /// Update handle material
-                    var l_ChartFloatingScreenHandleMaterial = GameObject.Instantiate(BeatSaberPlus.SDK.Unity.Material.UINoGlowMaterial);
+                    var l_ChartFloatingScreenHandleMaterial = GameObject.Instantiate(BeatSaberPlus.SDK.Unity.MaterialU.UINoGlowMaterial);
                     l_ChartFloatingScreenHandleMaterial.color = Color.clear;
                     l_FloatingScreen.handle.gameObject.GetComponent<Renderer>().material = l_ChartFloatingScreenHandleMaterial;
                 }
@@ -61,7 +61,7 @@ namespace BeatSaberPlus_SongChartVisualizer.UI
                     }
                     else
                     {
-                        Logger.Instance.Warn("Failed to get VRPointer!");
+                        Logger.Instance.Warning("Failed to get VRPointer!");
                     }
                 }
             }
@@ -94,7 +94,7 @@ namespace BeatSaberPlus_SongChartVisualizer.UI
             if (!SCVConfig.Instance.ShowLockIcon)
                 m_LockIcon.gameObject.SetActive(false);
 
-            BeatSaberPlus.SDK.Unity.GameObject.ChangerLayerRecursive(gameObject, LayerMask.NameToLayer("UI"));
+            CP_SDK.Unity.GameObjectU.ChangerLayerRecursive(gameObject, LayerMask.NameToLayer("UI"));
 
             /// Make icons easier to click
             m_LockIcon.gameObject.AddComponent<SphereCollider>().radius = 10f;

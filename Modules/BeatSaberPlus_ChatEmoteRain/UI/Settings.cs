@@ -7,7 +7,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace BeatSaberPlus_ChatEmoteRain.UI
+namespace ChatPlexMod_ChatEmoteRain.UI
 {
     /// <summary>
     /// Chat Emote Rain settings main view
@@ -226,8 +226,8 @@ namespace BeatSaberPlus_ChatEmoteRain.UI
         /// </summary>
         protected override sealed void OnViewDeactivation()
         {
-            ChatEmoteRain.Instance.SetTemplatesPreview(BeatSaberPlus.SDK.Game.Logic.SceneType.Menu,       false, null);
-            ChatEmoteRain.Instance.SetTemplatesPreview(BeatSaberPlus.SDK.Game.Logic.SceneType.Playing,    false, null);
+            ChatEmoteRain.Instance.SetTemplatesPreview(CP_SDK.ChatPlexSDK.EGenericScene.Menu,       false, null);
+            ChatEmoteRain.Instance.SetTemplatesPreview(CP_SDK.ChatPlexSDK.EGenericScene.Playing,    false, null);
 
             CERConfig.Instance.Save();
         }
@@ -254,8 +254,8 @@ namespace BeatSaberPlus_ChatEmoteRain.UI
                 m_MenuEmittersCurrentPage = 1;
                 m_SongEmittersSelected = -1;
 
-                ChatEmoteRain.Instance.SetTemplatesPreview(BeatSaberPlus.SDK.Game.Logic.SceneType.Menu,       p_TabIndex == 1, null);
-                ChatEmoteRain.Instance.SetTemplatesPreview(BeatSaberPlus.SDK.Game.Logic.SceneType.Playing,    p_TabIndex == 2, null);
+                ChatEmoteRain.Instance.SetTemplatesPreview(CP_SDK.ChatPlexSDK.EGenericScene.Menu,       p_TabIndex == 1, null);
+                ChatEmoteRain.Instance.SetTemplatesPreview(CP_SDK.ChatPlexSDK.EGenericScene.Playing,    p_TabIndex == 2, null);
 
                 RebuildEmitterList(null);
             }
@@ -392,12 +392,12 @@ namespace BeatSaberPlus_ChatEmoteRain.UI
             if (m_MenuEmittersTab.activeSelf)
             {
                 m_EmitterWidget.BuildUI(m_MenuEmittersTab_Content.transform, l_Emitter);
-                ChatEmoteRain.Instance.SetTemplatesPreview(BeatSaberPlus.SDK.Game.Logic.SceneType.Menu, true, l_Emitter);
+                ChatEmoteRain.Instance.SetTemplatesPreview(CP_SDK.ChatPlexSDK.EGenericScene.Menu, true, l_Emitter);
             }
             else
             {
                 m_EmitterWidget.BuildUI(m_SongEmittersTab_Content.transform, l_Emitter);
-                ChatEmoteRain.Instance.SetTemplatesPreview(BeatSaberPlus.SDK.Game.Logic.SceneType.Playing, true, l_Emitter);
+                ChatEmoteRain.Instance.SetTemplatesPreview(CP_SDK.ChatPlexSDK.EGenericScene.Playing, true, l_Emitter);
             }
         }
         /// <summary>
@@ -432,12 +432,12 @@ namespace BeatSaberPlus_ChatEmoteRain.UI
             if (m_MenuEmittersTab.activeSelf)
             {
                 CERConfig.Instance.MenuEmitters.Add(l_Emitter);
-                ChatEmoteRain.Instance.UpdateTemplateFor(BeatSaberPlus.SDK.Game.Logic.SceneType.Menu);
+                ChatEmoteRain.Instance.UpdateTemplateFor(CP_SDK.ChatPlexSDK.EGenericScene.Menu);
             }
             else
             {
                 CERConfig.Instance.SongEmitters.Add(l_Emitter);
-                ChatEmoteRain.Instance.UpdateTemplateFor(BeatSaberPlus.SDK.Game.Logic.SceneType.Playing);
+                ChatEmoteRain.Instance.UpdateTemplateFor(CP_SDK.ChatPlexSDK.EGenericScene.Playing);
             }
 
             RebuildEmitterList(l_Emitter);
@@ -466,9 +466,9 @@ namespace BeatSaberPlus_ChatEmoteRain.UI
                     RebuildEmitterList(l_Emitter);
 
                     if (m_MenuEmittersTab.activeSelf)
-                        ChatEmoteRain.Instance.UpdateTemplateFor(BeatSaberPlus.SDK.Game.Logic.SceneType.Menu);
+                        ChatEmoteRain.Instance.UpdateTemplateFor(CP_SDK.ChatPlexSDK.EGenericScene.Menu);
                     else
-                        ChatEmoteRain.Instance.UpdateTemplateFor(BeatSaberPlus.SDK.Game.Logic.SceneType.Playing);
+                        ChatEmoteRain.Instance.UpdateTemplateFor(CP_SDK.ChatPlexSDK.EGenericScene.Playing);
                 });
             }
             else
@@ -479,9 +479,9 @@ namespace BeatSaberPlus_ChatEmoteRain.UI
                     RebuildEmitterList(l_Emitter);
 
                     if (m_MenuEmittersTab.activeSelf)
-                        ChatEmoteRain.Instance.UpdateTemplateFor(BeatSaberPlus.SDK.Game.Logic.SceneType.Menu);
+                        ChatEmoteRain.Instance.UpdateTemplateFor(CP_SDK.ChatPlexSDK.EGenericScene.Menu);
                     else
-                        ChatEmoteRain.Instance.UpdateTemplateFor(BeatSaberPlus.SDK.Game.Logic.SceneType.Playing);
+                        ChatEmoteRain.Instance.UpdateTemplateFor(CP_SDK.ChatPlexSDK.EGenericScene.Playing);
                 });
             }
         }
@@ -508,9 +508,9 @@ namespace BeatSaberPlus_ChatEmoteRain.UI
                 RebuildEmitterList(null);
 
                 if (m_MenuEmittersTab.activeSelf)
-                    ChatEmoteRain.Instance.UpdateTemplateFor(BeatSaberPlus.SDK.Game.Logic.SceneType.Menu);
+                    ChatEmoteRain.Instance.UpdateTemplateFor(CP_SDK.ChatPlexSDK.EGenericScene.Menu);
                 else
-                    ChatEmoteRain.Instance.UpdateTemplateFor(BeatSaberPlus.SDK.Game.Logic.SceneType.Playing);
+                    ChatEmoteRain.Instance.UpdateTemplateFor(CP_SDK.ChatPlexSDK.EGenericScene.Playing);
             });
         }
 

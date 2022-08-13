@@ -5,7 +5,7 @@ namespace BeatSaberPlus_SongOverlay
     /// <summary>
     /// Config class helper
     /// </summary>
-    internal class SOConfig : BeatSaberPlus.SDK.Config.JsonConfig<SOConfig>
+    internal class SOConfig : CP_SDK.Config.JsonConfig<SOConfig>
     {
         [JsonProperty] internal bool Enabled = true;
 
@@ -17,7 +17,7 @@ namespace BeatSaberPlus_SongOverlay
         /// </summary>
         /// <returns></returns>
         public override string GetRelativePath()
-            => "BeatSaberPlus/SongOverlay/Config";
+            => $"{CP_SDK.ChatPlexSDK.ProductName}/SongOverlay/Config";
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////

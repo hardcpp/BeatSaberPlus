@@ -1,4 +1,4 @@
-﻿namespace BeatSaberPlus_ChatEmoteRain
+﻿namespace ChatPlexMod_ChatEmoteRain
 {
     /// <summary>
     /// Logger instance holder
@@ -8,6 +8,6 @@
         /// <summary>
         /// Logger instance
         /// </summary>
-        internal static IPA.Logging.Logger Instance;
+        internal static CP_SDK.Logging.ILogger Instance;
     }
 }

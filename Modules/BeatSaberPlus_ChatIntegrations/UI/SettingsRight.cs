@@ -521,7 +521,7 @@ namespace BeatSaberPlus_ChatIntegrations.UI
             if (l_EventName.Length > 20)
                 l_EventName = l_EventName.Substring(0, 20);
 
-            var l_FileName = BeatSaberPlus.SDK.Misc.Time.UnixTimeNow() + "_" + l_Event.GetTypeNameShort() + "_" + l_EventName + ".bspci";
+            var l_FileName = CP_SDK.Misc.Time.UnixTimeNow() + "_" + l_Event.GetTypeNameShort() + "_" + l_EventName + ".bspci";
             l_FileName = string.Concat(l_FileName.Split(System.IO.Path.GetInvalidFileNameChars()));
 
             System.IO.File.WriteAllText(ChatIntegrations.s_EXPORT_PATH + l_FileName, l_Serialized.ToString(Newtonsoft.Json.Formatting.Indented), System.Text.Encoding.Unicode);

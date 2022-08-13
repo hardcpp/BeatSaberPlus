@@ -6,6 +6,7 @@ namespace BeatSaberPlus_SongOverlay.Models
     [Serializable]
     public class Score
     {
+        [JsonProperty] internal float time = 0;
         [JsonProperty] internal uint score = 0;
         [JsonProperty] internal float accuracy = 0;
         [JsonProperty] internal uint combo = 0;

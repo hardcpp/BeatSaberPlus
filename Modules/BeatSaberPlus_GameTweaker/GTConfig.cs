@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace BeatSaberPlus_GameTweaker
 {
-    internal class GTConfig : BeatSaberPlus.SDK.Config.JsonConfig<GTConfig>
+    internal class GTConfig : CP_SDK.Config.JsonConfig<GTConfig>
     {
         internal class _Environment
         {
@@ -36,6 +36,7 @@ namespace BeatSaberPlus_GameTweaker
             [JsonProperty] internal Color LevelFailedColor = new Color(0.796078444f, 0.137425855f, 0.0f, 1f);
             [JsonProperty] internal bool DisableEditorButtonOnMainMenu = true;
             [JsonProperty] internal bool RemoveNewContentPromotional = true;
+            [JsonProperty] internal bool DisableFireworks = false;
         }
         internal class _Tools
         {
@@ -75,7 +76,7 @@ namespace BeatSaberPlus_GameTweaker
         /// </summary>
         /// <returns></returns>
         public override string GetRelativePath()
-            => "BeatSaberPlus/GameTweaker/Config";
+            => $"{CP_SDK.ChatPlexSDK.ProductName}/GameTweaker/Config";
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////

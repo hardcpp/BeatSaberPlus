@@ -1,9 +1,8 @@
-﻿using BeatSaberPlus.SDK.Chat.Interfaces;
+﻿using CP_SDK.Chat.Interfaces;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace BeatSaberPlus_ChatRequest
 {
@@ -127,7 +126,7 @@ namespace BeatSaberPlus_ChatRequest
             /// Avoid saving during play
             if (BeatSaberPlus.SDK.Game.Logic.ActiveScene != BeatSaberPlus.SDK.Game.Logic.SceneType.Playing)
             {
-                BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() =>
+                CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() =>
                 {
                     UpdateButton();
 
@@ -154,7 +153,7 @@ namespace BeatSaberPlus_ChatRequest
 
                 BeatSaberPlus.SDK.Game.BeatMapsClient.ClearCache(p_Entry.BeatMap.id);
 
-                BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() =>
+                CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() =>
                 {
                     UpdateButton();
 
@@ -192,14 +191,14 @@ namespace BeatSaberPlus_ChatRequest
             if (p_ContextMap != null)
             {
                 p_Message = p_Message.Replace("$BSRKey",            p_ContextMap.id);
-                p_Message = p_Message.Replace("$SongName",          CRConfig.Instance.SafeMode ? p_ContextMap.id : p_ContextMap.metadata.songName.Replace(".", " . "));
-                p_Message = p_Message.Replace("$LevelAuthorName",   CRConfig.Instance.SafeMode ? p_ContextMap.id : p_ContextMap.metadata.levelAuthorName.Replace(".", " . "));
-                p_Message = p_Message.Replace("$UploaderName",      CRConfig.Instance.SafeMode ? p_ContextMap.id : p_ContextMap.uploader.name.Replace(".", " . "));
+                p_Message = p_Message.Replace("$SongName",          CRConfig.Instance.SafeMode2 ? p_ContextMap.id : p_ContextMap.metadata.songName.Replace(".", " . "));
+                p_Message = p_Message.Replace("$LevelAuthorName",   CRConfig.Instance.SafeMode2 ? p_ContextMap.id : p_ContextMap.metadata.levelAuthorName.Replace(".", " . "));
+                p_Message = p_Message.Replace("$UploaderName",      CRConfig.Instance.SafeMode2 ? p_ContextMap.id : p_ContextMap.uploader.name.Replace(".", " . "));
                 p_Message = p_Message.Replace("$Vote",              Math.Round((double)p_ContextMap.stats.score * 100f, 0).ToString());
             }
 
             if (p_Service == null && p_SourceMessage == null)
-                BeatSaberPlus.SDK.Chat.Service.BroadcastMessage("! " + p_Message);
+                CP_SDK.Chat.Service.BroadcastMessage("! " + p_Message);
             else
                 p_Service.SendTextMessage(p_SourceMessage.Channel, "! " + p_Message);
         }
@@ -238,7 +237,7 @@ namespace BeatSaberPlus_ChatRequest
 
             QueueOpen = !QueueOpen;
 
-            BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() =>
+            CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() =>
             {
                 CRConfig.Instance.QueueOpen = QueueOpen;
                 CRConfig.Instance.Save();

@@ -1,5 +1,5 @@
 ﻿using BeatSaberMarkupLanguage;
-using BeatSaberPlus.SDK.Chat.Interfaces;
+using CP_SDK.Chat.Interfaces;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ namespace BeatSaberPlus_ChatIntegrations
     /// <summary>
     /// ChatIntegrations instance
     /// </summary>
-    public partial class ChatIntegrations : BeatSaberPlus.SDK.ModuleBase<ChatIntegrations>
+    public partial class ChatIntegrations : BeatSaberPlus.SDK.BSPModuleBase<ChatIntegrations>
     {
         /// <summary>
         /// Old database file
@@ -53,7 +53,7 @@ namespace BeatSaberPlus_ChatIntegrations
         /// <summary>
         /// Module type
         /// </summary>
-        public override BeatSaberPlus.SDK.IModuleBaseType Type => BeatSaberPlus.SDK.IModuleBaseType.Integrated;
+        public override CP_SDK.EIModuleBaseType Type => CP_SDK.EIModuleBaseType.Integrated;
         /// <summary>
         /// Name of the Module
         /// </summary>
@@ -73,7 +73,7 @@ namespace BeatSaberPlus_ChatIntegrations
         /// <summary>
         /// Activation kind
         /// </summary>
-        public override BeatSaberPlus.SDK.IModuleBaseActivationType ActivationType => BeatSaberPlus.SDK.IModuleBaseActivationType.OnMenuSceneLoaded;
+        public override CP_SDK.EIModuleBaseActivationType ActivationType => CP_SDK.EIModuleBaseActivationType.OnMenuSceneLoaded;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -182,39 +182,39 @@ namespace BeatSaberPlus_ChatIntegrations
             {
                 /// Init chat core
                 m_ChatCoreAcquired = true;
-                BeatSaberPlus.SDK.Chat.Service.Acquire();
+                CP_SDK.Chat.Service.Acquire();
 
                 /// Run all services
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer.OnJoinChannel           += ChatCoreMutiplixer_OnJoinChannel;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer.OnChannelFollow         += ChatCoreMutiplixer_OnChannelFollow;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer.OnChannelBits           += ChatCoreMutiplixer_OnChannelBits;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer.OnChannelPoints         += ChatCoreMutiplixer_OnChannelPoints;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer.OnChannelRaid           += ChatCoreMutiplexer_OnChannelRaid;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer.OnChannelSubscription   += ChatCoreMutiplixer_OnChannelSubscription;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer.OnTextMessageReceived   += ChatCoreMutiplixer_OnTextMessageReceived;
+                CP_SDK.Chat.Service.Multiplexer.OnJoinChannel           += ChatCoreMutiplixer_OnJoinChannel;
+                CP_SDK.Chat.Service.Multiplexer.OnChannelFollow         += ChatCoreMutiplixer_OnChannelFollow;
+                CP_SDK.Chat.Service.Multiplexer.OnChannelBits           += ChatCoreMutiplixer_OnChannelBits;
+                CP_SDK.Chat.Service.Multiplexer.OnChannelPoints         += ChatCoreMutiplixer_OnChannelPoints;
+                CP_SDK.Chat.Service.Multiplexer.OnChannelRaid           += ChatCoreMutiplexer_OnChannelRaid;
+                CP_SDK.Chat.Service.Multiplexer.OnChannelSubscription   += ChatCoreMutiplixer_OnChannelSubscription;
+                CP_SDK.Chat.Service.Multiplexer.OnTextMessageReceived   += ChatCoreMutiplixer_OnTextMessageReceived;
             }
 
             if (!m_OBSAcquired)
             {
                 /// Init OBS
                 m_OBSAcquired = true;
-                BeatSaberPlus.SDK.OBS.Service.Acquire();
+                CP_SDK.OBS.Service.Acquire();
             }
 
             if (!m_VoiceAttackAcquired)
             {
                 /// Init voice attack
                 m_VoiceAttackAcquired = true;
-                BeatSaberPlus.SDK.VoiceAttack.Service.Acquire();
+                CP_SDK.VoiceAttack.Service.Acquire();
 
                 /// Run all services
-                BeatSaberPlus.SDK.VoiceAttack.Service.OnCommandExecuted += VoiceAttack_OnCommandExecuted;
+                CP_SDK.VoiceAttack.Service.OnCommandExecuted += VoiceAttack_OnCommandExecuted;
             }
 
-            if (BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels.Count != 0)
+            if (CP_SDK.Chat.Service.Multiplexer.Channels.Count != 0)
             {
-                var l_Channel = BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels.First();
-                if (l_Channel.Item2 is BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchChannel l_TwitchChannel)
+                var l_Channel = CP_SDK.Chat.Service.Multiplexer.Channels.First();
+                if (l_Channel.Item2 is CP_SDK.Chat.Models.Twitch.TwitchChannel l_TwitchChannel)
                 {
                     m_Events.ForEach(x =>
                     {
@@ -253,17 +253,17 @@ namespace BeatSaberPlus_ChatIntegrations
             if (m_VoiceAttackAcquired)
             {
                 /// Unbind services
-                BeatSaberPlus.SDK.VoiceAttack.Service.OnCommandExecuted -= VoiceAttack_OnCommandExecuted;
+                CP_SDK.VoiceAttack.Service.OnCommandExecuted -= VoiceAttack_OnCommandExecuted;
 
                 /// Stop all voice attack services
-                BeatSaberPlus.SDK.VoiceAttack.Service.Release();
+                CP_SDK.VoiceAttack.Service.Release();
                 m_VoiceAttackAcquired = false;
             }
 
             if (m_OBSAcquired)
             {
                 /// Release OBS service
-                BeatSaberPlus.SDK.OBS.Service.Release();
+                CP_SDK.OBS.Service.Release();
                 m_OBSAcquired = false;
             }
 
@@ -271,16 +271,16 @@ namespace BeatSaberPlus_ChatIntegrations
             if (m_ChatCoreAcquired)
             {
                 /// Unbind services
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer.OnJoinChannel         -= ChatCoreMutiplixer_OnJoinChannel;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer.OnChannelFollow       -= ChatCoreMutiplixer_OnChannelFollow;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer.OnChannelBits         -= ChatCoreMutiplixer_OnChannelBits;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer.OnChannelPoints       -= ChatCoreMutiplixer_OnChannelPoints;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer.OnChannelRaid         -= ChatCoreMutiplexer_OnChannelRaid;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer.OnChannelSubscription -= ChatCoreMutiplixer_OnChannelSubscription;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer.OnTextMessageReceived -= ChatCoreMutiplixer_OnTextMessageReceived;
+                CP_SDK.Chat.Service.Multiplexer.OnJoinChannel         -= ChatCoreMutiplixer_OnJoinChannel;
+                CP_SDK.Chat.Service.Multiplexer.OnChannelFollow       -= ChatCoreMutiplixer_OnChannelFollow;
+                CP_SDK.Chat.Service.Multiplexer.OnChannelBits         -= ChatCoreMutiplixer_OnChannelBits;
+                CP_SDK.Chat.Service.Multiplexer.OnChannelPoints       -= ChatCoreMutiplixer_OnChannelPoints;
+                CP_SDK.Chat.Service.Multiplexer.OnChannelRaid         -= ChatCoreMutiplexer_OnChannelRaid;
+                CP_SDK.Chat.Service.Multiplexer.OnChannelSubscription -= ChatCoreMutiplixer_OnChannelSubscription;
+                CP_SDK.Chat.Service.Multiplexer.OnTextMessageReceived -= ChatCoreMutiplixer_OnTextMessageReceived;
 
                 /// Stop all chat services
-                BeatSaberPlus.SDK.Chat.Service.Release();
+                CP_SDK.Chat.Service.Release();
                 m_ChatCoreAcquired = false;
             }
         }
@@ -483,10 +483,10 @@ namespace BeatSaberPlus_ChatIntegrations
                     if (!l_Event.IsEnabled || !l_Event.Handle((Models.EventContext)p_Context.Clone()))
                         continue;
 
-                    BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() =>
+                    CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() =>
                     {
                         l_Event.GenericModel.UsageCount++;
-                        l_Event.GenericModel.LastUsageDate = BeatSaberPlus.SDK.Misc.Time.UnixTimeNow();
+                        l_Event.GenericModel.LastUsageDate = CP_SDK.Misc.Time.UnixTimeNow();
                     });
                 }
             }
@@ -505,10 +505,10 @@ namespace BeatSaberPlus_ChatIntegrations
             if (!p_Event.IsEnabled || !p_Event.Handle((Models.EventContext)p_Context.Clone()))
                 return false;
 
-            BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() =>
+            CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() =>
             {
                 p_Event.GenericModel.UsageCount++;
-                p_Event.GenericModel.LastUsageDate = BeatSaberPlus.SDK.Misc.Time.UnixTimeNow();
+                p_Event.GenericModel.LastUsageDate = CP_SDK.Misc.Time.UnixTimeNow();
             });
 
             return true;

@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace BeatSaberPlus_MenuMusic
 {
-    internal class MMConfig : BeatSaberPlus.SDK.Config.JsonConfig<MMConfig>
+    internal class MMConfig : CP_SDK.Config.JsonConfig<MMConfig>
     {
         [JsonProperty] internal bool Enabled = false;
 
@@ -25,7 +25,7 @@ namespace BeatSaberPlus_MenuMusic
         /// </summary>
         /// <returns></returns>
         public override string GetRelativePath()
-            => "BeatSaberPlus/MenuMusic/Config";
+            => $"{CP_SDK.ChatPlexSDK.ProductName}/MenuMusic/Config";
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////

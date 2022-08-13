@@ -92,7 +92,7 @@ namespace BeatSaberPlus_GameTweaker.Patches
                 var l_IncrementType         = GTConfig.Instance.PlayerOptions.JumpDurationIncrement;
                 var l_Increment             = l_IncrementType == 2 ? 0.100f : (l_IncrementType == 1 ? 0.010f : 0.005f);
 
-                for (float l_Value = (l_IncrementType == 2 ? 0.3f : 0.34f); l_Value < 1f; l_Value += l_Increment)
+                for (float l_Value = (l_IncrementType == 2 ? 0.2f : 0.24f); l_Value < 1f; l_Value += l_Increment)
                     l_NewReactionTimeList.Add(l_Value);
 
                 if (m_NoteJumpFixedDurationSettingsController)

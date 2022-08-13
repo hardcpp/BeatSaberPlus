@@ -1,7 +1,6 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using HMUI;
-using IPA.Utilities;
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
@@ -436,19 +435,20 @@ namespace BeatSaberPlus_ChatRequest.UI
                         else
                         {
                             /// Show error message
-                            BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() => {
+                            CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() => {
                                 HideLoadingModal();
                                 ShowMessageModal("Download failed!");
                             });
                         }
-                    });
+                    }).ConfigureAwait(false);
 
                     return;
                 }
             }
             catch (System.Exception p_Exception)
             {
-                Logger.Instance?.Critical(p_Exception);
+                Logger.Instance.Error("[UI][ManagerMain.PlaySong] Error:");
+                Logger.Instance.Error(p_Exception);
             }
         }
 

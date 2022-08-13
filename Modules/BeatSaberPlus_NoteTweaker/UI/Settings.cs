@@ -432,7 +432,7 @@ namespace BeatSaberPlus_NoteTweaker.UI
 
             var l_Serialized = JObject.FromObject(l_Profile);
 
-            var l_FileName = BeatSaberPlus.SDK.Misc.Time.UnixTimeNow() + "_" + l_Profile.Name + ".bspnt";
+            var l_FileName = CP_SDK.Misc.Time.UnixTimeNow() + "_" + l_Profile.Name + ".bspnt";
             l_FileName = string.Concat(l_FileName.Split(System.IO.Path.GetInvalidFileNameChars()));
 
             System.IO.File.WriteAllText(NoteTweaker.EXPORT_FOLDER + l_FileName, l_Serialized.ToString(Formatting.Indented), System.Text.Encoding.Unicode);

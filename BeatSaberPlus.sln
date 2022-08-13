@@ -1,33 +1,71 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29519.181
-MinimumVisualStudioVersion = 10.0.40219.1
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32407.343
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeatSaberPlus", "BeatSaberPlus\BeatSaberPlus.csproj", "{84972BAC-4FAF-4DA8-92ED-E3A735AF0E92}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PrivateModules", "PrivateModules", "{5BE117BB-81EE-4B1E-B3B7-888F97368CF3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeatSaberPlus_ChatIntegrations", "Modules\BeatSaberPlus_ChatIntegrations\BeatSaberPlus_ChatIntegrations.csproj", "{90ACB2CE-005E-4FB1-9E4C-AF227E165440}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeatSaberPlus_SongChartVisualizer", "Modules\BeatSaberPlus_SongChartVisualizer\BeatSaberPlus_SongChartVisualizer.csproj", "{07E42F20-AE5B-4BDA-8260-970191C61EB3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeatSaberPlus_ChatRequest", "Modules\BeatSaberPlus_ChatRequest\BeatSaberPlus_ChatRequest.csproj", "{EB5AD22C-8B2E-4B17-8EB9-606553DB68AE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{84972BAC-4FAF-4DA8-92ED-E3A735AF0E92} = {84972BAC-4FAF-4DA8-92ED-E3A735AF0E92}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{B5DB9381-A080-4EE6-B5D4-01C4E0251F49}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeatSaberPlus_NoteTweaker", "Modules\BeatSaberPlus_NoteTweaker\BeatSaberPlus_NoteTweaker.csproj", "{DDBC9483-C077-4485-A720-D7DA3A76CA34}"
+	ProjectSection(ProjectDependencies) = postProject
+		{84972BAC-4FAF-4DA8-92ED-E3A735AF0E92} = {84972BAC-4FAF-4DA8-92ED-E3A735AF0E92}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeatSaberPlus_ChatEmoteRain", "Modules\BeatSaberPlus_ChatEmoteRain\BeatSaberPlus_ChatEmoteRain.csproj", "{D529EDCC-39F3-47B7-8CD9-B740F8BC6495}"
+	ProjectSection(ProjectDependencies) = postProject
+		{84972BAC-4FAF-4DA8-92ED-E3A735AF0E92} = {84972BAC-4FAF-4DA8-92ED-E3A735AF0E92}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeatSaberPlus_MenuMusic", "Modules\BeatSaberPlus_MenuMusic\BeatSaberPlus_MenuMusic.csproj", "{BFE64437-FBB4-4002-863B-42DAFB451F86}"
+	ProjectSection(ProjectDependencies) = postProject
+		{84972BAC-4FAF-4DA8-92ED-E3A735AF0E92} = {84972BAC-4FAF-4DA8-92ED-E3A735AF0E92}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeatSaberPlus_CustomEdition", "PrivateModules\BeatSaberPlus_CustomEdition\BeatSaberPlus_CustomEdition.csproj", "{93F246B8-DA82-4581-B485-9AF2AC2DBF7B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{84972BAC-4FAF-4DA8-92ED-E3A735AF0E92} = {84972BAC-4FAF-4DA8-92ED-E3A735AF0E92}
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{4A92F157-D042-40C5-8B33-387CFD9BB809}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeatSaberPlus_VoiceAttack", "Plugins\BeatSaberPlus_VoiceAttack\BeatSaberPlus_VoiceAttack.csproj", "{C661FC90-C439-46CB-8876-3FFB0B1D0E3A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{438B64F8-5A95-46D9-BEA7-A5D8E939A6B6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeatSaberPlus_ModuleTemplate", "Samples\BeatSaberPlus_ModuleTemplate\BeatSaberPlus_ModuleTemplate.csproj", "{9F8AE720-7BB7-4AE2-8737-78618F85FB8C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeatSaberPlus_Chat", "Modules\BeatSaberPlus_Chat\BeatSaberPlus_Chat.csproj", "{2DE1608F-407F-4B11-BE8A-D4CCDCD910A1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{84972BAC-4FAF-4DA8-92ED-E3A735AF0E92} = {84972BAC-4FAF-4DA8-92ED-E3A735AF0E92}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeatSaberPlus_GameTweaker", "Modules\BeatSaberPlus_GameTweaker\BeatSaberPlus_GameTweaker.csproj", "{C1F6F190-4A2D-4C28-917B-9D2704E098F9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{84972BAC-4FAF-4DA8-92ED-E3A735AF0E92} = {84972BAC-4FAF-4DA8-92ED-E3A735AF0E92}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeatSaberPlus_SongOverlay", "Modules\BeatSaberPlus_SongOverlay\BeatSaberPlus_SongOverlay.csproj", "{193F6510-339A-472A-B5E2-9739A3567384}"
+	ProjectSection(ProjectDependencies) = postProject
+		{84972BAC-4FAF-4DA8-92ED-E3A735AF0E92} = {84972BAC-4FAF-4DA8-92ED-E3A735AF0E92}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeatSaberPlus_ChatIntegrationsActions", "PrivateModules\BeatSaberPlus_ChatIntegrationsActions\BeatSaberPlus_ChatIntegrationsActions.csproj", "{5C0D6BAA-0876-40B4-9333-3A4645CCD193}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{1C4EE81D-CE76-4A55-BD2A-2CABF42B28B9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeatSaberPlusYoutube", "PrivateModules\BeatSaberPlusYoutube\BeatSaberPlusYoutube.csproj", "{15BAB2B0-1CED-4F42-A96E-7E94686082F1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeatSaberPlus_Multiplayer", "PrivateModules\BeatSaberPlus_Multiplayer\BeatSaberPlus_Multiplayer.csproj", "{F8B48A78-FB30-4CB2-8507-ED88878F5D3D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -141,6 +179,38 @@ Global
 		{193F6510-339A-472A-B5E2-9739A3567384}.Release|Any CPU.Build.0 = Release|Any CPU
 		{193F6510-339A-472A-B5E2-9739A3567384}.Release|x64.ActiveCfg = Release|Any CPU
 		{193F6510-339A-472A-B5E2-9739A3567384}.Release|x64.Build.0 = Release|Any CPU
+		{5C0D6BAA-0876-40B4-9333-3A4645CCD193}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C0D6BAA-0876-40B4-9333-3A4645CCD193}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C0D6BAA-0876-40B4-9333-3A4645CCD193}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5C0D6BAA-0876-40B4-9333-3A4645CCD193}.Debug|x64.Build.0 = Debug|Any CPU
+		{5C0D6BAA-0876-40B4-9333-3A4645CCD193}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C0D6BAA-0876-40B4-9333-3A4645CCD193}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C0D6BAA-0876-40B4-9333-3A4645CCD193}.Release|x64.ActiveCfg = Release|Any CPU
+		{5C0D6BAA-0876-40B4-9333-3A4645CCD193}.Release|x64.Build.0 = Release|Any CPU
+		{1C4EE81D-CE76-4A55-BD2A-2CABF42B28B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C4EE81D-CE76-4A55-BD2A-2CABF42B28B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C4EE81D-CE76-4A55-BD2A-2CABF42B28B9}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{1C4EE81D-CE76-4A55-BD2A-2CABF42B28B9}.Debug|x64.Build.0 = Debug|Any CPU
+		{1C4EE81D-CE76-4A55-BD2A-2CABF42B28B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C4EE81D-CE76-4A55-BD2A-2CABF42B28B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C4EE81D-CE76-4A55-BD2A-2CABF42B28B9}.Release|x64.ActiveCfg = Release|Any CPU
+		{1C4EE81D-CE76-4A55-BD2A-2CABF42B28B9}.Release|x64.Build.0 = Release|Any CPU
+		{15BAB2B0-1CED-4F42-A96E-7E94686082F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{15BAB2B0-1CED-4F42-A96E-7E94686082F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{15BAB2B0-1CED-4F42-A96E-7E94686082F1}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{15BAB2B0-1CED-4F42-A96E-7E94686082F1}.Debug|x64.Build.0 = Debug|Any CPU
+		{15BAB2B0-1CED-4F42-A96E-7E94686082F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{15BAB2B0-1CED-4F42-A96E-7E94686082F1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{15BAB2B0-1CED-4F42-A96E-7E94686082F1}.Release|x64.ActiveCfg = Release|Any CPU
+		{15BAB2B0-1CED-4F42-A96E-7E94686082F1}.Release|x64.Build.0 = Release|Any CPU
+		{F8B48A78-FB30-4CB2-8507-ED88878F5D3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8B48A78-FB30-4CB2-8507-ED88878F5D3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8B48A78-FB30-4CB2-8507-ED88878F5D3D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F8B48A78-FB30-4CB2-8507-ED88878F5D3D}.Debug|x64.Build.0 = Debug|Any CPU
+		{F8B48A78-FB30-4CB2-8507-ED88878F5D3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8B48A78-FB30-4CB2-8507-ED88878F5D3D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8B48A78-FB30-4CB2-8507-ED88878F5D3D}.Release|x64.ActiveCfg = Release|Any CPU
+		{F8B48A78-FB30-4CB2-8507-ED88878F5D3D}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -158,6 +228,9 @@ Global
 		{2DE1608F-407F-4B11-BE8A-D4CCDCD910A1} = {B5DB9381-A080-4EE6-B5D4-01C4E0251F49}
 		{C1F6F190-4A2D-4C28-917B-9D2704E098F9} = {B5DB9381-A080-4EE6-B5D4-01C4E0251F49}
 		{193F6510-339A-472A-B5E2-9739A3567384} = {B5DB9381-A080-4EE6-B5D4-01C4E0251F49}
+		{5C0D6BAA-0876-40B4-9333-3A4645CCD193} = {5BE117BB-81EE-4B1E-B3B7-888F97368CF3}
+		{15BAB2B0-1CED-4F42-A96E-7E94686082F1} = {5BE117BB-81EE-4B1E-B3B7-888F97368CF3}
+		{F8B48A78-FB30-4CB2-8507-ED88878F5D3D} = {5BE117BB-81EE-4B1E-B3B7-888F97368CF3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E7AEA519-703A-47D9-8C34-ADA6DEAF8953}

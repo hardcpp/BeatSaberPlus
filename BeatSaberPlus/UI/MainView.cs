@@ -15,7 +15,7 @@ namespace BeatSaberPlus.UI
         /// <summary>
         /// Module buttons
         /// </summary>
-        private Dictionary<SDK.IModuleBase, Button> m_ModulesButton = new Dictionary<SDK.IModuleBase, Button>();
+        private Dictionary<SDK.IBSPModuleBase, Button> m_ModulesButton = new Dictionary<SDK.IBSPModuleBase, Button>();
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -33,11 +33,11 @@ namespace BeatSaberPlus.UI
         /// </summary>
         protected override sealed void OnViewCreation()
         {
-            var l_Layout = m_ButtonGrid.GetComponent<UnityEngine.UI.GridLayoutGroup>();
-            l_Layout.constraint         = UnityEngine.UI.GridLayoutGroup.Constraint.FixedColumnCount;
+            var l_Layout = m_ButtonGrid.GetComponent<GridLayoutGroup>();
+            l_Layout.constraint         = GridLayoutGroup.Constraint.FixedColumnCount;
             l_Layout.constraintCount    = 3;
 
-            foreach (var l_Module in Plugin.Instance.Modules.Where(x => x.Type == SDK.IModuleBaseType.Integrated))
+            foreach (var l_Module in CP_SDK.ChatPlexSDK.GetModules().Where(x => x is SDK.IBSPModuleBase && x.Type == CP_SDK.EIModuleBaseType.Integrated).Select(x => x as SDK.IBSPModuleBase))
             {
                 var l_Button = SDK.UI.Button.Create(m_ButtonGrid.transform, l_Module.FancyName, () => {
                     var l_Items = l_Module.GetSettingsUI();
@@ -62,11 +62,12 @@ namespace BeatSaberPlus.UI
 #if DEBUG
             if (true)
 #else
-            if (Config.FirstRun)
+            if (BSPConfig.Instance.FirstRun)
 #endif
             {
                 ShowMessageModal("<color=yellow><b>Welcome to BeatSaberPlus!</b></color>\nBy default all modules are disabled, you can enable/disable\nthem any time by clicking the <b><u>Settings</u></b> button below");
-                Config.FirstRun = false;
+                BSPConfig.Instance.FirstRun = false;
+                BSPConfig.Instance.Save();
             }
         }
 

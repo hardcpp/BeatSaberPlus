@@ -129,7 +129,7 @@ namespace BeatSaberPlus_ChatIntegrations.Events
         /// <param name="p_Parent">Parent transform</param>
         public override sealed void BuildUI(Transform p_Parent)
         {
-            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             m_ParserParams = BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             var l_Event             = new BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged),  BindingFlags.Instance | BindingFlags.NonPublic));
@@ -289,12 +289,12 @@ namespace BeatSaberPlus_ChatIntegrations.Events
             if (!Model.AutoFullfillRefund)
                 return;
 
-            var l_Channel = BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels.First();
-            if (l_Channel.Item2 is BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchChannel l_TwitchChannel)
+            var l_Channel = CP_SDK.Chat.Service.Multiplexer.Channels.First();
+            if (l_Channel.Item2 is CP_SDK.Chat.Models.Twitch.TwitchChannel l_TwitchChannel)
             {
                 var l_URL           = $"https://api.twitch.tv/helix/channel_points/custom_rewards/redemptions?broadcaster_id={l_TwitchChannel.Roomstate.RoomId}&reward_id={Model.RewardID}&id={p_Context.PointsEvent.TransactionID}";
-                var l_APIClient     = new BeatSaberPlus.SDK.Network.APIClient("", TimeSpan.FromSeconds(10), false);
-                var l_OAuthToken    = (l_Channel.Item1 as BeatSaberPlus.SDK.Chat.Services.Twitch.TwitchService).OAuthTokenAPI.Replace("oauth:", "");
+                var l_APIClient     = new CP_SDK.Network.APIClient("", TimeSpan.FromSeconds(10), false);
+                var l_OAuthToken    = (l_Channel.Item1 as CP_SDK.Chat.Services.Twitch.TwitchService).OAuthTokenAPI.Replace("oauth:", "");
 
                 l_APIClient.InternalClient.DefaultRequestHeaders.Add("client-id", ChatIntegrations.s_BEATSABERPLUS_CLIENT_ID);
                 l_APIClient.InternalClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + l_OAuthToken);
@@ -305,7 +305,7 @@ namespace BeatSaberPlus_ChatIntegrations.Events
                 };
                 var l_ContentStr = new StringContent(l_Content.ToString(), Encoding.UTF8, "application/json");
 
-                _ = l_APIClient.PatchAsync(l_URL, l_ContentStr, CancellationToken.None, true);
+                _ = l_APIClient.PatchAsync(l_URL, l_ContentStr, CancellationToken.None, true).ConfigureAwait(false);
             }
         }
         /// <summary>
@@ -317,12 +317,12 @@ namespace BeatSaberPlus_ChatIntegrations.Events
             if (!Model.AutoFullfillRefund)
                 return;
 
-            var l_Channel = BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels.First();
-            if (l_Channel.Item2 is BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchChannel l_TwitchChannel)
+            var l_Channel = CP_SDK.Chat.Service.Multiplexer.Channels.First();
+            if (l_Channel.Item2 is CP_SDK.Chat.Models.Twitch.TwitchChannel l_TwitchChannel)
             {
                 var l_URL           = $"https://api.twitch.tv/helix/channel_points/custom_rewards/redemptions?broadcaster_id={l_TwitchChannel.Roomstate.RoomId}&reward_id={Model.RewardID}&id={p_Context.PointsEvent.TransactionID}";
-                var l_APIClient     = new BeatSaberPlus.SDK.Network.APIClient("", TimeSpan.FromSeconds(10), false);
-                var l_OAuthToken    = (l_Channel.Item1 as BeatSaberPlus.SDK.Chat.Services.Twitch.TwitchService).OAuthTokenAPI.Replace("oauth:", "");
+                var l_APIClient     = new CP_SDK.Network.APIClient("", TimeSpan.FromSeconds(10), false);
+                var l_OAuthToken    = (l_Channel.Item1 as CP_SDK.Chat.Services.Twitch.TwitchService).OAuthTokenAPI.Replace("oauth:", "");
 
                 l_APIClient.InternalClient.DefaultRequestHeaders.Add("client-id", ChatIntegrations.s_BEATSABERPLUS_CLIENT_ID);
                 l_APIClient.InternalClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + l_OAuthToken);
@@ -337,7 +337,7 @@ namespace BeatSaberPlus_ChatIntegrations.Events
                 {
                     if (p_Context.ChatService != null && p_Context.Channel != null)
                         p_Context.ChatService.SendTextMessage(p_Context.Channel, $"! @{p_Context.User.UserName} Event failed, your points were refunded!");
-                });
+                }).ConfigureAwait(false);
             }
         }
         /// <summary>
@@ -345,15 +345,15 @@ namespace BeatSaberPlus_ChatIntegrations.Events
         /// </summary>
         public override sealed void OnDisable()
         {
-            if (BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels.Count == 0)
+            if (CP_SDK.Chat.Service.Multiplexer.Channels.Count == 0)
                 return;
 
-            var l_Channel = BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels.First();
-            if (l_Channel.Item2 is BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchChannel l_TwitchChannel)
+            var l_Channel = CP_SDK.Chat.Service.Multiplexer.Channels.First();
+            if (l_Channel.Item2 is CP_SDK.Chat.Models.Twitch.TwitchChannel l_TwitchChannel)
             {
                 var l_URL           = $"https://api.twitch.tv/helix/channel_points/custom_rewards?broadcaster_id={l_TwitchChannel.Roomstate.RoomId}&id={Model.RewardID}";
-                var l_APIClient     = new BeatSaberPlus.SDK.Network.APIClient("", TimeSpan.FromSeconds(10), false);
-                var l_OAuthToken    = (l_Channel.Item1 as BeatSaberPlus.SDK.Chat.Services.Twitch.TwitchService).OAuthTokenAPI.Replace("oauth:", "");
+                var l_APIClient     = new CP_SDK.Network.APIClient("", TimeSpan.FromSeconds(10), false);
+                var l_OAuthToken    = (l_Channel.Item1 as CP_SDK.Chat.Services.Twitch.TwitchService).OAuthTokenAPI.Replace("oauth:", "");
 
                 l_APIClient.InternalClient.DefaultRequestHeaders.Add("client-id", ChatIntegrations.s_BEATSABERPLUS_CLIENT_ID);
                 l_APIClient.InternalClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + l_OAuthToken);
@@ -364,7 +364,7 @@ namespace BeatSaberPlus_ChatIntegrations.Events
                 };
                 var l_ContentStr = new StringContent(l_Content.ToString(), Encoding.UTF8, "application/json");
 
-                _ = l_APIClient.PatchAsync(l_URL, l_ContentStr, CancellationToken.None, true);
+                _ = l_APIClient.PatchAsync(l_URL, l_ContentStr, CancellationToken.None, true).ConfigureAwait(false);
             }
         }
         /// <summary>
@@ -413,17 +413,17 @@ namespace BeatSaberPlus_ChatIntegrations.Events
         /// </summary>
         private void CreateOrUpdateReward()
         {
-            if (BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels.Count == 0)
+            if (CP_SDK.Chat.Service.Multiplexer.Channels.Count == 0)
                 return;
 
-            var l_Channel = BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels.First();
-            if (l_Channel.Item2 is BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchChannel l_TwitchChannel)
+            var l_Channel = CP_SDK.Chat.Service.Multiplexer.Channels.First();
+            if (l_Channel.Item2 is CP_SDK.Chat.Models.Twitch.TwitchChannel l_TwitchChannel)
             {
                 bool l_ShouldCreate = string.IsNullOrEmpty(Model.RewardID);
 
                 var l_URL           = $"https://api.twitch.tv/helix/channel_points/custom_rewards?broadcaster_id={l_TwitchChannel.Roomstate.RoomId}&id={Model.RewardID}";
-                var l_APIClient     = new BeatSaberPlus.SDK.Network.APIClient("", TimeSpan.FromSeconds(10), false);
-                var l_OAuthToken    = (l_Channel.Item1 as BeatSaberPlus.SDK.Chat.Services.Twitch.TwitchService).OAuthTokenAPI.Replace("oauth:", "");
+                var l_APIClient     = new CP_SDK.Network.APIClient("", TimeSpan.FromSeconds(10), false);
+                var l_OAuthToken    = (l_Channel.Item1 as CP_SDK.Chat.Services.Twitch.TwitchService).OAuthTokenAPI.Replace("oauth:", "");
 
                 l_APIClient.InternalClient.DefaultRequestHeaders.Add("client-id", ChatIntegrations.s_BEATSABERPLUS_CLIENT_ID);
                 l_APIClient.InternalClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + l_OAuthToken);
@@ -469,7 +469,7 @@ namespace BeatSaberPlus_ChatIntegrations.Events
                             {
                                 if (UI.Settings.Instance != null)
                                 {
-                                    BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() =>
+                                    CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() =>
                                     {
                                         if (p_SecondReply.Result.BodyString.Contains("CREATE_CUSTOM_REWARD_DUPLICATE_REWARD"))
                                             UI.Settings.Instance.UISetPendingMessage("<color=red>Twitch error,\nA reward with the same name already exist on your channel\nPlease delete on twitch.tv any conflicting reward");
@@ -497,7 +497,7 @@ namespace BeatSaberPlus_ChatIntegrations.Events
 
                                     if (UI.Settings.Instance != null)
                                     {
-                                        BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() =>
+                                        CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() =>
                                         {
                                             UI.Settings.Instance.UISetPendingMessage("<color=red>Internal error,\nplease contact BS+ support!");
                                             UI.Settings.Instance.UIHideLoading();
@@ -510,7 +510,7 @@ namespace BeatSaberPlus_ChatIntegrations.Events
                             }
 
                             if (UI.Settings.Instance != null)
-                                BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() => UI.Settings.Instance.UIHideLoading());
+                                CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() => UI.Settings.Instance.UIHideLoading());
                         }
                         else
                         {
@@ -519,7 +519,7 @@ namespace BeatSaberPlus_ChatIntegrations.Events
 
                             if (UI.Settings.Instance != null)
                             {
-                                BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() =>
+                                CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() =>
                                 {
                                     UI.Settings.Instance.UISetPendingMessage("<color=red>Internal error,\nplease contact BS+ support!");
                                     UI.Settings.Instance.UIHideLoading();
@@ -527,7 +527,7 @@ namespace BeatSaberPlus_ChatIntegrations.Events
                             }
                         }
                     });
-                });
+                }).ConfigureAwait(false);
             }
         }
         /// <summary>
@@ -535,17 +535,17 @@ namespace BeatSaberPlus_ChatIntegrations.Events
         /// </summary>
         private void DeleteReward()
         {
-            var l_Channel = BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels.First();
-            if (l_Channel.Item2 is BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchChannel l_TwitchChannel)
+            var l_Channel = CP_SDK.Chat.Service.Multiplexer.Channels.First();
+            if (l_Channel.Item2 is CP_SDK.Chat.Models.Twitch.TwitchChannel l_TwitchChannel)
             {
                 var l_URL           = $"https://api.twitch.tv/helix/channel_points/custom_rewards?broadcaster_id={l_TwitchChannel.Roomstate.RoomId}&id={Model.RewardID}";
-                var l_APIClient     = new BeatSaberPlus.SDK.Network.APIClient("", TimeSpan.FromSeconds(10), false);
-                var l_OAuthToken    = (l_Channel.Item1 as BeatSaberPlus.SDK.Chat.Services.Twitch.TwitchService).OAuthTokenAPI.Replace("oauth:", "");
+                var l_APIClient     = new CP_SDK.Network.APIClient("", TimeSpan.FromSeconds(10), false);
+                var l_OAuthToken    = (l_Channel.Item1 as CP_SDK.Chat.Services.Twitch.TwitchService).OAuthTokenAPI.Replace("oauth:", "");
 
                 l_APIClient.InternalClient.DefaultRequestHeaders.Add("client-id", ChatIntegrations.s_BEATSABERPLUS_CLIENT_ID);
                 l_APIClient.InternalClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + l_OAuthToken);
 
-                _ = l_APIClient.DeleteAsync(l_URL, CancellationToken.None, true);
+                _ = l_APIClient.DeleteAsync(l_URL, CancellationToken.None, true).ConfigureAwait(false);
             }
         }
     }

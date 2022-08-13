@@ -4,8 +4,7 @@ using BeatSaberMarkupLanguage.Components.Settings;
 using BeatSaberMarkupLanguage.Parser;
 using BeatSaberPlus_ChatIntegrations.Interfaces;
 using BeatSaberPlus_ChatIntegrations.Models;
-using BeatSaberPlus.SDK.Chat.Interfaces;
-using System;
+using CP_SDK.Chat.Interfaces;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -57,7 +56,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
 
         public override sealed void BuildUI(Transform p_Parent)
         {
-            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             m_ParserParams = BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
@@ -154,7 +153,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             if (p_Context.ChatService != null && p_Context.Channel != null)
                 p_Context.ChatService.SendTextMessage(p_Context.Channel, l_Message);
             else
-                BeatSaberPlus.SDK.Chat.Service.BroadcastMessage(l_Message);
+                CP_SDK.Chat.Service.BroadcastMessage(l_Message);
 
             yield return null;
         }
@@ -168,8 +167,8 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
 
         public override IEnumerator Eval(EventContext p_Context)
         {
-            var l_Channel = BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels.First();
-            if (l_Channel.Item2 is BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchChannel l_TwitchChannel)
+            var l_Channel = CP_SDK.Chat.Service.Multiplexer.Channels.First();
+            if (l_Channel.Item2 is CP_SDK.Chat.Models.Twitch.TwitchChannel l_TwitchChannel)
             {
                 if (l_TwitchChannel.Roomstate.EmoteOnly)
                     l_Channel.Item1.SendTextMessage(l_Channel.Item2, "/emoteonlyoff");
@@ -200,7 +199,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
         {
             m_TypeList_Value = (string)m_TypeListList_Choices.ElementAt(Model.ToggleType % m_TypeListList_Choices.Count);
 
-            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
@@ -219,20 +218,20 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             if (!ModulePresence.Chat)
             {
                 p_Context.HasActionFailed = true;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("Chat: Action failed, Chat module is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("Chat: Action failed, Chat module is missing!");
                 yield break;
             }
 
             switch (Model.ToggleType)
             {
                 case 0:
-                    BeatSaberPlus_Chat.Chat.Instance?.ToggleVisibility();
+                    ChatPlexMod_Chat.Chat.Instance?.ToggleVisibility();
                     break;
                 case 1:
-                    BeatSaberPlus_Chat.Chat.Instance?.SetVisible(true);
+                    ChatPlexMod_Chat.Chat.Instance?.SetVisible(true);
                     break;
                 case 2:
-                    BeatSaberPlus_Chat.Chat.Instance?.SetVisible(false);
+                    ChatPlexMod_Chat.Chat.Instance?.SetVisible(false);
                     break;
             }
 

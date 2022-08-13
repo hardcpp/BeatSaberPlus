@@ -35,9 +35,9 @@ namespace BeatSaberPlus.SDK.UI
         protected override sealed string GetViewContentDescription()
         {
 #if DEBUG
-            Logger.Instance.Debug("Loading " + string.Join(".", typeof(T).Namespace, typeof(T).Name));
+            ChatPlexUnitySDK.Logger.Debug("Loading " + string.Join(".", typeof(T).Namespace, typeof(T).Name));
 #endif
-            return Utilities.GetResourceContent(Assembly.GetAssembly(typeof(T)), string.Join(".", typeof(T).Namespace, typeof(T).Name));
+            return CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(typeof(T)), string.Join(".", typeof(T).Namespace, typeof(T).Name));
         }
     }
 
@@ -79,6 +79,8 @@ namespace BeatSaberPlus.SDK.UI
         protected TextMeshProUGUI m_SDK_ConfirmModal_Text = null;
         [UIComponent("SDK_ConfirmModal_Button")]
         protected UnityEngine.UI.Button m_SDK_ConfirmModal_Button = null;
+        [UIComponent("SDK_ConfirmModal_DiscardButton")]
+        protected UnityEngine.UI.Button m_SDK_ConfirmModal_DiscardButton = null;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -161,7 +163,7 @@ namespace BeatSaberPlus.SDK.UI
                     l_NewCode += "    <text id='SDK_ConfirmModal_Text' text=' ' font-size='4' align='Center'/>";
                     l_NewCode += "    <horizontal>";
                     l_NewCode += "      <primary-button text='Yes' id='SDK_ConfirmModal_Button'></primary-button>";
-                    l_NewCode += "      <button text='No' click-event='SDK_CloseConfirmModal'></button>";
+                    l_NewCode += "      <button text='No' id='SDK_ConfirmModal_DiscardButton' click-event='SDK_CloseConfirmModal'></button>";
                     l_NewCode += "    </horizontal>";
                     l_NewCode += "  </vertical>";
                     l_NewCode += "</modal>";
@@ -189,6 +191,8 @@ namespace BeatSaberPlus.SDK.UI
                 /// bind events
                 m_SDK_ConfirmModal_Button.onClick.RemoveAllListeners();
                 m_SDK_ConfirmModal_Button.onClick.AddListener(OnSDKConfirmModal);
+
+                m_SDK_ConfirmModal_DiscardButton.gameObject.SetActive(true);
 
                 /// Call implementation
                 OnViewCreation();
@@ -278,7 +282,7 @@ namespace BeatSaberPlus.SDK.UI
         {
             if (!UICreated)
             {
-                Logger.Instance?.Error("[SDK.UI][ViewController] Set loading modal download progress \"" + p_Text + "\" called before View UI's creation");
+                CP_SDK.ChatPlexSDK.Logger.Error("[SDK.UI][ViewController] Set loading modal download progress \"" + p_Text + "\" called before View UI's creation");
                 return;
             }
 
@@ -296,7 +300,7 @@ namespace BeatSaberPlus.SDK.UI
         {
             if (!UICreated)
             {
-                Logger.Instance?.Error("[SDK.UI][ViewController.ShowLoadingModal] Show loading modal \"" + p_Message + "\" called before View UI's creation");
+                CP_SDK.ChatPlexSDK.Logger.Error("[SDK.UI][ViewController.ShowLoadingModal] Show loading modal \"" + p_Message + "\" called before View UI's creation");
                 return;
             }
 
@@ -311,6 +315,20 @@ namespace BeatSaberPlus.SDK.UI
                 else
                     m_LoadingModal_Spinner.ShowDownloadingProgress(p_Message, 0);
             });
+        }
+        /// <summary>
+        /// Set the loading modal text
+        /// </summary>
+        protected void SetLoadingModalText(string p_Message = "", bool p_Download = false)
+        {
+            if (!UICreated)
+            {
+                CP_SDK.ChatPlexSDK.Logger.Error("[SDK.UI][ViewController.ShowLoadingModal] Show loading modal \"" + p_Message + "\" called before View UI's creation");
+                return;
+            }
+
+            /// Change modal text
+            m_SDK_LoadingModalText.GetComponent<TextMeshProUGUI>().text = p_Download ? "" : p_Message;
         }
         /// <summary>
         /// Show view transition loading
@@ -328,7 +346,7 @@ namespace BeatSaberPlus.SDK.UI
         {
             if (!UICreated)
             {
-                Logger.Instance?.Error("[SDK.UI][ViewController.ShowConfirmationModal] Show confirmation modal \"" + p_Message + "\" called before View UI's creation");
+                CP_SDK.ChatPlexSDK.Logger.Error("[SDK.UI][ViewController.ShowConfirmationModal] Show confirmation modal \"" + p_Message + "\" called before View UI's creation");
                 return;
             }
 
@@ -403,7 +421,7 @@ namespace BeatSaberPlus.SDK.UI
         {
             if (!UICreated)
             {
-                Logger.Instance?.Error("[SDK.UI][ViewController.ShowModal] Show modal \"" + p_Event + "\" called before View UI's creation");
+                CP_SDK.ChatPlexSDK.Logger.Error("[SDK.UI][ViewController.ShowModal] Show modal \"" + p_Event + "\" called before View UI's creation");
                 return;
             }
 
@@ -424,7 +442,7 @@ namespace BeatSaberPlus.SDK.UI
         {
             if (!UICreated)
             {
-                Logger.Instance?.Error("[SDK.UI][ViewController.CloseModal] Close modal \"" + p_Event + "\" called before View UI's creation");
+                CP_SDK.ChatPlexSDK.Logger.Error("[SDK.UI][ViewController.CloseModal] Close modal \"" + p_Event + "\" called before View UI's creation");
                 return;
             }
 
@@ -498,8 +516,8 @@ namespace BeatSaberPlus.SDK.UI
             }
             catch (Exception l_Exception)
             {
-                Logger.Instance?.Error($"[SDK][ViewController.NotifyPropertyChanged] Error Invoking PropertyChanged: {l_Exception.Message}");
-                Logger.Instance?.Error(l_Exception);
+                CP_SDK.ChatPlexSDK.Logger.Error($"[SDK][ViewController.NotifyPropertyChanged] Error Invoking PropertyChanged: {l_Exception.Message}");
+                CP_SDK.ChatPlexSDK.Logger.Error(l_Exception);
             }
         }
     }

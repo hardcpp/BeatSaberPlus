@@ -1,4 +1,4 @@
-﻿using BeatSaberPlus.SDK.Chat.Interfaces;
+﻿using CP_SDK.Chat.Interfaces;
 using System.Collections;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -17,9 +17,9 @@ namespace BeatSaberPlus_ChatIntegrations
         /// <param name="p_Channel">Channel instance</param>
         private void ChatCoreMutiplixer_OnJoinChannel(IChatService p_ChatService, IChatChannel p_Channel)
         {
-            if (p_ChatService is BeatSaberPlus.SDK.Chat.Services.Twitch.TwitchService)
+            if (p_ChatService is CP_SDK.Chat.Services.Twitch.TwitchService)
             {
-                BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() =>
+                CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() =>
                 {
                     m_Events.ForEach(x =>
                     {
@@ -94,7 +94,7 @@ namespace BeatSaberPlus_ChatIntegrations
             try
             {
                 if (p_Message.Sender.IsBroadcaster && OnBroadcasterChatMessage != null)
-                    BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() => OnBroadcasterChatMessage?.Invoke(p_Message));
+                    CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() => OnBroadcasterChatMessage?.Invoke(p_Message));
                 else
                     HandleEvents(new Models.EventContext() { Type = Interfaces.TriggerType.ChatMessage, ChatService = p_ChatService, Channel = p_Message.Channel, User = p_Message.Sender, Message = p_Message });
             }
@@ -114,12 +114,14 @@ namespace BeatSaberPlus_ChatIntegrations
         /// <param name="p_Data">Level data</param>
         private void Game_OnLevelStarted(BeatSaberPlus.SDK.Game.LevelData p_Data)
         {
-            Task.Run(() => HandleEvents(new Models.EventContext() { Type = Interfaces.TriggerType.LevelStarted, LevelData  = p_Data }));
-
-            SharedCoroutineStarter.instance.StartCoroutine(Game_FindPauseManager(p_Data));
+            CP_SDK.Unity.MTThreadInvoker.EnqueueOnThread(() => HandleEvents(new Models.EventContext() { Type = Interfaces.TriggerType.LevelStarted, LevelData  = p_Data }));
+            CP_SDK.Unity.MTCoroutineStarter.Start(Game_FindPauseManager(p_Data));
         }
         private IEnumerator Game_FindPauseManager(BeatSaberPlus.SDK.Game.LevelData p_Data)
         {
+            if (p_Data.Type == BeatSaberPlus.SDK.Game.LevelType.Multiplayer)
+                yield break;
+
             var l_PauseController = null as PauseController;
             yield return new WaitUntil(() => (l_PauseController = GameObject.FindObjectOfType<PauseController>()));
 
@@ -127,11 +129,11 @@ namespace BeatSaberPlus_ChatIntegrations
             {
                 l_PauseController.didPauseEvent += () =>
                 {
-                    Task.Run(() => HandleEvents(new Models.EventContext() { Type = Interfaces.TriggerType.LevelPaused, LevelData = p_Data }));
+                    CP_SDK.Unity.MTThreadInvoker.EnqueueOnThread(() => HandleEvents(new Models.EventContext() { Type = Interfaces.TriggerType.LevelPaused, LevelData = p_Data }));
                 };
                 l_PauseController.didResumeEvent += () =>
                 {
-                    Task.Run(() => HandleEvents(new Models.EventContext() { Type = Interfaces.TriggerType.LevelResumed, LevelData = p_Data }));
+                    CP_SDK.Unity.MTThreadInvoker.EnqueueOnThread(() => HandleEvents(new Models.EventContext() { Type = Interfaces.TriggerType.LevelResumed, LevelData = p_Data }));
                 };
             }
         }
@@ -141,7 +143,7 @@ namespace BeatSaberPlus_ChatIntegrations
         /// <param name="p_Data">Completion data</param>
         private void Game_OnLevelEnded(BeatSaberPlus.SDK.Game.LevelCompletionData p_Data)
         {
-            Task.Run(() => HandleEvents(new Models.EventContext() { Type = Interfaces.TriggerType.LevelEnded, LevelCompletionData = p_Data }));
+            CP_SDK.Unity.MTThreadInvoker.EnqueueOnThread(() => HandleEvents(new Models.EventContext() { Type = Interfaces.TriggerType.LevelEnded, LevelCompletionData = p_Data }));
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -155,9 +157,9 @@ namespace BeatSaberPlus_ChatIntegrations
         private void VoiceAttack_OnCommandExecuted(string p_GUID, string p_Name)
         {
             if (OnVoiceAttackCommandExecuted != null)
-                BeatSaberPlus.SDK.Unity.MainThreadInvoker.Enqueue(() => OnVoiceAttackCommandExecuted?.Invoke(p_GUID, p_Name));
+                CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() => OnVoiceAttackCommandExecuted?.Invoke(p_GUID, p_Name));
             else
-                Task.Run(() => HandleEvents(new Models.EventContext() { Type = Interfaces.TriggerType.VoiceAttackCommand, VoiceAttackCommandGUID = p_GUID, VoiceAttackCommandName = p_GUID }));
+                CP_SDK.Unity.MTThreadInvoker.EnqueueOnThread(() => HandleEvents(new Models.EventContext() { Type = Interfaces.TriggerType.VoiceAttackCommand, VoiceAttackCommandGUID = p_GUID, VoiceAttackCommandName = p_GUID }));
         }
 
     }

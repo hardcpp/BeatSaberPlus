@@ -58,7 +58,7 @@ namespace BeatSaberPlus_ChatIntegrations.UI
         private void OnWebConfigurationButton()
         {
             ShowMessageModal("URL opened in your desktop browser.");
-            BeatSaberPlus.SDK.Chat.Service.OpenWebConfigurator();
+            CP_SDK.Chat.Service.OpenWebConfigurator();
         }
 
         ////////////////////////////////////////////////////////////////////////////

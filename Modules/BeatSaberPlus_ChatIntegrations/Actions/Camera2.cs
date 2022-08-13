@@ -42,7 +42,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             if (!ModPresence.Camera2)
             {
                 p_Context.HasActionFailed = true;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, Camera2 mod is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, Camera2 mod is missing!");
                 yield break;
             }
 
@@ -54,7 +54,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
         {
             if (!ModPresence.Camera2)
             {
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, Camera2 mod is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, Camera2 mod is missing!");
                 return;
             }
 
@@ -75,7 +75,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
 
         public override sealed void BuildUI(Transform p_Parent)
         {
-            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
@@ -94,9 +94,9 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
                     l_Choices.Add("<i>None</i>");
             }
             else if (!ModPresence.Camera2)
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, Camera2 mod is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, Camera2 mod is missing!");
             else if (!ModPresence.Camera2Fixed)
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, Camera2 is not updated!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, Camera2 is not updated!");
 
             for (int l_I = 0; l_I < l_Choices.Count; ++l_I)
             {
@@ -124,19 +124,19 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
         {
             if (!ModPresence.Camera2)
             {
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, Camera2 mod is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, Camera2 mod is missing!");
                 return;
             }
             if (!ModPresence.Camera2Fixed)
             {
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, Camera2 is not updated!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, Camera2 is not updated!");
                 return;
             }
 
             if (Camera2.SDK.Scenes.customScenes.ContainsKey(Model.SceneName))
                 Camera2.SDK.Scenes.SwitchToCustomScene(Model.SceneName);
             else
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:Camera2_SwitchToScene Scene:{Model.SceneName} not found!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:Camera2_SwitchToScene Scene:{Model.SceneName} not found!");
         }
 
         public override IEnumerator Eval(Models.EventContext p_Context)
@@ -144,13 +144,13 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             if (!ModPresence.Camera2)
             {
                 p_Context.HasActionFailed = true;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, Camera2 mod is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, Camera2 mod is missing!");
                 yield break;
             }
             if (!ModPresence.Camera2Fixed)
             {
                 p_Context.HasActionFailed = true;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, Camera2 is not updated!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, Camera2 is not updated!");
                 yield break;
             }
 
@@ -159,7 +159,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             else
             {
                 p_Context.HasActionFailed = true;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:Camera2_SwitchToScene Scene:{Model.SceneName} not found!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:Camera2_SwitchToScene Scene:{Model.SceneName} not found!");
             }
 
             yield return null;
@@ -188,7 +188,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
         {
             m_TypeList_Value = (string)m_TypeListList_Choices.ElementAt(Model.ToggleType % m_TypeListList_Choices.Count);
 
-            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
@@ -203,7 +203,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             if (ModPresence.Camera2)
                 l_Choices = Camera2.SDK.Cameras.available.ToList<object>();
             else
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, Camera2 mod is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, Camera2 mod is missing!");
 
             for (int l_I = 0; l_I < l_Choices.Count; ++l_I)
             {
@@ -232,7 +232,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
         {
             if (!ModPresence.Camera2)
             {
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, Camera2 mod is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, Camera2 mod is missing!");
                 return;
             }
 
@@ -252,7 +252,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
                 }
             }
             else
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:Camera2_ToggleCamera Camera:{Model.CameraName} not found!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:Camera2_ToggleCamera Camera:{Model.CameraName} not found!");
         }
 
         public override IEnumerator Eval(Models.EventContext p_Context)
@@ -260,7 +260,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             if (!ModPresence.Camera2)
             {
                 p_Context.HasActionFailed = true;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, Camera2 mod is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, Camera2 mod is missing!");
                 yield break;
             }
 
@@ -282,7 +282,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             else
             {
                 p_Context.HasActionFailed = true;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:Camera2_ToggleCamera Camera:{Model.CameraName} not found!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:Camera2_ToggleCamera Camera:{Model.CameraName} not found!");
             }
 
             yield return null;

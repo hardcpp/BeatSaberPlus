@@ -16,9 +16,9 @@ namespace BeatSaberPlus_SongOverlay.Models
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         internal Score scoreEvent = null;
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        internal uint? pauseTime = null;
+        internal float? pauseTime = null;
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        internal uint? resumeTime = null;
+        internal float? resumeTime = null;
 
         internal void FeedEvent()
         {

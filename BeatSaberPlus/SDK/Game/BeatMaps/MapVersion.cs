@@ -77,6 +77,31 @@ namespace BeatSaberPlus.SDK.Game.BeatMaps
 
             return l_Result;
         }
+        /// <summary>
+        /// Get all difficulties for a specific Characteristics
+        /// </summary>
+        /// <param name="p_Characteristic">Target characteristic</param>
+        /// <returns></returns>
+        public List<MapDifficulty> GetDifficultiesPerCharacteristicSerializedName(string p_CharacteristicSerializedName)
+        {
+            List<MapDifficulty> l_Result = new List<MapDifficulty>();
+
+            if (diffs != null)
+            {
+                foreach (var l_Diff in diffs)
+                {
+                    var l_SerializedName    = Levels.SanitizeCharacteristic(l_Diff.characteristic);
+                    var l_CharacteristicSO  = Levels.GetCharacteristicSOBySerializedName(l_SerializedName);
+
+                    if (l_CharacteristicSO.serializedName != p_CharacteristicSerializedName)
+                        continue;
+
+                    l_Result.Add(l_Diff);
+                }
+            }
+
+            return l_Result;
+        }
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -108,11 +133,11 @@ namespace BeatSaberPlus.SDK.Game.BeatMaps
                 }
                 catch (Exception l_Exception)
                 {
-                    Logger.Instance.Error("[SDK.Game.BeatMaps][Version.CoverImageBytes] Error :");
-                    Logger.Instance.Error(l_Exception);
+                    CP_SDK.ChatPlexSDK.Logger.Error("[SDK.Game.BeatMaps][Version.CoverImageBytes] Error :");
+                    CP_SDK.ChatPlexSDK.Logger.Error(l_Exception);
                     p_Callback?.Invoke(false, null);
                 }
-            });
+            }).ConfigureAwait(false);
         }
         /// <summary>
         /// Get Zip archive bytes
@@ -121,79 +146,7 @@ namespace BeatSaberPlus.SDK.Game.BeatMaps
         /// <param name="p_Progress">Progress reporter</param>
         /// <param name="p_ShouldRetry">Should retry in case of failure?</param>
         /// <returns></returns>
-        public async Task<byte[]> ZipBytes(CancellationToken p_Token, IProgress<double> p_Progress, bool p_ShouldRetry = false)
-        {
-            var l_APIClient     = BeatMapsClient.APIClient;
-            var l_HttpClient    = l_APIClient.InternalClient;
-
-            p_Token.ThrowIfCancellationRequested();
-
-            HttpResponseMessage l_Reply = null;
-            for (int l_Retry = 0; l_Retry < l_APIClient.MaxRetry; l_Retry++)
-            {
-                if (p_Token.IsCancellationRequested)
-                    p_Token.ThrowIfCancellationRequested();
-
-                try
-                {
-                    l_Reply = await l_HttpClient.GetAsync(downloadURL, HttpCompletionOption.ResponseHeadersRead, p_Token);
-
-                    if (!p_ShouldRetry || l_Reply.IsSuccessStatusCode || l_Reply.StatusCode == HttpStatusCode.NotFound)
-                    {
-                        var l_MemoryStream  = new MemoryStream();
-                        var l_Stream        = await l_Reply.Content.ReadAsStreamAsync().ConfigureAwait(false);
-
-                        byte[] l_Buffer = new byte[8192];
-                        long? l_ContentLength = l_Reply.Content.Headers.ContentLength;
-                        long l_TotalRead = 0;
-                        p_Progress?.Report(0.0);
-
-                        while (true)
-                        {
-                            int l_ReadBytes;
-                            if ((l_ReadBytes = await l_Stream.ReadAsync(l_Buffer, 0, l_Buffer.Length, p_Token).ConfigureAwait(false)) > 0)
-                            {
-                                if (!p_Token.IsCancellationRequested)
-                                {
-                                    if (l_ContentLength.HasValue)
-                                        p_Progress?.Report((double)l_TotalRead / (double)l_ContentLength.Value);
-
-                                    await l_MemoryStream.WriteAsync(l_Buffer, 0, l_ReadBytes, p_Token).ConfigureAwait(false);
-                                    l_TotalRead += (long)l_ReadBytes;
-                                }
-                                else
-                                    break;
-                            }
-                            else
-                            {
-                                p_Progress?.Report(1.0);
-                                return l_MemoryStream.ToArray();
-                            }
-                        }
-                    }
-                }
-                catch (System.Exception)
-                {
-                    /// Do nothing here
-                }
-
-                if (p_Token.IsCancellationRequested)
-                    p_Token.ThrowIfCancellationRequested();
-
-                if (l_Reply != null)
-                    Logger.Instance.Error($"[SDK.Network][APIClient.GetAsync] Request failed with code {l_Reply.StatusCode}:\"{l_Reply.ReasonPhrase}\", next try in 5 seconds...");
-                else
-                    Logger.Instance.Error($"[SDK.Network][APIClient.GetAsync] Request failed, next try in 5 seconds...");
-
-                /// Short exit
-                if (p_ShouldRetry)
-                    return null;
-
-                /// Wait 5 seconds
-                await Task.Delay(l_APIClient.RetryInterval);
-            }
-
-            return null;
-        }
+        public Task<byte[]> ZipBytes(CancellationToken p_Token, IProgress<double> p_Progress, bool p_ShouldRetry = false)
+            => BeatMapsClient.APIClient.DownloadAsync(downloadURL, p_Token, p_Progress, p_ShouldRetry);
     }
 }

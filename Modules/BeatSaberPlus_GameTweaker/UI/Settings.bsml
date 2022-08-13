@@ -197,8 +197,11 @@
 							<bool-setting id='MainMenuTab_RemoveNewContentPromotional'></bool-setting>
 						</vertical>
 					</horizontal>
-
-					<horizontal min-height='10'>
+					<horizontal>
+						<vertical>
+							<text font-size='3.5' align='Center' font-color='yellow'  text='Disable fireworks'></text>
+							<bool-setting id='MainMenuTab_DisableFireworks'></bool-setting>
+						</vertical>
 					</horizontal>
 				</vertical>
 			</horizontal>

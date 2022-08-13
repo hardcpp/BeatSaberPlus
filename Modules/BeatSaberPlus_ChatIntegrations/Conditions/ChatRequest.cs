@@ -29,7 +29,7 @@ namespace BeatSaberPlus_ChatIntegrations.Conditions
         {
             m_CheckTypeList_Value = (string)m_CheckTypeList_Choices.ElementAt(Model.IsGreaterThan ? 0 : 1);
 
-            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
@@ -41,7 +41,7 @@ namespace BeatSaberPlus_ChatIntegrations.Conditions
             OnSettingChanged(null);
 
             if (!ModulePresence.ChatRequest)
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: ChatRequest module is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: ChatRequest module is missing!");
         }
         private void OnSettingChanged(object p_Value)
         {
@@ -54,7 +54,7 @@ namespace BeatSaberPlus_ChatIntegrations.Conditions
         {
             if (!ModulePresence.ChatRequest)
             {
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, ChatRequest module is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, ChatRequest module is missing!");
                 return false;
             }
 
@@ -110,7 +110,7 @@ namespace BeatSaberPlus_ChatIntegrations.Conditions
         {
             m_CheckTypeList_Value = (string)m_CheckTypeList_Choices.ElementAt(Model.IsGreaterThan ? 0 : 1);
 
-            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
@@ -122,7 +122,7 @@ namespace BeatSaberPlus_ChatIntegrations.Conditions
             OnSettingChanged(null);
 
             if (!ModulePresence.ChatRequest)
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: ChatRequest module is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: ChatRequest module is missing!");
         }
         private void OnSettingChanged(object p_Value)
         {
@@ -135,7 +135,7 @@ namespace BeatSaberPlus_ChatIntegrations.Conditions
         {
             if (!ModulePresence.ChatRequest)
             {
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, ChatRequest module is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, ChatRequest module is missing!");
                 return false;
             }
 
@@ -191,7 +191,7 @@ namespace BeatSaberPlus_ChatIntegrations.Conditions
         {
             m_StatusList_Value = (string)m_StatusList_Choices.ElementAt(Model.IsOpen ? 0 : 1);
 
-            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
@@ -202,7 +202,7 @@ namespace BeatSaberPlus_ChatIntegrations.Conditions
             OnSettingChanged(null);
 
             if (!ModulePresence.ChatRequest)
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: ChatRequest module is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: ChatRequest module is missing!");
         }
         private void OnSettingChanged(object p_Value)
         {
@@ -214,7 +214,7 @@ namespace BeatSaberPlus_ChatIntegrations.Conditions
         {
             if (!ModulePresence.ChatRequest)
             {
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, ChatRequest module is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, ChatRequest module is missing!");
                 return false;
             }
 

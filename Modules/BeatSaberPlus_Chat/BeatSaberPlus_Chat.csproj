@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>BeatSaberPlus_Chat</RootNamespace>
     <AssemblyName>BeatSaberPlus_Chat</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <DebugType>portable</DebugType>
     <BeatSaberDir>$(ProjectDir)Refs</BeatSaberDir>
@@ -18,6 +18,7 @@
     <ReferencePath>$(SolutionDir)Refs</ReferencePath>
     <AppOutputBase>$(MSBuildProjectDirectory)\</AppOutputBase>
     <PathMap>$(AppOutputBase)=X:\$(AssemblyName)\</PathMap>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -126,17 +127,18 @@
     <Compile Include="CConfig.cs" />
     <Compile Include="Chat.cs" />
     <Compile Include="Extensions\EnhancedFontInfo.cs" />
-    <Compile Include="Extensions\EnhancedImage.cs" />
-    <Compile Include="Extensions\EnhancedTextMeshProUGUI.cs" />
-    <Compile Include="Extensions\EnhancedTextMeshProUGUIWithBackground.cs" />
+    <Compile Include="Components\ChatImage.cs" />
+    <Compile Include="Components\ChatMessageText.cs" />
+    <Compile Include="Components\ChatMessageWidget.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UI\FloatingWindow.cs" />
-    <Compile Include="UI\FloatingWindow_Events.cs" />
-    <Compile Include="UI\FloatingWindow_HypeTrain.cs" />
-    <Compile Include="UI\FloatingWindow_Poll.cs" />
-    <Compile Include="UI\FloatingWindow_Prediction.cs" />
+    <Compile Include="UI\ChatFloatingWindow.cs" />
+    <Compile Include="UI\ChatFloatingWindow_Events.cs" />
+    <Compile Include="UI\HypeTrainFloatingWindow.cs" />
+    <Compile Include="UI\ChatFloatingWindow_Logic.cs" />
+    <Compile Include="UI\PollFloatingWindow.cs" />
+    <Compile Include="UI\PredictionFloatingWindow.cs" />
     <Compile Include="UI\ModerationLeft.cs" />
     <Compile Include="UI\ModerationMain.cs" />
     <Compile Include="UI\ModerationRight.cs" />
@@ -155,8 +157,8 @@
     <EmbeddedResource Include="UI\Settings.bsml">
       <DependentUpon>Settings.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\FloatingWindow.bsml">
-      <DependentUpon>FloatingWindow.cs</DependentUpon>
+    <EmbeddedResource Include="UI\ChatFloatingWindow.bsml">
+      <DependentUpon>ChatFloatingWindow.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\ModerationLeft.bsml">
       <DependentUpon>ModerationLeft.cs</DependentUpon>
@@ -176,14 +178,14 @@
     <EmbeddedResource Include="UI\SettingsRight.bsml">
       <DependentUpon>SettingsRight.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\FloatingWindow_Poll.bsml">
-      <DependentUpon>FloatingWindow_Poll.cs</DependentUpon>
+    <EmbeddedResource Include="UI\PollFloatingWindow.bsml">
+      <DependentUpon>PollFloatingWindow.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\FloatingWindow_HypeTrain.bsml">
-      <DependentUpon>FloatingWindow_HypeTrain.cs</DependentUpon>
+    <EmbeddedResource Include="UI\HypeTrainFloatingWindow.bsml">
+      <DependentUpon>HypeTrainFloatingWindow.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\FloatingWindow_Prediction.bsml">
-      <DependentUpon>FloatingWindow_Prediction.cs</DependentUpon>
+    <EmbeddedResource Include="UI\PredictionFloatingWindow.bsml">
+      <DependentUpon>PredictionFloatingWindow.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

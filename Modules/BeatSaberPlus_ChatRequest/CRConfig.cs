@@ -2,7 +2,7 @@
 
 namespace BeatSaberPlus_ChatRequest
 {
-    internal class CRConfig : BeatSaberPlus.SDK.Config.JsonConfig<CRConfig>
+    internal class CRConfig : CP_SDK.Config.JsonConfig<CRConfig>
     {
         internal class _Filters
         {
@@ -128,7 +128,7 @@ namespace BeatSaberPlus_ChatRequest
 
         [JsonProperty] internal bool Enabled = true;
 
-        [JsonProperty] internal bool SafeMode = false;
+        [JsonProperty] internal bool SafeMode2 = true;
 
         [JsonProperty] internal bool QueueOpen = true;
 
@@ -162,7 +162,7 @@ namespace BeatSaberPlus_ChatRequest
         /// </summary>
         /// <returns></returns>
         public override string GetRelativePath()
-            => "BeatSaberPlus/ChatRequest/Config";
+            => $"{CP_SDK.ChatPlexSDK.ProductName}/ChatRequest/Config";
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////

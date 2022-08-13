@@ -1,15 +1,11 @@
-﻿using BeatSaberPlus.SDK.Chat.Interfaces;
-using BeatSaberPlus.SDK.Chat.Models;
-using BeatSaberPlus.SDK.Chat.Models.Twitch;
+﻿using CP_SDK.Chat.Interfaces;
+using CP_SDK.Chat.Models.Twitch;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace BeatSaberPlus_Chat.Utils
+namespace ChatPlexMod_Chat.Utils
 {
     /// <summary>
     /// Message builder for twitch
@@ -23,7 +19,7 @@ namespace BeatSaberPlus_Chat.Utils
         /// <param name="p_Font">The font to register these images to</param>
         public static bool PrepareImages(IChatMessage p_Message, Extensions.EnhancedFontInfo p_Font)
         {
-            var l_Tasks                 = new List<Task<BeatSaberPlus.SDK.Unity.EnhancedImage>>();
+            var l_Tasks                 = new List<Task<CP_SDK.Unity.EnhancedImage>>();
             var l_PendingImageDownloads = new HashSet<string>();
 
             if (p_Message.Emotes != null)
@@ -37,11 +33,11 @@ namespace BeatSaberPlus_Chat.Utils
                     if (!p_Font.HasReplaceCharacter(l_Emote.Id))
                     {
                         l_PendingImageDownloads.Add(l_Emote.Id);
-                        var l_TaskCompletionSource = new TaskCompletionSource<BeatSaberPlus.SDK.Unity.EnhancedImage>();
+                        var l_TaskCompletionSource = new TaskCompletionSource<CP_SDK.Unity.EnhancedImage>();
 
-                        BeatSaberPlus.SDK.Chat.ImageProvider.TryCacheSingleImage(EChatResourceCategory.Emote, l_Emote.Id, l_Emote.Uri, l_Emote.Animation, (l_Info) => {
+                        CP_SDK.Chat.ChatImageProvider.TryCacheSingleImage(EChatResourceCategory.Emote, l_Emote.Id, l_Emote.Uri, l_Emote.Animation, (l_Info) => {
                             if (l_Info != null && !p_Font.TryRegisterImageInfo(l_Info, out var l_Character))
-                                Logger.Instance.Warn($"Failed to register emote \"{l_Emote.Id}\" in font {p_Font.Font.name}.");
+                                Logger.Instance.Warning($"Failed to register emote \"{l_Emote.Id}\" in font {p_Font.Font.name}.");
 
                             l_TaskCompletionSource.SetResult(l_Info);
                         });
@@ -62,11 +58,11 @@ namespace BeatSaberPlus_Chat.Utils
                     if (!p_Font.HasReplaceCharacter(l_Badge.Id))
                     {
                         l_PendingImageDownloads.Add(l_Badge.Id);
-                        var l_TaskCompletionSource = new TaskCompletionSource<BeatSaberPlus.SDK.Unity.EnhancedImage>();
+                        var l_TaskCompletionSource = new TaskCompletionSource<CP_SDK.Unity.EnhancedImage>();
 
-                        BeatSaberPlus.SDK.Chat.ImageProvider.TryCacheSingleImage(EChatResourceCategory.Badge, l_Badge.Id, l_Badge.Content, BeatSaberPlus.SDK.Animation.AnimationType.NONE, (p_Info) => {
+                        CP_SDK.Chat.ChatImageProvider.TryCacheSingleImage(EChatResourceCategory.Badge, l_Badge.Id, l_Badge.Content, CP_SDK.Animation.EAnimationType.NONE, (p_Info) => {
                             if (p_Info != null && !p_Font.TryRegisterImageInfo(p_Info, out var l_Character))
-                                Logger.Instance.Warn($"Failed to register badge \"{l_Badge.Id}\" in font {p_Font.Font.name}.");
+                                Logger.Instance.Warning($"Failed to register badge \"{l_Badge.Id}\" in font {p_Font.Font.name}.");
 
                             l_TaskCompletionSource.SetResult(p_Info);
                         });
@@ -91,7 +87,7 @@ namespace BeatSaberPlus_Chat.Utils
             try
             {
                 if (!PrepareImages(p_Message, p_Font))
-                    Logger.Instance.Warn($"Failed to prepare some/all images for msg \"{p_Message.Message}\"!");
+                    Logger.Instance.Warning($"Failed to prepare some/all images for msg \"{p_Message.Message}\"!");
 
                 /// Replace all instances of <;> with a zero-width non-breaking character
                 StringBuilder l_StringBuilder = new StringBuilder(p_Message.Message).Replace("<", "<\u200B").Replace(">", "\u200B>");
@@ -101,19 +97,19 @@ namespace BeatSaberPlus_Chat.Utils
                     for (int l_EmoteI = 0; l_EmoteI < p_Message.Emotes.Length; ++l_EmoteI)
                     {
                         var l_Emote = p_Message.Emotes[l_EmoteI];
-                        if (!BeatSaberPlus.SDK.Chat.ImageProvider.CachedImageInfo.TryGetValue(l_Emote.Id, out var l_ImageInfo))
+                        if (!CP_SDK.Chat.ChatImageProvider.CachedImageInfo.TryGetValue(l_Emote.Id, out var l_ImageInfo))
                         {
-                            Logger.Instance.Warn($"Emote {l_Emote.Name} was missing from the emote dict! The request to {l_Emote.Uri} may have timed out?");
+                            Logger.Instance.Warning($"Emote {l_Emote.Name} was missing from the emote dict! The request to {l_Emote.Uri} may have timed out?");
                             continue;
                         }
                         if (l_ImageInfo == null)
                         {
-                            Logger.Instance.Warn($"Emote {l_Emote.Name} is invalid ! The request to {l_Emote.Uri} may have timed out?");
+                            Logger.Instance.Warning($"Emote {l_Emote.Name} is invalid ! The request to {l_Emote.Uri} may have timed out?");
                             continue;
                         }
                         if (!p_Font.TryGetReplaceCharacter(l_ImageInfo.ImageID, out uint p_Character))
                         {
-                            Logger.Instance.Warn($"Emote {l_Emote.Name} was missing from the character dict! Font hay have run out of usable characters.");
+                            Logger.Instance.Warning($"Emote {l_Emote.Name} was missing from the character dict! Font hay have run out of usable characters.");
                             continue;
                         }
 
@@ -160,9 +156,9 @@ namespace BeatSaberPlus_Chat.Utils
                             var l_Badge = p_Message.Sender.Badges[l_BadgeI];
                             if (l_Badge.Type == EBadgeType.Image)
                             {
-                                if (!BeatSaberPlus.SDK.Chat.ImageProvider.CachedImageInfo.TryGetValue(l_Badge.Id, out var l_BadgeInfo))
+                                if (!CP_SDK.Chat.ChatImageProvider.CachedImageInfo.TryGetValue(l_Badge.Id, out var l_BadgeInfo))
                                 {
-                                    Logger.Instance.Warn($"Failed to find cached image info for badge \"{l_Badge.Id}\"!");
+                                    Logger.Instance.Warning($"Failed to find cached image info for badge \"{l_Badge.Id}\"!");
                                     continue;
                                 }
 

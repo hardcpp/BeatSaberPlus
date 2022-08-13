@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Concurrent;
 
-namespace BeatSaberPlus.SDK.Chat
+namespace BeatSaberPlus.SDK.Chat.Utilities
 {
     public static class DictionaryUtils
     {
@@ -80,8 +80,8 @@ namespace BeatSaberPlus.SDK.Chat
                 }
                 catch (Exception ex)
                 {
-                    Logger.Instance.Error($"An exception occurred while invoking action no params.");
-                    Logger.Instance.Error(ex);
+                    CP_SDK.ChatPlexSDK.Logger.Error($"An exception occurred while invoking action no params.");
+                    CP_SDK.ChatPlexSDK.Logger.Error(ex);
                 }
             }
         }
@@ -96,8 +96,8 @@ namespace BeatSaberPlus.SDK.Chat
                 }
                 catch (Exception ex)
                 {
-                    Logger.Instance.Error($"An exception occurred while invoking action with param type {typeof(A).Name}");
-                    Logger.Instance.Error(ex);
+                    CP_SDK.ChatPlexSDK.Logger.Error($"An exception occurred while invoking action with param type {typeof(A).Name}");
+                    CP_SDK.ChatPlexSDK.Logger.Error(ex);
                 }
             }
         }
@@ -112,8 +112,8 @@ namespace BeatSaberPlus.SDK.Chat
                 }
                 catch (Exception ex)
                 {
-                    Logger.Instance.Error($"An exception occurred while invoking action with param types {typeof(A).Name}, {typeof(B).Name}");
-                    Logger.Instance.Error(ex);
+                    CP_SDK.ChatPlexSDK.Logger.Error($"An exception occurred while invoking action with param types {typeof(A).Name}, {typeof(B).Name}");
+                    CP_SDK.ChatPlexSDK.Logger.Error(ex);
                 }
             }
         }
@@ -128,8 +128,8 @@ namespace BeatSaberPlus.SDK.Chat
                 }
                 catch (Exception ex)
                 {
-                    Logger.Instance.Error($"An exception occurred while invoking action with param types {typeof(A).Name}, {typeof(B).Name}, {typeof(C).Name}");
-                    Logger.Instance.Error(ex);
+                    CP_SDK.ChatPlexSDK.Logger.Error($"An exception occurred while invoking action with param types {typeof(A).Name}, {typeof(B).Name}, {typeof(C).Name}");
+                    CP_SDK.ChatPlexSDK.Logger.Error(ex);
                 }
             }
         }
@@ -143,8 +143,8 @@ namespace BeatSaberPlus.SDK.Chat
                 }
                 catch (Exception ex)
                 {
-                    Logger.Instance.Error($"An exception occurred while invoking action with param types {typeof(A).Name}, {typeof(B).Name}, {typeof(C).Name}, {typeof(D).Name}");
-                    Logger.Instance.Error(ex);
+                    CP_SDK.ChatPlexSDK.Logger.Error($"An exception occurred while invoking action with param types {typeof(A).Name}, {typeof(B).Name}, {typeof(C).Name}, {typeof(D).Name}");
+                    CP_SDK.ChatPlexSDK.Logger.Error(ex);
                 }
             }
         }

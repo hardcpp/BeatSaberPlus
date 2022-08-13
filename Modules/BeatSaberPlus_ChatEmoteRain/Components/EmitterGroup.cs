@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace BeatSaberPlus_ChatEmoteRain.Components
+namespace ChatPlexMod_ChatEmoteRain.Components
 {
     /// <summary>
     /// Emitter group
@@ -21,7 +21,7 @@ namespace BeatSaberPlus_ChatEmoteRain.Components
         /// <summary>
         /// Scene for the group
         /// </summary>
-        internal BeatSaberPlus.SDK.Game.Logic.SceneType Scene;
+        internal CP_SDK.ChatPlexSDK.EGenericScene GenericScene;
         /// <summary>
         /// Timeout in seconds
         /// </summary>
@@ -98,7 +98,7 @@ namespace BeatSaberPlus_ChatEmoteRain.Components
                 l_Instance.PreviewMaterialTemplate  = m_PreviewMaterial;
                 l_Instance.Awake();
                 if (m_Material) l_Instance.PSR.material = m_Material;
-                l_Instance.UpdateFromEmitter(Scene);
+                l_Instance.UpdateFromEmitter(GenericScene);
             }
 
             Emitters = GetComponentsInChildren<EmitterInstance>();
@@ -136,7 +136,7 @@ namespace BeatSaberPlus_ChatEmoteRain.Components
         internal void UpdateEmitters()
         {
             for (var l_I = 0; l_I < Emitters.Length; ++l_I)
-                Emitters[l_I].UpdateFromEmitter(Scene);
+                Emitters[l_I].UpdateFromEmitter(GenericScene);
         }
         /// <summary>
         /// Update texture

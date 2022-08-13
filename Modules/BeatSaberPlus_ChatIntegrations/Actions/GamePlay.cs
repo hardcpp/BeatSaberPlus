@@ -72,7 +72,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
 
             m_TypeList_Value = (string)m_TypeListList_Choices.ElementAt(Model.ValueType % m_TypeListList_Choices.Count);
 
-            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             EnsureColorCache();
@@ -86,7 +86,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             OnSettingChanged(null);
 
             if (!ModulePresence.NoteTweaker)
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: NoteTweaker module is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: NoteTweaker module is missing!");
         }
         private void OnSettingChanged(object p_Value)
         {
@@ -104,7 +104,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             if (!ModulePresence.NoteTweaker)
             {
                 p_Context.HasActionFailed = true;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, NoteTweaker module is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, NoteTweaker module is missing!");
                 yield break;
             }
 
@@ -200,7 +200,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
         {
             m_TypeList_Value = (string)m_TypeListList_Choices.ElementAt(Model.ValueType % m_TypeListList_Choices.Count);
 
-            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
@@ -214,7 +214,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             OnSettingChanged(null);
 
             if (!ModulePresence.GameTweaker)
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: GameTweaker module is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: GameTweaker module is missing!");
         }
         private void OnSettingChanged(object p_Value)
         {
@@ -234,7 +234,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             if (!ModulePresence.NoteTweaker)
             {
                 p_Context.HasActionFailed = true;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, NoteTweaker module is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, NoteTweaker module is missing!");
                 yield break;
             }
 
@@ -307,7 +307,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
 
         public override void BuildUI(Transform p_Parent)
         {
-            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
@@ -317,7 +317,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             OnSettingChanged(null);
 
             if (!ModulePresence.GameTweaker)
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: GameTweaker module is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: GameTweaker module is missing!");
         }
         private void OnSettingChanged(object p_Value)
         {
@@ -329,7 +329,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             if (!ModulePresence.GameTweaker)
             {
                 p_Context.HasActionFailed = true;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, GameTweaker module is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, GameTweaker module is missing!");
                 yield break;
             }
 
@@ -367,7 +367,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
         {
             m_TypeList_Value = (string)m_TypeListList_Choices.ElementAt(Model.ValueType % m_TypeListList_Choices.Count);
 
-            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
@@ -381,7 +381,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             OnSettingChanged(null);
 
             if (!ModulePresence.GameTweaker)
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: GameTweaker module is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: GameTweaker module is missing!");
         }
         private void OnSettingChanged(object p_Value)
         {
@@ -401,7 +401,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             if (!ModulePresence.GameTweaker)
             {
                 p_Context.HasActionFailed = true;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, GameTweaker module is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, GameTweaker module is missing!");
                 yield break;
             }
 
@@ -495,7 +495,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
         {
             m_TypeList_Value = (string)m_TypeListList_Choices.ElementAt(Model.ValueType % m_TypeListList_Choices.Count);
 
-            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
@@ -590,7 +590,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
         {
             m_TypeList_Value = (string)m_TypeListList_Choices.ElementAt(Model.ValueType % m_TypeListList_Choices.Count);
 
-            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
@@ -604,7 +604,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             OnSettingChanged(null);
 
             if (!ModulePresence.GameTweaker)
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: GameTweaker module is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: GameTweaker module is missing!");
         }
         private void OnSettingChanged(object p_Value)
         {
@@ -624,7 +624,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             if (!ModulePresence.NoteTweaker)
             {
                 p_Context.HasActionFailed = true;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, NoteTweaker module is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, NoteTweaker module is missing!");
                 yield break;
             }
 
@@ -720,7 +720,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
 
             m_TypeList_Value = (string)m_TypeListList_Choices.ElementAt(Model.ValueType % m_TypeListList_Choices.Count);
 
-            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             EnsureColorCache();
@@ -735,7 +735,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             OnSettingChanged(null);
 
             if (!ModulePresence.NoteTweaker)
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: NoteTweaker module is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: NoteTweaker module is missing!");
         }
         private void OnSettingChanged(object p_Value)
         {
@@ -756,7 +756,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             if (!ModulePresence.NoteTweaker)
             {
                 p_Context.HasActionFailed = true;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, NoteTweaker module is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, NoteTweaker module is missing!");
                 yield break;
             }
 
@@ -909,7 +909,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
 
         public override void BuildUI(Transform p_Parent)
         {
-            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
@@ -919,7 +919,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             OnSettingChanged(null);
 
             if (!ModulePresence.GameTweaker)
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: GameTweaker module is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: GameTweaker module is missing!");
         }
         private void OnSettingChanged(object p_Value)
         {
@@ -930,15 +930,21 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
         {
             if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Playing)
             {
-                var l_PauseController   = Resources.FindObjectsOfTypeAll<PauseController>().FirstOrDefault();
-                var l_PauseMenuManager  = Resources.FindObjectsOfTypeAll<PauseMenuManager>().FirstOrDefault();
-                if (l_PauseController && l_PauseMenuManager)
+                var l_BSP_MP_BigRank = GameObject.Find("BSP_MP_BigRank");
+                if (l_BSP_MP_BigRank && l_BSP_MP_BigRank.activeSelf)
+                    p_Context.HasActionFailed = true;
+                else
                 {
-                    l_PauseController.Pause();
-                    if (Model.HideUI)
+                    var l_PauseController = Resources.FindObjectsOfTypeAll<PauseController>().FirstOrDefault();
+                    var l_PauseMenuManager = Resources.FindObjectsOfTypeAll<PauseMenuManager>().FirstOrDefault();
+                    if (l_PauseController && l_PauseMenuManager)
                     {
-                        l_PauseController.didResumeEvent += PauseController_didResumeEvent;
-                        l_PauseMenuManager.transform.Find("Wrapper/MenuWrapper/Canvas")?.gameObject?.SetActive(false);
+                        l_PauseController.Pause();
+                        if (Model.HideUI)
+                        {
+                            l_PauseController.didResumeEvent += PauseController_didResumeEvent;
+                            l_PauseMenuManager.transform.Find("Wrapper/MenuWrapper/Canvas")?.gameObject?.SetActive(false);
+                        }
                     }
                 }
             }
@@ -970,9 +976,15 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
         {
             if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Playing)
             {
-                var l_PauseMenuManager = Resources.FindObjectsOfTypeAll<PauseMenuManager>().FirstOrDefault();
-                if (l_PauseMenuManager != null && l_PauseMenuManager)
-                    l_PauseMenuManager.MenuButtonPressed();
+                var l_BSP_MP_BigRank = GameObject.Find("BSP_MP_BigRank");
+                if (l_BSP_MP_BigRank && l_BSP_MP_BigRank.activeSelf)
+                    p_Context.HasActionFailed = true;
+                else
+                {
+                    var l_PauseMenuManager = Resources.FindObjectsOfTypeAll<PauseMenuManager>().FirstOrDefault();
+                    if (l_PauseMenuManager != null && l_PauseMenuManager)
+                        l_PauseMenuManager.MenuButtonPressed();
+                }
             }
             else
                 p_Context.HasActionFailed = true;
@@ -991,9 +1003,15 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
         {
             if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Playing)
             {
-                var l_PauseMenuManager = Resources.FindObjectsOfTypeAll<PauseMenuManager>().FirstOrDefault();
-                if (l_PauseMenuManager)
-                    l_PauseMenuManager.RestartButtonPressed();
+                var l_BSP_MP_BigRank = GameObject.Find("BSP_MP_BigRank");
+                if (l_BSP_MP_BigRank && l_BSP_MP_BigRank.activeSelf)
+                    p_Context.HasActionFailed = true;
+                else
+                {
+                    var l_PauseMenuManager = Resources.FindObjectsOfTypeAll<PauseMenuManager>().FirstOrDefault();
+                    if (l_PauseMenuManager != null && l_PauseMenuManager)
+                        l_PauseMenuManager.RestartButtonPressed();
+                }
             }
             else
                 p_Context.HasActionFailed = true;
@@ -1012,9 +1030,15 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
         {
             if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Playing)
             {
-                var l_PauseMenuManager = Resources.FindObjectsOfTypeAll<PauseMenuManager>().FirstOrDefault();
-                if (l_PauseMenuManager)
-                    l_PauseMenuManager.ContinueButtonPressed();
+                var l_BSP_MP_BigRank = GameObject.Find("BSP_MP_BigRank");
+                if (l_BSP_MP_BigRank && l_BSP_MP_BigRank.activeSelf)
+                    p_Context.HasActionFailed = true;
+                else
+                {
+                    var l_PauseMenuManager = Resources.FindObjectsOfTypeAll<PauseMenuManager>().FirstOrDefault();
+                    if (l_PauseMenuManager != null && l_PauseMenuManager)
+                        l_PauseMenuManager.ContinueButtonPressed();
+                }
             }
             else
                 p_Context.HasActionFailed = true;
@@ -1063,7 +1087,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
 
         public override sealed void BuildUI(Transform p_Parent)
         {
-            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
@@ -1113,7 +1137,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Playing
                 && BeatSaberPlus.SDK.Game.Logic.LevelData != null
                 && !BeatSaberPlus.SDK.Game.Logic.LevelData.IsNoodle
-                && !BeatSaberPlus.SDK.Game.Logic.IsInReplay)
+                && !BeatSaberPlus.SDK.Game.Scoring.IsInReplay)
             {
                 var l_AudioTimeSyncController       = UnityEngine.Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().FirstOrDefault();
                 var l_BeatmapObjectSpawnController  = UnityEngine.Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().FirstOrDefault();
@@ -1174,7 +1198,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
 
         public override sealed void BuildUI(Transform p_Parent)
         {
-            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
@@ -1193,7 +1217,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Playing
                 && BeatSaberPlus.SDK.Game.Logic.LevelData != null
                 && !BeatSaberPlus.SDK.Game.Logic.LevelData.IsNoodle
-                && !BeatSaberPlus.SDK.Game.Logic.IsInReplay)
+                && !BeatSaberPlus.SDK.Game.Scoring.IsInReplay)
             {
                 var l_AudioTimeSyncController       = UnityEngine.Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().FirstOrDefault();
                 var l_BeatmapObjectSpawnController  = UnityEngine.Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().FirstOrDefault();
@@ -1235,7 +1259,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
         {
             m_TypeList_Value = (string)m_TypeListList_Choices.ElementAt(Model.ToggleType % m_TypeListList_Choices.Count);
 
-            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));

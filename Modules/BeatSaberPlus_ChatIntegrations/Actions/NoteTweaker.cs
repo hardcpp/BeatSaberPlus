@@ -43,7 +43,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
 
         public override sealed void BuildUI(Transform p_Parent)
         {
-            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
@@ -62,7 +62,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
                     l_Choices.Add("<i>None</i>");
             }
             else if (!ModulePresence.NoteTweaker)
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, NoteTweaker module is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, NoteTweaker module is missing!");
 
             for (int l_I = 0; l_I < l_Choices.Count; ++l_I)
             {
@@ -90,7 +90,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             if (!ModulePresence.NoteTweaker)
             {
                 p_Context.HasActionFailed = true;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, NoteTweaker module is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, NoteTweaker module is missing!");
                 yield break;
             }
 
@@ -99,7 +99,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             else
             {
                 p_Context.HasActionFailed = true;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:NoteTweaker_SwitchProfile Profile:{Model.BaseValue} not found!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:NoteTweaker_SwitchProfile Profile:{Model.BaseValue} not found!");
             }
 
             yield return null;

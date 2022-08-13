@@ -11,6 +11,8 @@ namespace BeatSaberPlus_NoteTweaker.Patches
     [HarmonyPatch(nameof(ColorNoteVisuals.HandleNoteControllerDidInit))]
     public class PColorNoteVisuals : ColorNoteVisuals
     {
+        private static ColorManager m_ColorManager;
+
         private static bool m_Enabled = false;
         private static bool m_BlockColorsEnabled = false;
         private static Vector3 m_ArrowScale;
@@ -54,6 +56,8 @@ namespace BeatSaberPlus_NoteTweaker.Patches
                                      ref MeshRenderer[] ____circleMeshRenderers,
                                      ref MaterialPropertyBlockController[]  ____materialPropertyBlockControllers)
         {
+            m_ColorManager = ____colorManager;
+
             var l_ColorType = ____noteController.noteData.colorType;
 
             if (m_BlockColorsEnabled)
@@ -182,6 +186,17 @@ namespace BeatSaberPlus_NoteTweaker.Patches
             m_BlockColorsEnabled    = p_Enabled;
             m_LeftBlockColor        = p_Left.ColorWithAlpha(1f);
             m_RightBlockColor       = p_Right.ColorWithAlpha(1f);
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        public static Color? GetColorForSaber(SaberType p_Type)
+        {
+            if (m_ColorManager != null)
+                return m_ColorManager.ColorForSaberType(p_Type);
+
+            return null;
         }
     }
 }

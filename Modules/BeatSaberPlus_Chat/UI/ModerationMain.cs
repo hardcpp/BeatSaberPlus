@@ -4,7 +4,7 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 
-namespace BeatSaberPlus_Chat.UI
+namespace ChatPlexMod_Chat.UI
 {
     /// <summary>
     /// Moderation main screen
@@ -168,10 +168,10 @@ namespace BeatSaberPlus_Chat.UI
         [UIAction("SendPressed")]
         internal void SendPressed(string p_Text)
         {
-            if (BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels.Count == 0)
+            if (CP_SDK.Chat.Service.Multiplexer.Channels.Count == 0)
                 return;
 
-            foreach (var l_Channel in BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels)
+            foreach (var l_Channel in CP_SDK.Chat.Service.Multiplexer.Channels)
                 l_Channel.Item1.SendTextMessage(l_Channel.Item2, p_Text);
 
             m_MessageContent = "";

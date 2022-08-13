@@ -16,22 +16,9 @@ namespace BeatSaberPlus.UI
     /// </summary>
     internal class SettingsRightView : SDK.UI.ResourceViewController<SettingsRightView>
     {
-#pragma warning disable CS0649
+        #pragma warning disable CS0649
         [UIObject("TabSelector")] private GameObject m_TabSelector;
         private TextSegmentedControl m_TabSelector_TabSelectorControl = null;
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        #region Twitch Tab
-        [UIObject("TwitchTab")]                             private GameObject m_TwitchTab = null;
-        [UIComponent("TwitchTab_BBTVEnabled")]              private ToggleSetting m_TwitchTab_BBTVEnabled;
-        [UIComponent("TwitchTab_FFZEnabled")]               private ToggleSetting m_TwitchTab_FFZEnabled;
-        [UIComponent("TwitchTab_7TVEnabled")]               private ToggleSetting m_TwitchTab_7TVEnabled;
-        [UIComponent("TwitchTab_TwitchEnabled")]            private ToggleSetting m_TwitchTab_TwitchEnabled;
-        [UIComponent("TwitchTab_TwitchCheermotesEnabled")]  private ToggleSetting m_TwitchTab_TwitchCheermotesEnabled;
-        [UIComponent("TwitchTab_EmojisEnabled")]            private ToggleSetting m_TwitchTab_EmojisEnabled;
-        #endregion
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -48,12 +35,32 @@ namespace BeatSaberPlus.UI
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
+        #region Emotes Tab
+        [UIObject("EmotesTab")]                     private GameObject      m_EmotesTab = null;
+        [UIComponent("EmotesTab_BBTVEnabled")]      private ToggleSetting   m_EmotesTab_BBTVEnabled;
+        [UIComponent("EmotesTab_FFZEnabled")]       private ToggleSetting   m_EmotesTab_FFZEnabled;
+        [UIComponent("EmotesTab_7TVEnabled")]       private ToggleSetting   m_EmotesTab_7TVEnabled;
+        [UIComponent("EmotesTab_EmojisEnabled")]    private ToggleSetting   m_EmotesTab_EmojisEnabled;
+        #endregion
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        //#region Twitch Tab
+        //[UIObject("TwitchTab")]                             private GameObject m_TwitchTab = null;
+        //[UIComponent("TwitchTab_TwitchEnabled")]            private ToggleSetting m_TwitchTab_TwitchEnabled;
+        //[UIComponent("TwitchTab_TwitchCheermotesEnabled")]  private ToggleSetting m_TwitchTab_TwitchCheermotesEnabled;
+        //#endregion
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
         [UIComponent("InputKeyboard")]
         private ModalKeyboard m_InputKeyboard = null;
         [UIValue("InputKeyboardValue")]
         private string m_InputKeyboardValue = "";
         private Action<string> m_InputKeyboardCallback;
-#pragma warning restore CS0649
+        #pragma warning restore CS0649
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -75,7 +82,7 @@ namespace BeatSaberPlus.UI
 
             /// Create type selector
             m_TabSelector_TabSelectorControl = SDK.UI.TextSegmentedControl.Create(m_TabSelector.transform as RectTransform, false);
-            m_TabSelector_TabSelectorControl.SetTexts(new string[] { "Twitch", "OBS" });
+            m_TabSelector_TabSelectorControl.SetTexts(new string[] { "OBS", "Emotes" });
             m_TabSelector_TabSelectorControl.ReloadData();
             m_TabSelector_TabSelectorControl.didSelectCellEvent += OnTabSelected;
 
@@ -83,23 +90,21 @@ namespace BeatSaberPlus.UI
             /// Prepare tabs
             ////////////////////////////////////////////////////////////////////////////
 
-            SDK.UI.Backgroundable.SetOpacity(m_TwitchTab,   0.50f);
             SDK.UI.Backgroundable.SetOpacity(m_OBSTab,      0.50f);
+            SDK.UI.Backgroundable.SetOpacity(m_EmotesTab,   0.50f);
             SDK.UI.ModalView.SetOpacity(m_InputKeyboard.modalView, 0.75f);
 
-            #region Twitch Tab
-            SDK.UI.ToggleSetting.Setup(m_TwitchTab_BBTVEnabled,             l_Event, BSPConfig.Instance.Twitch.ParseBTTVEmotes,     false);
-            SDK.UI.ToggleSetting.Setup(m_TwitchTab_FFZEnabled,              l_Event, BSPConfig.Instance.Twitch.ParseFFZEmotes,      false);
-            SDK.UI.ToggleSetting.Setup(m_TwitchTab_7TVEnabled,              l_Event, BSPConfig.Instance.Twitch.Parse7TVEmotes,      false);
-            SDK.UI.ToggleSetting.Setup(m_TwitchTab_TwitchEnabled,           l_Event, BSPConfig.Instance.Twitch.ParseTwitchEmotes,   false);
-            SDK.UI.ToggleSetting.Setup(m_TwitchTab_TwitchCheermotesEnabled, l_Event, BSPConfig.Instance.Twitch.ParseCheermotes,     false);
-            SDK.UI.ToggleSetting.Setup(m_TwitchTab_EmojisEnabled,           l_Event, BSPConfig.Instance.Twitch.ParseEmojis,         false);
+            #region Emotes Tab
+            SDK.UI.ToggleSetting.Setup(m_EmotesTab_BBTVEnabled,             l_Event, CP_SDK.Chat.ChatModSettings.Instance.Emotes.ParseBTTVEmotes,     false);
+            SDK.UI.ToggleSetting.Setup(m_EmotesTab_FFZEnabled,              l_Event, CP_SDK.Chat.ChatModSettings.Instance.Emotes.ParseFFZEmotes,      false);
+            SDK.UI.ToggleSetting.Setup(m_EmotesTab_7TVEnabled,              l_Event, CP_SDK.Chat.ChatModSettings.Instance.Emotes.Parse7TVEmotes,      false);
+            SDK.UI.ToggleSetting.Setup(m_EmotesTab_EmojisEnabled,           l_Event, CP_SDK.Chat.ChatModSettings.Instance.Emotes.ParseEmojis,         false);
             #endregion
 
             #region Tools Tab
-            SDK.UI.ToggleSetting.Setup(m_OBSTab_Enabled, l_Event, BSPConfig.Instance.OBS.Enabled, true);
+            SDK.UI.ToggleSetting.Setup(m_OBSTab_Enabled, l_Event, CP_SDK.OBS.OBSModSettings.Instance.Enabled, true);
 
-            m_OBSTab_Server.text = BSPConfig.Instance.OBS.Server;
+            m_OBSTab_Server.text = CP_SDK.OBS.OBSModSettings.Instance.Server;
             #endregion
 
             /// Show first tab by default
@@ -113,6 +118,7 @@ namespace BeatSaberPlus.UI
         protected override sealed void OnViewDeactivation()
         {
             BSPConfig.Instance.Save();
+            CP_SDK.Chat.ChatModSettings.Instance.Save();
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -125,25 +131,25 @@ namespace BeatSaberPlus.UI
         {
             if (m_OBSTab.activeSelf)
             {
-                var l_Status = SDK.OBS.Service.Status;
+                var l_Status = CP_SDK.OBS.Service.Status;
                 var l_Text = "Status: ";
 
                 switch (l_Status)
                 {
-                    case SDK.OBS.Service.EStatus.Disconnected:
-                    case SDK.OBS.Service.EStatus.Connecting:
+                    case CP_SDK.OBS.Service.EStatus.Disconnected:
+                    case CP_SDK.OBS.Service.EStatus.Connecting:
                         l_Text += "<color=blue>";
                         break;
 
-                    case SDK.OBS.Service.EStatus.Authing:
+                    case CP_SDK.OBS.Service.EStatus.Authing:
                         l_Text += "<color=yellow>";
                         break;
 
-                    case SDK.OBS.Service.EStatus.Connected:
+                    case CP_SDK.OBS.Service.EStatus.Connected:
                         l_Text += "<color=green>";
                         break;
 
-                    case SDK.OBS.Service.EStatus.AuthRejected:
+                    case CP_SDK.OBS.Service.EStatus.AuthRejected:
                         l_Text += "<color=red>";
                         break;
                 }
@@ -165,10 +171,10 @@ namespace BeatSaberPlus.UI
         /// <param name="p_TabIndex">Tab index</param>
         private void OnTabSelected(SegmentedControl p_SegmentControl, int p_TabIndex)
         {
-            m_TwitchTab.SetActive(p_TabIndex == 0);
-            m_OBSTab.SetActive(p_TabIndex == 1);
+            m_OBSTab.SetActive(p_TabIndex == 0);
+            m_EmotesTab.SetActive(p_TabIndex == 1);
 
-            LayoutRebuilder.ForceRebuildLayoutImmediate(m_TwitchTab.transform.parent.transform as RectTransform);
+            LayoutRebuilder.ForceRebuildLayoutImmediate(m_EmotesTab.transform.parent.transform as RectTransform);
         }
         /// <summary>
         /// On setting changed
@@ -179,50 +185,19 @@ namespace BeatSaberPlus.UI
             if (m_PreventChanges)
                 return;
 
-            #region Twitch Tab
-            BSPConfig.Instance.Twitch.ParseBTTVEmotes   = m_TwitchTab_BBTVEnabled.Value;
-            BSPConfig.Instance.Twitch.ParseFFZEmotes    = m_TwitchTab_FFZEnabled.Value;
-            BSPConfig.Instance.Twitch.Parse7TVEmotes    = m_TwitchTab_7TVEnabled.Value;
-            BSPConfig.Instance.Twitch.ParseTwitchEmotes = m_TwitchTab_TwitchEnabled.Value;
-            BSPConfig.Instance.Twitch.ParseCheermotes   = m_TwitchTab_TwitchCheermotesEnabled.Value;
-            BSPConfig.Instance.Twitch.ParseEmojis       = m_TwitchTab_EmojisEnabled.Value;
-            #endregion
-
             #region OBS Tab
-            BSPConfig.Instance.OBS.Enabled = m_OBSTab_Enabled.Value;
+            CP_SDK.OBS.OBSModSettings.Instance.Enabled = m_OBSTab_Enabled.Value;
 
-            m_OBSTab_ChangeServer.interactable      = BSPConfig.Instance.OBS.Enabled;
-            m_OBSTab_ChangePassword.interactable    = BSPConfig.Instance.OBS.Enabled;
+            m_OBSTab_ChangeServer.interactable      = CP_SDK.OBS.OBSModSettings.Instance.Enabled;
+            m_OBSTab_ChangePassword.interactable    = CP_SDK.OBS.OBSModSettings.Instance.Enabled;
             #endregion
-        }
 
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        /// <summary>
-        /// On apply setting button
-        /// </summary>
-        [UIAction("TwitchTab_ApplyButton")]
-        private void TwitchTab_ApplyButton()
-        {
-            var l_TwitchService = SDK.Chat.Service.Multiplexer.Services.FirstOrDefault(x => x is SDK.Chat.Services.Twitch.TwitchService);
-
-            if (l_TwitchService != null)
-            {
-                (l_TwitchService as SDK.Chat.Services.Twitch.TwitchService).OnCredentialsUpdated(true);
-                ShowMessageModal("OK!");
-            }
-            else
-                ShowMessageModal("No Twitch service connected!");
-        }
-        /// <summary>
-        /// On open web configuration button
-        /// </summary>
-        [UIAction("TwitchTab_WebConfiguration")]
-        private void TwitchTab_WebConfiguration()
-        {
-            ShowMessageModal("URL opened in your desktop browser.");
-            SDK.Chat.Service.OpenWebConfigurator();
+            #region Emotes Tab
+            CP_SDK.Chat.ChatModSettings.Instance.Emotes.ParseBTTVEmotes   = m_EmotesTab_BBTVEnabled.Value;
+            CP_SDK.Chat.ChatModSettings.Instance.Emotes.ParseFFZEmotes    = m_EmotesTab_FFZEnabled.Value;
+            CP_SDK.Chat.ChatModSettings.Instance.Emotes.Parse7TVEmotes    = m_EmotesTab_7TVEnabled.Value;
+            CP_SDK.Chat.ChatModSettings.Instance.Emotes.ParseEmojis       = m_EmotesTab_EmojisEnabled.Value;
+            #endregion
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -234,10 +209,10 @@ namespace BeatSaberPlus.UI
         [UIAction("OBSTab_ChangeServerButton")]
         private void OBSTab_ChangeServerButton()
         {
-            UIShowInputKeyboard(BSPConfig.Instance.OBS.Server, (x) =>
+            UIShowInputKeyboard(CP_SDK.OBS.OBSModSettings.Instance.Server, (x) =>
             {
-                BSPConfig.Instance.OBS.Server = x;
-                m_OBSTab_Server.text = BSPConfig.Instance.OBS.Server;
+                CP_SDK.OBS.OBSModSettings.Instance.Server = x;
+                m_OBSTab_Server.text = CP_SDK.OBS.OBSModSettings.Instance.Server;
             });
         }
         /// <summary>
@@ -246,9 +221,9 @@ namespace BeatSaberPlus.UI
         [UIAction("OBSTab_ChangePasswordButton")]
         private void OBSTab_ChangePasswordButton()
         {
-            UIShowInputKeyboard(BSPConfig.Instance.OBS.Pssword, (x) =>
+            UIShowInputKeyboard(CP_SDK.OBS.OBSModSettings.Instance.Password, (x) =>
             {
-                BSPConfig.Instance.OBS.Pssword = x;
+                CP_SDK.OBS.OBSModSettings.Instance.Password = x;
             });
         }
         /// <summary>
@@ -256,7 +231,20 @@ namespace BeatSaberPlus.UI
         /// </summary>
         [UIAction("OBSTab_ApplyButton")]
         private void OBSTab_ApplyButton()
-            => SDK.OBS.Service.ApplyConf();
+            => CP_SDK.OBS.Service.ApplyConf();
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// On apply setting button
+        /// </summary>
+        [UIAction("EmotesTab_ApplyButton")]
+        private void EmotesTab_ApplyButton()
+        {
+            CP_SDK.Chat.Service.Multiplexer.RecacheEmotes();
+            ShowMessageModal("OK!");
+        }
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////

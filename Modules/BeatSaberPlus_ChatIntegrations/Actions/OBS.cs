@@ -3,14 +3,17 @@ using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components.Settings;
 using BeatSaberMarkupLanguage.Parser;
 using BeatSaberPlus_ChatIntegrations.Models;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 
-using OBSService = BeatSaberPlus.SDK.OBS.Service;
+using OBSService = CP_SDK.OBS.Service;
 
 namespace BeatSaberPlus_ChatIntegrations.Actions
 {
@@ -63,7 +66,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
 
         public override sealed void BuildUI(Transform p_Parent)
         {
-            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             m_ParserParams = BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             /// Change opacity
@@ -111,7 +114,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
 
             m_ParserParams.EmitEvent("ShowChatInputModal");
         }
-        private void Instance_OnBroadcasterChatMessage(BeatSaberPlus.SDK.Chat.Interfaces.IChatMessage p_Message)
+        private void Instance_OnBroadcasterChatMessage(CP_SDK.Chat.Interfaces.IChatMessage p_Message)
         {
             Model.Format = p_Message.Message;
             ChatIntegrations.Instance.OnBroadcasterChatMessage -= Instance_OnBroadcasterChatMessage;
@@ -135,18 +138,18 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             if (OBSService.Status != OBSService.EStatus.Connected)
             {
                 p_Context.HasActionFailed = true;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
                 yield break;
             }
 
             var l_ExistingFile = OBSService.LastRecordedFileName;
-            if (string.IsNullOrEmpty(l_ExistingFile) || !System.IO.File.Exists(l_ExistingFile))
+            if (string.IsNullOrEmpty(l_ExistingFile) || !File.Exists(l_ExistingFile))
             {
                 p_Context.HasActionFailed = true;
                 yield break;
             }
 
-            var l_Path      = System.IO.Path.GetDirectoryName(l_ExistingFile);
+            var l_Path      = Path.GetDirectoryName(l_ExistingFile);
             var l_Result    = Model.Format;
             var l_Variables = p_Context.GetValues(Interfaces.IValueType.String, Interfaces.IValueType.Integer, Interfaces.IValueType.Floating);
             l_Variables.Add((Interfaces.IValueType.String, "OriginalName"));
@@ -158,39 +161,39 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
                 var l_ReplaceValue  = l_Var.Item1 == Interfaces.IValueType.String ? "" : "0";
 
                 if (l_Var.Item1 == Interfaces.IValueType.String && l_Var.Item2 == "OriginalName")
-                    l_ReplaceValue = !string.IsNullOrEmpty(l_ExistingFile) ? System.IO.Path.GetFileNameWithoutExtension(l_ExistingFile) : "";
+                    l_ReplaceValue = !string.IsNullOrEmpty(l_ExistingFile) ? Path.GetFileNameWithoutExtension(l_ExistingFile) : "";
                 else if (l_Var.Item1 == Interfaces.IValueType.Integer && p_Context.GetIntegerValue(l_Var.Item2, out var l_IntegerVal))
                     l_ReplaceValue = l_IntegerVal.Value.ToString();
                 else if (l_Var.Item1 == Interfaces.IValueType.Floating && p_Context.GetFloatingValue(l_Var.Item2, out var l_FloatVal))
                     l_ReplaceValue = l_FloatVal.Value.ToString();
                 else if (l_Var.Item1 == Interfaces.IValueType.String && p_Context.GetStringValue(l_Var.Item2, out var l_StringVal))
-                    l_ReplaceValue = string.Join("_", l_StringVal.Split(System.IO.Path.GetInvalidFileNameChars()));
+                    l_ReplaceValue = string.Join("_", l_StringVal.Split(Path.GetInvalidFileNameChars()));
 
                 l_Result = l_Result.Replace(l_Key, l_ReplaceValue);
             }
 
-            var l_NewFile = System.IO.Path.Combine(l_Path, l_Result + System.IO.Path.GetExtension(l_ExistingFile));
+            var l_NewFile = Path.Combine(l_Path, l_Result + Path.GetExtension(l_ExistingFile));
 
-            System.Threading.Tasks.Task.Run(async () =>
+            Task.Run(async () =>
             {
                 /// Wait for OBS to finish IO
-                await System.Threading.Tasks.Task.Delay(System.TimeSpan.FromSeconds(10));
+                await Task.Delay(TimeSpan.FromSeconds(10)).ConfigureAwait(false);
 
                 try
                 {
-                    if (System.IO.File.Exists(l_NewFile))
+                    if (File.Exists(l_NewFile))
                     {
-                        l_NewFile = System.IO.Path.Combine(l_Path, l_Result + BeatSaberPlus.SDK.Misc.Time.UnixTimeNow() + System.IO.Path.GetExtension(l_ExistingFile));
-                        System.IO.File.Move(l_ExistingFile, l_NewFile);
+                        l_NewFile = Path.Combine(l_Path, l_Result + CP_SDK.Misc.Time.UnixTimeNow() + Path.GetExtension(l_ExistingFile));
+                        File.Move(l_ExistingFile, l_NewFile);
                     }
                     else
-                        System.IO.File.Move(l_ExistingFile, l_NewFile);
+                        File.Move(l_ExistingFile, l_NewFile);
                 }
-                catch (System.Exception)
+                catch (Exception)
                 {
 
                 }
-            });
+            }).ConfigureAwait(false);
 
             yield return null;
         }
@@ -207,7 +210,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             if (OBSService.Status != OBSService.EStatus.Connected)
             {
                 p_Context.HasActionFailed = true;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
                 yield break;
             }
 
@@ -219,7 +222,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
         {
             if (OBSService.Status != OBSService.EStatus.Connected)
             {
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
                 return;
             }
 
@@ -238,7 +241,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             if (OBSService.Status != OBSService.EStatus.Connected)
             {
                 p_Context.HasActionFailed = true;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
                 yield break;
             }
 
@@ -250,7 +253,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
         {
             if (OBSService.Status != OBSService.EStatus.Connected)
             {
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
                 return;
             }
 
@@ -276,7 +279,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
 
         public override sealed void BuildUI(Transform p_Parent)
         {
-            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             m_ParserParams = BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             /// Change opacity
@@ -321,7 +324,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
 
             m_ParserParams.EmitEvent("ShowChatInputModal");
         }
-        private void Instance_OnBroadcasterChatMessage(BeatSaberPlus.SDK.Chat.Interfaces.IChatMessage p_Message)
+        private void Instance_OnBroadcasterChatMessage(CP_SDK.Chat.Interfaces.IChatMessage p_Message)
         {
             Model.Format = p_Message.Message;
             ChatIntegrations.Instance.OnBroadcasterChatMessage -= Instance_OnBroadcasterChatMessage;
@@ -345,7 +348,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             if (OBSService.Status != OBSService.EStatus.Connected)
             {
                 p_Context.HasActionFailed = true;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
                 yield break;
             }
 
@@ -385,7 +388,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             if (OBSService.Status != OBSService.EStatus.Connected)
             {
                 p_Context.HasActionFailed = true;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
                 yield break;
             }
 
@@ -397,7 +400,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
         {
             if (OBSService.Status != OBSService.EStatus.Connected)
             {
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
                 return;
             }
 
@@ -416,7 +419,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             if (OBSService.Status != OBSService.EStatus.Connected)
             {
                 p_Context.HasActionFailed = true;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
                 yield break;
             }
 
@@ -428,7 +431,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
         {
             if (OBSService.Status != OBSService.EStatus.Connected)
             {
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
                 return;
             }
 
@@ -449,7 +452,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
 
         public override sealed void BuildUI(Transform p_Parent)
         {
-            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
@@ -463,7 +466,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             if (OBSService.Status == OBSService.EStatus.Connected)
                 l_Choices.AddRange(OBSService.Scenes.Keys.ToList<object>());
             else
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
 
             for (int l_I = 0; l_I < l_Choices.Count; ++l_I)
             {
@@ -495,14 +498,14 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
         {
             if (OBSService.Status != OBSService.EStatus.Connected)
             {
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
                 return;
             }
 
             if (OBSService.Scenes.TryGetValue(Model.SceneName, out var l_Scene))
                 l_Scene.SetAsPreview();
             else
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_SwitchPreviewToScene Scene:{Model.SceneName} not found!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_SwitchPreviewToScene Scene:{Model.SceneName} not found!");
         }
 
         public override IEnumerator Eval(Models.EventContext p_Context)
@@ -510,7 +513,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             if (OBSService.Status != OBSService.EStatus.Connected)
             {
                 p_Context.HasActionFailed = true;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
                 yield break;
             }
 
@@ -519,7 +522,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             else
             {
                 p_Context.HasActionFailed = true;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_SwitchPreviewToScene Scene:{Model.SceneName} not found!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_SwitchPreviewToScene Scene:{Model.SceneName} not found!");
             }
 
             yield return null;
@@ -539,7 +542,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
 
         public override sealed void BuildUI(Transform p_Parent)
         {
-            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
@@ -553,7 +556,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             if (OBSService.Status == OBSService.EStatus.Connected)
                 l_Choices.AddRange(OBSService.Scenes.Keys.ToList<object>());
             else
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
 
             for (int l_I = 0; l_I < l_Choices.Count; ++l_I)
             {
@@ -585,14 +588,14 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
         {
             if (OBSService.Status != OBSService.EStatus.Connected)
             {
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
                 return;
             }
 
             if (OBSService.Scenes.TryGetValue(Model.SceneName, out var l_Scene))
                 l_Scene.SwitchTo();
             else
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_SwitchToScene Scene:{Model.SceneName} not found!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_SwitchToScene Scene:{Model.SceneName} not found!");
         }
 
         public override IEnumerator Eval(Models.EventContext p_Context)
@@ -600,7 +603,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             if (OBSService.Status != OBSService.EStatus.Connected)
             {
                 p_Context.HasActionFailed = true;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
                 yield break;
             }
 
@@ -609,7 +612,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             else
             {
                 p_Context.HasActionFailed = true;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_SwitchToScene Scene:{Model.SceneName} not found!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_SwitchToScene Scene:{Model.SceneName} not found!");
             }
 
             yield return null;
@@ -633,7 +636,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
         {
             m_TypeList_Value = (string)m_TypeListList_Choices.ElementAt(Model.ToggleType % m_TypeListList_Choices.Count);
 
-            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
@@ -651,7 +654,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
         {
             if (OBSService.Status != OBSService.EStatus.Connected)
             {
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
                 return;
             }
 
@@ -677,7 +680,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             if (OBSService.Status != OBSService.EStatus.Connected)
             {
                 p_Context.HasActionFailed = true;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
                 yield break;
             }
 
@@ -728,7 +731,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
         {
             m_TypeList_Value = (string)m_TypeListList_Choices.ElementAt(Model.ToggleType % m_TypeListList_Choices.Count);
 
-            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             var l_Event     = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
@@ -766,7 +769,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             if (OBSService.Status == OBSService.EStatus.Connected)
                 l_Choices.AddRange(OBSService.Scenes.Keys.ToList<object>());
             else
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
 
             for (int l_I = 0; l_I < l_Choices.Count; ++l_I)
             {
@@ -805,10 +808,10 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
                     }
                 }
                 else
-                    BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_ToggleSource Scene:{Model.SceneName} not found!");
+                    CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_ToggleSource Scene:{Model.SceneName} not found!");
             }
             else
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
 
             for (int l_I = 0; l_I < l_Choices.Count; ++l_I)
             {
@@ -837,15 +840,15 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
         {
             if (OBSService.Status != OBSService.EStatus.Connected)
             {
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
                 return;
             }
 
-            BeatSaberPlus.SDK.OBS.Models.Source l_Source = null;
+            CP_SDK.OBS.Models.Source l_Source = null;
             if (OBSService.Scenes.TryGetValue(Model.SceneName, out var l_Scene) && (l_Source = l_Scene.GetSourceByName(Model.SourceName)) != null)
                 l_Source.SetVisible(Model.ToggleType == 0 ? !l_Source.render : (Model.ToggleType == 1 ? true : false));
             else
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_ToggleSource Scene:{Model.SceneName} not found!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_ToggleSource Scene:{Model.SceneName} not found!");
         }
 
         public override IEnumerator Eval(Models.EventContext p_Context)
@@ -853,17 +856,17 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             if (OBSService.Status != OBSService.EStatus.Connected)
             {
                 p_Context.HasActionFailed = true;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
                 yield break;
             }
 
-            BeatSaberPlus.SDK.OBS.Models.Source l_Source = null;
+            CP_SDK.OBS.Models.Source l_Source = null;
             if (OBSService.Scenes.TryGetValue(Model.SceneName, out var l_Scene) && (l_Source = l_Scene.GetSourceByName(Model.SourceName)) != null)
                 l_Source.SetVisible(Model.ToggleType == 0 ? !l_Source.render : (Model.ToggleType == 1 ? true : false));
             else
             {
                 p_Context.HasActionFailed = true;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_ToggleSource Scene:{Model.SceneName} not found!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_ToggleSource Scene:{Model.SceneName} not found!");
             }
 
             yield return null;
@@ -897,7 +900,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
         {
             m_TypeList_Value = (string)m_TypeListList_Choices.ElementAt(Model.ToggleType % m_TypeListList_Choices.Count);
 
-            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             var l_Event     = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
@@ -935,7 +938,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             if (OBSService.Status == OBSService.EStatus.Connected)
                 l_Choices.AddRange(OBSService.Scenes.Keys.ToList<object>());
             else
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
 
             for (int l_I = 0; l_I < l_Choices.Count; ++l_I)
             {
@@ -974,10 +977,10 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
                     }
                 }
                 else
-                    BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_ToggleSource Scene:{Model.SceneName} not found!");
+                    CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_ToggleSource Scene:{Model.SceneName} not found!");
             }
             else
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
 
             for (int l_I = 0; l_I < l_Choices.Count; ++l_I)
             {
@@ -1006,15 +1009,15 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
         {
             if (OBSService.Status != OBSService.EStatus.Connected)
             {
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
                 return;
             }
 
-            BeatSaberPlus.SDK.OBS.Models.Source l_Source = null;
+            CP_SDK.OBS.Models.Source l_Source = null;
             if (OBSService.Scenes.TryGetValue(Model.SceneName, out var l_Scene) && (l_Source = l_Scene.GetSourceByName(Model.SourceName)) != null)
                 l_Source.SetMuted(Model.ToggleType == 0 ? false : true);
             else
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_ToggleSourceAudio Scene:{Model.SceneName} not found!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_ToggleSourceAudio Scene:{Model.SceneName} not found!");
         }
 
         public override IEnumerator Eval(Models.EventContext p_Context)
@@ -1022,17 +1025,17 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             if (OBSService.Status != OBSService.EStatus.Connected)
             {
                 p_Context.HasActionFailed = true;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
                 yield break;
             }
 
-            BeatSaberPlus.SDK.OBS.Models.Source l_Source = null;
+            CP_SDK.OBS.Models.Source l_Source = null;
             if (OBSService.Scenes.TryGetValue(Model.SceneName, out var l_Scene) && (l_Source = l_Scene.GetSourceByName(Model.SourceName)) != null)
                 l_Source.SetMuted(Model.ToggleType == 0 ? false : true);
             else
             {
                 p_Context.HasActionFailed = true;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_ToggleSourceAudio Scene:{Model.SceneName} not found!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_ToggleSourceAudio Scene:{Model.SceneName} not found!");
             }
 
             yield return null;
@@ -1059,7 +1062,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
 
         public override sealed void BuildUI(Transform p_Parent)
         {
-            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             var l_Event     = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
@@ -1094,7 +1097,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             if (OBSService.Status == OBSService.EStatus.Connected)
                 l_Choices.AddRange(OBSService.Transitions.ToList<object>());
             else
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
 
             for (int l_I = 0; l_I < l_Choices.Count; ++l_I)
             {
@@ -1116,7 +1119,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
         {
             if (OBSService.Status != OBSService.EStatus.Connected)
             {
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
                 return;
             }
 
@@ -1135,7 +1138,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
             if (OBSService.Status != OBSService.EStatus.Connected)
             {
                 p_Context.HasActionFailed = true;
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
                 yield break;
             }
 

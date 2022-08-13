@@ -1,11 +1,11 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
-using BeatSaberPlus.SDK.Chat.Interfaces;
+using CP_SDK.Chat.Interfaces;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace BeatSaberPlus_Chat.UI
+namespace ChatPlexMod_Chat.UI
 {
     /// <summary>
     /// Moderation right screen
@@ -228,16 +228,16 @@ namespace BeatSaberPlus_Chat.UI
                 return;
             }
 
-            if (!(m_Users[m_SelectedIndex].Item1 is BeatSaberPlus.SDK.Chat.Services.Twitch.TwitchService))
+            if (!(m_Users[m_SelectedIndex].Item1 is CP_SDK.Chat.Services.Twitch.TwitchService))
             {
                 ShowMessageModal("Only twitch is supported at the moment!");
                 return;
             }
 
             ShowConfirmationModal($"Do you really want to <b>TimeOut</b> user\n{m_Users[m_SelectedIndex].Item2.DisplayName}?", () => {
-                foreach (var l_Current in BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels)
+                foreach (var l_Current in CP_SDK.Chat.Service.Multiplexer.Channels)
                 {
-                    if (l_Current.Item1 is BeatSaberPlus.SDK.Chat.Services.Twitch.TwitchService)
+                    if (l_Current.Item1 is CP_SDK.Chat.Services.Twitch.TwitchService)
                         l_Current.Item1.SendTextMessage(l_Current.Item2, $"/timeout {m_Users[m_SelectedIndex].Item2.UserName}");
                 }
             });
@@ -254,16 +254,16 @@ namespace BeatSaberPlus_Chat.UI
                 return;
             }
 
-            if (!(m_Users[m_SelectedIndex].Item1 is BeatSaberPlus.SDK.Chat.Services.Twitch.TwitchService))
+            if (!(m_Users[m_SelectedIndex].Item1 is CP_SDK.Chat.Services.Twitch.TwitchService))
             {
                 ShowMessageModal("Only twitch is supported at the moment!");
                 return;
             }
 
             ShowConfirmationModal($"Do you really want to <b>Ban</b> user\n{m_Users[m_SelectedIndex].Item2.DisplayName}?", () => {
-                foreach (var l_Current in BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels)
+                foreach (var l_Current in CP_SDK.Chat.Service.Multiplexer.Channels)
                 {
-                    if (l_Current.Item1 is BeatSaberPlus.SDK.Chat.Services.Twitch.TwitchService)
+                    if (l_Current.Item1 is CP_SDK.Chat.Services.Twitch.TwitchService)
                         l_Current.Item1.SendTextMessage(l_Current.Item2, $"/ban {m_Users[m_SelectedIndex].Item2.UserName}");
                 }
             });
@@ -280,16 +280,16 @@ namespace BeatSaberPlus_Chat.UI
                 return;
             }
 
-            if (!(m_Users[m_SelectedIndex].Item1 is BeatSaberPlus.SDK.Chat.Services.Twitch.TwitchService))
+            if (!(m_Users[m_SelectedIndex].Item1 is CP_SDK.Chat.Services.Twitch.TwitchService))
             {
                 ShowMessageModal("Only twitch is supported at the moment!");
                 return;
             }
 
             ShowConfirmationModal($"Do you really want to <b>Mod</b> user\n{m_Users[m_SelectedIndex].Item2.DisplayName}?", () => {
-                foreach (var l_Current in BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels)
+                foreach (var l_Current in CP_SDK.Chat.Service.Multiplexer.Channels)
                 {
-                    if (l_Current.Item1 is BeatSaberPlus.SDK.Chat.Services.Twitch.TwitchService)
+                    if (l_Current.Item1 is CP_SDK.Chat.Services.Twitch.TwitchService)
                         l_Current.Item1.SendTextMessage(l_Current.Item2, $"/mod {m_Users[m_SelectedIndex].Item2.UserName}");
                 }
             });
@@ -306,16 +306,16 @@ namespace BeatSaberPlus_Chat.UI
                 return;
             }
 
-            if (!(m_Users[m_SelectedIndex].Item1 is BeatSaberPlus.SDK.Chat.Services.Twitch.TwitchService))
+            if (!(m_Users[m_SelectedIndex].Item1 is CP_SDK.Chat.Services.Twitch.TwitchService))
             {
                 ShowMessageModal("Only twitch is supported at the moment!");
                 return;
             }
 
             ShowConfirmationModal($"Do you really want to <b>UnMod</b> user\n{m_Users[m_SelectedIndex].Item2.DisplayName}?", () => {
-                foreach (var l_Current in BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels)
+                foreach (var l_Current in CP_SDK.Chat.Service.Multiplexer.Channels)
                 {
-                    if (l_Current.Item1 is BeatSaberPlus.SDK.Chat.Services.Twitch.TwitchService)
+                    if (l_Current.Item1 is CP_SDK.Chat.Services.Twitch.TwitchService)
                         l_Current.Item1.SendTextMessage(l_Current.Item2, $"/unmod {m_Users[m_SelectedIndex].Item2.UserName}");
                 }
             });

@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 
@@ -28,9 +27,11 @@ namespace BeatSaberPlus.SDK.UI
         /// </summary>
         internal static void Init()
         {
-            if (m_SongDetailViewTemplate == null)
+            if (!m_SongDetailViewTemplate)
             {
                 m_SongDetailViewTemplate = GameObject.Instantiate(Resources.FindObjectsOfTypeAll<StandardLevelDetailView>().First(x => x.gameObject.name == "LevelDetail").gameObject);
+                m_SongDetailViewTemplate.name = "BSP_SongDetailViewTemplate";
+
                 GameObject.DestroyImmediate(m_SongDetailViewTemplate.GetComponent<StandardLevelDetailView>());
             }
         }
@@ -199,13 +200,13 @@ namespace BeatSaberPlus.SDK.UI
             /// Close music preview details panel
             m_GameObject = UnityEngine.GameObject.Instantiate(m_SongDetailViewTemplate, p_Parent);
 
-            var l_BSMLObjects     = m_GameObject.GetComponentsInChildren<UnityEngine.RectTransform>().Where(x => x.gameObject.name.StartsWith("BSML"));
+            var l_BSMLObjects     = m_GameObject.GetComponentsInChildren<RectTransform>().Where(x => x.gameObject.name.StartsWith("BSML"));
             var l_HoverHints      = m_GameObject.GetComponentsInChildren<HMUI.HoverHint>();
             var l_LocalHoverHints = m_GameObject.GetComponentsInChildren<LocalizedHoverHint>();
 
-            foreach (var l_Current in l_BSMLObjects)        UnityEngine.GameObject.Destroy(l_Current.gameObject);
-            foreach (var l_Current in l_HoverHints)         UnityEngine.GameObject.Destroy(l_Current);
-            foreach (var l_Current in l_LocalHoverHints)    UnityEngine.GameObject.Destroy(l_Current);
+            foreach (var l_Current in l_BSMLObjects)        GameObject.Destroy(l_Current.gameObject);
+            foreach (var l_Current in l_HoverHints)         GameObject.Destroy(l_Current);
+            foreach (var l_Current in l_LocalHoverHints)    GameObject.Destroy(l_Current);
 
             /// Favorite toggle
             m_FavoriteToggle = m_GameObject.transform.Find("FavoriteToggle").gameObject;
@@ -224,8 +225,8 @@ namespace BeatSaberPlus.SDK.UI
                 m_PlayButton = l_PlayButton.GetComponent<UnityEngine.UI.Button>();
                 m_PlayButton.onClick.RemoveAllListeners();
 
-                UnityEngine.GameObject.Destroy(m_PracticeButton.GetComponentInChildren<LocalizedTextMeshProUGUI>());
-                UnityEngine.GameObject.Destroy(m_PlayButton.GetComponentInChildren<LocalizedTextMeshProUGUI>());
+                GameObject.Destroy(m_PracticeButton.GetComponentInChildren<LocalizedTextMeshProUGUI>());
+                GameObject.Destroy(m_PlayButton.GetComponentInChildren<LocalizedTextMeshProUGUI>());
 
                 SetPracticeButtonEnabled(false);
                 SetPracticeButtonText("?");
@@ -234,10 +235,10 @@ namespace BeatSaberPlus.SDK.UI
             }
 
             m_CharacteristicSegmentedControllerClone    = m_GameObject.transform.Find("BeatmapCharacteristic").Find("BeatmapCharacteristicSegmentedControl").GetComponent<BeatmapCharacteristicSegmentedControlController>();
-            m_SongCharacteristicSegmentedControl        = HorizontalIconSegmentedControl.Create(m_CharacteristicSegmentedControllerClone.transform as UnityEngine.RectTransform, true);
+            m_SongCharacteristicSegmentedControl        = HorizontalIconSegmentedControl.Create(m_CharacteristicSegmentedControllerClone.transform as RectTransform, true);
 
             m_DifficultiesSegmentedControllerClone  = m_GameObject.transform.Find("BeatmapDifficulty").GetComponentInChildren<BeatmapDifficultySegmentedControlController>();
-            m_SongDiffSegmentedControl              = TextSegmentedControl.Create(m_DifficultiesSegmentedControllerClone.transform as UnityEngine.RectTransform, true);
+            m_SongDiffSegmentedControl              = TextSegmentedControl.Create(m_DifficultiesSegmentedControllerClone.transform as RectTransform, true);
 
             var l_LevelBarBig = m_GameObject.transform.Find("LevelBarBig");
 
@@ -263,44 +264,44 @@ namespace BeatSaberPlus.SDK.UI
             var l_SizeDelta = (m_SongNPSText.transform.parent.transform as UnityEngine.RectTransform).sizeDelta;
             l_SizeDelta.y *= 2;
 
-            m_SongNPSText.transform.parent.gameObject.AddComponent<UnityEngine.UI.VerticalLayoutGroup>().padding = new UnityEngine.RectOffset(0, 0, 0, 3);
+            m_SongNPSText.transform.parent.gameObject.AddComponent<UnityEngine.UI.VerticalLayoutGroup>().padding = new RectOffset(0, 0, 0, 3);
             m_SongNPSText.transform.parent.gameObject.AddComponent<UnityEngine.UI.LayoutElement>();
             (m_SongNPSText.transform.parent.transform as UnityEngine.RectTransform).sizeDelta = l_SizeDelta;
 
-            m_SongNotesText.transform.parent.gameObject.AddComponent<UnityEngine.UI.VerticalLayoutGroup>().padding = new UnityEngine.RectOffset(0, 0, 0, 3);
+            m_SongNotesText.transform.parent.gameObject.AddComponent<UnityEngine.UI.VerticalLayoutGroup>().padding = new RectOffset(0, 0, 0, 3);
             m_SongNotesText.transform.parent.gameObject.AddComponent<UnityEngine.UI.LayoutElement>();
             (m_SongNotesText.transform.parent.transform as UnityEngine.RectTransform).sizeDelta = l_SizeDelta;
 
-            m_SongObstaclesText.transform.parent.gameObject.AddComponent<UnityEngine.UI.VerticalLayoutGroup>().padding = new UnityEngine.RectOffset(0, 0, 0, 3);
+            m_SongObstaclesText.transform.parent.gameObject.AddComponent<UnityEngine.UI.VerticalLayoutGroup>().padding = new RectOffset(0, 0, 0, 3);
             m_SongObstaclesText.transform.parent.gameObject.AddComponent<UnityEngine.UI.LayoutElement>();
             (m_SongObstaclesText.transform.parent.transform as UnityEngine.RectTransform).sizeDelta = l_SizeDelta;
 
-            m_SongBombsText.transform.parent.gameObject.AddComponent<UnityEngine.UI.VerticalLayoutGroup>().padding = new UnityEngine.RectOffset(0, 0, 0, 3);
+            m_SongBombsText.transform.parent.gameObject.AddComponent<UnityEngine.UI.VerticalLayoutGroup>().padding = new RectOffset(0, 0, 0, 3);
             m_SongBombsText.transform.parent.gameObject.AddComponent<UnityEngine.UI.LayoutElement>();
             (m_SongBombsText.transform.parent.transform as UnityEngine.RectTransform).sizeDelta = l_SizeDelta;
 
             /// Patch
             var l_OffsetTexture = BeatSaberMarkupLanguage.Utilities.FindTextureInAssembly("BeatSaberPlus.SDK.UI.Resources.Offset.png");
-            var l_OffsetSprite = SDK.Unity.Sprite.CreateFromTexture(l_OffsetTexture, 100f, UnityEngine.Vector2.one * 16f);
-            m_SongOffsetText = UnityEngine.GameObject.Instantiate(m_SongNPSText.transform.parent.gameObject, m_SongNPSText.transform.parent.parent).GetComponentInChildren<TextMeshProUGUI>();
+            var l_OffsetSprite = CP_SDK.Unity.SpriteU.CreateFromTexture(l_OffsetTexture, 100f, Vector2.one * 16f);
+            m_SongOffsetText = GameObject.Instantiate(m_SongNPSText.transform.parent.gameObject, m_SongNPSText.transform.parent.parent).GetComponentInChildren<TextMeshProUGUI>();
             m_SongOffsetText.transform.parent.SetAsFirstSibling();
             m_SongOffsetText.transform.parent.GetComponentInChildren<HMUI.ImageView>().sprite = l_OffsetSprite;
 
             var l_NJSTexture = BeatSaberMarkupLanguage.Utilities.FindTextureInAssembly("BeatSaberPlus.SDK.UI.Resources.NJS.png");
-            var l_NJSSprite = SDK.Unity.Sprite.CreateFromTexture(l_NJSTexture, 100f, UnityEngine.Vector2.one * 16f);
-            m_SongNJSText = UnityEngine.GameObject.Instantiate(m_SongNPSText.transform.parent.gameObject, m_SongNPSText.transform.parent.parent).GetComponentInChildren<TextMeshProUGUI>();
+            var l_NJSSprite = CP_SDK.Unity.SpriteU.CreateFromTexture(l_NJSTexture, 100f, Vector2.one * 16f);
+            m_SongNJSText = GameObject.Instantiate(m_SongNPSText.transform.parent.gameObject, m_SongNPSText.transform.parent.parent).GetComponentInChildren<TextMeshProUGUI>();
             m_SongNJSText.transform.parent.SetAsFirstSibling();
             m_SongNJSText.transform.parent.GetComponentInChildren<HMUI.ImageView>().sprite = l_NJSSprite;
 
             m_SongNPSText.transform.parent.SetAsFirstSibling();
 
-            m_SongBPMText = UnityEngine.GameObject.Instantiate(m_SongNPSText.transform.parent.gameObject, m_SongNPSText.transform.parent.parent).GetComponentInChildren<TextMeshProUGUI>();
+            m_SongBPMText = GameObject.Instantiate(m_SongNPSText.transform.parent.gameObject, m_SongNPSText.transform.parent.parent).GetComponentInChildren<TextMeshProUGUI>();
             m_SongBPMText.transform.parent.SetAsFirstSibling();
-            m_SongBPMText.transform.parent.GetComponentInChildren<HMUI.ImageView>().sprite = UnityEngine.Resources.FindObjectsOfTypeAll<UnityEngine.Sprite>().First(x => x.name == "MetronomeIcon");
+            m_SongBPMText.transform.parent.GetComponentInChildren<HMUI.ImageView>().sprite = Resources.FindObjectsOfTypeAll<Sprite>().First(x => x.name == "MetronomeIcon");
 
-            m_SongTimeText = UnityEngine.GameObject.Instantiate(m_SongNPSText.transform.parent.gameObject, m_SongNPSText.transform.parent.parent).GetComponentInChildren<TextMeshProUGUI>();
+            m_SongTimeText = GameObject.Instantiate(m_SongNPSText.transform.parent.gameObject, m_SongNPSText.transform.parent.parent).GetComponentInChildren<TextMeshProUGUI>();
             m_SongTimeText.transform.parent.SetAsFirstSibling();
-            m_SongTimeText.transform.parent.GetComponentInChildren<HMUI.ImageView>().sprite = UnityEngine.Resources.FindObjectsOfTypeAll<UnityEngine.Sprite>().First(x => x.name == "ClockIcon");
+            m_SongTimeText.transform.parent.GetComponentInChildren<HMUI.ImageView>().sprite = Resources.FindObjectsOfTypeAll<Sprite>().First(x => x.name == "ClockIcon");
 
             /// Bind events
             m_SongCharacteristicSegmentedControl.didSelectCellEvent += OnCharacteristicChanged;
@@ -333,7 +334,7 @@ namespace BeatSaberPlus.SDK.UI
         /// <param name="p_DifficultyRaw">Difficulty raw</param>
         /// <param name="p_CharacteristicSO">Out SO characteristic</param>
         /// <returns></returns>
-        public bool FromSongCore(CustomPreviewBeatmapLevel p_BeatMap, UnityEngine.Sprite p_Cover, string p_Characteristic, string p_DifficultyRaw, out BeatmapCharacteristicSO p_CharacteristicSO)
+        public bool FromSongCore(CustomPreviewBeatmapLevel p_BeatMap, Sprite p_Cover, string p_Characteristic, string p_DifficultyRaw, out BeatmapCharacteristicSO p_CharacteristicSO)
         {
             p_CharacteristicSO = null;
             m_LocalBeatMap = null;
@@ -341,7 +342,7 @@ namespace BeatSaberPlus.SDK.UI
 
             if (p_BeatMap == null)
             {
-                Logger.Instance.Error($"[SDK.UI][LevelDetail.FromSongCore] Null Beatmap provided!");
+                CP_SDK.ChatPlexSDK.Logger.Error($"[SDK.UI][LevelDetail.FromSongCore] Null Beatmap provided!");
                 return false;
             }
 
@@ -359,7 +360,7 @@ namespace BeatSaberPlus.SDK.UI
 
             if (l_PreviewBeatmap == null)
             {
-                Logger.Instance.Error($"[SDK.UI][LevelDetail.FromSongCore] No preview beatmap found!");
+                CP_SDK.ChatPlexSDK.Logger.Error($"[SDK.UI][LevelDetail.FromSongCore] No preview beatmap found!");
                 return false;
             }
 
@@ -396,16 +397,17 @@ namespace BeatSaberPlus.SDK.UI
                             break;
                         }
                     }
-                    catch (System.Exception p_Exception)
+                    catch (Exception p_Exception)
                     {
-                        Logger.Instance?.Error(p_Exception);
+                        CP_SDK.ChatPlexSDK.Logger.Error($"[SDK.UI][LevelDetail.FromSongCore] Error:");
+                        CP_SDK.ChatPlexSDK.Logger.Error(p_Exception);
                     }
                 }
             }
 
             if (l_SelectedDifficulty == null)
             {
-                Logger.Instance.Error($"[SDK.UI][LevelDetail.FromSongCore] No valid difficulty found!");
+                CP_SDK.ChatPlexSDK.Logger.Error($"[SDK.UI][LevelDetail.FromSongCore] No valid difficulty found!");
                 return false;
             }
 
@@ -417,7 +419,7 @@ namespace BeatSaberPlus.SDK.UI
             Cover           = p_Cover ?? SongCore.Loader.defaultCoverImage;
             Time            = p_BeatMap.songDuration;
             BPM             = p_BeatMap.standardLevelInfoSaveData.beatsPerMinute;
-            NPS             = ((float)l_SelectedDifficulty.cuttableNotesCount / (float)p_BeatMap.standardLevelInfoSaveData.beatsPerMinute);
+            NPS             = ((float)l_SelectedDifficulty.cuttableNotesCount / (float)p_BeatMap.songDuration);
             NJS             = (int)l_DifficultyBeatMap.noteJumpMovementSpeed;
             Offset          = l_DifficultyBeatMap.noteJumpStartBeatOffset;
             Notes           = l_SelectedDifficulty.cuttableNotesCount;
@@ -431,15 +433,91 @@ namespace BeatSaberPlus.SDK.UI
         /// </summary>
         /// <param name="p_BeatMap">BeatMap</param>
         /// <param name="p_Cover">Cover texture</param>
+        /// <param name="p_Characteristic">Game mode</param>
+        /// <param name="p_Difficulty">Difficulty</param>
         /// <returns></returns>
-        public bool FromSongCore(CustomPreviewBeatmapLevel p_BeatMap, UnityEngine.Sprite p_Cover)
+        public bool FromSongCore(IBeatmapLevel p_BeatMap, Sprite p_Cover, BeatmapCharacteristicSO p_Characteristic, BeatmapDifficulty p_Difficulty)
+        {
+            m_LocalBeatMap      = null;
+            m_BeatMap           = null;
+
+            if (p_BeatMap == null)
+            {
+                CP_SDK.ChatPlexSDK.Logger.Error($"[SDK.UI][LevelDetail.FromSongCore] Null Beatmap provided!");
+                return false;
+            }
+
+            /// Display mode
+            Characteristic = new HMUI.IconSegmentedControl.DataItem(p_Characteristic.icon, Polyglot.Localization.Get(p_Characteristic.descriptionLocalizationKey));
+
+            var l_IDifficultyBeatmap = p_BeatMap.beatmapLevelData.GetDifficultyBeatmap(p_Characteristic, p_Difficulty);
+
+            /// Display difficulty
+            Difficulty = Game.Levels.SerializedToDifficultyName(p_Difficulty.ToString());
+
+            Name            = p_BeatMap.songName;
+            AuthorNameText  = "Mapped by <b><u><i>" + p_BeatMap.levelAuthorName + "</b></u></i>";
+            Cover           = p_Cover ?? SongCore.Loader.defaultCoverImage;
+            Time            = p_BeatMap.songDuration;
+            BPM             = p_BeatMap.beatsPerMinute;
+            NJS             = (int)l_IDifficultyBeatmap.noteJumpMovementSpeed;
+            Offset          = l_IDifficultyBeatmap.noteJumpStartBeatOffset;
+
+            if (l_IDifficultyBeatmap is BeatmapLevelSO.DifficultyBeatmap l_DifficultyBeatmap)
+            {
+                try
+                {
+                    var l_Task = l_DifficultyBeatmap.GetBeatmapDataBasicInfoAsync();
+                    l_Task.Wait();
+                    var l_Info = l_Task.Result;
+
+                    NPS         = ((float)l_Info.cuttableNotesCount / (float)p_BeatMap.beatsPerMinute);
+                    Notes       = l_Info.cuttableNotesCount;
+                    Obstacles   = l_Info.obstaclesCount;
+                    Bombs       = l_Info.bombsCount;
+                }
+                catch
+                {
+                    NPS         = -1;
+                    Notes       = -1;
+                    Obstacles   = -1;
+                    Bombs       = -1;
+                }
+            }
+            else if (l_IDifficultyBeatmap is CustomDifficultyBeatmap l_CustomDifficultyBeatmap)
+            {
+                try
+                {
+                    NPS         = ((float)l_CustomDifficultyBeatmap.beatmapDataBasicInfo.cuttableNotesCount / (float)p_BeatMap.songDuration);
+                    Notes       = l_CustomDifficultyBeatmap.beatmapDataBasicInfo.cuttableNotesCount;
+                    Obstacles   = l_CustomDifficultyBeatmap.beatmapDataBasicInfo.obstaclesCount;
+                    Bombs       = l_CustomDifficultyBeatmap.beatmapDataBasicInfo.bombsCount;
+                }
+                catch
+                {
+                    NPS         = -1;
+                    Notes       = -1;
+                    Obstacles   = -1;
+                    Bombs       = -1;
+                }
+            }
+
+            return true;
+        }
+        /// <summary>
+        /// Set from SongCore
+        /// </summary>
+        /// <param name="p_BeatMap">BeatMap</param>
+        /// <param name="p_Cover">Cover texture</param>
+        /// <returns></returns>
+        public bool FromSongCore(CustomPreviewBeatmapLevel p_BeatMap, Sprite p_Cover)
         {
             m_LocalBeatMap = null;
             m_BeatMap = null;
 
             if (p_BeatMap == null)
             {
-                Logger.Instance.Error($"[SDK.UI][LevelDetail.FromSongCore] Null Beatmap provided!");
+                CP_SDK.ChatPlexSDK.Logger.Error($"[SDK.UI][LevelDetail.FromSongCore] Null Beatmap provided!");
                 return false;
             }
 
@@ -450,7 +528,7 @@ namespace BeatSaberPlus.SDK.UI
 
             if (l_Characteristics.Count == 0)
             {
-                Logger.Instance.Error($"[SDK.UI][LevelDetail.FromSongCore2] No valid characteristics found for map \"{p_BeatMap.levelID}\"!");
+                CP_SDK.ChatPlexSDK.Logger.Error($"[SDK.UI][LevelDetail.FromSongCore2] No valid characteristics found for map \"{p_BeatMap.levelID}\"!");
                 return false;
             }
 
@@ -478,7 +556,7 @@ namespace BeatSaberPlus.SDK.UI
         /// <param name="p_DifficultyRaw">Difficulty raw</param>
         /// <param name="p_CharacteristicSO">Out SO characteristic</param>
         /// <returns></returns>
-        public bool FromBeatSaver(Game.BeatMaps.MapDetail p_BeatMap, UnityEngine.Sprite p_Cover, string p_Characteristic, string p_DifficultyRaw, out BeatmapCharacteristicSO p_CharacteristicSO)
+        public bool FromBeatSaver(Game.BeatMaps.MapDetail p_BeatMap, Sprite p_Cover, string p_Characteristic, string p_DifficultyRaw, out BeatmapCharacteristicSO p_CharacteristicSO)
         {
             m_LocalBeatMap = null;
             m_BeatMap = null;
@@ -486,14 +564,14 @@ namespace BeatSaberPlus.SDK.UI
 
             if (p_BeatMap == null)
             {
-                Logger.Instance.Error($"[SDK.UI][LevelDetail.FromBeatSaver1] Null Beatmap provided!");
+                CP_SDK.ChatPlexSDK.Logger.Error($"[SDK.UI][LevelDetail.FromBeatSaver1] Null Beatmap provided!");
                 return false;
             }
 
             var l_Version = p_BeatMap.SelectMapVersion();
             if (l_Version == null)
             {
-                Logger.Instance.Error($"[SDK.UI][LevelDetail.FromBeatSaver1] Null version provided!");
+                CP_SDK.ChatPlexSDK.Logger.Error($"[SDK.UI][LevelDetail.FromBeatSaver1] Null version provided!");
                 return false;
             }
 
@@ -506,7 +584,7 @@ namespace BeatSaberPlus.SDK.UI
 
             if (l_CharacteristicDetails == null)
             {
-                Logger.Instance.Error($"[SDK.UI][LevelDetail.FromBeatSaver1] Characteristic \"{p_Characteristic}\" not found in song core");
+                CP_SDK.ChatPlexSDK.Logger.Error($"[SDK.UI][LevelDetail.FromBeatSaver1] Characteristic \"{p_Characteristic}\" not found in song core");
                 return false;
             }
 
@@ -552,21 +630,21 @@ namespace BeatSaberPlus.SDK.UI
         /// <param name="p_BeatMap">BeatMap</param>
         /// <param name="p_Cover">Cover texture</param>
         /// <returns></returns>
-        public bool FromBeatSaver(Game.BeatMaps.MapDetail p_BeatMap, UnityEngine.Sprite p_Cover)
+        public bool FromBeatSaver(Game.BeatMaps.MapDetail p_BeatMap, Sprite p_Cover)
         {
             m_LocalBeatMap = null;
             m_BeatMap = null;
 
             if (p_BeatMap == null)
             {
-                Logger.Instance.Error($"[SDK.UI][LevelDetail.FromBeatSaver2] Null Beatmap provided!");
+                CP_SDK.ChatPlexSDK.Logger.Error($"[SDK.UI][LevelDetail.FromBeatSaver2] Null Beatmap provided!");
                 return false;
             }
 
             var l_Version = p_BeatMap.SelectMapVersion();
             if (l_Version == null)
             {
-                Logger.Instance.Error($"[SDK.UI][LevelDetail.FromBeatSaver2] Invalid version!");
+                CP_SDK.ChatPlexSDK.Logger.Error($"[SDK.UI][LevelDetail.FromBeatSaver2] Invalid version!");
                 return false;
             }
 
@@ -578,7 +656,7 @@ namespace BeatSaberPlus.SDK.UI
 
                 if (string.IsNullOrEmpty(l_SerializedName))
                 {
-                    Logger.Instance.Error($"[SDK.UI][LevelDetail.FromBeatSaver2] Invalid characteristic \"{l_Current}\"!");
+                    CP_SDK.ChatPlexSDK.Logger.Error($"[SDK.UI][LevelDetail.FromBeatSaver2] Invalid characteristic \"{l_Current}\"!");
                     return false;
                 }
 
@@ -590,7 +668,7 @@ namespace BeatSaberPlus.SDK.UI
 
             if (l_Characteristics.Count == 0)
             {
-                Logger.Instance.Error($"[SDK.UI][LevelDetail.FromBeatSaver2] No valid characteristics found for map \"{p_BeatMap.id}\"!");
+                CP_SDK.ChatPlexSDK.Logger.Error($"[SDK.UI][LevelDetail.FromBeatSaver2] No valid characteristics found for map \"{p_BeatMap.id}\"!");
                 return false;
             }
 
@@ -633,15 +711,15 @@ namespace BeatSaberPlus.SDK.UI
 
             BeatSaberMarkupLanguage.Utilities.GetData(p_Default, (p_Bytes) =>
             {
-                var l_Texture = new UnityEngine.Texture2D(2, 2);
+                var l_Texture = new Texture2D(2, 2);
                 if (l_Texture.LoadImage(p_Bytes))
-                    l_IVDefault.sprite = UnityEngine.Sprite.Create(l_Texture, new UnityEngine.Rect(0, 0, l_Texture.width, l_Texture.height), UnityEngine.Vector2.one * 0.5f, 100);
+                    l_IVDefault.sprite = Sprite.Create(l_Texture, new Rect(0, 0, l_Texture.width, l_Texture.height), UnityEngine.Vector2.one * 0.5f, 100);
             });
             BeatSaberMarkupLanguage.Utilities.GetData(p_Enabled, (p_Bytes) =>
             {
-                var l_Texture = new UnityEngine.Texture2D(2, 2);
+                var l_Texture = new Texture2D(2, 2);
                 if (l_Texture.LoadImage(p_Bytes))
-                    l_IVMarked.sprite = UnityEngine.Sprite.Create(l_Texture, new UnityEngine.Rect(0, 0, l_Texture.width, l_Texture.height), UnityEngine.Vector2.one * 0.5f, 100);
+                    l_IVMarked.sprite = Sprite.Create(l_Texture, new Rect(0, 0, l_Texture.width, l_Texture.height), UnityEngine.Vector2.one * 0.5f, 100);
             });
         }
         /// <summary>
@@ -654,7 +732,7 @@ namespace BeatSaberPlus.SDK.UI
             if (l_HoverHint == null || !l_HoverHint)
             {
                 l_HoverHint = m_FavoriteToggle.AddComponent<HMUI.HoverHint>();
-                l_HoverHint.SetField("_hoverHintController", UnityEngine.Resources.FindObjectsOfTypeAll<HMUI.HoverHintController>().First());
+                l_HoverHint.SetField("_hoverHintController", Resources.FindObjectsOfTypeAll<HMUI.HoverHintController>().First());
             }
 
             l_HoverHint.text = p_Hint;
@@ -845,7 +923,7 @@ namespace BeatSaberPlus.SDK.UI
                     if (l_Info != null)
                     {
                         Time            = m_LocalBeatMap.songDuration;
-                        NPS             = ((float)l_Info.cuttableNotesCount / (float)m_LocalBeatMap.standardLevelInfoSaveData.beatsPerMinute);
+                        NPS             = ((float)l_Info.cuttableNotesCount / (float)m_LocalBeatMap.songDuration);
                         NJS             = (int)l_DifficultyBeatMap.noteJumpMovementSpeed;
                         Offset          = l_DifficultyBeatMap.noteJumpStartBeatOffset;
                         Notes           = l_Info.cuttableNotesCount;
@@ -856,9 +934,11 @@ namespace BeatSaberPlus.SDK.UI
                             OnActiveDifficultyChanged.Invoke(GetIDifficultyBeatMap());
                     }
                 }
-                catch (System.Exception p_Exception)
+                catch (Exception p_Exception)
                 {
-                    Logger.Instance?.Error(p_Exception);
+                    CP_SDK.ChatPlexSDK.Logger.Error("[SDK.UI][LevelDetail.OnDifficultyChanged] Error:");
+                    CP_SDK.ChatPlexSDK.Logger.Error(p_Exception);
+
                     Time        = -1f;
                     NPS         = -1f;
                     NJS         = -1;

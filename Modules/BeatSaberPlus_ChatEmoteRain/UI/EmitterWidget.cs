@@ -6,7 +6,7 @@ using System;
 using System.Reflection;
 using UnityEngine;
 
-namespace BeatSaberPlus_ChatEmoteRain.UI
+namespace ChatPlexMod_ChatEmoteRain.UI
 {
     class EmitterWidget
     {
@@ -67,7 +67,7 @@ namespace BeatSaberPlus_ChatEmoteRain.UI
         {
             m_CurrentEmitter = l_Emitter;
 
-            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, GetType().Name) + ".bsml");
+            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, GetType().Name) + ".bsml");
             BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
