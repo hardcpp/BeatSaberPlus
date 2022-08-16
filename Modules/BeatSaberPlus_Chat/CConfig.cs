@@ -1,18 +1,15 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
-using System;
 
-namespace BeatSaberPlus_Chat
+namespace ChatPlexMod_Chat
 {
-    internal class CConfig : BeatSaberPlus.SDK.Config.JsonConfig<CConfig>
+    internal class CConfig : CP_SDK.Config.JsonConfig<CConfig>
     {
         [JsonProperty] internal bool Enabled = true;
 
         [JsonProperty] internal Vector2 ChatSize = new Vector2(120, 140);
         [JsonProperty] internal bool ReverseChatOrder = false;
-        [JsonProperty] internal string SystemFontName = "Segoe UI";
         [JsonProperty] internal float FontSize = 3.4f;
 
         [JsonProperty] internal bool AlignWithFloor = true;
@@ -52,7 +49,7 @@ namespace BeatSaberPlus_Chat
         /// </summary>
         /// <returns></returns>
         public override string GetRelativePath()
-            => "BeatSaberPlus/Chat/Config";
+            => $"{CP_SDK.ChatPlexSDK.ProductName}/Chat/Config";
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////

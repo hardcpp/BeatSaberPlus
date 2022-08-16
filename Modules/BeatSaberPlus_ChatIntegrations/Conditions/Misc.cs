@@ -22,7 +22,7 @@ namespace BeatSaberPlus_ChatIntegrations.Conditions
 
         public override void BuildUI(Transform p_Parent)
         {
-            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
@@ -50,7 +50,7 @@ namespace BeatSaberPlus_ChatIntegrations.Conditions
 
                 if (m_Cooldowns.TryGetValue(p_Context.User.UserName, out var l_LastTime))
                 {
-                    var l_Remaining = (l_LastTime + Model.CooldownTime) - BeatSaberPlus.SDK.Misc.Time.UnixTimeNow();
+                    var l_Remaining = (l_LastTime + Model.CooldownTime) - CP_SDK.Misc.Time.UnixTimeNow();
                     if (l_Remaining > 0)
                     {
                         if (Model.NotifyUser && p_Context.ChatService != null && p_Context.Channel != null)
@@ -58,14 +58,14 @@ namespace BeatSaberPlus_ChatIntegrations.Conditions
                         return false;
                     }
 
-                    m_Cooldowns.TryUpdate(p_Context.User.UserName, BeatSaberPlus.SDK.Misc.Time.UnixTimeNow(), l_LastTime);
+                    m_Cooldowns.TryUpdate(p_Context.User.UserName, CP_SDK.Misc.Time.UnixTimeNow(), l_LastTime);
                 }
                 else
-                    m_Cooldowns.TryAdd(p_Context.User.UserName, BeatSaberPlus.SDK.Misc.Time.UnixTimeNow());
+                    m_Cooldowns.TryAdd(p_Context.User.UserName, CP_SDK.Misc.Time.UnixTimeNow());
             }
             else
             {
-                var l_Remaining = (m_LastTime + Model.CooldownTime) - BeatSaberPlus.SDK.Misc.Time.UnixTimeNow();
+                var l_Remaining = (m_LastTime + Model.CooldownTime) - CP_SDK.Misc.Time.UnixTimeNow();
                 if (l_Remaining > 0)
                 {
                     if (Model.NotifyUser && p_Context.ChatService != null && p_Context.Channel != null && p_Context.User != null)
@@ -73,13 +73,13 @@ namespace BeatSaberPlus_ChatIntegrations.Conditions
                     return false;
                 }
 
-                m_LastTime = BeatSaberPlus.SDK.Misc.Time.UnixTimeNow();
+                m_LastTime = CP_SDK.Misc.Time.UnixTimeNow();
             }
 
             return true;
         }
 
-        private string BuildFailedMessage(BeatSaberPlus.SDK.Chat.Interfaces.IChatUser p_User, long p_Remaining)
+        private string BuildFailedMessage(CP_SDK.Chat.Interfaces.IChatUser p_User, long p_Remaining)
         {
             var l_Minutes = p_Remaining / 60;
             var l_Seconds = p_Remaining - (l_Minutes * 60);

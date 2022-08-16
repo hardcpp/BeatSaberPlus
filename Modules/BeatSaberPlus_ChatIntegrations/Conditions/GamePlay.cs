@@ -38,7 +38,7 @@ namespace BeatSaberPlus_ChatIntegrations.Conditions
 
         public override sealed void BuildUI(Transform p_Parent)
         {
-            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
@@ -105,7 +105,7 @@ namespace BeatSaberPlus_ChatIntegrations.Conditions
             m_LevelTypeList_Value   = (string)m_LevelTypeList_Choices.ElementAt((int)Model.LevelType % m_LevelTypeList_Choices.Count);
             m_BeatmapTypeList_Value = (string)m_BeatmapTypeList_Choices.ElementAt((int)Model.BeatmapModType % m_BeatmapTypeList_Choices.Count);
 
-            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
@@ -131,7 +131,7 @@ namespace BeatSaberPlus_ChatIntegrations.Conditions
             if (l_LevelData == null)
                 return false;
 
-            var l_IsInReplay        = BeatSaberPlus.SDK.Game.Logic.IsInReplay;
+            var l_IsInReplay        = BeatSaberPlus.SDK.Game.Scoring.IsInReplay;
             var l_LevelTypeCond     = false;
             var l_BeatMapTypeCond   = false;
 

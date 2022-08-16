@@ -1,4 +1,5 @@
 ﻿using BeatSaberPlus.SDK.Chat.Interfaces;
+using BeatSaberPlus.SDK.Chat.Utilities;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -11,9 +12,9 @@ namespace BeatSaberPlus.SDK.Chat.Services
     /// </summary>
     public class ChatServiceBase
     {
-        protected ConcurrentDictionary<ChatServiceBase, Action<IChatService, string>>   m_OnSystemMessageCallbacks 
+        protected ConcurrentDictionary<ChatServiceBase, Action<IChatService, string>>   m_OnSystemMessageCallbacks
             = new ConcurrentDictionary<ChatServiceBase, Action<IChatService, string>>();
-        protected ConcurrentDictionary<ChatServiceBase, Action<IChatService>>           m_OnLoginCallbacks 
+        protected ConcurrentDictionary<ChatServiceBase, Action<IChatService>>           m_OnLoginCallbacks
             = new ConcurrentDictionary<ChatServiceBase, Action<IChatService>>();
 
         ////////////////////////////////////////////////////////////////////////////
@@ -27,16 +28,10 @@ namespace BeatSaberPlus.SDK.Chat.Services
             = new ConcurrentDictionary<ChatServiceBase, Action<IChatService, IChatChannel>>();
         protected ConcurrentDictionary<ChatServiceBase, Action<IChatService, IChatChannel, bool, int>>                             m_OnRoomVideoPlaybackUpdatedCallbacks
             = new ConcurrentDictionary<ChatServiceBase, Action<IChatService, IChatChannel, bool, int>>();
-        protected ConcurrentDictionary<ChatServiceBase, Action<IChatService, IChatChannel, Dictionary<string, IChatResourceData>>> m_OnChannelResourceDataCached
-            = new ConcurrentDictionary<ChatServiceBase, Action<IChatService, IChatChannel, Dictionary<string, IChatResourceData>>>();
         protected ConcurrentDictionary<ChatServiceBase, Action<IChatService, IChatChannel, IChatUser>>                             m_OnChannelFollowCallbacks
             = new ConcurrentDictionary<ChatServiceBase, Action<IChatService, IChatChannel, IChatUser>>();
         protected ConcurrentDictionary<ChatServiceBase, Action<IChatService, IChatChannel, IChatUser, int>>                        m_OnChannelBitsCallbacks
             = new ConcurrentDictionary<ChatServiceBase, Action<IChatService, IChatChannel, IChatUser, int>>();
-        protected ConcurrentDictionary<ChatServiceBase, Action<IChatService, IChatChannel, IChatUser, IChatChannelPointEvent>>     m_OnChannelPointsCallbacks
-            = new ConcurrentDictionary<ChatServiceBase, Action<IChatService, IChatChannel, IChatUser, IChatChannelPointEvent>>();
-        protected ConcurrentDictionary<ChatServiceBase, Action<IChatService, IChatChannel, IChatUser, IChatSubscriptionEvent>>     m_OnChannelSubscriptionCallbacks
-            = new ConcurrentDictionary<ChatServiceBase, Action<IChatService, IChatChannel, IChatUser, IChatSubscriptionEvent>>();
         protected ConcurrentDictionary<ChatServiceBase, Action<IChatService, IChatChannel, IChatUser, int>>                        m_OnChannelRaidCallbacks
             = new ConcurrentDictionary<ChatServiceBase, Action<IChatService, IChatChannel, IChatUser, int>>();
 
@@ -87,11 +82,6 @@ namespace BeatSaberPlus.SDK.Chat.Services
             add     => m_OnRoomVideoPlaybackUpdatedCallbacks.AddAction(this, value);
             remove  => m_OnRoomVideoPlaybackUpdatedCallbacks.RemoveAction(this, value);
         }
-        public event Action<IChatService, IChatChannel, Dictionary<string, IChatResourceData>> OnChannelResourceDataCached
-        {
-            add     => m_OnChannelResourceDataCached.AddAction(this, value);
-            remove  => m_OnChannelResourceDataCached.RemoveAction(this, value);
-        }
         public event Action<IChatService, IChatChannel, IChatUser> OnChannelFollow
         {
             add     => m_OnChannelFollowCallbacks.AddAction(this, value);
@@ -101,16 +91,6 @@ namespace BeatSaberPlus.SDK.Chat.Services
         {
             add     => m_OnChannelBitsCallbacks.AddAction(this, value);
             remove  => m_OnChannelBitsCallbacks.RemoveAction(this, value);
-        }
-        public event Action<IChatService, IChatChannel, IChatUser, IChatChannelPointEvent> OnChannelPoints
-        {
-            add     => m_OnChannelPointsCallbacks.AddAction(this, value);
-            remove  => m_OnChannelPointsCallbacks.RemoveAction(this, value);
-        }
-        public event Action<IChatService, IChatChannel, IChatUser, IChatSubscriptionEvent> OnChannelSubscription
-        {
-            add     => m_OnChannelSubscriptionCallbacks.AddAction(this, value);
-            remove  => m_OnChannelSubscriptionCallbacks.RemoveAction(this, value);
         }
         public event Action<IChatService, IChatChannel, IChatUser, int> OnChannelRaid
         {

@@ -9,7 +9,7 @@ namespace BeatSaberPlus_NoteTweaker
     /// <summary>
     /// NoteTweaker Module
     /// </summary>
-    public class NoteTweaker : BeatSaberPlus.SDK.ModuleBase<NoteTweaker>
+    public class NoteTweaker : BeatSaberPlus.SDK.BSPModuleBase<NoteTweaker>
     {
         internal const string IMPORT_FOLDER = "UserData/BeatSaberPlus/NoteTweaker/Import/";
         internal const string EXPORT_FOLDER = "UserData/BeatSaberPlus/NoteTweaker/Export/";
@@ -20,7 +20,7 @@ namespace BeatSaberPlus_NoteTweaker
         /// <summary>
         /// Module type
         /// </summary>
-        public override BeatSaberPlus.SDK.IModuleBaseType Type => BeatSaberPlus.SDK.IModuleBaseType.Integrated;
+        public override CP_SDK.EIModuleBaseType Type => CP_SDK.EIModuleBaseType.Integrated;
         /// <summary>
         /// Name of the Module
         /// </summary>
@@ -40,7 +40,7 @@ namespace BeatSaberPlus_NoteTweaker
         /// <summary>
         /// Activation kind
         /// </summary>
-        public override BeatSaberPlus.SDK.IModuleBaseActivationType ActivationType => BeatSaberPlus.SDK.IModuleBaseActivationType.OnMenuSceneLoaded;
+        public override CP_SDK.EIModuleBaseActivationType ActivationType => CP_SDK.EIModuleBaseActivationType.OnMenuSceneLoaded;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////

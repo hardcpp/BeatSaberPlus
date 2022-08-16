@@ -1,9 +1,9 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
 
-namespace BeatSaberPlus_ChatEmoteRain
+namespace ChatPlexMod_ChatEmoteRain
 {
-    internal class CERConfig : BeatSaberPlus.SDK.Config.JsonConfig<CERConfig>
+    internal class CERConfig : CP_SDK.Config.JsonConfig<CERConfig>
     {
         internal class _Emitter
         {
@@ -68,7 +68,7 @@ namespace BeatSaberPlus_ChatEmoteRain
         /// </summary>
         /// <returns></returns>
         public override string GetRelativePath()
-            => "BeatSaberPlus/ChatEmoteRain/Config";
+            => $"{CP_SDK.ChatPlexSDK.ProductName}/ChatEmoteRain/Config";
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////

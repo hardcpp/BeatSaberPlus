@@ -1,15 +1,12 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
-using UnityEngine;
 
 namespace BeatSaberPlus.SDK.Game
 {
@@ -21,11 +18,15 @@ namespace BeatSaberPlus.SDK.Game
         /// <summary>
         /// Cache folder
         /// </summary>
-        private static string m_CacheFolder = "UserData/BeatSaberPlus/Cache/BeatMaps/";
+        private static string m_CacheFolder;
+        /// <summary>
+        /// Is caching enabled
+        /// </summary>
+        private static bool m_CacheEnabled = true;
         /// <summary>
         /// BeatMaps client
         /// </summary>
-        private static Network.APIClient m_APIClient = new Network.APIClient("https://api.beatsaver.com/", TimeSpan.FromSeconds(30), true, false);
+        private static CP_SDK.Network.APIClient m_APIClient;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -33,7 +34,34 @@ namespace BeatSaberPlus.SDK.Game
         /// <summary>
         /// BeatMaps client
         /// </summary>
-        public static Network.APIClient APIClient => m_APIClient;
+        public static CP_SDK.Network.APIClient APIClient => m_APIClient;
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Init image provider
+        /// </summary>
+        internal static void Init()
+        {
+            m_CacheFolder   = $"UserData/{CP_SDK.ChatPlexSDK.ProductName}/Cache/BeatMaps/";
+            m_APIClient     = new CP_SDK.Network.APIClient("https://api.beatsaver.com/", TimeSpan.FromSeconds(30), true, false);
+
+            try
+            {
+                if (!Directory.Exists(m_CacheFolder))
+                    Directory.CreateDirectory(m_CacheFolder);
+
+                m_CacheEnabled = true;
+            }
+            catch (Exception l_Exception)
+            {
+                m_CacheEnabled = false;
+
+                CP_SDK.ChatPlexSDK.Logger.Error($"[CP_SDK.Chat][ImageProvider.Init] Error creating cache folder, disabling caching:");
+                CP_SDK.ChatPlexSDK.Logger.Error(l_Exception);
+            }
+        }
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -67,13 +95,13 @@ namespace BeatSaberPlus.SDK.Game
                     l_BeatMap.Partial = false;
                     p_Callback?.Invoke(true, l_BeatMap);
                 }
-                catch (System.Exception l_Exception)
+                catch (Exception l_Exception)
                 {
-                    Logger.Instance.Error("[SDK.Game][BeatMapsClient.GetOnlineByKey] Error :");
-                    Logger.Instance.Error(l_Exception);
+                    CP_SDK.ChatPlexSDK.Logger.Error("[SDK.Game][BeatMapsClient.GetOnlineByKey] Error :");
+                    CP_SDK.ChatPlexSDK.Logger.Error(l_Exception);
                     p_Callback?.Invoke(false, null);
                 }
-            });
+            }).ConfigureAwait(false);
         }
         public static void PopulateOnlineByKey(BeatMaps.MapDetail p_BeatMap, Action<bool> p_Callback)
         {
@@ -103,13 +131,13 @@ namespace BeatSaberPlus.SDK.Game
                     p_BeatMap.Partial = false;
                     p_Callback?.Invoke(true);
                 }
-                catch (System.Exception l_Exception)
+                catch (Exception l_Exception)
                 {
-                    Logger.Instance.Error("[SDK.Game][BeatMapsClient.PopulateOnlineByKey] Error :");
-                    Logger.Instance.Error(l_Exception);
+                    CP_SDK.ChatPlexSDK.Logger.Error("[SDK.Game][BeatMapsClient.PopulateOnlineByKey] Error :");
+                    CP_SDK.ChatPlexSDK.Logger.Error(l_Exception);
                     p_Callback?.Invoke(false);
                 }
-            });
+            }).ConfigureAwait(false);
         }
         public static void GetOnlineByHash(string p_Hash, Action<bool, BeatMaps.MapDetail> p_Callback)
         {
@@ -140,13 +168,13 @@ namespace BeatSaberPlus.SDK.Game
                     l_BeatMap.Partial = false;
                     p_Callback?.Invoke(true, l_BeatMap);
                 }
-                catch (System.Exception l_Exception)
+                catch (Exception l_Exception)
                 {
-                    Logger.Instance.Error("[SDK.Game][BeatMapsClient.GetOnlineByHash] Error :");
-                    Logger.Instance.Error(l_Exception);
+                    CP_SDK.ChatPlexSDK.Logger.Error("[SDK.Game][BeatMapsClient.GetOnlineByHash] Error :");
+                    CP_SDK.ChatPlexSDK.Logger.Error(l_Exception);
                     p_Callback?.Invoke(false, null);
                 }
-            });
+            }).ConfigureAwait(false);
         }
         public static void GetOnlineBySearch(string p_Query, Action<bool, BeatMaps.MapDetail[]> p_Callback)
         {
@@ -179,13 +207,13 @@ namespace BeatSaberPlus.SDK.Game
 
                     p_Callback?.Invoke(true, l_SearchResult.docs);
                 }
-                catch (System.Exception l_Exception)
+                catch (Exception l_Exception)
                 {
-                    Logger.Instance.Error("[SDK.Game][BeatMapsClient.GetOnlineBySearch] Error :");
-                    Logger.Instance.Error(l_Exception);
+                    CP_SDK.ChatPlexSDK.Logger.Error("[SDK.Game][BeatMapsClient.GetOnlineBySearch] Error :");
+                    CP_SDK.ChatPlexSDK.Logger.Error(l_Exception);
                     p_Callback?.Invoke(false, null);
                 }
-            });
+            }).ConfigureAwait(false);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -211,10 +239,10 @@ namespace BeatSaberPlus.SDK.Game
 
                 return l_Result;
             }
-            catch (System.Exception l_Exception)
+            catch (Exception l_Exception)
             {
-                Logger.Instance.Error("[SDK.Game][BeatMapsClient.GetFromCacheByKey] Error :");
-                Logger.Instance.Error(l_Exception);
+                CP_SDK.ChatPlexSDK.Logger.Error("[SDK.Game][BeatMapsClient.GetFromCacheByKey] Error :");
+                CP_SDK.ChatPlexSDK.Logger.Error(l_Exception);
             }
 
             return null;
@@ -237,10 +265,10 @@ namespace BeatSaberPlus.SDK.Game
 
                 return l_Result;
             }
-            catch (System.Exception l_Exception)
+            catch (Exception l_Exception)
             {
-                Logger.Instance.Error("[SDK.Game][BeatMapsClient.GetCoverImageFromCacheByKey] Error :");
-                Logger.Instance.Error(l_Exception);
+                CP_SDK.ChatPlexSDK.Logger.Error("[SDK.Game][BeatMapsClient.GetCoverImageFromCacheByKey] Error :");
+                CP_SDK.ChatPlexSDK.Logger.Error(l_Exception);
             }
 
             return null;
@@ -258,16 +286,7 @@ namespace BeatSaberPlus.SDK.Game
             if (p_MapDetails == null || !p_MapDetails.IsValid())
                 return;
 
-            try
-            {
-                var l_JSON = JsonConvert.SerializeObject(p_MapDetails, Formatting.Indented);
-                Unity.MainThreadInvoker.Enqueue(() => SharedCoroutineStarter.instance.StartCoroutine(WriteCacheTextFile(p_MapDetails.id + ".json", l_JSON)));
-            }
-            catch (System.Exception l_Exception)
-            {
-                Logger.Instance.Error("[SDK.Game][BeatMapsClient.CacheBeatmap] Error :");
-                Logger.Instance.Error(l_Exception);
-            }
+            WriteCacheTextFile(p_MapDetails.id + ".json", p_MapDetails);
         }
         /// <summary>
         /// Cache instance cover image
@@ -279,20 +298,14 @@ namespace BeatSaberPlus.SDK.Game
             if (p_MapDetails == null || !p_MapDetails.IsValid() || p_Cover.Length == 0)
                 return;
 
-            Unity.MainThreadInvoker.Enqueue(() => SharedCoroutineStarter.instance.StartCoroutine(WriteCacheFile(p_MapDetails.id + ".jpg", p_Cover)));
+            WriteCacheFile(p_MapDetails.id + ".jpg", p_Cover);
         }
         /// <summary>
         /// Clear cache
         /// </summary>
         /// <param name="p_Key">Key</param>
         public static void ClearCache(string p_Key)
-        {
-            Unity.MainThreadInvoker.Enqueue(() =>
-            {
-                SharedCoroutineStarter.instance.StartCoroutine(DeleteCacheFile(p_Key + ".jpg"));
-                SharedCoroutineStarter.instance.StartCoroutine(DeleteCacheFile(p_Key + ".json"));
-            });
-        }
+            => DeleteCacheFile(p_Key);
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -303,24 +316,23 @@ namespace BeatSaberPlus.SDK.Game
         /// <param name="p_FileName">Cache ID</param>
         /// <param name="p_Content">Content to write</param>
         /// <returns></returns>
-        private static IEnumerator WriteCacheTextFile(string p_FileName, string p_Content)
+        private static void WriteCacheTextFile(string p_FileName, BeatMaps.MapDetail p_Content)
         {
-            /// Wait until menu scene
-            yield return new WaitUntil(() => Logic.ActiveScene == Logic.SceneType.Menu);
+            if (!m_CacheEnabled)
+                return;
 
-            Task.Run(() =>
+            CP_SDK.Unity.MTThreadInvoker.EnqueueOnThread(() =>
             {
                 try
                 {
-                    if (!Directory.Exists(m_CacheFolder))
-                        Directory.CreateDirectory(m_CacheFolder);
+                    var l_JSON = JsonConvert.SerializeObject(p_Content);
 
-                    File.WriteAllText(m_CacheFolder + p_FileName, p_Content, Encoding.UTF8);
+                    File.WriteAllText(m_CacheFolder + p_FileName, l_JSON, Encoding.UTF8);
                 }
-                catch (System.Exception l_Exception)
+                catch (Exception l_Exception)
                 {
-                    Logger.Instance.Error("[SDK.Game][BeatMapsClient.WriteCacheTextFile] Error :");
-                    Logger.Instance.Error(l_Exception);
+                    CP_SDK.ChatPlexSDK.Logger.Error("[SDK.Game][BeatMapsClient.WriteCacheTextFile] Error :");
+                    CP_SDK.ChatPlexSDK.Logger.Error(l_Exception);
                 }
             });
         }
@@ -330,48 +342,48 @@ namespace BeatSaberPlus.SDK.Game
         /// <param name="p_FileName">Cache ID</param>
         /// <param name="p_Content">Content to write</param>
         /// <returns></returns>
-        private static IEnumerator WriteCacheFile(string p_FileName, byte[] p_Content)
+        private static void WriteCacheFile(string p_FileName, byte[] p_Content)
         {
-            /// Wait until menu scene
-            yield return new WaitUntil(() => Logic.ActiveScene == Logic.SceneType.Menu);
+            if (!m_CacheEnabled)
+                return;
 
-            Task.Run(() =>
+            CP_SDK.Unity.MTThreadInvoker.EnqueueOnThread(() =>
             {
                 try
                 {
-                    if (!Directory.Exists(m_CacheFolder))
-                        Directory.CreateDirectory(m_CacheFolder);
-
                     File.WriteAllBytes(m_CacheFolder + p_FileName, p_Content);
                 }
-                catch (System.Exception l_Exception)
+                catch (Exception l_Exception)
                 {
-                    Logger.Instance.Error("[SDK.Game][BeatMapsClient.WriteCacheFile] Error :");
-                    Logger.Instance.Error(l_Exception);
+                    CP_SDK.ChatPlexSDK.Logger.Error("[SDK.Game][BeatMapsClient.WriteCacheFile] Error :");
+                    CP_SDK.ChatPlexSDK.Logger.Error(l_Exception);
                 }
             });
         }
         /// <summary>
         /// Delete cache file coroutine
         /// </summary>
-        /// <param name="p_FileName">File to delete</param>
+        /// <param name="p_Key">File to delete</param>
         /// <returns></returns>
-        private static IEnumerator DeleteCacheFile(string p_FileName)
+        private static void DeleteCacheFile(string p_Key)
         {
-            /// Wait until menu scene
-            yield return new WaitUntil(() => Logic.ActiveScene == Logic.SceneType.Menu);
+            if (!m_CacheEnabled)
+                return;
 
-            Task.Run(() =>
+            CP_SDK.Unity.MTThreadInvoker.EnqueueOnThread(() =>
             {
                 try
                 {
-                    if (File.Exists(m_CacheFolder + p_FileName))
-                        File.Delete(m_CacheFolder + p_FileName);
+                    if (File.Exists(m_CacheFolder + p_Key + ".jpg"))
+                        File.Delete(m_CacheFolder + p_Key + ".jpg");
+
+                    if (File.Exists(m_CacheFolder + p_Key + ".json"))
+                        File.Delete(m_CacheFolder + p_Key + ".json");
                 }
-                catch (System.Exception l_Exception)
+                catch (Exception l_Exception)
                 {
-                    Logger.Instance.Error("[SDK.Game][BeatMapsClient.DeleteCacheFile] Error :");
-                    Logger.Instance.Error(l_Exception);
+                    CP_SDK.ChatPlexSDK.Logger.Error("[SDK.Game][BeatMapsClient.DeleteCacheFile] Error :");
+                    CP_SDK.ChatPlexSDK.Logger.Error(l_Exception);
                 }
             });
         }
@@ -427,19 +439,19 @@ namespace BeatSaberPlus.SDK.Game
                 if (l_ZIPBytes == null || l_ZIPBytes.Length == 0)
                     return (false, "");
 
-                Logger.Instance?.Info("[SDK.Game][BeatMapsClient] Downloaded zip!");
+                CP_SDK.ChatPlexSDK.Logger.Info("[SDK.Game][BeatMapsClient] Downloaded zip!");
 
-                return await ExtractZipAsync(p_Token, p_Song, p_Version, l_ZIPBytes, l_CustomSongsPath).ConfigureAwait(false);
+                return ExtractZipAsync(p_Token, p_Song, p_Version, l_ZIPBytes, l_CustomSongsPath);
             }
             catch (Exception p_Exception)
             {
                 if (p_Exception is TaskCanceledException)
                 {
-                    Logger.Instance?.Warn("[SDK.Game][BeatMapsClient] Song Download Aborted.");
+                    CP_SDK.ChatPlexSDK.Logger.Warning("[SDK.Game][BeatMapsClient] Song Download Aborted.");
                     throw p_Exception;
                 }
                 else
-                    Logger.Instance?.Critical("[SDK.Game][BeatMapsClient] Failed to download Song!");
+                    CP_SDK.ChatPlexSDK.Logger.Error("[SDK.Game][BeatMapsClient] Failed to download Song!");
             }
 
             return (false, "");
@@ -456,7 +468,7 @@ namespace BeatSaberPlus.SDK.Game
         /// <param name="p_CustomSongsPath">Extract path</param>
         /// <param name="p_Overwrite">Should overwrite ?</param>
         /// <returns></returns>
-        private static async Task<(bool, string)> ExtractZipAsync(CancellationToken p_Token, BeatMaps.MapDetail p_Song, BeatMaps.MapVersion p_Version, byte[] p_ZIPBytes, string p_CustomSongsPath, bool p_Overwrite = false)
+        private static (bool, string) ExtractZipAsync(CancellationToken p_Token, BeatMaps.MapDetail p_Song, BeatMaps.MapVersion p_Version, byte[] p_ZIPBytes, string p_CustomSongsPath, bool p_Overwrite = false)
         {
             /*
                Code from https://github.com/Kylemc1413/BeatSaverDownloader
@@ -490,7 +502,7 @@ namespace BeatSaberPlus.SDK.Game
 
             try
             {
-                Logger.Instance?.Info("[SDK.Game][BeatMapsClient] Extracting...");
+                CP_SDK.ChatPlexSDK.Logger.Info("[SDK.Game][BeatMapsClient] Extracting...");
 
                 /// Create ZIP archive
                 ZipArchive l_ZIPArchive = new ZipArchive(l_ZIPStream, ZipArchiveMode.Read);
@@ -518,20 +530,21 @@ namespace BeatSaberPlus.SDK.Game
                 if (!Directory.Exists(l_OutPath))
                     Directory.CreateDirectory(l_OutPath);
 
-                Logger.Instance?.Info("[SDK.Game][BeatMapsClient] " + l_OutPath);
+                CP_SDK.ChatPlexSDK.Logger.Info("[SDK.Game][BeatMapsClient] " + l_OutPath);
 
-                await Task.Run(() =>
+                foreach (var l_Entry in l_ZIPArchive.Entries)
                 {
-                    foreach (var l_Entry in l_ZIPArchive.Entries)
-                    {
-                        /// Name instead of FullName for better security and because song zips don't have nested directories anyway
-                        var l_EntryPath = Path.Combine(l_OutPath, l_Entry.Name);
+                    /// Most likely a folder
+                    if (string.IsNullOrEmpty(l_Entry.Name.Trim()) || l_Entry.Name != l_Entry.FullName)
+                        continue;
 
-                        /// Either we're overwriting or there's no existing file
-                        if (p_Overwrite || !File.Exists(l_EntryPath))
-                            l_Entry.ExtractToFile(l_EntryPath, p_Overwrite);
-                    }
-                }).ConfigureAwait(false);
+                    /// Name instead of FullName for better security and because song zips don't have nested directories anyway
+                    var l_EntryPath = Path.Combine(l_OutPath, l_Entry.Name);
+
+                    /// Either we're overwriting or there's no existing file
+                    if (p_Overwrite || !File.Exists(l_EntryPath))
+                        l_Entry.ExtractToFile(l_EntryPath, p_Overwrite);
+                }
 
                 l_ZIPArchive.Dispose();
                 l_ZIPStream.Close();
@@ -545,8 +558,8 @@ namespace BeatSaberPlus.SDK.Game
                 if (p_Exception is TaskCanceledException)
                     throw p_Exception;
 
-                Logger.Instance?.Critical("[SDK.Game][BeatMapsClient] Unable to extract ZIP! Exception");
-                Logger.Instance?.Critical(p_Exception);
+                CP_SDK.ChatPlexSDK.Logger.Error("[SDK.Game][BeatMapsClient] Unable to extract ZIP! Exception");
+                CP_SDK.ChatPlexSDK.Logger.Error(p_Exception);
             }
 
             return (false, "");
@@ -571,8 +584,8 @@ namespace BeatSaberPlus.SDK.Game
             }
             catch (Exception l_Exception)
             {
-                Logger.Instance.Error("[SDK.Game][BeatMapsClient.GetObjectFromJsonString] Error :");
-                Logger.Instance.Error(l_Exception);
+                CP_SDK.ChatPlexSDK.Logger.Error("[SDK.Game][BeatMapsClient.GetObjectFromJsonString] Error :");
+                CP_SDK.ChatPlexSDK.Logger.Error(l_Exception);
                 return false;
             }
 

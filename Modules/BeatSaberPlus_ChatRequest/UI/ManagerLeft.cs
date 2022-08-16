@@ -48,7 +48,7 @@ namespace BeatSaberPlus_ChatRequest.UI
             if (m_SafeButton == null)
                 return;
 
-            if (CRConfig.Instance.SafeMode)
+            if (CRConfig.Instance.SafeMode2)
                 m_SafeButton.GetComponentInChildren<CurvedTextMeshPro>().text = "DISABLE SAFE MODE";
             else
                 m_SafeButton.GetComponentInChildren<CurvedTextMeshPro>().text = "ENABLE SAFE MODE";
@@ -88,11 +88,12 @@ namespace BeatSaberPlus_ChatRequest.UI
         [UIAction("click-btn-safe")]
         private void OnSafeModeButton()
         {
-            if (CRConfig.Instance.SafeMode)
+            if (CRConfig.Instance.SafeMode2)
             {
                 ShowConfirmationModal("<color=yellow><b>Do you really want to disable safe mode?", () =>
                 {
-                    CRConfig.Instance.SafeMode = false;
+                    CRConfig.Instance.SafeMode2 = false;
+                    CRConfig.Instance.Save();
                     UpdateSafeMode();
                 });
             }
@@ -100,7 +101,8 @@ namespace BeatSaberPlus_ChatRequest.UI
             {
                 ShowConfirmationModal("<color=yellow><b>Do you really want to enable safe mode?\nThis will hide all song name & uploader in chat.", () =>
                 {
-                    CRConfig.Instance.SafeMode = true;
+                    CRConfig.Instance.SafeMode2 = true;
+                    CRConfig.Instance.Save();
                     UpdateSafeMode();
                 });
             }

@@ -1,4 +1,15 @@
-﻿using BeatSaberPlus.SDK.Chat.Models;
+﻿namespace BeatSaberPlus.SDK.Animation
+{
+    public enum AnimationType
+    {
+        NONE,
+        GIF,
+        APNG,
+        WEBP,
+        AUTODETECT
+    }
+}
+
 
 namespace BeatSaberPlus.SDK.Chat.Interfaces
 {

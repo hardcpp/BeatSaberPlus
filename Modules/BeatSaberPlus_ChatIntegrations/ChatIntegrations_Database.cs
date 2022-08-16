@@ -25,7 +25,7 @@ namespace BeatSaberPlus_ChatIntegrations
                     if (!File.Exists(s_DATABASE_FILE))
                         File.Move(s_OLD_DATABASE_FILE, s_DATABASE_FILE);
                     else
-                        File.Move(s_OLD_DATABASE_FILE, s_DATABASE_FILE + BeatSaberPlus.SDK.Misc.Time.UnixTimeNow());
+                        File.Move(s_OLD_DATABASE_FILE, s_DATABASE_FILE + CP_SDK.Misc.Time.UnixTimeNow());
                 }
             }
             catch
@@ -59,7 +59,7 @@ namespace BeatSaberPlus_ChatIntegrations
                 Logger.Instance?.Error("[Modules.ChatIntegrations][ChatIntegrations.LoadDatabase] Failed");
                 Logger.Instance?.Error(l_Exception);
 
-                try { File.Move(s_DATABASE_FILE, s_DATABASE_FILE + BeatSaberPlus.SDK.Misc.Time.UnixTimeNow()); }
+                try { File.Move(s_DATABASE_FILE, s_DATABASE_FILE + CP_SDK.Misc.Time.UnixTimeNow()); }
                 catch { }
             }
 
@@ -97,7 +97,7 @@ namespace BeatSaberPlus_ChatIntegrations
 
                 if (!string.IsNullOrEmpty(l_OldJSONContent))
                 {
-                    try { File.WriteAllText(s_DATABASE_FILE + BeatSaberPlus.SDK.Misc.Time.UnixTimeNow(), l_OldJSONContent, Encoding.Unicode); }
+                    try { File.WriteAllText(s_DATABASE_FILE + CP_SDK.Misc.Time.UnixTimeNow(), l_OldJSONContent, Encoding.Unicode); }
                     catch { }
                 }
             }

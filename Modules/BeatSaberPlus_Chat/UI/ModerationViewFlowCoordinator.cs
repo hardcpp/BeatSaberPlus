@@ -1,7 +1,7 @@
 ﻿using HMUI;
 using UnityEngine;
 
-namespace BeatSaberPlus_Chat.UI
+namespace ChatPlexMod_Chat.UI
 {
     /// <summary>
     /// Moderation UI flow coordinator

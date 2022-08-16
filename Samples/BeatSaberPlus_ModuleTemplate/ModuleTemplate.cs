@@ -6,12 +6,12 @@ namespace BeatSaberPlus_ModuleTemplate
     /// <summary>
     /// Online instance
     /// </summary>
-    internal class ModuleTemplate : BeatSaberPlus.SDK.ModuleBase<ModuleTemplate>
+    internal class ModuleTemplate : BeatSaberPlus.SDK.BSPModuleBase<ModuleTemplate>
     {
         /// <summary>
         /// Module type
         /// </summary>
-        public override BeatSaberPlus.SDK.IModuleBaseType Type => BeatSaberPlus.SDK.IModuleBaseType.Integrated;
+        public override CP_SDK.EIModuleBaseType Type => CP_SDK.EIModuleBaseType.Integrated;
         /// <summary>
         /// Name of the Module
         /// </summary>
@@ -31,7 +31,7 @@ namespace BeatSaberPlus_ModuleTemplate
         /// <summary>
         /// Activation kind
         /// </summary>
-        public override BeatSaberPlus.SDK.IModuleBaseActivationType ActivationType => BeatSaberPlus.SDK.IModuleBaseActivationType.OnStart;
+        public override CP_SDK.EIModuleBaseActivationType ActivationType => CP_SDK.EIModuleBaseActivationType.OnStart;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////

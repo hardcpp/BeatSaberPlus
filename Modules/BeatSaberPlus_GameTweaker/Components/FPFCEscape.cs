@@ -20,8 +20,9 @@ namespace BeatSaberPlus_GameTweaker.Components
         {
             get
             {
-                if (m_IPauseMenuManager == null)
+                if (!m_IPauseMenuManager)
                     m_IPauseMenuManager = Resources.FindObjectsOfTypeAll<PauseMenuManager>().FirstOrDefault();
+
                 return m_IPauseMenuManager;
             }
         }
@@ -33,8 +34,9 @@ namespace BeatSaberPlus_GameTweaker.Components
         {
             get
             {
-                if (m_IPauseController == null)
+                if (!m_IPauseController)
                     m_IPauseController = Resources.FindObjectsOfTypeAll<PauseController>().FirstOrDefault();
+
                 return m_IPauseController;
             }
         }
@@ -56,7 +58,8 @@ namespace BeatSaberPlus_GameTweaker.Components
         private void Update()
         {
             /// Don't activate in menu
-            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene != BeatSaberPlus.SDK.Game.Logic.SceneType.Playing)
+            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene != BeatSaberPlus.SDK.Game.Logic.SceneType.Playing
+                || BeatSaberPlus.SDK.Game.Logic.LevelData?.Type == BeatSaberPlus.SDK.Game.LevelType.Multiplayer)
                 return;
 
             /// Wait for components

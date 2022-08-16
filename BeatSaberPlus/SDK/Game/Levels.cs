@@ -107,11 +107,14 @@ namespace BeatSaberPlus.SDK.Game
             {
                 if (l_Level is PreviewBeatmapLevelSO)
                 {
-                    if (!await HasDLCLevel(l_Level.levelID))
+                    if (!await HasDLCLevel(l_Level.levelID).ConfigureAwait(false))
+                    {
+                        p_LoadCallback(null);
                         return; /// In the case of unowned DLC, just bail out and do nothing
+                    }
                 }
 
-                var l_Result = await GetLevelFromPreview(l_Level);
+                var l_Result = await GetLevelFromPreview(l_Level).ConfigureAwait(false);
                 if (l_Result != null && !(l_Result?.isError == true))
                 {
                     /// HTTPstatus requires cover texture to be applied in here
@@ -120,6 +123,8 @@ namespace BeatSaberPlus.SDK.Game
 
                     p_LoadCallback(l_LoadedLevel);
                 }
+                else
+                    p_LoadCallback(null);
             }
             else if (l_Level is BeatmapLevelSO)
             {
@@ -137,47 +142,29 @@ namespace BeatSaberPlus.SDK.Game
         /// <param name="p_GameplayModifiers">Modifiers</param>
         /// <param name="p_PlayerSettings">Player settings</param>
         /// <param name="p_SongFinishedCallback">Callback when the song is finished</param>
-        public static async void PlaySong(  IPreviewBeatmapLevel            p_Level,
-                                            BeatmapCharacteristicSO         p_Characteristic,
-                                            BeatmapDifficulty               p_Difficulty,
-                                            OverrideEnvironmentSettings     p_OverrideEnvironmentSettings   = null,
-                                            ColorScheme                     p_ColorScheme                   = null,
-                                            GameplayModifiers               p_GameplayModifiers             = null,
-                                            PlayerSpecificSettings          p_PlayerSettings                = null,
-                                            Action<StandardLevelScenesTransitionSetupDataSO, LevelCompletionResults, IDifficultyBeatmap> p_SongFinishedCallback = null)
+        public static void PlaySong(IBeatmapLevel                   p_Level,
+                                    BeatmapCharacteristicSO         p_Characteristic,
+                                    BeatmapDifficulty               p_Difficulty,
+                                    OverrideEnvironmentSettings     p_OverrideEnvironmentSettings   = null,
+                                    ColorScheme                     p_ColorScheme                   = null,
+                                    GameplayModifiers               p_GameplayModifiers             = null,
+                                    PlayerSpecificSettings          p_PlayerSettings                = null,
+                                    Action<StandardLevelScenesTransitionSetupDataSO, LevelCompletionResults, IDifficultyBeatmap> p_SongFinishedCallback = null,
+                                    string                          p_MenuButtonText                = "Menu")
         {
-             /*
-                Code from https://github.com/MatrikMoon/TournamentAssistant
+            if (p_Level == null || p_Level.beatmapLevelData == null)
+                return;
 
-                MIT License
-
-                Permission is hereby granted, free of charge, to any person obtaining a copy
-                of this software and associated documentation files (the "Software"), to deal
-                in the Software without restriction, including without limitation the rights
-                to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-                copies of the Software, and to permit persons to whom the Software is
-                furnished to do so, subject to the following conditions:
-
-                The above copyright notice and this permission notice shall be included in all
-                copies or substantial portions of the Software.
-
-                THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-                IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-                FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-                AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-                LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-                OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-                SOFTWARE.
-            */
-
-            Action<IBeatmapLevel> l_SongLoaded = (p_LoadedLevel) =>
+            try
             {
+                Scoring.BeatLeader_ManualWarmUpSubmission();
+
                 MenuTransitionsHelper l_MenuSceneSetupData = Resources.FindObjectsOfTypeAll<MenuTransitionsHelper>().First();
 
-                var l_DifficultyBeatmap = p_LoadedLevel.beatmapLevelData.GetDifficultyBeatmap(p_Characteristic, p_Difficulty);
+                var l_DifficultyBeatmap = p_Level.beatmapLevelData.GetDifficultyBeatmap(p_Characteristic, p_Difficulty);
 
                 l_MenuSceneSetupData.StartStandardLevel(
-                    p_Characteristic.name,
+                    "Solo",
                     l_DifficultyBeatmap,
                     p_Level,
                     p_OverrideEnvironmentSettings,
@@ -185,36 +172,17 @@ namespace BeatSaberPlus.SDK.Game
                     p_GameplayModifiers ?? new GameplayModifiers(),
                     p_PlayerSettings    ?? new PlayerSpecificSettings(),
                     null,
-                    "Menu",
+                    p_MenuButtonText,
                     false,
                     false,
                     null,
                     (p_StandardLevelScenesTransitionSetupData, p_Results) => p_SongFinishedCallback?.Invoke(p_StandardLevelScenesTransitionSetupData, p_Results, l_DifficultyBeatmap)
                 );
-            };
-
-            if ((p_Level is PreviewBeatmapLevelSO && await HasDLCLevel(p_Level.levelID)) || p_Level is CustomPreviewBeatmapLevel)
-            {
-                Logger.Instance?.Debug("[SDK.Game][Level.PlaySong] Loading DLC/Custom level...");
-
-                var l_Result = await GetLevelFromPreview(p_Level);
-                if (l_Result != null && !(l_Result?.isError == true))
-                {
-                    /// HTTPstatus requires cover texture to be applied in here, and due to a fluke
-                    var l_LoadedLevel = l_Result?.beatmapLevel;
-                    //l_LoadedLevel.SetField("_coverImageTexture2D", p_Level.GetField<Texture2D>("_coverImageTexture2D"));
-
-                    l_SongLoaded(l_LoadedLevel);
-                }
             }
-            else if (p_Level is BeatmapLevelSO)
+            catch (Exception l_Exception)
             {
-                Logger.Instance?.Debug("[SDK.Game][Level.PlaySong] Reading OST data without songloader...");
-                l_SongLoaded(p_Level as IBeatmapLevel);
-            }
-            else
-            {
-                Logger.Instance?.Debug($"[SDK.Game][Level.PlaySong] Skipping unowned DLC ({p_Level.songName})");
+                CP_SDK.ChatPlexSDK.Logger.Error($"[SDK.Game][Level.PlaySong] Error:");
+                CP_SDK.ChatPlexSDK.Logger.Error(l_Exception);
             }
         }
 
@@ -265,7 +233,7 @@ namespace BeatSaberPlus.SDK.Game
 
                 try
                 {
-                    l_Result = await p_BeatmapLevelsModel.GetBeatmapLevelAsync(p_Level.levelID, l_Token);
+                    l_Result = await p_BeatmapLevelsModel.GetBeatmapLevelAsync(p_Level.levelID, l_Token).ConfigureAwait(false);
                 }
                 catch (OperationCanceledException)
                 {
@@ -359,7 +327,7 @@ namespace BeatSaberPlus.SDK.Game
             else if (l_LowerCase == "expertplus")
                 return "Expert+";
 
-            Logger.Instance?.Error($"[SDK.Game][Level.SerializedToDifficultyName] Unknown serialized difficulty \"{p_SerializedName}\", fall back to \"? Expert+ ?\"");
+            CP_SDK.ChatPlexSDK.Logger.Error($"[SDK.Game][Level.SerializedToDifficultyName] Unknown serialized difficulty \"{p_SerializedName}\", fall back to \"? Expert+ ?\"");
 
             return "? Expert+ ?";
         }
@@ -382,9 +350,32 @@ namespace BeatSaberPlus.SDK.Game
             else if (l_LowerCase == "expertplus")
                 return BeatmapDifficulty.ExpertPlus;
 
-            Logger.Instance?.Error($"[SDK.Game][Level.SerializedToDifficulty] Unknown serialized difficulty \"{p_SerializedName}\", fall back to ExpertPlus");
+            CP_SDK.ChatPlexSDK.Logger.Error($"[SDK.Game][Level.SerializedToDifficulty] Unknown serialized difficulty \"{p_SerializedName}\", fall back to ExpertPlus");
 
             return BeatmapDifficulty.ExpertPlus;
+        }
+        /// <summary>
+        /// Serialized to difficulty
+        /// </summary>
+        /// <param name="p_SerializedName">Serialized name</param>
+        /// <returns></returns>
+        public static string SerializedShortToDifficultyName(string p_SerializedName)
+        {
+            var l_LowerCase = p_SerializedName.ToLower();
+            if (l_LowerCase == "easy")
+                return "E";
+            else if (l_LowerCase == "normal")
+                return "N";
+            else if (l_LowerCase == "hard")
+                return "H";
+            else if (l_LowerCase == "expert")
+                return "Ex";
+            else if (l_LowerCase == "expertplus")
+                return "Ex+";
+
+            CP_SDK.ChatPlexSDK.Logger.Error($"[SDK.Game][Level.SerializedShortToDifficultyName] Unknown serialized difficulty \"{p_SerializedName}\", fall back to ExpertPlus");
+
+            return "E+";
         }
 
         ////////////////////////////////////////////////////////////////////////////

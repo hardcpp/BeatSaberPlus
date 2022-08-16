@@ -5,7 +5,7 @@ using HMUI;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace BeatSaberPlus_ChatEmoteRain.UI
+namespace ChatPlexMod_ChatEmoteRain.UI
 {
     /// <summary>
     /// Chat Emote Rain settings right view

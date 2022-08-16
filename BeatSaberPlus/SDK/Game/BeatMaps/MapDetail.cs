@@ -84,13 +84,13 @@ namespace BeatSaberPlus.SDK.Game.BeatMaps
         /// <returns></returns>
         public DateTime GetUploadTime()
         {
-            if (!string.IsNullOrEmpty(uploaded) && Misc.Time.TryParseInternational(uploaded, out var l_Date))
+            if (!string.IsNullOrEmpty(uploaded) && CP_SDK.Misc.Time.TryParseInternational(uploaded, out var l_Date))
                 return l_Date;
             else if (string.IsNullOrEmpty(uploaded) && versions != null & versions.Length >= 1
-                && Misc.Time.TryParseInternational(SelectMapVersion().createdAt, out l_Date))
+                && CP_SDK.Misc.Time.TryParseInternational(SelectMapVersion().createdAt, out l_Date))
                 return l_Date;
 
-            return Misc.Time.FromUnixTime(0);
+            return CP_SDK.Misc.Time.FromUnixTime(0);
         }
     }
 }

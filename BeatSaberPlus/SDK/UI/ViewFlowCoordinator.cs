@@ -47,7 +47,7 @@ namespace BeatSaberPlus.SDK.UI
         /// <returns></returns>
         public static T Instance()
         {
-            if (m_Instance == null)
+            if (!m_Instance)
                 m_Instance = BeatSaberUI.CreateFlowCoordinator<T>();
 
             return m_Instance;
@@ -129,7 +129,7 @@ namespace BeatSaberPlus.SDK.UI
         /// Present this ViewFlowCoordinator
         /// </summary>
         /// <param name="p_IgnoreBackuping">Ignore existing flow coordinator</param>
-        public void Present(bool p_IgnoreBackuping = false)
+        public virtual void Present(bool p_IgnoreBackuping = false)
         {
             if (IsFlowCoordinatorInHierarchy(this))
                 return;
@@ -159,7 +159,7 @@ namespace BeatSaberPlus.SDK.UI
         /// <summary>
         /// Dismiss this ViewFlowCoordinator
         /// </summary>
-        public void Dismiss()
+        public virtual void Dismiss()
         {
             m_SwitchQueue.Clear();
             m_IsDequeueEngaged = false;
@@ -225,11 +225,11 @@ namespace BeatSaberPlus.SDK.UI
                 DequeueViewController();
             if (!m_IsDequeueEngaged && (!topViewController.isActiveAndEnabled || topViewController.isInTransition))
             {
-                if (topViewController is SDK.UI.IViewController)
-                    (topViewController as SDK.UI.IViewController).ShowViewTransitionLoading();
+                if (topViewController is IViewController)
+                    (topViewController as IViewController).ShowViewTransitionLoading();
 
                 m_IsDequeueEngaged = true;
-                SharedCoroutineStarter.instance.StartCoroutine(DequeueViewControllerWhileOldInTransition());
+                CP_SDK.Unity.MTCoroutineStarter.Start(DequeueViewControllerWhileOldInTransition());
             }
         }
         /// <summary>

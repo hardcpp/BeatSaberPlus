@@ -10,12 +10,12 @@ namespace BeatSaberPlus_GameTweaker
     /// <summary>
     /// Game Tweaker instance
     /// </summary>
-    internal class GameTweaker : BeatSaberPlus.SDK.ModuleBase<GameTweaker>
+    internal class GameTweaker : BeatSaberPlus.SDK.BSPModuleBase<GameTweaker>
     {
         /// <summary>
         /// Module type
         /// </summary>
-        public override BeatSaberPlus.SDK.IModuleBaseType Type => BeatSaberPlus.SDK.IModuleBaseType.Integrated;
+        public override CP_SDK.EIModuleBaseType Type => CP_SDK.EIModuleBaseType.Integrated;
         /// <summary>
         /// Name of the Module
         /// </summary>
@@ -35,7 +35,7 @@ namespace BeatSaberPlus_GameTweaker
         /// <summary>
         /// Activation kind
         /// </summary>
-        public override BeatSaberPlus.SDK.IModuleBaseActivationType ActivationType => BeatSaberPlus.SDK.IModuleBaseActivationType.OnMenuSceneLoaded;
+        public override CP_SDK.EIModuleBaseActivationType ActivationType => CP_SDK.EIModuleBaseActivationType.OnMenuSceneLoaded;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -220,7 +220,7 @@ namespace BeatSaberPlus_GameTweaker
                 return;
 
             var l_DeleteCount = CleanLogsInFolder("Logs", p_EntriesToKeep);
-            Logger.Instance.Warn("[GameTweaker] CleanLogs, " + l_DeleteCount + " old logs entry deleted!");
+            Logger.Instance.Warning("[GameTweaker] CleanLogs, " + l_DeleteCount + " old logs entry deleted!");
         }
         /// <summary>
         /// Clean logs in folder

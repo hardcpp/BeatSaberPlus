@@ -2,7 +2,7 @@
 
 namespace BeatSaberPlus_ChatIntegrations
 {
-    internal class CIConfig : BeatSaberPlus.SDK.Config.JsonConfig<CIConfig>
+    internal class CIConfig : CP_SDK.Config.JsonConfig<CIConfig>
     {
         [JsonProperty] internal bool Enabled = false;
         [JsonProperty] internal string DataLocation = "UserData/BeatSaberPlus/ChatIntegrations/";
@@ -15,7 +15,7 @@ namespace BeatSaberPlus_ChatIntegrations
         /// </summary>
         /// <returns></returns>
         public override string GetRelativePath()
-            => "BeatSaberPlus/ChatIntegrations/Config";
+            => $"{CP_SDK.ChatPlexSDK.ProductName}/ChatIntegrations/Config";
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////

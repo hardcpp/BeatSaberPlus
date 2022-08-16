@@ -5,7 +5,7 @@ namespace BeatSaberPlus_ModuleTemplate
     /// <summary>
     /// Config class helper
     /// </summary>
-    internal class MTConfig : BeatSaberPlus.SDK.Config.JsonConfig<MTConfig>
+    internal class MTConfig : CP_SDK.Config.JsonConfig<MTConfig>
     {
         [JsonProperty] internal bool Enabled = true;
         [JsonProperty] internal bool TemplateSetting = false;
@@ -18,7 +18,7 @@ namespace BeatSaberPlus_ModuleTemplate
         /// </summary>
         /// <returns></returns>
         public override string GetRelativePath()
-            => "BeatSaberPlus/ModuleTemplate/Config";
+            => $"{CP_SDK.ChatPlexSDK.ProductName}/ModuleTemplate/Config";
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////

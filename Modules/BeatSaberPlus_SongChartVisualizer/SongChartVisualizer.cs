@@ -9,12 +9,12 @@ namespace BeatSaberPlus_SongChartVisualizer
     /// <summary>
     /// SongChartVisualizer Module
     /// </summary>
-    public class SongChartVisualizer : BeatSaberPlus.SDK.ModuleBase<SongChartVisualizer>
+    public class SongChartVisualizer : BeatSaberPlus.SDK.BSPModuleBase<SongChartVisualizer>
     {
         /// <summary>
         /// Module type
         /// </summary>
-        public override BeatSaberPlus.SDK.IModuleBaseType Type => BeatSaberPlus.SDK.IModuleBaseType.Integrated;
+        public override CP_SDK.EIModuleBaseType Type => CP_SDK.EIModuleBaseType.Integrated;
         /// <summary>
         /// Name of the Module
         /// </summary>
@@ -34,7 +34,7 @@ namespace BeatSaberPlus_SongChartVisualizer
         /// <summary>
         /// Activation kind
         /// </summary>
-        public override BeatSaberPlus.SDK.IModuleBaseActivationType ActivationType => BeatSaberPlus.SDK.IModuleBaseActivationType.OnMenuSceneLoaded;
+        public override CP_SDK.EIModuleBaseActivationType ActivationType => CP_SDK.EIModuleBaseActivationType.OnMenuSceneLoaded;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -116,7 +116,7 @@ namespace BeatSaberPlus_SongChartVisualizer
                 return;
 
             /// Start the task
-            SharedCoroutineStarter.instance.StartCoroutine(CreateChartVisualizer());
+            CP_SDK.Unity.MTCoroutineStarter.Start(CreateChartVisualizer());
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -128,7 +128,7 @@ namespace BeatSaberPlus_SongChartVisualizer
         internal void RefreshPreview()
         {
             DestroyChart();
-            SharedCoroutineStarter.instance.StartCoroutine(CreateChartVisualizer());
+            CP_SDK.Unity.MTCoroutineStarter.Start(CreateChartVisualizer());
         }
         /// <summary>
         /// Destroy the preview

@@ -135,6 +135,10 @@ namespace BeatSaberPlus_GameTweaker.Patches
             private TextMeshProUGUI m_DeleteConfirmationText;
             [UIComponent("delete-button")]
             private Button m_DeleteButton;
+            [UIComponent("dodelete-button")]
+            private Button m_DoDeleteButton;
+            [UIComponent("docancel-button")]
+            private Button m_DoCancelButton;
 #pragma warning restore CS0649
 
             ////////////////////////////////////////////////////////////////////////////
@@ -161,8 +165,8 @@ namespace BeatSaberPlus_GameTweaker.Patches
                 l_View += "    <text id='delete-confirmation-text' font-size='3.6' font-align='Center' overflow-mode='Overflow' word-wrapping='true' />";
                 l_View += "   </vertical>";
                 l_View += "   <horizontal preferred-width='80' preferred-height='12' spacing='6' pad-bottom='4' pad-left='4' pad-right='4'> ";
-                l_View += "    <button text='Delete' font-size='3.4' stroke-color='#FF5555' preferred-width='30' on-click='confirm-delete-button-clicked' />";
-                l_View += "    <button text='Cancel' font-size='3.4' preferred-width='30' click-event='hide-delete-confirmation-modal' />";
+                l_View += "    <button id='dodelete-button' text='Delete' font-size='3.4' stroke-color='#FF5555' preferred-width='30' on-click='confirm-delete-button-clicked' />";
+                l_View += "    <button id='docancel-button' text='Cancel' font-size='3.4' preferred-width='30' click-event='hide-delete-confirmation-modal' />";
                 l_View += "   </horizontal>";
                 l_View += "  </vertical>";
                 l_View += " </modal>";
@@ -177,6 +181,9 @@ namespace BeatSaberPlus_GameTweaker.Patches
                     m_DeleteButton.transform.SetParent(l_ActionButtons, false);
                     m_DeleteButton.gameObject.SetActive(true);
                 }
+
+                m_DoDeleteButton.gameObject.SetActive(true);
+                m_DoCancelButton.gameObject.SetActive(true);
 
                 var l_LevelCollectionViewController = Resources.FindObjectsOfTypeAll<LevelCollectionViewController>().FirstOrDefault();
                 if (l_LevelCollectionViewController != null)
@@ -223,7 +230,7 @@ namespace BeatSaberPlus_GameTweaker.Patches
                 IBeatmapLevel l_LevelToDelete = standardLevelDetailView.GetField<IBeatmapLevel, StandardLevelDetailView>("_level");
                 if (l_LevelToDelete != null && l_LevelToDelete is CustomBeatmapLevel customLevel)
                 {
-                    m_DeleteConfirmationText.text = $"Are you sure you would like to delete '<color=#FFFFCC>{BeatSaberPlus.SDK.Unity.TextMeshPro.EscapeString(customLevel.songName)}</color>' by {BeatSaberPlus.SDK.Unity.TextMeshPro.EscapeString(customLevel.levelAuthorName)}?";
+                    m_DeleteConfirmationText.text = $"Are you sure you would like to delete '<color=#FFFFCC>{CP_SDK.Unity.TextMeshProU.EscapeString(customLevel.songName)}</color>' by {CP_SDK.Unity.TextMeshProU.EscapeString(customLevel.levelAuthorName)}?";
                     m_ParserParams.EmitEvent("show-delete-confirmation-modal");
                 }
             }

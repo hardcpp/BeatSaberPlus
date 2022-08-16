@@ -78,6 +78,7 @@ namespace BeatSaberPlus_GameTweaker.UI
         [UIComponent("MainMenuTab_LevelFailedColor")]               private ColorSetting m_MainMenuTab_LevelFailedColor;
         [UIComponent("MainMenuTab_DisableEditorButton")]            private ToggleSetting m_MainMenuTab_DisableEditorButton;
         [UIComponent("MainMenuTab_RemoveNewContentPromotional")]    private ToggleSetting m_MainMenuTab_RemoveNewContentPromotional;
+        [UIComponent("MainMenuTab_DisableFireworks")]               private ToggleSetting m_MainMenuTab_DisableFireworks;
         #endregion
 
         ////////////////////////////////////////////////////////////////////////////
@@ -186,6 +187,7 @@ namespace BeatSaberPlus_GameTweaker.UI
             BeatSaberPlus.SDK.UI.ColorSetting.Setup(m_MainMenuTab_LevelFailedColor,             l_Event4, GTConfig.Instance.MainMenu.LevelFailedColor,               true);
             BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_MainMenuTab_DisableEditorButton,         l_Event,  GTConfig.Instance.MainMenu.DisableEditorButtonOnMainMenu,  true);
             BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_MainMenuTab_RemoveNewContentPromotional, l_Event,  GTConfig.Instance.MainMenu.RemoveNewContentPromotional,    true);
+            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_MainMenuTab_DisableFireworks,            l_Event,  GTConfig.Instance.MainMenu.DisableFireworks,               true);
             #endregion
 
             #region Tools Tab
@@ -273,6 +275,7 @@ namespace BeatSaberPlus_GameTweaker.UI
             GTConfig.Instance.MainMenu.LevelFailedColor                 = m_MainMenuTab_LevelFailedColor.CurrentColor;
             GTConfig.Instance.MainMenu.DisableEditorButtonOnMainMenu    = m_MainMenuTab_DisableEditorButton.Value;
             GTConfig.Instance.MainMenu.RemoveNewContentPromotional      = m_MainMenuTab_RemoveNewContentPromotional.Value;
+            GTConfig.Instance.MainMenu.DisableFireworks                 = m_MainMenuTab_DisableFireworks.Value;
 
             m_MainMenuTab_BaseColor.interactable            = GTConfig.Instance.MainMenu.OverrideMenuEnvColors;
             m_MainMenuTab_LevelClearedColor.interactable    = GTConfig.Instance.MainMenu.OverrideMenuEnvColors;
@@ -368,6 +371,7 @@ namespace BeatSaberPlus_GameTweaker.UI
             m_MainMenuTab_LevelFailedColor.CurrentColor     = GTConfig.Instance.MainMenu.LevelFailedColor;
             m_MainMenuTab_DisableEditorButton.Value         = GTConfig.Instance.MainMenu.DisableEditorButtonOnMainMenu;
             m_MainMenuTab_RemoveNewContentPromotional.Value = GTConfig.Instance.MainMenu.RemoveNewContentPromotional;
+            m_MainMenuTab_DisableFireworks.Value            = GTConfig.Instance.MainMenu.DisableFireworks;
             #endregion
 
             #region Tools Tab

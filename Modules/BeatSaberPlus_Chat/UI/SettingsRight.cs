@@ -1,7 +1,7 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components.Settings;
 
-namespace BeatSaberPlus_Chat.UI
+namespace ChatPlexMod_Chat.UI
 {
     /// <summary>
     /// Chat filters settings
@@ -95,7 +95,7 @@ namespace BeatSaberPlus_Chat.UI
             CConfig.Instance.FilterBroadcasterCommands   = m_ChatFilterBroadcaster.Value;
 
             /// Update floating view
-            Chat.Instance.UpdateFloatingWindow(BeatSaberPlus.SDK.Game.Logic.ActiveScene, false);
+            Chat.Instance.UpdateFloatingWindow(CP_SDK.ChatPlexSDK.ActiveGenericScene, false);
         }
 
         ////////////////////////////////////////////////////////////////////////////

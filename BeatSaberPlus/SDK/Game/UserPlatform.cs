@@ -79,8 +79,8 @@ namespace BeatSaberPlus.SDK.Game
             }
             catch (System.Exception l_Exception)
             {
-                Logger.Instance?.Error("[SDK.Game][UserPlatform] Unable to find user platform informations");
-                Logger.Instance?.Error(l_Exception);
+                CP_SDK.ChatPlexSDK.Logger.Error("[SDK.Game][UserPlatform] Unable to find user platform informations");
+                CP_SDK.ChatPlexSDK.Logger.Error(l_Exception);
             }
         }
     }

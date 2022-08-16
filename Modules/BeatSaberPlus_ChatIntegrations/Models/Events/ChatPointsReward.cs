@@ -37,7 +37,7 @@ namespace BeatSaberPlus_ChatIntegrations.Models.Events
         public ChatPointsReward()
         {
             Name = "New chat points reward event";
-            Title = "New reward " + BeatSaberPlus.SDK.Misc.Time.UnixTimeNow();
+            Title = "New reward " + CP_SDK.Misc.Time.UnixTimeNow();
         }
     }
 }

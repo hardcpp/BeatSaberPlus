@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using UnityEngine;
 
-namespace BeatSaberPlus_ChatEmoteRain.UI
+namespace ChatPlexMod_ChatEmoteRain.UI
 {
     /// <summary>
     /// Emote rain settings credits view
@@ -71,7 +71,7 @@ namespace BeatSaberPlus_ChatEmoteRain.UI
         private void OnWebConfigurationButton()
         {
             ShowMessageModal("URL opened in your desktop browser.");
-            BeatSaberPlus.SDK.Chat.Service.OpenWebConfigurator();
+            CP_SDK.Chat.Service.OpenWebConfigurator();
         }
 
         ////////////////////////////////////////////////////////////////////////////

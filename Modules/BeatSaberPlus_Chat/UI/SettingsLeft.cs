@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using UnityEngine;
 
-namespace BeatSaberPlus_Chat.UI
+namespace ChatPlexMod_Chat.UI
 {
     /// <summary>
     /// Stream chat credits
@@ -56,7 +56,7 @@ namespace BeatSaberPlus_Chat.UI
                 SettingsRight.Instance.RefreshSettings();
 
                 /// Update floating view
-                Chat.Instance.UpdateFloatingWindow(BeatSaberPlus.SDK.Game.Logic.ActiveScene, true);
+                Chat.Instance.UpdateFloatingWindow(CP_SDK.ChatPlexSDK.ActiveGenericScene, true);
             });
         }
         /// <summary>
@@ -76,7 +76,7 @@ namespace BeatSaberPlus_Chat.UI
                 SettingsRight.Instance.RefreshSettings();
 
                 /// Update floating view
-                Chat.Instance.UpdateFloatingWindow(BeatSaberPlus.SDK.Game.Logic.ActiveScene, true);
+                Chat.Instance.UpdateFloatingWindow(CP_SDK.ChatPlexSDK.ActiveGenericScene, true);
             });
         }
         /// <summary>
@@ -86,7 +86,7 @@ namespace BeatSaberPlus_Chat.UI
         private void OnWebConfigurationButton()
         {
             ShowMessageModal("URL opened in your desktop browser.");
-            BeatSaberPlus.SDK.Chat.Service.OpenWebConfigurator();
+            CP_SDK.Chat.Service.OpenWebConfigurator();
         }
 
         ////////////////////////////////////////////////////////////////////////////

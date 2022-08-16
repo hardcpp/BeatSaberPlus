@@ -46,14 +46,15 @@ namespace BeatSaberPlus.SDK.UI.DataSource
         {
             SimpleTextTableCell l_Cell = GetTableCell();
 
-            l_Cell.GetField<TextMeshProUGUI, SimpleTextTableCell>("_text").richText             = true;
-            l_Cell.GetField<TextMeshProUGUI, SimpleTextTableCell>("_text").enableWordWrapping   = true;
-            l_Cell.GetField<TextMeshProUGUI, SimpleTextTableCell>("_text").fontStyle            = FontStyles.Normal;
-            l_Cell.GetField<TextMeshProUGUI, SimpleTextTableCell>("_text").enableAutoSizing     = true;
-            l_Cell.GetField<TextMeshProUGUI, SimpleTextTableCell>("_text").fontSizeMin          = 2f;
-            l_Cell.GetField<TextMeshProUGUI, SimpleTextTableCell>("_text").fontSizeMax          = 3.5f;
-            l_Cell.GetField<TextMeshProUGUI, SimpleTextTableCell>("_text").text                 = Data[p_Index].Item1;
-            l_Cell.text = Data[p_Index].Item1;
+            var l_Text = l_Cell.GetField<TextMeshProUGUI, SimpleTextTableCell>("_text");
+            l_Text.richText             = true;
+            l_Text.enableWordWrapping   = true;
+            l_Text.fontStyle            = FontStyles.Normal;
+            l_Text.enableAutoSizing     = true;
+            l_Text.fontSizeMin          = 2f;
+            l_Text.fontSizeMax          = 3.5f;
+            l_Text.text                 = Data[p_Index].Item1;
+            l_Cell.text                 = Data[p_Index].Item1;
 
             var l_HoverHint = l_Cell.gameObject.GetComponent<HoverHint>();
             if (l_HoverHint == null || !l_HoverHint)
@@ -111,6 +112,7 @@ namespace BeatSaberPlus.SDK.UI.DataSource
             }
 
             l_Cell.reuseIdentifier = "BSP_SimpleTextList_Cell";
+
             return l_Cell;
         }
     }

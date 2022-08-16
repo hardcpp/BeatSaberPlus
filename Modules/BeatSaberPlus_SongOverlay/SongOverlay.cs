@@ -8,12 +8,12 @@ namespace BeatSaberPlus_SongOverlay
     /// <summary>
     /// Online instance
     /// </summary>
-    internal class SongOverlay : BeatSaberPlus.SDK.ModuleBase<SongOverlay>
+    internal class SongOverlay : BeatSaberPlus.SDK.BSPModuleBase<SongOverlay>
     {
         /// <summary>
         /// Module type
         /// </summary>
-        public override BeatSaberPlus.SDK.IModuleBaseType Type => BeatSaberPlus.SDK.IModuleBaseType.Integrated;
+        public override CP_SDK.EIModuleBaseType Type => CP_SDK.EIModuleBaseType.Integrated;
         /// <summary>
         /// Name of the Module
         /// </summary>
@@ -33,7 +33,7 @@ namespace BeatSaberPlus_SongOverlay
         /// <summary>
         /// Activation kind
         /// </summary>
-        public override BeatSaberPlus.SDK.IModuleBaseActivationType ActivationType => BeatSaberPlus.SDK.IModuleBaseActivationType.OnStart;
+        public override CP_SDK.EIModuleBaseActivationType ActivationType => CP_SDK.EIModuleBaseActivationType.OnStart;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -51,16 +51,16 @@ namespace BeatSaberPlus_SongOverlay
         /// </summary>
         protected override void OnEnable()
         {
-            Network.Server.Start();
+            Network.OverlayServer.Start();
 
-            SharedCoroutineStarter.instance.StartCoroutine(Coroutine_CheckCompatibility());
+            CP_SDK.Unity.MTCoroutineStarter.Start(Coroutine_CheckCompatibility());
         }
         /// <summary>
         /// Enable the Module
         /// </summary>
         protected override void OnDisable()
         {
-            Network.Server.Stop();
+            Network.OverlayServer.Stop();
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -103,7 +103,7 @@ namespace BeatSaberPlus_SongOverlay
 
             if (l_OverlaysMods.Count > 1)
             {
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer.InternalBroadcastSystemMessage(
+                CP_SDK.Chat.Service.Multiplexer.InternalBroadcastSystemMessage(
                     "<color=red>Warning you are running multiple song overlay mods (<color=yellow>" + string.Join(", ", l_OverlaysMods) + "</color>). "
                     + "It's recommended to only use 1 of these mods for performance reasons");
             }

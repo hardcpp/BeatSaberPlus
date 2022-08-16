@@ -8,7 +8,7 @@ namespace BeatSaberPlus_NoteTweaker
     /// <summary>
     /// Note tweaker config
     /// </summary>
-    internal class NTConfig : BeatSaberPlus.SDK.Config.JsonConfig<NTConfig>
+    internal class NTConfig : CP_SDK.Config.JsonConfig<NTConfig>
     {
         private const string DEFAULT_PROFILE_NAME = "<i>============ Default ============</i>";
 
@@ -28,23 +28,18 @@ namespace BeatSaberPlus_NoteTweaker
             [JsonProperty] internal float ArrowsScale = 1.0f;
             [JsonProperty] internal float ArrowsIntensity = 1.0f;
             [JsonProperty] internal bool  ArrowsOverrideColors = false;
-            [JsonProperty, JsonConverter(typeof(BeatSaberPlus.SDK.Config.JsonConverters.ColorConverter))]
-            internal Color ArrowsLColor = new Color(0.12f, 0.75f, 1.00f, 1.00f);
-            [JsonProperty, JsonConverter(typeof(BeatSaberPlus.SDK.Config.JsonConverters.ColorConverter))]
-            internal Color ArrowsRColor = new Color(0.12f, 0.75f, 1.00f, 1.00f);
+            [JsonProperty] internal Color ArrowsLColor = new Color(0.12f, 0.75f, 1.00f, 1.00f);
+            [JsonProperty] internal Color ArrowsRColor = new Color(0.12f, 0.75f, 1.00f, 1.00f);
 
             [JsonProperty] internal float DotsScale = 0.85f;
             [JsonProperty] internal float DotsIntensity = 1.0f;
             [JsonProperty] internal bool  DotsOverrideColors = false;
-            [JsonProperty, JsonConverter(typeof(BeatSaberPlus.SDK.Config.JsonConverters.ColorConverter))]
-            internal Color DotsLColor = new Color(0.12f, 0.75f, 1.00f, 1.00f);
-            [JsonProperty, JsonConverter(typeof(BeatSaberPlus.SDK.Config.JsonConverters.ColorConverter))]
-            internal Color DotsRColor = new Color(0.12f, 0.75f, 1.00f, 1.00f);
+            [JsonProperty] internal Color DotsLColor = new Color(0.12f, 0.75f, 1.00f, 1.00f);
+            [JsonProperty] internal Color DotsRColor = new Color(0.12f, 0.75f, 1.00f, 1.00f);
 
             [JsonProperty] internal float BombsScale = 1f;
             [JsonProperty] internal bool  BombsOverrideColor = false;
-            [JsonProperty, JsonConverter(typeof(BeatSaberPlus.SDK.Config.JsonConverters.ColorConverter))]
-            internal Color BombsColor = new Color(1.0000f, 0.0000f, 0.6469f, 1f);
+            [JsonProperty] internal Color BombsColor = new Color(1.0000f, 0.0000f, 0.6469f, 1f);
 
             [JsonProperty] internal float ArcsIntensity = 1.00f;
             [JsonProperty] internal bool  ArcsHaptics = true;
@@ -106,7 +101,7 @@ namespace BeatSaberPlus_NoteTweaker
         /// </summary>
         /// <returns></returns>
         public override string GetRelativePath()
-            => "BeatSaberPlus/NoteTweaker/Config";
+            => $"{CP_SDK.ChatPlexSDK.ProductName}/NoteTweaker/Config";
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////

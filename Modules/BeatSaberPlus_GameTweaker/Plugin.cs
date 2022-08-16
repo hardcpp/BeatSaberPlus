@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
 using IPA;
 using System.Reflection;
-using UnityEngine;
 
 namespace BeatSaberPlus_GameTweaker
 {
@@ -11,10 +10,6 @@ namespace BeatSaberPlus_GameTweaker
     [Plugin(RuntimeOptions.SingleStartInit)]
     public class Plugin
     {
-        /// <summary>
-        /// Plugin instance
-        /// </summary>
-        internal static Plugin Instance { get; private set; }
         /// <summary>
         /// Harmony ID for patches
         /// </summary>
@@ -38,39 +33,8 @@ namespace BeatSaberPlus_GameTweaker
         [Init]
         public Plugin(IPA.Logging.Logger p_Logger)
         {
-            /// Set instance
-            Instance = this;
-
             /// Setup logger
-            Logger.Instance = p_Logger;
-
-        }
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        /// <summary>
-        /// On BeatSaberPlus_Online enable
-        /// </summary>
-        [OnStart]
-        public void OnApplicationStart()
-        {
-            try
-            {
-
-            }
-            catch (System.Exception p_Exception)
-            {
-                Logger.Instance.Critical(p_Exception);
-            }
-        }
-        /// <summary>
-        /// On BeatSaberPlus_Online disable
-        /// </summary>
-        [OnExit]
-        public void OnApplicationQuit()
-        {
-
+            Logger.Instance = new CP_SDK.Logging.IPALogger(p_Logger);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -92,8 +56,17 @@ namespace BeatSaberPlus_GameTweaker
             }
             catch (System.Exception p_Exception)
             {
-                Logger.Instance.Critical(p_Exception);
+                Logger.Instance.Error("[Plugin.OnEnable] Error:");
+                Logger.Instance.Error(p_Exception);
             }
+        }
+        /// <summary>
+        /// On BeatSaberPlus disable
+        /// </summary>
+        [OnDisable]
+        public void OnDisable()
+        {
+
         }
     }
 }

@@ -2,7 +2,7 @@
 using BeatSaberMarkupLanguage.Components.Settings;
 using UnityEngine;
 
-namespace BeatSaberPlus_Chat.UI
+namespace ChatPlexMod_Chat.UI
 {
     /// <summary>
     /// Stream chat settings view
@@ -99,7 +99,7 @@ namespace BeatSaberPlus_Chat.UI
             CConfig.Instance.PingColor        = m_ChatPingColor.CurrentColor;
 
             /// Update floating view
-            Chat.Instance.UpdateFloatingWindow(BeatSaberPlus.SDK.Game.Logic.ActiveScene, false);
+            Chat.Instance.UpdateFloatingWindow(CP_SDK.ChatPlexSDK.ActiveGenericScene, false);
         }
 
         ////////////////////////////////////////////////////////////////////////////

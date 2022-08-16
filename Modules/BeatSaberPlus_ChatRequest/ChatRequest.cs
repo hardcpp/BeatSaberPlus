@@ -11,12 +11,12 @@ namespace BeatSaberPlus_ChatRequest
     /// <summary>
     /// Chat Request instance
     /// </summary>
-    public partial class ChatRequest : BeatSaberPlus.SDK.ModuleBase<ChatRequest>
+    public partial class ChatRequest : BeatSaberPlus.SDK.BSPModuleBase<ChatRequest>
     {
         /// <summary>
         /// Module type
         /// </summary>
-        public override BeatSaberPlus.SDK.IModuleBaseType Type => BeatSaberPlus.SDK.IModuleBaseType.Integrated;
+        public override CP_SDK.EIModuleBaseType Type => CP_SDK.EIModuleBaseType.Integrated;
         /// <summary>
         /// Name of the Module
         /// </summary>
@@ -36,7 +36,7 @@ namespace BeatSaberPlus_ChatRequest
         /// <summary>
         /// Activation kind
         /// </summary>
-        public override BeatSaberPlus.SDK.IModuleBaseActivationType ActivationType => BeatSaberPlus.SDK.IModuleBaseActivationType.OnMenuSceneLoaded;
+        public override CP_SDK.EIModuleBaseActivationType ActivationType => CP_SDK.EIModuleBaseActivationType.OnMenuSceneLoaded;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -91,8 +91,8 @@ namespace BeatSaberPlus_ChatRequest
             }
             catch (System.Exception l_Exception)
             {
-                Logger.Instance.Critical($"[ChatRequest][ChatRequest.OnEnable] Failed to create directory \"{System.IO.Path.GetDirectoryName(m_DBFilePath)}\"");
-                Logger.Instance.Critical(l_Exception);
+                Logger.Instance.Error($"[ChatRequest][ChatRequest.OnEnable] Failed to create directory \"{System.IO.Path.GetDirectoryName(m_DBFilePath)}\"");
+                Logger.Instance.Error(l_Exception);
             }
 
             /// Move old file
@@ -108,8 +108,8 @@ namespace BeatSaberPlus_ChatRequest
             }
             catch (System.Exception l_Exception)
             {
-                Logger.Instance.Critical($"[ChatRequest][ChatRequest.OnEnable] Failed to move database \"{m_DBFilePathOld}\"");
-                Logger.Instance.Critical(l_Exception);
+                Logger.Instance.Error($"[ChatRequest][ChatRequest.OnEnable] Failed to move database \"{m_DBFilePathOld}\"");
+                Logger.Instance.Error(l_Exception);
             }
 
             /// Move old file
@@ -125,8 +125,8 @@ namespace BeatSaberPlus_ChatRequest
             }
             catch (System.Exception l_Exception)
             {
-                Logger.Instance.Critical($"[ChatRequest][ChatRequest.OnEnable] Failed to move database \"{m_DBFilePathOld}\"");
-                Logger.Instance.Critical(l_Exception);
+                Logger.Instance.Error($"[ChatRequest][ChatRequest.OnEnable] Failed to move database \"{m_DBFilePathOld}\"");
+                Logger.Instance.Error(l_Exception);
             }
 
             /// Try to load DB
@@ -144,15 +144,15 @@ namespace BeatSaberPlus_ChatRequest
             {
                 /// Init chat core
                 m_ChatCoreAcquired = true;
-                BeatSaberPlus.SDK.Chat.Service.Acquire();
+                CP_SDK.Chat.Service.Acquire();
 
                 /// Run all services
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer.OnTextMessageReceived += ChatCoreMutiplixer_OnTextMessageReceived;
+                CP_SDK.Chat.Service.Multiplexer.OnTextMessageReceived += ChatCoreMutiplixer_OnTextMessageReceived;
             }
 
             /// Add button
             if (m_CreateButtonCoroutine == null)
-                m_CreateButtonCoroutine = SharedCoroutineStarter.instance.StartCoroutine(CreateButtonCoroutine());
+                m_CreateButtonCoroutine = CP_SDK.Unity.MTCoroutineStarter.Start(CreateButtonCoroutine());
 
             /// Set queue status
             QueueOpen = CRConfig.Instance.QueueOpen;
@@ -173,17 +173,17 @@ namespace BeatSaberPlus_ChatRequest
             if (m_ChatCoreAcquired)
             {
                 /// Unbind services
-                BeatSaberPlus.SDK.Chat.Service.Multiplexer.OnTextMessageReceived -= ChatCoreMutiplixer_OnTextMessageReceived;
+                CP_SDK.Chat.Service.Multiplexer.OnTextMessageReceived -= ChatCoreMutiplixer_OnTextMessageReceived;
 
                 /// Stop all chat services
-                BeatSaberPlus.SDK.Chat.Service.Release();
+                CP_SDK.Chat.Service.Release();
                 m_ChatCoreAcquired = false;
             }
 
             /// Stop coroutine
             if (m_CreateButtonCoroutine != null)
             {
-                SharedCoroutineStarter.instance.StopCoroutine(m_CreateButtonCoroutine);
+                CP_SDK.Unity.MTCoroutineStarter.Stop(m_CreateButtonCoroutine);
                 m_CreateButtonCoroutine = null;
             }
 
@@ -252,7 +252,7 @@ namespace BeatSaberPlus_ChatRequest
                 /// Stop coroutine
                 if (m_CreateButtonCoroutine != null)
                 {
-                    SharedCoroutineStarter.instance.StopCoroutine(m_CreateButtonCoroutine);
+                    CP_SDK.Unity.MTCoroutineStarter.Stop(m_CreateButtonCoroutine);
                     m_CreateButtonCoroutine = null;
                 }
 
@@ -270,7 +270,7 @@ namespace BeatSaberPlus_ChatRequest
 
                 /// Add button
                 if (m_CreateButtonCoroutine == null)
-                    m_CreateButtonCoroutine = SharedCoroutineStarter.instance.StartCoroutine(CreateButtonCoroutine());
+                    m_CreateButtonCoroutine = CP_SDK.Unity.MTCoroutineStarter.Start(CreateButtonCoroutine());
             }
         }
         /// <summary>
@@ -294,7 +294,7 @@ namespace BeatSaberPlus_ChatRequest
                         if (m_LastPlayingLevel != l_CurrentMap.level)
                         {
                             m_LastPlayingLevel          = l_CurrentMap.level;
-                            m_LastPlayingLevelResponse  = CRConfig.Instance.SafeMode ? "" : l_CurrentMap.level.songName.Replace(".", " . ") + " by " + l_CurrentMap.level.levelAuthorName.Replace(".", " . ");
+                            m_LastPlayingLevelResponse  = CRConfig.Instance.SafeMode2 ? "" : l_CurrentMap.level.songName.Replace(".", " . ") + " by " + l_CurrentMap.level.levelAuthorName.Replace(".", " . ");
 
                             if (l_CurrentMap.level is CustomBeatmapLevel
                                 && l_CurrentMap.level.levelID.StartsWith("custom_level_"))

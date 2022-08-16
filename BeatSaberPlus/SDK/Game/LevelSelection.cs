@@ -43,7 +43,8 @@ namespace BeatSaberPlus.SDK.Game
             }
             catch (System.Exception p_Exception)
             {
-                Logger.Instance?.Critical(p_Exception);
+                CP_SDK.ChatPlexSDK.Logger.Error("[SDK.Game][LevelSelection.FilterToSpecificSong] Error:");
+                CP_SDK.ChatPlexSDK.Logger.Error(p_Exception);
             }
 
             return false;
@@ -66,7 +67,7 @@ namespace BeatSaberPlus.SDK.Game
 
             l_LevelSelectionNavigationController.didActivateEvent -= LevelSelectionNavigationController_didActivateEvent;
 
-            SharedCoroutineStarter.instance.StartCoroutine(LevelSelection_SelectLevelCategory(l_LevelSelectionNavigationController));
+            CP_SDK.Unity.MTCoroutineStarter.Start(LevelSelection_SelectLevelCategory(l_LevelSelectionNavigationController));
         }
         /// <summary>
         /// Level selection, select level category
@@ -103,7 +104,7 @@ namespace BeatSaberPlus.SDK.Game
                     l_SegmentControl.SelectCellWithNumber(l_IndexToSelect);
                     l_Selector.LevelFilterCategoryIconSegmentedControlDidSelectCell(l_SegmentControl, l_IndexToSelect);
 
-                    SharedCoroutineStarter.instance.StartCoroutine(LevelSelection_FilterLevel(
+                    CP_SDK.Unity.MTCoroutineStarter.Start(LevelSelection_FilterLevel(
                         l_LevelFilteringNavigationController.GetField<LevelSearchViewController, LevelFilteringNavigationController>("_levelSearchViewController"),
                         true
                     ));
@@ -111,7 +112,7 @@ namespace BeatSaberPlus.SDK.Game
             }
             else
             {
-                SharedCoroutineStarter.instance.StartCoroutine(LevelSelection_FilterLevel(
+                CP_SDK.Unity.MTCoroutineStarter.Start(LevelSelection_FilterLevel(
                     l_LevelFilteringNavigationController.GetField<LevelSearchViewController, LevelFilteringNavigationController>("_levelSearchViewController"),
                     false
                 ));
@@ -159,8 +160,8 @@ namespace BeatSaberPlus.SDK.Game
             }
             catch (System.Exception p_Exception)
             {
-                Logger.Instance.Error("[SDK.Game][LevelSelection.LevelSelection_FilterLevel] coroutine failed : ");
-                Logger.Instance.Error(p_Exception);
+                CP_SDK.ChatPlexSDK.Logger.Error("[SDK.Game][LevelSelection.LevelSelection_FilterLevel] coroutine failed : ");
+                CP_SDK.ChatPlexSDK.Logger.Error(p_Exception);
 
                 LevelSearchViewController_didStartLoadingEvent(p_LevelSearchViewController);
             }
@@ -193,8 +194,8 @@ namespace BeatSaberPlus.SDK.Game
             }
             catch (System.Exception p_Exception)
             {
-                Logger.Instance.Error("[SDK.Game][LevelSelection.LevelSearchViewController_didStartLoadingEvent] failed : ");
-                Logger.Instance.Error(p_Exception);
+                CP_SDK.ChatPlexSDK.Logger.Error("[SDK.Game][LevelSelection.LevelSearchViewController_didStartLoadingEvent] failed : ");
+                CP_SDK.ChatPlexSDK.Logger.Error(p_Exception);
             }
         }
     }

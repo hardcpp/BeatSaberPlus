@@ -15,7 +15,7 @@ namespace BeatSaberPlus.UI
         /// <summary>
         /// Module setting
         /// </summary>
-        private Dictionary<SDK.IModuleBase, ToggleSetting> m_ModulesSetting = new Dictionary<SDK.IModuleBase, ToggleSetting>();
+        private Dictionary<CP_SDK.IModuleBase, ToggleSetting> m_ModulesSetting = new Dictionary<CP_SDK.IModuleBase, ToggleSetting>();
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -37,23 +37,32 @@ namespace BeatSaberPlus.UI
             l_Layout.constraint         = UnityEngine.UI.GridLayoutGroup.Constraint.FixedColumnCount;
             l_Layout.constraintCount    = 3;
 
-            foreach (var l_Module in Plugin.Instance.Modules.Where(x => x.Type == SDK.IModuleBaseType.Integrated))
+            foreach (var l_Module in CP_SDK.ChatPlexSDK.GetModules().Where(x => x.Type == CP_SDK.EIModuleBaseType.Integrated))
             {
-                var l_Setting = SDK.UI.ToggleSetting.Create(m_SettingGrid.transform, l_Module.FancyName, l_Module.IsEnabled, (x) => {
-                    try
+                try
+                {
+                    var l_Setting = SDK.UI.ToggleSetting.Create(m_SettingGrid.transform, l_Module.FancyName, l_Module.IsEnabled, (x) =>
                     {
-                        l_Module.SetEnabled(x);
-                        CheckChatTutorial(l_Module);
-                    }
-                    catch (Exception p_InitException)
-                    {
-                        Logger.Instance.Error($"[UI][SettingsView.OnViewCreation] Error on module \"{l_Module.FancyName}\" init");
-                        Logger.Instance.Error(p_InitException);
-                    }
-                }, l_Module.Description);
-                l_Setting.text.fontSize = 2.5f;
+                        try
+                        {
+                            l_Module.SetEnabled(x);
+                            CheckChatTutorial(l_Module);
+                        }
+                        catch (Exception p_InitException)
+                        {
+                            CP_SDK.ChatPlexSDK.Logger.Error($"[UI][SettingsView.OnViewCreation] Error on module \"{l_Module.FancyName}\" init");
+                            CP_SDK.ChatPlexSDK.Logger.Error(p_InitException);
+                        }
+                    }, l_Module.Description);
+                    l_Setting.text.fontSize = 2.5f;
 
-                m_ModulesSetting.Add(l_Module, l_Setting);
+                    m_ModulesSetting.Add(l_Module, l_Setting);
+                }
+                catch (Exception p_InitException)
+                {
+                    CP_SDK.ChatPlexSDK.Logger.Error($"[UI][SettingsView.OnViewCreation] Error on module \"{l_Module.FancyName}\" init");
+                    CP_SDK.ChatPlexSDK.Logger.Error(p_InitException);
+                }
             }
         }
 
@@ -64,19 +73,20 @@ namespace BeatSaberPlus.UI
         /// Check for chat tutorial
         /// </summary>
         /// <param name="p_Plugin">Plugin instance</param>
-        private void CheckChatTutorial(SDK.IModuleBase p_Plugin)
+        private void CheckChatTutorial(CP_SDK.IModuleBase p_Plugin)
         {
 #if DEBUG
             if (p_Plugin.UseChatFeatures && true)
 #else
-            if (p_Plugin.UseChatFeatures && Config.FirstChatCoreRun)
+            if (p_Plugin.UseChatFeatures && BSPConfig.Instance.FirstChatCoreRun)
 #endif
             {
                 ShowMessageModal("Hey it's seems that this is the first time\nyou use a chat module!\n<b><color=yellow>The configuration page has been opened in your browser!</color></b>");
 
-                SDK.Chat.Service.OpenWebConfigurator();
+                CP_SDK.Chat.Service.OpenWebConfigurator();
 
-                Config.FirstChatCoreRun = false;
+                BSPConfig.Instance.FirstChatCoreRun = false;
+                BSPConfig.Instance.Save();
             }
         }
     }

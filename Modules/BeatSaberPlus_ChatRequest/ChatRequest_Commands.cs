@@ -1,7 +1,6 @@
-﻿using BeatSaberPlus.SDK.Chat.Interfaces;
+﻿using CP_SDK.Chat.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -123,7 +122,7 @@ namespace BeatSaberPlus_ChatRequest
 
             if (!OnlyHexInString(l_Key))
             {
-                if (CRConfig.Instance.SafeMode)
+                if (CRConfig.Instance.SafeMode2)
                 {
                     SendChatMessage("@$UserName Search is disabled", p_Service, p_Message);
                     return;
@@ -357,7 +356,7 @@ namespace BeatSaberPlus_ChatRequest
                         if (l_I != 0)
                             l_Reply += ", ";
 
-                        l_Reply += " (bsr " + SongQueue[l_I].BeatMap.id.ToLower() + ") " + (CRConfig.Instance.SafeMode ? string.Empty : SongQueue[l_I].BeatMap.name);
+                        l_Reply += " (bsr " + SongQueue[l_I].BeatMap.id.ToLower() + ") " + (CRConfig.Instance.SafeMode2 ? string.Empty : SongQueue[l_I].BeatMap.name);
                     }
 
                     if (l_I < SongQueue.Count)

@@ -3,7 +3,6 @@
 		<text text='Note Tweaker' align='Center' font-size='4.2'/>
 	</horizontal>
 
-
 	<horizontal id='Tabs' spacing='0' pad-top='0' min-width='145'>
 		<vertical spacing='0' pad-top='0' >
 			<horizontal id='TabSelector' pad-top='2' pref-height='7' pad-left='8' pad-right='8' min-width='145'>

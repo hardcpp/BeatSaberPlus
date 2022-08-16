@@ -18,5 +18,7 @@ namespace BeatSaberPlus_SongOverlay.Models
         [JsonProperty] internal float PP = 0;
         [JsonProperty] internal string BSRKey = "";
         [JsonProperty] internal string coverRaw = "";
+        [JsonProperty] internal float time = 0;
+        [JsonProperty] internal float timeMultiplier = 0;
     }
 }

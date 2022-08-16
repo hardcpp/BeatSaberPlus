@@ -44,7 +44,7 @@ namespace BeatSaberPlus_GameTweaker.Managers
             m_Custom_Default = CustomColorSO.CreateInstance<CustomColorSO>();
             m_Custom_Cleared = CustomColorSO.CreateInstance<CustomColorSO>();
             m_Custom_Failed  = CustomColorSO.CreateInstance<CustomColorSO>();
-            SharedCoroutineStarter.instance.StartCoroutine(Coroutine_InitLate());
+            CP_SDK.Unity.MTCoroutineStarter.Start(Coroutine_InitLate());
         }
 
         ////////////////////////////////////////////////////////////////////////////

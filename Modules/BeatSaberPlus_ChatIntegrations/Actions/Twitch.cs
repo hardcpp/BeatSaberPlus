@@ -2,7 +2,7 @@
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Parser;
 using BeatSaberPlus_ChatIntegrations.Interfaces;
-using BeatSaberPlus.SDK.Chat.Interfaces;
+using CP_SDK.Chat.Interfaces;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
@@ -56,7 +56,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
 
         public override sealed void BuildUI(Transform p_Parent)
         {
-            string l_BSML = Utilities.GetResourceContent(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
+            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, "Views", GetType().Name) + ".bsml");
             m_ParserParams = BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             /// Change opacity
@@ -140,12 +140,12 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
                 l_Message = l_Message.Replace(l_Key, l_ReplaceValue);
             }
 
-            var l_Channel = BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels.First();
-            if (l_Channel.Item2 is BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchChannel l_TwitchChannel)
+            var l_Channel = CP_SDK.Chat.Service.Multiplexer.Channels.First();
+            if (l_Channel.Item2 is CP_SDK.Chat.Models.Twitch.TwitchChannel l_TwitchChannel)
             {
                 var l_URL           = $"https://api.twitch.tv/helix/streams/markers";
-                var l_APIClient     = new BeatSaberPlus.SDK.Network.APIClient("", TimeSpan.FromSeconds(10), false);
-                var l_OAuthToken    = (l_Channel.Item1 as BeatSaberPlus.SDK.Chat.Services.Twitch.TwitchService).OAuthToken.Replace("oauth:", "");
+                var l_APIClient     = new CP_SDK.Network.APIClient("", TimeSpan.FromSeconds(10), false);
+                var l_OAuthToken    = (l_Channel.Item1 as CP_SDK.Chat.Services.Twitch.TwitchService).OAuthToken.Replace("oauth:", "");
 
                 l_APIClient.InternalClient.DefaultRequestHeaders.Add("client-id",       ChatIntegrations.s_BEATSABERPLUS_CLIENT_ID);
                 l_APIClient.InternalClient.DefaultRequestHeaders.Add("Authorization",   "Bearer " + l_OAuthToken);
@@ -161,7 +161,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
                 {
                     if (x.Result != null && !x.Result.IsSuccessStatusCode)
                         Logger.Instance.Error("[ChatIntegrations.Actions][Twitch.Twitch_AddMarker] Error:" + x.Result.BodyString);
-                });
+                }).ConfigureAwait(false);
             }
 
             yield return null;
@@ -179,12 +179,12 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
 
         public override IEnumerator Eval(Models.EventContext p_Context)
         {
-            var l_Channel = BeatSaberPlus.SDK.Chat.Service.Multiplexer.Channels.First();
-            if (l_Channel.Item2 is BeatSaberPlus.SDK.Chat.Models.Twitch.TwitchChannel l_TwitchChannel)
+            var l_Channel = CP_SDK.Chat.Service.Multiplexer.Channels.First();
+            if (l_Channel.Item2 is CP_SDK.Chat.Models.Twitch.TwitchChannel l_TwitchChannel)
             {
                 var l_URL = $"https://api.twitch.tv/helix/clips?broadcaster_id=" + l_TwitchChannel.Roomstate.RoomId;
-                var l_APIClient = new BeatSaberPlus.SDK.Network.APIClient("", TimeSpan.FromSeconds(10), false);
-                var l_OAuthToken = (l_Channel.Item1 as BeatSaberPlus.SDK.Chat.Services.Twitch.TwitchService).OAuthToken.Replace("oauth:", "");
+                var l_APIClient = new CP_SDK.Network.APIClient("", TimeSpan.FromSeconds(10), false);
+                var l_OAuthToken = (l_Channel.Item1 as CP_SDK.Chat.Services.Twitch.TwitchService).OAuthToken.Replace("oauth:", "");
 
                 l_APIClient.InternalClient.DefaultRequestHeaders.Add("client-id",       ChatIntegrations.s_BEATSABERPLUS_CLIENT_ID);
                 l_APIClient.InternalClient.DefaultRequestHeaders.Add("Authorization",   "Bearer " + l_OAuthToken);
@@ -211,7 +211,7 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
 
                         }
                     }
-                });
+                }).ConfigureAwait(false);
             }
 
             yield return null;

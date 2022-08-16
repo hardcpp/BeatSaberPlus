@@ -8,7 +8,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace BeatSaberPlus_Chat.UI
+namespace ChatPlexMod_Chat.UI
 {
     internal class ModerationShortcut : BeatSaberPlus.SDK.UI.ResourceViewController<ModerationShortcut>
     {

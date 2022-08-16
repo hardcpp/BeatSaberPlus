@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine.TextCore;
 using System;
 
-namespace BeatSaberPlus_Chat.Extensions
+namespace ChatPlexMod_Chat.Extensions
 {
     /*
        Code from https://github.com/brian91292/EnhancedStreamChat-v3
@@ -51,7 +51,7 @@ namespace BeatSaberPlus_Chat.Extensions
         /// <summary>
         /// Image info lookup table
         /// </summary>
-        private ConcurrentDictionary<uint, BeatSaberPlus.SDK.Unity.EnhancedImage> m_ImageInfos = new ConcurrentDictionary<uint, BeatSaberPlus.SDK.Unity.EnhancedImage>();
+        private ConcurrentDictionary<uint, CP_SDK.Unity.EnhancedImage> m_ImageInfos = new ConcurrentDictionary<uint, CP_SDK.Unity.EnhancedImage>();
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -105,7 +105,7 @@ namespace BeatSaberPlus_Chat.Extensions
         /// <param name="p_ImageID">ID of the image</param>
         /// <param name="p_ImageInfo">Result image info</param>
         /// <returns></returns>
-        internal bool TryGetImageInfo(uint p_ReplaceCharacter, out BeatSaberPlus.SDK.Unity.EnhancedImage p_ImageInfo)
+        internal bool TryGetImageInfo(uint p_ReplaceCharacter, out CP_SDK.Unity.EnhancedImage p_ImageInfo)
             => m_ImageInfos.TryGetValue(p_ReplaceCharacter, out p_ImageInfo);
 
         ////////////////////////////////////////////////////////////////////////////
@@ -117,7 +117,7 @@ namespace BeatSaberPlus_Chat.Extensions
         /// <param name="p_ImageInfo">Image info to register</param>
         /// <param name="p_ReplaceCharacter">Out replace character</param>
         /// <returns></returns>
-        internal bool TryRegisterImageInfo(BeatSaberPlus.SDK.Unity.EnhancedImage p_ImageInfo, out uint p_ReplaceCharacter)
+        internal bool TryRegisterImageInfo(CP_SDK.Unity.EnhancedImage p_ImageInfo, out uint p_ReplaceCharacter)
         {
             p_ReplaceCharacter = 0;
 

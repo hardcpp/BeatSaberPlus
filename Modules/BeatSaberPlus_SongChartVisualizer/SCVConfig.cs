@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace BeatSaberPlus_SongChartVisualizer
 {
-    internal class SCVConfig : BeatSaberPlus.SDK.Config.JsonConfig<SCVConfig>
+    internal class SCVConfig : CP_SDK.Config.JsonConfig<SCVConfig>
     {
         [JsonProperty] internal bool Enabled = false;
 
@@ -32,7 +32,7 @@ namespace BeatSaberPlus_SongChartVisualizer
         /// </summary>
         /// <returns></returns>
         public override string GetRelativePath()
-            => "BeatSaberPlus/SongChartVisualizer/Config";
+            => $"{CP_SDK.ChatPlexSDK.ProductName}/SongChartVisualizer/Config";
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
