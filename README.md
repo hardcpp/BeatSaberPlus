@@ -2,6 +2,7 @@
 
 **Discord** https://discord.gg/63ebPMC (**Download, Support, Testing, Early releases** and cool new mods coming soon)
 **Patreon** [https://www.patreon.com/BeatSaberPlus](https://www.patreon.com/BeatSaberPlus) **if you want to support this project development!**
+**[READ THE PATCH NOTES ! 🥖](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-Patchnotes)**
 
 Current version : 5.0.0
 
@@ -79,7 +80,7 @@ IMPORTANT When you enable Multiplayer+ module, you can setup them in BeatSaberPl
 - SongCore [https://github.com/Kylemc1413/SongCore](https://github.com/Kylemc1413/SongCore)
 - BeatSaberMarkupLanguage [https://github.com/monkeymanboy/BeatSaberMarkupLanguage](https://github.com/monkeymanboy/BeatSaberMarkupLanguage)
 
-## **Other questions? See the FAQ [Here](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-FAQ)**
+## **[See the FAQ](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-FAQ)**
 
 ## **[READ THE PATCH NOTES ! 🥖](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-Patchnotes)**
 
