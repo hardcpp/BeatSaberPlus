@@ -3,7 +3,7 @@
 **Discord** https://discord.gg/63ebPMC (**Download, Support, Testing, Early releases** and cool new mods coming soon)
 **Patreon** [https://www.patreon.com/BeatSaberPlus](https://www.patreon.com/BeatSaberPlus) **if you want to support this project development!**
 
-Current version : 4.6.1
+Current version : 5.0.0
 
 IMPORTANT Most of the modules are disabled by default, you can enable then in BeatSaberPlus -> Settings  
 IMPORTANT When you enable Chat module, it will open a page in your browser for configuring it  
@@ -59,9 +59,10 @@ IMPORTANT When you enable Multiplayer+ module, you can setup them in BeatSaberPl
 	 - With your multiplayer+ setup, you can manage the permission for Mods, Vips or users to be able to get the code in chat with ‘!room’ or no
 	 - Custom Songs with BeatSaver support
 	 - ScoreSaber and BeatLeader support
+	 - Can disable your score submission
 	 - Noodle/Chroma & 360/90 maps support
 	 - In game avatars & movement sync
-	 - An option inside the room to see/not see other player while playing included (arena)
+	 - An option inside the room to see/not see other player while playing included
  - **NoteTeaker:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki#note-tweaker))   
 	 - Profiles can be created and [ChatIntegrations](https://github.com/hardcpp/BeatSaberPlus/wiki#chat-integrations) can switch it with your events
 	 - Changing any parts of notes like dots(with sliders or not), arrow, arcs, note or bomb scale
@@ -79,6 +80,8 @@ IMPORTANT When you enable Multiplayer+ module, you can setup them in BeatSaberPl
 - BeatSaberMarkupLanguage [https://github.com/monkeymanboy/BeatSaberMarkupLanguage](https://github.com/monkeymanboy/BeatSaberMarkupLanguage)
 
 ## **Other questions? See the FAQ [Here](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-FAQ)**
+
+## **[READ THE PATCH NOTES ! 🥖](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-Patchnotes)**
 
 ## **Special Thanks**:
 - **Vred#0001** For art & documentation
