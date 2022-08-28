@@ -12,14 +12,6 @@ namespace CP_SDK.Chat
     public class ChatImageProvider
     {
         /// <summary>
-        /// Animated gif byte pattern for fast lookup
-        /// </summary>
-        private static byte[] ANIMATED_GIF_PATTERN = new byte[] { 0x4E, 0x45, 0x54, 0x53, 0x43, 0x41, 0x50, 0x45, 0x32, 0x2E, 0x30 };
-        /// <summary>
-        /// WEBPV8 byte pattern
-        /// </summary>
-        private static byte[] WEBPVP8_PATTERN = new byte[] { 0x57, 0x45, 0x42, 0x50, 0x56, 0x50, 0x38 };
-        /// <summary>
         /// Forced emote height
         /// </summary>
         private static int m_ForcedHeight = 110;
@@ -34,7 +26,7 @@ namespace CP_SDK.Chat
         /// <summary>
         /// Network client
         /// </summary>
-        private static Network.APIClient m_APIClient;
+        private static Network.WebClient m_WebClient;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -91,7 +83,8 @@ namespace CP_SDK.Chat
         internal static void Init()
         {
             m_CacheFolder   = $"UserData/{ChatPlexSDK.ProductName}/Cache/Chat/";
-            m_APIClient        = new Network.APIClient("", TimeSpan.FromSeconds(10), false, false);
+            m_WebClient     = new Network.WebClient();
+            m_WebClient.Timeout = 10;
 
             try
             {
@@ -162,14 +155,10 @@ namespace CP_SDK.Chat
 
             LoadFromCacheOrDownload(p_URL, l_CacheID, (p_Bytes) =>
             {
-                if (p_Animation == Animation.EAnimationType.AUTODETECT && p_Bytes != null && p_Bytes.Length > 0)
+                if (m_CachedImageInfo.TryGetValue(p_ID, out var p_Info2))
                 {
-                    if (p_Bytes.Length > 3 && p_Bytes[0] == 0x47 && ContainBytePattern(p_Bytes, ANIMATED_GIF_PATTERN))
-                        p_Animation = Animation.EAnimationType.GIF;
-                    else if (p_Bytes.Length > 16 && ContainBytePattern(p_Bytes, WEBPVP8_PATTERN))
-                        p_Animation = Animation.EAnimationType.WEBP;
-                    else
-                        p_Animation = Animation.EAnimationType.NONE;
+                    p_Finally?.Invoke(p_Info2);
+                    return;
                 }
 
                 if (p_Animation != Animation.EAnimationType.NONE)
@@ -250,58 +239,29 @@ namespace CP_SDK.Chat
             m_ActiveDownloads[p_URL] -= p_Finally;
             m_ActiveDownloads[p_URL] += p_Finally;
 
-            m_APIClient.DownloadAsyncOneShot(p_URL, System.Threading.CancellationToken.None).ContinueWith((p_Task) =>
+            m_WebClient.DownloadAsync(p_URL, System.Threading.CancellationToken.None, (p_Result) =>
             {
-                if (p_Task.IsCanceled || p_Task.Result == null)
+                if (p_Result == null)
                 {
                     m_ActiveDownloads[p_URL]?.Invoke(null);
                     m_ActiveDownloads.TryRemove(p_URL, out var _);
                     return;
                 }
 
-                var l_Data = p_Task.Result;
-                if (m_CacheEnabled && l_Data != null && l_Data.Length > 0)
+                if (m_CacheEnabled && p_Result != null && p_Result.Length > 0)
                 {
                     Unity.MTThreadInvoker.EnqueueOnThread(() =>
                     {
                         if (!Directory.Exists(m_CacheFolder))
                             Directory.CreateDirectory(m_CacheFolder);
 
-                        File.WriteAllBytes(m_CacheFolder + p_CacheID, l_Data);
+                        File.WriteAllBytes(m_CacheFolder + p_CacheID, p_Result);
                     });
                 }
 
-                m_ActiveDownloads[p_URL]?.Invoke(l_Data);
+                m_ActiveDownloads[p_URL]?.Invoke(p_Result);
                 m_ActiveDownloads.TryRemove(p_URL, out var _);
-            }).ConfigureAwait(false);
-        }
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        /// <summary>
-        /// Fast lookup for byte pattern
-        /// </summary>
-        /// <param name="p_Array">Input array</param>
-        /// <param name="p_Pattern">Lookup pattern</param>
-        /// <returns></returns>
-        static bool ContainBytePattern(byte[] p_Array, byte[] p_Pattern)
-        {
-            var l_PatternPosition = 0;
-            for (int l_I = 0; l_I < p_Array.Length; ++l_I)
-            {
-                if (p_Array[l_I] != p_Pattern[l_PatternPosition])
-                {
-                    l_PatternPosition = 0;
-                    continue;
-                }
-
-                l_PatternPosition++;
-                if (l_PatternPosition == p_Pattern.Length)
-                    return true;
-            }
-
-            return l_PatternPosition == p_Pattern.Length;
+            });
         }
     }
 }

@@ -2,7 +2,6 @@
 using BeatSaberMarkupLanguage.Components.Settings;
 using BeatSaberMarkupLanguage.Parser;
 using HMUI;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace ChatPlexMod_ChatEmoteRain.UI
@@ -28,27 +27,6 @@ namespace ChatPlexMod_ChatEmoteRain.UI
         private SliderSetting m_SubRainPanel_EmoteCountSlider;
         [UIObject("SubRainPanel_InfoBackground")]
         private GameObject m_SubRainPanel_InfoBackground;
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        [UIObject("ComboModePanel")]
-        private GameObject m_ComboModePanel;
-
-        [UIComponent("ComboModePanel_EnableToggle")]
-        private ToggleSetting m_ComboModePanel_EnableToggle;
-        [UIComponent("ComboModePanel_ComboTypeList")]
-        private ListSetting m_ComboModePanel_ComboTypeList;
-        [UIValue("ComboModePanel_ComboTypeList_Choices")]
-        private List<object> m_ComboModePanel_ComboTypeList_Choices = new List<object>() { "Emote count trigger", "User count trigger" };
-        [UIValue("ComboModePanel_ComboTypeList_Value")]
-        private string m_ComboModePanel_ComboTypeList_Value;
-        [UIComponent("ComboModePanel_ComboTimerSlider")]
-        private SliderSetting m_ComboModePanel_ComboTimerSlider;
-        [UIComponent("ComboModePanel_ComboCountSlider")]
-        private SliderSetting m_ComboModePanel_ComboCountSlider;
-        [UIObject("ComboModePanel_InfoBackground")]
-        private GameObject m_ComboModePanel_InfoBackground;
 #pragma warning restore CS0649
 
         ////////////////////////////////////////////////////////////////////////////
@@ -67,24 +45,6 @@ namespace ChatPlexMod_ChatEmoteRain.UI
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
-        /// Constructor
-        /// </summary>
-        internal SettingsRight()
-        {
-            int l_TypeIndex = CERConfig.Instance.ComboModeType % m_ComboModePanel_ComboTypeList_Choices.Count;
-            if (l_TypeIndex >= 0)
-                m_ComboModePanel_ComboTypeList_Value = m_ComboModePanel_ComboTypeList_Choices[l_TypeIndex] as string;
-            else
-            {
-                CERConfig.Instance.ComboModeType = 0;
-                m_ComboModePanel_ComboTypeList_Value = m_ComboModePanel_ComboTypeList_Choices[0] as string;
-            }
-        }
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        /// <summary>
         /// On view creation
         /// </summary>
         protected override sealed void OnViewCreation()
@@ -95,20 +55,13 @@ namespace ChatPlexMod_ChatEmoteRain.UI
             var l_AnchorMax = new Vector2(0.85f, 1.05f);
 
             /// Create type selector
-            m_TypeSegmentControl = BeatSaberPlus.SDK.UI.TextSegmentedControl.Create(m_TypeSegmentPanel.transform as RectTransform, false, new string[] { "SubRain", "ComboMode" });
+            m_TypeSegmentControl = BeatSaberPlus.SDK.UI.TextSegmentedControl.Create(m_TypeSegmentPanel.transform as RectTransform, false, new string[] { "SubRain" });
             m_TypeSegmentControl.didSelectCellEvent += OnTypeChanged;
 
             /// SubRain panel
             BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_SubRainPanel_InfoBackground, 0.5f);
             BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_SubRainPanel_EnableToggle,         l_Event,         CERConfig.Instance.SubRain,           true);
             BeatSaberPlus.SDK.UI.SliderSetting.Setup(m_SubRainPanel_EmoteCountSlider,     l_Event, null,   CERConfig.Instance.SubRainEmoteCount, true, true, l_AnchorMin, l_AnchorMax);
-
-            /// Combo panel
-            BeatSaberPlus.SDK.UI.Backgroundable.SetOpacity(m_ComboModePanel_InfoBackground, 0.5f);
-            BeatSaberPlus.SDK.UI.ToggleSetting.Setup(m_ComboModePanel_EnableToggle,       l_Event,        CERConfig.Instance.ComboMode,         true);
-            BeatSaberPlus.SDK.UI.ListSetting.Setup(m_ComboModePanel_ComboTypeList,        l_Event,                                              true);
-            BeatSaberPlus.SDK.UI.SliderSetting.Setup(m_ComboModePanel_ComboTimerSlider,   l_Event, null,  CERConfig.Instance.ComboTimer,        true, true, l_AnchorMin, l_AnchorMax);
-            BeatSaberPlus.SDK.UI.SliderSetting.Setup(m_ComboModePanel_ComboCountSlider,   l_Event, null,  CERConfig.Instance.ComboCount,        true, true, l_AnchorMin, l_AnchorMax);
 
             /// Force change to tab SubRain
             OnTypeChanged(null, 0);
@@ -125,7 +78,6 @@ namespace ChatPlexMod_ChatEmoteRain.UI
         private void OnTypeChanged(SegmentedControl p_Sender, int p_Index)
         {
             m_SubRainPanel.SetActive(p_Index == 0);
-            m_ComboModePanel.SetActive(p_Index == 1);
         }
         /// <summary>
         /// When settings are changed
@@ -139,12 +91,6 @@ namespace ChatPlexMod_ChatEmoteRain.UI
             /// SubRain panel
             CERConfig.Instance.SubRain            = m_SubRainPanel_EnableToggle.Value;
             CERConfig.Instance.SubRainEmoteCount  = (int)m_SubRainPanel_EmoteCountSlider.slider.value;
-
-            /// Combo panel
-            CERConfig.Instance.ComboMode          = m_ComboModePanel_EnableToggle.Value;
-            CERConfig.Instance.ComboModeType      = m_ComboModePanel_ComboTypeList_Choices.IndexOf(m_ComboModePanel_ComboTypeList.Value as string);
-            CERConfig.Instance.ComboTimer         = m_ComboModePanel_ComboTimerSlider.slider.value;
-            CERConfig.Instance.ComboCount         = (int)m_ComboModePanel_ComboCountSlider.slider.value;
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -160,12 +106,6 @@ namespace ChatPlexMod_ChatEmoteRain.UI
             /// SubRain panel
             m_SubRainPanel_EnableToggle.Value               = CERConfig.Instance.SubRain;
             BeatSaberPlus.SDK.UI.SliderSetting.SetValue(m_SubRainPanel_EmoteCountSlider, CERConfig.Instance.SubRainEmoteCount);
-
-            /// Combo panel
-            m_ComboModePanel_EnableToggle.Value             = CERConfig.Instance.ComboMode;
-            m_ComboModePanel_ComboTypeList.Value            = m_ComboModePanel_ComboTypeList_Choices[CERConfig.Instance.ComboModeType % m_ComboModePanel_ComboTypeList_Choices.Count];
-            BeatSaberPlus.SDK.UI.SliderSetting.SetValue(m_ComboModePanel_ComboTimerSlider, CERConfig.Instance.ComboTimer);
-            BeatSaberPlus.SDK.UI.SliderSetting.SetValue(m_ComboModePanel_ComboCountSlider, CERConfig.Instance.ComboCount);
 
             m_PreventChanges = false;
         }

@@ -58,7 +58,7 @@ namespace BeatSaberPlus
         [Init]
         public Plugin(IPA.Logging.Logger p_Logger)
         {
-            CP_SDK.ChatPlexSDK.Configure(new CP_SDK.Logging.IPALogger(p_Logger), "BeatSaberPlus");
+            CP_SDK.ChatPlexSDK.Configure(new CP_SDK.Logging.IPALogger(p_Logger), "BeatSaberPlus", CP_SDK.ChatPlexSDK.ERenderPipeline.BuiltIn);
             CP_SDK.ChatPlexSDK.OnAssemblyLoaded();
 
             CP_SDK.Chat.Service.Discrete_OnTextMessageReceived += Service_Discrete_OnTextMessageReceived;

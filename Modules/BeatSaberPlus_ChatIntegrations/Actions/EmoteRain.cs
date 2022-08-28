@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System;
 using UnityEngine;
 
 namespace BeatSaberPlus_ChatIntegrations.Actions
@@ -135,44 +136,44 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
 
         private void MakeItRain()
         {
-            if (EnsureLoaded(true))
+            EnsureLoaded((p_Loaded) =>
             {
                 if (m_LoadedImage == null)
                     return;
 
-                CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() =>
-                {
-                    CP_SDK.Unity.MTCoroutineStarter.Start(
-                        ChatPlexMod_ChatEmoteRain.ChatEmoteRain.Instance.StartParticleSystem(m_LoadedImageID, m_LoadedImage, Model.Count)
-                    );
-                });
-            }
+                CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() => ChatPlexMod_ChatEmoteRain.ChatEmoteRain.Instance.EmitEnhancedImage(m_LoadedImage, Model.Count));
+            });
         }
-        private bool EnsureLoaded(bool p_MakeItRainAfterLoad)
+        private void EnsureLoaded(Action<bool> p_Callback)
         {
-            if (Model.BaseValue == "None")
-                return false;
-
-            if (m_LoadedImageName != Model.BaseValue)
+            CP_SDK.Unity.MTThreadInvoker.EnqueueOnThread(() =>
             {
-                m_LoadedImageName = Model.BaseValue;
-
-                string l_Path = Path.Combine(ChatIntegrations.s_EMOTE_RAIN_ASSETS_PATH, Model.BaseValue);
-                if (File.Exists(l_Path))
+                if (Model.BaseValue == "None")
                 {
-                    m_LoadedImageID = "$BSP$CI$_" + Model.BaseValue;
-                    ChatPlexMod_ChatEmoteRain.ChatEmoteRain.Instance.LoadExternalEmote(l_Path, m_LoadedImageID, (p_Result) => {
-                        m_LoadedImage = p_Result;
-
-                        if (m_LoadedImage != null && p_MakeItRainAfterLoad)
-                            MakeItRain();
-                    });
+                    p_Callback?.Invoke(false);
+                    return;
                 }
 
-                return false;
-            }
+                if (m_LoadedImageName != Model.BaseValue)
+                {
+                    m_LoadedImageName = Model.BaseValue;
 
-            return true;
+                    string l_Path = Path.Combine(ChatIntegrations.s_EMOTE_RAIN_ASSETS_PATH, Model.BaseValue);
+                    if (File.Exists(l_Path))
+                    {
+                        m_LoadedImageID = "$BSP$CI$_" + Model.BaseValue;
+                        CP_SDK.Unity.EnhancedImage.FromFile(l_Path, m_LoadedImageID, (p_Result) =>
+                        {
+                            m_LoadedImage = p_Result;
+                            p_Callback?.Invoke(m_LoadedImage != null);
+                        });
+                    }
+                    else
+                        p_Callback?.Invoke(false);
+                }
+
+                p_Callback?.Invoke(true);
+            });
         }
     }
 
@@ -237,11 +238,14 @@ namespace BeatSaberPlus_ChatIntegrations.Actions
 
             if (ChatPlexMod_ChatEmoteRain.ChatEmoteRain.Instance != null && ChatPlexMod_ChatEmoteRain.ChatEmoteRain.Instance.IsEnabled)
             {
-                var l_Emotes =
-                    CP_SDK.Chat.ChatImageProvider.CachedEmoteInfo.Values.OrderBy(_ => Random.Range(0, 1000)).Take((int)Model.EmoteKindCount);
+                CP_SDK.Unity.MTThreadInvoker.EnqueueOnThread(() =>
+                {
+                    var l_Emotes =
+                        CP_SDK.Chat.ChatImageProvider.CachedEmoteInfo.Values.OrderBy(_ => UnityEngine.Random.Range(0, 1000)).Take((int)Model.EmoteKindCount);
 
-                foreach (var l_Emote in l_Emotes)
-                    yield return ChatPlexMod_ChatEmoteRain.ChatEmoteRain.Instance.StartParticleSystem(l_Emote.ImageID, l_Emote, Model.CountPerEmote);
+                    foreach (var l_Emote in l_Emotes)
+                        ChatPlexMod_ChatEmoteRain.ChatEmoteRain.Instance.EmitEnhancedImage(l_Emote, Model.CountPerEmote);
+                });
             }
             else if (p_Context != null)
                 p_Context.HasActionFailed = true;

@@ -87,6 +87,15 @@ namespace CP_SDK.Chat.Services.Twitch
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
+        /// Client
+        /// </summary>
+        public Network.APIClient APIClient => m_APIClient;
+        /// <summary>
+        /// Broadcaster ID
+        /// </summary>
+        public string BroadcasterID => m_BroadcasterID;
+
+        /// <summary>
         /// On token validate
         /// </summary>
         public event Action<bool, Helix_TokenValidate, string> OnTokenValidate;
@@ -261,8 +270,8 @@ namespace CP_SDK.Chat.Services.Twitch
 #if DEBUG
                 if (p_Result.Result != null)
                 {
-                    ChatPlexUnitySDK.Logger.Debug("[CP_SDK.Chat.Service.Twitch][TwitchHelix.ValidateToken] Receiving:");
-                    ChatPlexUnitySDK.Logger.Debug(p_Result.Result.BodyString);
+                    ChatPlexSDK.Logger.Debug("[CP_SDK.Chat.Service.Twitch][TwitchHelix.ValidateToken] Receiving:");
+                    ChatPlexSDK.Logger.Debug(p_Result.Result.BodyString);
                 }
 #endif
 
@@ -326,8 +335,8 @@ namespace CP_SDK.Chat.Services.Twitch
             var l_ContentStr = new StringContent(JsonConvert.SerializeObject(p_Poll), Encoding.UTF8, "application/json");
 
 #if DEBUG
-            ChatPlexUnitySDK.Logger.Debug("[CP_SDK.Chat.Service.Twitch][TwitchHelix.CreatePoll] Sending:");
-            ChatPlexUnitySDK.Logger.Debug(JsonConvert.SerializeObject(p_Poll, Formatting.Indented));
+            ChatPlexSDK.Logger.Debug("[CP_SDK.Chat.Service.Twitch][TwitchHelix.CreatePoll] Sending:");
+            ChatPlexSDK.Logger.Debug(JsonConvert.SerializeObject(p_Poll, Formatting.Indented));
 #endif
 
             m_APIClient.PostAsync("polls", l_ContentStr, CancellationToken.None, true).ContinueWith((p_Result) =>
@@ -335,8 +344,8 @@ namespace CP_SDK.Chat.Services.Twitch
 #if DEBUG
                 if (p_Result.Result != null)
                 {
-                    ChatPlexUnitySDK.Logger.Debug("[CP_SDK.Chat.Service.Twitch][TwitchHelix.CreatePoll] Receiving:");
-                    ChatPlexUnitySDK.Logger.Debug(p_Result.Result.BodyString);
+                    ChatPlexSDK.Logger.Debug("[CP_SDK.Chat.Service.Twitch][TwitchHelix.CreatePoll] Receiving:");
+                    ChatPlexSDK.Logger.Debug(p_Result.Result.BodyString);
                 }
 #endif
 
@@ -386,8 +395,8 @@ namespace CP_SDK.Chat.Services.Twitch
 #if DEBUG
                 if (p_Result.Result != null)
                 {
-                    ChatPlexUnitySDK.Logger.Debug("[CP_SDK.Chat.Service.Twitch][TwitchHelix.GetLastPoll] Receiving:");
-                    ChatPlexUnitySDK.Logger.Debug(p_Result.Result.BodyString);
+                    ChatPlexSDK.Logger.Debug("[CP_SDK.Chat.Service.Twitch][TwitchHelix.GetLastPoll] Receiving:");
+                    ChatPlexSDK.Logger.Debug(p_Result.Result.BodyString);
                 }
 #endif
 
@@ -441,8 +450,8 @@ namespace CP_SDK.Chat.Services.Twitch
             var l_ContentStr = new StringContent(JsonConvert.SerializeObject(l_Content), Encoding.UTF8, "application/json");
 
 #if DEBUG
-            ChatPlexUnitySDK.Logger.Debug("[CP_SDK.Chat.Service.Twitch][TwitchHelix.EndPoll] Sending:");
-            ChatPlexUnitySDK.Logger.Debug(JsonConvert.SerializeObject(l_Content, Formatting.Indented));
+            ChatPlexSDK.Logger.Debug("[CP_SDK.Chat.Service.Twitch][TwitchHelix.EndPoll] Sending:");
+            ChatPlexSDK.Logger.Debug(JsonConvert.SerializeObject(l_Content, Formatting.Indented));
 #endif
 
             m_APIClient.PatchAsync("polls", l_ContentStr, CancellationToken.None, true).ContinueWith((p_Result) =>
@@ -450,8 +459,8 @@ namespace CP_SDK.Chat.Services.Twitch
 #if DEBUG
                 if (p_Result.Result != null)
                 {
-                    ChatPlexUnitySDK.Logger.Debug("[CP_SDK.Chat.Service.Twitch][TwitchHelix.EndPoll] Receiving:");
-                    ChatPlexUnitySDK.Logger.Debug(p_Result.Result.BodyString);
+                    ChatPlexSDK.Logger.Debug("[CP_SDK.Chat.Service.Twitch][TwitchHelix.EndPoll] Receiving:");
+                    ChatPlexSDK.Logger.Debug(p_Result.Result.BodyString);
                 }
 #endif
 
@@ -502,8 +511,8 @@ namespace CP_SDK.Chat.Services.Twitch
 #if DEBUG
                 if (p_Result.Result != null)
                 {
-                    ChatPlexUnitySDK.Logger.Debug("[CP_SDK.Chat.Service.Twitch][TwitchHelix.GetLastHypeTrain] Receiving:");
-                    ChatPlexUnitySDK.Logger.Debug(p_Result.Result.BodyString);
+                    ChatPlexSDK.Logger.Debug("[CP_SDK.Chat.Service.Twitch][TwitchHelix.GetLastHypeTrain] Receiving:");
+                    ChatPlexSDK.Logger.Debug(p_Result.Result.BodyString);
                 }
 #endif
 
@@ -554,8 +563,8 @@ namespace CP_SDK.Chat.Services.Twitch
 #if DEBUG
                 if (p_Result.Result != null)
                 {
-                    ChatPlexUnitySDK.Logger.Debug("[CP_SDK.Chat.Service.Twitch][TwitchHelix.GetLastPrediction] Receiving:");
-                    ChatPlexUnitySDK.Logger.Debug(p_Result.Result.BodyString);
+                    ChatPlexSDK.Logger.Debug("[CP_SDK.Chat.Service.Twitch][TwitchHelix.GetLastPrediction] Receiving:");
+                    ChatPlexSDK.Logger.Debug(p_Result.Result.BodyString);
                 }
 #endif
 
@@ -615,8 +624,8 @@ namespace CP_SDK.Chat.Services.Twitch
 #if DEBUG
                 if (p_Result.Result != null)
                 {
-                    ChatPlexUnitySDK.Logger.Debug("[CP_SDK.Chat.Service.Twitch][TwitchHelix.EndPrediction] Receiving:");
-                    ChatPlexUnitySDK.Logger.Debug(p_Result.Result.BodyString);
+                    ChatPlexSDK.Logger.Debug("[CP_SDK.Chat.Service.Twitch][TwitchHelix.EndPrediction] Receiving:");
+                    ChatPlexSDK.Logger.Debug(p_Result.Result.BodyString);
                 }
 #endif
 

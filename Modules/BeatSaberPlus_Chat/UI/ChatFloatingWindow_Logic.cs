@@ -1,4 +1,5 @@
 ﻿using CP_SDK.Chat.Interfaces;
+using CP_SDK.Unity.Extensions;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -86,8 +87,7 @@ namespace ChatPlexMod_Chat.UI
 
                     //l_Message.gameObject.SetActive(false);
                     l_Message.transform.localScale = Vector3.zero;
-
-                    CP_SDK.Unity.GameObjectU.ChangerLayerRecursive(l_Message.gameObject, LayerMask.NameToLayer("UI"));
+                    l_Message.gameObject.ChangerLayerRecursive(LayerMask.NameToLayer("UI"));
 
                     UpdateMessageStyle(l_Message);
 

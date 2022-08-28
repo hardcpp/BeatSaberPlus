@@ -1,6 +1,7 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.FloatingScreen;
+using CP_SDK.Unity.Extensions;
 using HMUI;
 using System.Linq;
 using UnityEngine;
@@ -85,7 +86,7 @@ namespace BeatSaberPlus_SongChartVisualizer.UI
         protected override sealed void OnViewCreation()
         {
             /// Update background color
-            GetComponentInChildren<ImageView>().color = Color.white.ColorWithAlpha(0f);
+            GetComponentInChildren<ImageView>().color = Color.white.WithAlpha(0f);
 
             /// Update lock state
             m_AllowMovement = false;
@@ -94,7 +95,7 @@ namespace BeatSaberPlus_SongChartVisualizer.UI
             if (!SCVConfig.Instance.ShowLockIcon)
                 m_LockIcon.gameObject.SetActive(false);
 
-            CP_SDK.Unity.GameObjectU.ChangerLayerRecursive(gameObject, LayerMask.NameToLayer("UI"));
+            gameObject.ChangerLayerRecursive(LayerMask.NameToLayer("UI"));
 
             /// Make icons easier to click
             m_LockIcon.gameObject.AddComponent<SphereCollider>().radius = 10f;

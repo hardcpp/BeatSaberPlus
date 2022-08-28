@@ -133,15 +133,15 @@ namespace CP_SDK.Unity
             /// Crop width
             if (l_SourceAspect > l_TargetAspect)
             {
-                l_Factor = (float)p_TargetHeight / l_SourceHeight;
-                l_XOffset = (int)((l_SourceWidth - l_SourceHeight * l_TargetAspect) * 0.5f);
+                l_Factor    = (float)p_TargetHeight / l_SourceHeight;
+                l_XOffset   = (int)((l_SourceWidth - l_SourceHeight * l_TargetAspect) * 0.5f);
 
             }
             /// Crop height
             else
             {
-                l_Factor = (float)p_TargetWidth / l_SourceWidth;
-                l_YOffset = (int)((l_SourceHeight - l_SourceWidth / l_TargetAspect) * (1f - p_YOffsetRel));
+                l_Factor    = (float)p_TargetWidth / l_SourceWidth;
+                l_YOffset   = (int)((l_SourceHeight - l_SourceWidth / l_TargetAspect) * (1f - p_YOffsetRel));
             }
 
             Color32[] l_Source = p_Source.GetPixels32();
@@ -163,7 +163,7 @@ namespace CP_SDK.Unity
                 }
             }
 
-            var l_ResultTexture = new UnityEngine.Texture2D(p_TargetWidth, p_TargetHeight);
+            var l_ResultTexture = new Texture2D(p_TargetWidth, p_TargetHeight);
             l_ResultTexture.SetPixels32(l_Result);
             l_ResultTexture.Apply(true);
 

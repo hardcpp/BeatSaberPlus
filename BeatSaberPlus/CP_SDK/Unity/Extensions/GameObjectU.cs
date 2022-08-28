@@ -1,26 +1,25 @@
-﻿#if CP_SDK_UNITY
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace CP_SDK.Unity
+namespace CP_SDK.Unity.Extensions
 {
     /// <summary>
     /// Unity GameObject tools
     /// </summary>
-    public class GameObjectU
+    public static class GameObjectU
     {
         /// <summary>
         /// Change the layer of a GameObject and all his childs
         /// </summary>
-        /// <param name="p_Object">Root object</param>
+        /// <param name="p_This">Source object</param>
         /// <param name="p_Layer">Target layer</param>
-        public static void ChangerLayerRecursive(GameObject p_Object, int p_Layer)
+        public static void ChangerLayerRecursive(this GameObject p_This, int p_Layer)
         {
-            if (!p_Object)
+            if (!p_This)
                 return;
 
-            p_Object.layer = p_Layer;
+            p_This.layer = p_Layer;
 
-            foreach (Transform l_Transform in p_Object.transform)
+            foreach (Transform l_Transform in p_This.transform)
             {
                 if (l_Transform.gameObject)
                     ChangerLayerRecursive(l_Transform.gameObject, p_Layer);
@@ -28,4 +27,3 @@ namespace CP_SDK.Unity
         }
     }
 }
-#endif

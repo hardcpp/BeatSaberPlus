@@ -9,7 +9,7 @@
   </horizontal>
 
   <horizontal pad='3'>
-    <primary-button text='Settings' on-click='click-btn-settings' min-height='10' min-width='70'></primary-button>
+    <primary-button text='Settings' on-click='OnSettingsPressed' min-height='10' min-width='70'></primary-button>
   </horizontal>
 
 </vertical>

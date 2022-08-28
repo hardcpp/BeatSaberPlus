@@ -14,11 +14,11 @@ namespace CP_SDK.Chat.Services
             if (string.IsNullOrEmpty(p_Str))
                 return;
 
-            //ChatPlexUnitySDK.Logger.Information($"Message: {str}, Bytes: {BitConverter.ToString(Encoding.UTF32.GetBytes(str))}");
+            //ChatPlexSDK.Logger.Information($"Message: {str}, Bytes: {BitConverter.ToString(Encoding.UTF32.GetBytes(str))}");
 
             foreach(Match l_Match in s_EmojiRegex.Matches(p_Str))
             {
-                //ChatPlexUnitySDK.Logger.Information($"Match: {match.Value}, Bytes: {BitConverter.ToString(Encoding.UTF32.GetBytes(match.Value))}, Index: {match.Index}, Length: {match.Length}");
+                //ChatPlexSDK.Logger.Information($"Match: {match.Value}, Bytes: {BitConverter.ToString(Encoding.UTF32.GetBytes(match.Value))}, Index: {match.Index}, Length: {match.Length}");
 
                 string l_UnicodeStr = WebParseEmojiRegExMatchEvaluator(l_Match);
 
@@ -35,7 +35,7 @@ namespace CP_SDK.Chat.Services
                     Animation   = Animation.EAnimationType.NONE
                 };
 
-                //ChatPlexUnitySDK.Logger.Information($"Match: {BitConverter.ToString(Encoding.UTF32.GetBytes(match.Value))}, Emoji: {unicodeStr}, StartIndex: {emoji.StartIndex}, EndIndex: {emoji.EndIndex}, Uri: {emoji.Uri}");
+                //ChatPlexSDK.Logger.Information($"Match: {BitConverter.ToString(Encoding.UTF32.GetBytes(match.Value))}, Emoji: {unicodeStr}, StartIndex: {emoji.StartIndex}, EndIndex: {emoji.EndIndex}, Uri: {emoji.Uri}");
                 p_Emotes.Add(l_Emoji);
             }
         }

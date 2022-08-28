@@ -12,37 +12,24 @@ namespace BeatSaberPlus.SDK.UI
         /// Setup loading control component
         /// </summary>
         /// <param name="p_Modal">Modal game object</param>
-        /// <param name="p_LoadingControl">Instantiated LoadingControl component</param>
         /// <returns></returns>
-        public static bool SetupLoadingControl(GameObject p_Modal, out LoadingControl p_LoadingControl)
+        public static LoadingControl SetupLoadingControl(HMUI.ModalView p_Modal)
         {
-            p_LoadingControl = null;
-
-            if (p_Modal == null || !p_Modal)
-                return false;
+            if (!p_Modal)
+                return null;
 
             var l_Control = Resources.FindObjectsOfTypeAll<LoadingControl>().FirstOrDefault();
-            if (l_Control == null || !l_Control)
-                return false;
+            if (l_Control == null)
+                return null;
 
-            p_LoadingControl = GameObject.Instantiate(l_Control, p_Modal.transform);
-            p_LoadingControl.transform.SetAsLastSibling();
+            var l_LoadingControl = GameObject.Instantiate(l_Control, p_Modal.transform);
+            l_LoadingControl.transform.SetAsLastSibling();
 
-            var l_Touchable = p_LoadingControl.GetComponent<HMUI.Touchable>();
+            var l_Touchable = l_LoadingControl.GetComponent<HMUI.Touchable>();
             if (l_Touchable)
                 GameObject.Destroy(l_Touchable);
 
-            return true;
-        }
-        /// <summary>
-        /// Setup loading control component
-        /// </summary>
-        /// <param name="p_Modal">Modal game object</param>
-        /// <param name="p_LoadingControl">Instantiated LoadingControl component</param>
-        /// <returns></returns>
-        public static bool SetupLoadingControl(HMUI.ModalView p_Modal, out LoadingControl p_LoadingControl)
-        {
-            return SetupLoadingControl(p_Modal != null ? p_Modal.gameObject : null, out p_LoadingControl);
+            return l_LoadingControl;
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -56,7 +43,7 @@ namespace BeatSaberPlus.SDK.UI
         /// <returns></returns>
         public static bool SetOpacity(GameObject p_Modal, float p_Opacity)
         {
-            if (p_Modal == null || !p_Modal)
+            if (!p_Modal)
                 return false;
 
             var l_BG = p_Modal.gameObject.transform.Find("BG");

@@ -269,7 +269,7 @@ namespace CP_SDK.Chat.Services.Twitch
                                             l_SystemMessage.RaidViewerCount = 0;
                                     }
 
-                                    ///ChatPlexUnitySDK.Logger.Information($"Message: {match.Value}");
+                                    ///ChatPlexSDK.Logger.Information($"Message: {match.Value}");
                                     if (l_Tags.TryGetValue("msg-param-sub-plan", out var l_SubPlanName))
                                     {
                                         if (l_SubPlanName == "Prime")
@@ -340,7 +340,7 @@ namespace CP_SDK.Chat.Services.Twitch
 
 #if DEBUG
             l_Stopwatch.Stop();
-            ChatPlexUnitySDK.Logger.Debug($"Successfully parsed {p_ParsedMessages.Count} messages in {(decimal)l_Stopwatch.ElapsedTicks / TimeSpan.TicksPerMillisecond}ms");
+            ChatPlexSDK.Logger.Debug($"Successfully parsed {p_ParsedMessages.Count} messages in {(decimal)l_Stopwatch.ElapsedTicks / TimeSpan.TicksPerMillisecond}ms");
 #endif
 
             return p_ParsedMessages.Count > 0;
@@ -391,18 +391,20 @@ namespace CP_SDK.Chat.Services.Twitch
                 var l_Badges    = Pool.MTListPool<IChatBadge>.Get();
                 var l_Failed    = false;
 
-                for (int l_I = 0; l_I < l_Parts.Length; ++l_I)
+                for (int l_I = l_Parts.Length - 1; l_I >=0 ; --l_I)
                 {
                     var l_BadgeId = l_Parts[l_I].Replace("/", "");
                     if (m_TwitchDataProvider.TryGetBadgeInfo(l_BadgeId, p_RoomID, out var l_BadgeInfo))
                     {
-                        l_Badges.Add(new TwitchBadge()
+                        var l_NewBadge = new TwitchBadge()
                         {
                             Id      = $"{l_BadgeInfo.Type}_{l_BadgeId}",
                             Name    = l_Parts[l_I].Split('/')[0],
                             Type    = EBadgeType.Image,
-                            Content     = l_BadgeInfo.Uri
-                        });
+                            Content = l_BadgeInfo.Uri
+                        };
+
+                        l_Badges.Add(l_NewBadge);
                     }
                     else
                         l_Failed = true;
@@ -492,7 +494,7 @@ namespace CP_SDK.Chat.Services.Twitch
                             /// Make sure we haven't already matched a Twitch emote with the same string, just incase the user has a BTTV/FFZ emote with the same name
                             if (TwitchSettingsConfig.Instance.ParseCheermotes && p_MessageBits > 0 && m_TwitchDataProvider.TryGetCheermote(l_LastWord, p_RoomID, out var l_CheermoteData, out var l_NumBits) && l_NumBits > 0)
                             {
-                                ///ChatPlexUnitySDK.Logger.Error($"Got cheermote! Total message bits: {l_NumBits} {l_CheermoteData.Prefix}");
+                                ///ChatPlexSDK.Logger.Error($"Got cheermote! Total message bits: {l_NumBits} {l_CheermoteData.Prefix}");
                                 var l_Tier = l_CheermoteData.GetTier(l_NumBits);
                                 if (l_Tier != null)
                                 {

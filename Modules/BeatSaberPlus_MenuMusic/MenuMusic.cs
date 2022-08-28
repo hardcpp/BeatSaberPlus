@@ -137,7 +137,8 @@ namespace BeatSaberPlus_MenuMusic
         protected override void OnEnable()
         {
             /// Bind event
-            BeatSaberPlus.SDK.Game.Logic.OnSceneChange += Game_OnSceneChange;
+            CP_SDK.ChatPlexSDK.OnGenericSceneChange             += ChatPlexSDK_OnGenericSceneChange;
+            CP_SDK.Chat.Service.Discrete_OnTextMessageReceived  += ChatService_Discrete_OnTextMessageReceived;
 
             /// Create CustomMenuSongs directory if not existing
             try
@@ -164,20 +165,18 @@ namespace BeatSaberPlus_MenuMusic
             RefreshSongs();
 
             /// Enable at start if in menu
-            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Menu)
-                Game_OnSceneChange(BeatSaberPlus.SDK.Game.Logic.SceneType.Menu);
+            if (CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.ChatPlexSDK.EGenericScene.Menu)
+                ChatPlexSDK_OnGenericSceneChange(CP_SDK.ChatPlexSDK.EGenericScene.Menu);
 
-            CP_SDK.Chat.Service.Discrete_OnTextMessageReceived += ChatService_Discrete_OnTextMessageReceived;
         }
         /// <summary>
         /// Disable the Module
         /// </summary>
         protected override void OnDisable()
         {
-            CP_SDK.Chat.Service.Discrete_OnTextMessageReceived -= ChatService_Discrete_OnTextMessageReceived;
-
             /// Unbind event
-            BeatSaberPlus.SDK.Game.Logic.OnSceneChange -= Game_OnSceneChange;
+            CP_SDK.Chat.Service.Discrete_OnTextMessageReceived  -= ChatService_Discrete_OnTextMessageReceived;
+            CP_SDK.ChatPlexSDK.OnGenericSceneChange             -= ChatPlexSDK_OnGenericSceneChange;
 
             /// Stop wait and play next song coroutine
             if (m_WaitAndPlayNextSongCoroutine != null)
@@ -224,15 +223,13 @@ namespace BeatSaberPlus_MenuMusic
         /// When the active scene change
         /// </summary>
         /// <param name="p_Scene">Scene type</param>
-        private void Game_OnSceneChange(BeatSaberPlus.SDK.Game.Logic.SceneType p_Scene)
+        private void ChatPlexSDK_OnGenericSceneChange(CP_SDK.ChatPlexSDK.EGenericScene p_Scene)
         {
             /// Skip if it's not the menu
-            if (p_Scene != BeatSaberPlus.SDK.Game.Logic.SceneType.Menu)
+            if (p_Scene != CP_SDK.ChatPlexSDK.EGenericScene.Menu)
             {
-                if (m_PreviewPlayer != null && m_PreviewPlayer && m_OriginalMenuMusic != null)
-                {
-                    m_PreviewPlayer.SetField("_defaultAudioClip",   m_OriginalMenuMusic);
-                }
+                if (m_PreviewPlayer != null && m_PreviewPlayer && m_OriginalMenuMusic != null && m_OriginalMenuMusic)
+                    m_PreviewPlayer.SetField("_defaultAudioClip", m_OriginalMenuMusic);
 
                 DestroyFloatingPlayer();
                 return;
@@ -272,17 +269,18 @@ namespace BeatSaberPlus_MenuMusic
         /// <summary>
         /// Update playback volume
         /// </summary>
-        internal void UpdatePlaybackVolume(bool p_FromSettings)
+        /// <param name="p_FromConfig">From config?</param>
+        internal void UpdatePlaybackVolume(bool p_FromConfig)
         {
             if (m_PreviewPlayer == null || !m_PreviewPlayer)
                 return;
 
             m_PreviewPlayer.SetField("_volumeScale", MMConfig.Instance.PlaybackVolume);
 
-            if (p_FromSettings && m_PlayerFloatingScreenController != null && m_PlayerFloatingScreenController)
+            if (p_FromConfig && m_PlayerFloatingScreenController != null && m_PlayerFloatingScreenController)
                 m_PlayerFloatingScreenController.UpdateVolume();
 
-            if (!p_FromSettings && m_SettingsView && UI.Settings.CanBeUpdated)
+            if (!p_FromConfig && m_SettingsView && UI.Settings.CanBeUpdated)
                 m_SettingsView.OnResetButton();
 
             MMConfig.Instance.Save();
@@ -476,6 +474,8 @@ namespace BeatSaberPlus_MenuMusic
         /// <summary>
         /// Start a new music
         /// </summary>
+        /// <param name="p_Random">Pick a random song?</param>
+        /// <param name="p_OnSceneTransition">On scene transition?</param>
         internal void StartNewMusic(bool p_Random = false, bool p_OnSceneTransition = false)
         {
             /// Do nothing if no custom song available
@@ -533,8 +533,9 @@ namespace BeatSaberPlus_MenuMusic
         /// <summary>
         /// Load the song into the preview player
         /// </summary>
+        /// <param name="p_OnSceneTransition">On scene transition?</param>
         /// <returns></returns>
-        IEnumerator LoadAudioClip(bool p_OnSceneTransition)
+        private IEnumerator LoadAudioClip(bool p_OnSceneTransition)
         {
             if (m_WaitAndPlayNextSongCoroutine != null)
             {
@@ -699,9 +700,6 @@ namespace BeatSaberPlus_MenuMusic
 
                         var l_Channel = (AudioSource)l_AudioSourceField.GetValue(l_ChannelController);
 
-                        //if (l_Channel.isPlaying && l_Channel.clip == m_CurrentMusic)
-                        //    Logger.Instance.Error(string.Format("{0}/{1}", l_Channel.time, p_EndTime));
-
                         if (!m_IsPaused && !l_Channel.isPlaying && l_Channel.clip == m_CurrentMusic && l_ChannelsController.IndexOf(l_ChannelController) == m_PreviewPlayer.GetField<int, SongPreviewPlayer>("_activeChannel"))
                             l_Channel.UnPause();
 
@@ -751,6 +749,7 @@ namespace BeatSaberPlus_MenuMusic
         /// Search songs in a folder
         /// </summary>
         /// <param name="p_BaseDirectory">Base search directory</param>
+        /// <param name="p_CustomMenuSongs">Include custom menu songs sub directories?</param>
         /// <returns></returns>
         private List<string> GetSongsInDirectory(string p_BaseDirectory, bool p_CustomMenuSongs)
         {

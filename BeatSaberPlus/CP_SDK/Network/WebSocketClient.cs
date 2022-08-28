@@ -142,7 +142,7 @@ namespace CP_SDK.Network
 
                             }
 
-                            if (m_Client.State == System.Net.WebSockets.WebSocketState.Open)
+                            if (m_Client != null && m_Client.State == System.Net.WebSockets.WebSocketState.Open)
                             {
                                 Client_OnOpen(this);
 
@@ -223,7 +223,7 @@ namespace CP_SDK.Network
             {
 #if DEBUG
                 /// Only log this in debug builds, since it can potentially contain sensitive auth data
-                ChatPlexUnitySDK.Logger.Debug($"Sending {p_Message}");
+                ChatPlexSDK.Logger.Debug($"Sending {p_Message}");
 #endif
 
                 var l_Writen    = Encoding.UTF8.GetBytes(p_Message, 0, p_Message.Length, m_SendBuffer, 0);
@@ -327,7 +327,7 @@ namespace CP_SDK.Network
         {
 #if DEBUG
             /// Only log this in debug builds, since it can potentially contain sensitive auth data
-            ChatPlexUnitySDK.Logger.Debug($"[CP_SDK.Network][WebSocketClient.Client_OnMessageReceived] Message received from {m_URI}: {p_Message}");
+            ChatPlexSDK.Logger.Debug($"[CP_SDK.Network][WebSocketClient.Client_OnMessageReceived] Message received from {m_URI}: {p_Message}");
 #endif
             OnMessageReceived?.Invoke(p_Message);
         }

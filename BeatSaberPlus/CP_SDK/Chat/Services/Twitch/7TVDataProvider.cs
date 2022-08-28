@@ -25,12 +25,11 @@ namespace CP_SDK.Chat.Services.Twitch
             [JsonProperty] internal float Stop;
             [JsonProperty] internal Color32 StopColor;
         }
-        private struct CustomPaint
+        private class CustomPaint
         {
 #pragma warning disable CS0649
-            [JsonProperty] internal string Name;
-            [JsonProperty] internal CachedPaintStop[] Stops;
-            [JsonProperty] internal (string, string)[] Users;
+            [JsonProperty] internal object[][] Stops;
+            [JsonProperty] internal string[] Users;
 #pragma warning restore CS0649
         }
 
@@ -90,10 +89,10 @@ namespace CP_SDK.Chat.Services.Twitch
 
                                 Resources.TryAdd(l_ID, new ChatResourceData()
                                 {
-                                    Uri         = l_URI,
-                                    Animation   = Animation.EAnimationType.AUTODETECT,
-                                    Category    = EChatResourceCategory.Emote,
-                                    Type        = l_IsGlobal ? "7TVGlobalEmote" : "7TVChannelEmote"
+                                    Uri = l_URI,
+                                    Animation = Animation.EAnimationType.AUTODETECT,
+                                    Category = EChatResourceCategory.Emote,
+                                    Type = l_IsGlobal ? "7TVGlobalEmote" : "7TVChannelEmote"
                                 });
                                 l_Count++;
                             }
@@ -130,8 +129,8 @@ namespace CP_SDK.Chat.Services.Twitch
                             {
                                 for (int l_PI = 0; l_PI < l_Cosmetics.paints.Length; ++l_PI)
                                 {
-                                    var l_Paint         = l_Cosmetics.paints[l_PI];
-                                    var l_CachedPaint   = CachePaint(l_Paint);
+                                    var l_Paint = l_Cosmetics.paints[l_PI];
+                                    var l_CachedPaint = CachePaint(l_Paint);
 
                                     if (l_CachedPaint != null && l_Paint.users != null)
                                     {
@@ -162,23 +161,39 @@ namespace CP_SDK.Chat.Services.Twitch
                 {
                     ChatPlexSDK.Logger.Debug($"Requesting 7TV cosmetics");
 
-                    using (var l_Message = new HttpRequestMessage(HttpMethod.Get, "https://mods-data.hardcpp.com/twitch_painted_names.json"))
+                    using (var l_Message = new HttpRequestMessage(HttpMethod.Get, "https://data.chatplex.org/twitch_gradient_names.json"))
                     {
                         var l_Response = await m_HTTPClient.SendAsync(l_Message).ConfigureAwait(false);
                         if (l_Response.IsSuccessStatusCode)
                         {
-                            var l_CustomPaintings   = JsonConvert.DeserializeObject<CustomPaint[]>(await l_Response.Content.ReadAsStringAsync().ConfigureAwait(false), new Config.JsonConverters.Color32Converter());
-                            var l_Count             = 0;
+                            var l_CustomPaintings = JsonConvert.DeserializeObject<CustomPaint[]>(await l_Response.Content.ReadAsStringAsync().ConfigureAwait(false));
+                            var l_Count = 0;
 
                             for (int l_I = 0; l_I < l_CustomPaintings.Length; ++l_I)
                             {
-                                for (int l_U = 0; l_U < l_CustomPaintings[l_I].Users.Length; ++l_U)
+                                var l_CustomPainting    = l_CustomPaintings[l_I];
+                                var l_StopsS            = l_CustomPainting.Stops[0];
+                                var l_StopsC            = l_CustomPainting.Stops[1];
+                                var l_Converted         = new List<CachedPaintStop>();
+
+                                for (int l_SI = 0; l_SI < l_StopsS.Length; ++l_SI)
                                 {
-                                    var l_UserID = l_CustomPaintings[l_I].Users[l_U].Item2;
+                                    ColorUtility.TryParseHtmlString((string)l_StopsC[l_SI], out var l_Color);
+                                    l_Converted.Add(new CachedPaintStop()
+                                    {
+                                        Stop        = float.Parse(l_StopsS[l_SI].ToString()),
+                                        StopColor   = l_Color
+                                    });
+                                }
+
+                                var l_AsArray = l_Converted.ToArray();
+                                for (int l_UI = 0; l_UI < l_CustomPainting.Users.Length; ++l_UI)
+                                {
+                                    var l_UserID = l_CustomPainting.Users[l_UI];
                                     if (m_Paints.ContainsKey(l_UserID))
-                                        m_Paints[l_UserID] = l_CustomPaintings[l_I].Stops;
+                                        m_Paints[l_UserID] = l_AsArray;
                                     else
-                                        m_Paints.TryAdd(l_UserID, l_CustomPaintings[l_I].Stops);
+                                        m_Paints.TryAdd(l_UserID, l_AsArray);
                                     l_Count++;
                                 }
                             }
@@ -242,9 +257,9 @@ namespace CP_SDK.Chat.Services.Twitch
                 var l_PaintedName = "";
                 for (int l_C = 0; l_C < p_Default.Length; ++l_C)
                 {
-                    var l_Progress  = (float)l_C / (float)p_Default.Length;
-                    var l_StopA     = new CachedPaintStop() { Stop = -1f, StopColor = Color.black };
-                    var l_StopB     = new CachedPaintStop() { Stop = -1f, StopColor = Color.black};
+                    var l_Progress = (float)l_C / (float)p_Default.Length;
+                    var l_StopA = new CachedPaintStop() { Stop = -1f, StopColor = Color.black };
+                    var l_StopB = new CachedPaintStop() { Stop = -1f, StopColor = Color.black };
 
                     for (int l_S = 0; l_S < l_Paint.Length; ++l_S)
                     {
@@ -282,8 +297,8 @@ namespace CP_SDK.Chat.Services.Twitch
             if (p_Paint.stops == null || p_Paint.stops.Length == 0/* || (!l_Paint.color.HasValue && l_Paint.stops.Length < 2)*/)
                 return null;
 
-            var l_DefaultColor  = p_Paint.color.HasValue ? ConvertColor(p_Paint.color.Value) : (Color32)Color.black;
-            var l_Stops         = null as List<(float, Color32)>;
+            var l_DefaultColor = p_Paint.color.HasValue ? ConvertColor(p_Paint.color.Value) : (Color32)Color.black;
+            var l_Stops = null as List<(float, Color32)>;
 
             if (p_Paint.shape == "circle")
             {
@@ -338,7 +353,7 @@ namespace CP_SDK.Chat.Services.Twitch
                 }
             }
 
-            return l_Stops.Distinct().OrderBy(x => x.Item1).Select(x => new CachedPaintStop() { Stop = x.Item1, StopColor = x.Item2}).ToArray();
+            return l_Stops.Distinct().OrderBy(x => x.Item1).Select(x => new CachedPaintStop() { Stop = x.Item1, StopColor = x.Item2 }).ToArray();
         }
         /// <summary>
         /// Convert int color to Color object
@@ -350,8 +365,8 @@ namespace CP_SDK.Chat.Services.Twitch
             return new Color32(
                 (byte)((p_Color >> 24) & 0xFF),
                 (byte)((p_Color >> 16) & 0xFF),
-                (byte)((p_Color >>  8) & 0xFF),
-                (byte)((p_Color >>  0) & 0xFF)
+                (byte)((p_Color >> 8) & 0xFF),
+                (byte)((p_Color >> 0) & 0xFF)
             );
         }
     }

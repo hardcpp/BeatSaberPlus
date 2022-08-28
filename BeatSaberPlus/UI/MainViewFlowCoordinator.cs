@@ -8,7 +8,7 @@
         /// <summary>
         /// Title
         /// </summary>
-        public override string Title => "Beat Saber Plus V5.0.0";
+        public override string Title => "Beat Saber Plus V5.0.1";
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -21,10 +21,6 @@
         /// Main view
         /// </summary>
         private MainView m_MainView;
-        /// <summary>
-        /// ChangeLog view
-        /// </summary>
-        //private ChangeLogView m_ChangeLogView;
         /// <summary>
         /// Settings view
         /// </summary>
@@ -48,7 +44,6 @@
         {
             m_InfoView          = CreateViewController<InfoView>();
             m_MainView          = CreateViewController<MainView>();
-            //m_ChangeLogView     = CreateViewController<ChangeLogView>();
             m_SettingsView      = CreateViewController<SettingsView>();
             m_SettingsLeftView  = CreateViewController<SettingsLeftView>();
             m_SettingsRightView = CreateViewController<SettingsRightView>();

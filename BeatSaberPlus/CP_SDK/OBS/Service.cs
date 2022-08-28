@@ -271,7 +271,7 @@ namespace CP_SDK.OBS
         private static void WebSocket_OnMessageReceived(string p_Message)
         {
 #if DEBUG
-            ChatPlexUnitySDK.Logger.Info("[CP_SDK.OBS][Service.WebSocket_OnMessageReceived]");
+            ChatPlexSDK.Logger.Info("[CP_SDK.OBS][Service.WebSocket_OnMessageReceived]");
 #endif
 
             try
@@ -326,7 +326,7 @@ namespace CP_SDK.OBS
                     var l_UpdateType = l_JObject["update-type"]?.Value<string>() ?? "None";
 
 #if DEBUG
-                    ChatPlexUnitySDK.Logger.Info("[CP_SDK.OBS][Service.WebSocket_OnMessageReceived] UpdateType: " + l_UpdateType);
+                    ChatPlexSDK.Logger.Info("[CP_SDK.OBS][Service.WebSocket_OnMessageReceived] UpdateType: " + l_UpdateType);
 #endif
                     switch (l_UpdateType)
                     {
@@ -343,8 +343,8 @@ namespace CP_SDK.OBS
                         case "RecordingStopped":          Update_RecordingStopped(l_JObject);             break;
 #if DEBUG
                         default:
-                            ChatPlexUnitySDK.Logger.Error("[CP_SDK.OBS][Service.WebSocket_OnMessageReceived] Unhandled:");
-                            ChatPlexUnitySDK.Logger.Error(p_Message);
+                            ChatPlexSDK.Logger.Error("[CP_SDK.OBS][Service.WebSocket_OnMessageReceived] Unhandled:");
+                            ChatPlexSDK.Logger.Error(p_Message);
                             break;
 #endif
                     }

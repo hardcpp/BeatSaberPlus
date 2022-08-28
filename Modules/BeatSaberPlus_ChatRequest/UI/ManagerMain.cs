@@ -15,7 +15,7 @@ namespace BeatSaberPlus_ChatRequest.UI
     /// <summary>
     /// Chat request main view controller
     /// </summary>
-    internal class ManagerMain : BeatSaberPlus.SDK.UI.ResourceViewController<ManagerMain>, IProgress<double>
+    internal class ManagerMain : BeatSaberPlus.SDK.UI.ResourceViewController<ManagerMain>, IProgress<float>
     {
         /// <summary>
         /// Amount of song to display per page
@@ -421,26 +421,33 @@ namespace BeatSaberPlus_ChatRequest.UI
                     ShowLoadingModal("Downloading", true);
 
                     /// Start downloading
-                    BeatSaberPlus.SDK.Game.BeatMapsClient.DownloadSong(m_SelectedSong.BeatMap, m_SelectedSong.BeatMap.SelectMapVersion(), CancellationToken.None, this).ContinueWith((x) =>
-                    {
-                        if (x.Result.Item1)
-                        {
-                            m_SongReloadingExpectedPath = x.Result.Item2;
+                    BeatSaberPlus.SDK.Game.BeatMapsClient.DownloadSong(
+                        m_SelectedSong.BeatMap,
+                        m_SelectedSong.BeatMap.SelectMapVersion(),
+                        CancellationToken.None,
+                        (p_IsSuccess, p_SongReloadingExpectedPath) => {
+                            if (p_IsSuccess)
+                            {
+                                m_SongReloadingExpectedPath = p_SongReloadingExpectedPath;
 
-                            /// Bind callback
-                            SongCore.Loader.SongsLoadedEvent += OnDownloadedSongLoaded;
-                            /// Refresh loaded songs
-                            SongCore.Loader.Instance.RefreshSongs(false);
-                        }
-                        else
-                        {
-                            /// Show error message
-                            CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() => {
-                                HideLoadingModal();
-                                ShowMessageModal("Download failed!");
-                            });
-                        }
-                    }).ConfigureAwait(false);
+                                CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() =>
+                                {
+                                    /// Bind callback
+                                    SongCore.Loader.SongsLoadedEvent += OnDownloadedSongLoaded;
+                                    /// Refresh loaded songs
+                                    SongCore.Loader.Instance.RefreshSongs(false);
+                                });
+                            }
+                            else
+                            {
+                                /// Show error message
+                                CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() => {
+                                    HideLoadingModal();
+                                    ShowMessageModal("Download failed!");
+                                });
+                            }
+                        },
+                        this);
 
                     return;
                 }
@@ -486,7 +493,7 @@ namespace BeatSaberPlus_ChatRequest.UI
         /// On download progress reported
         /// </summary>
         /// <param name="p_Value"></param>
-        void IProgress<double>.Report(double p_Value)
+        void IProgress<float>.Report(float p_Value)
         {
             SetLoadingModal_DownloadProgress($"Downloading {Mathf.Round((float)(p_Value * 100.0))}%", (float)p_Value);
         }

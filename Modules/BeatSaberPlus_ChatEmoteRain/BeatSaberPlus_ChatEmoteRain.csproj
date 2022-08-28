@@ -126,9 +126,6 @@
   <ItemGroup>
     <Compile Include="CERConfig.cs" />
     <Compile Include="ChatEmoteRain.cs" />
-    <Compile Include="Components\EmitterGroup.cs" />
-    <Compile Include="Components\EmitterGroupManager.cs" />
-    <Compile Include="Components\EmitterInstance.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -146,16 +143,15 @@
       <DependentUpon>Settings.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\PreviewMaterial.bundle" />
-    <EmbeddedResource Include="UI\EmitterWidget.bsml" />
+    <EmbeddedResource Include="UI\EmitterWidget.bsml" >
+      <DependentUpon>EmitterWidget.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UI\SettingsLeft.bsml">
       <DependentUpon>SettingsLeft.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\SettingsRight.bsml">
       <DependentUpon>SettingsRight.cs</DependentUpon>
     </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\DefaultEmote.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\BeatSaberPlus\BeatSaberPlus.csproj">

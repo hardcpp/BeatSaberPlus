@@ -92,7 +92,7 @@ namespace CP_SDK.Network
         public async Task<APIResponse> GetAsync(string p_URL, CancellationToken p_Token, bool p_DontRetry = false)
         {
 #if DEBUG
-            ChatPlexUnitySDK.Logger.Debug("[CP_SDK.Network][APIClient.GetAsync] GET " + p_URL);
+            ChatPlexSDK.Logger.Debug("[CP_SDK.Network][APIClient.GetAsync] GET " + p_URL);
 #endif
             p_Token.ThrowIfCancellationRequested();
 
@@ -299,137 +299,6 @@ namespace CP_SDK.Network
                     ChatPlexSDK.Logger.Error($"[CP_SDK.Network][APIClient.DeleteAsync] Request {SafeURL(p_URL)} failed with code {l_Reply.StatusCode}:\"{l_Reply.ReasonPhrase}\", next try in 5 seconds...");
                 else
                     ChatPlexSDK.Logger.Error($"[CP_SDK.Network][APIClient.DeleteAsync] Request {SafeURL(p_URL)} failed, next try in 5 seconds...");
-
-                /// Short exit
-                if (p_DontRetry)
-                    return null;
-
-                /// Wait 5 seconds
-                await Task.Delay(RetryInterval).ConfigureAwait(false);
-            }
-
-            return null;
-        }
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        /// <summary>
-        /// Download async
-        /// </summary>
-        /// <param name="p_URL">Target URL</param>
-        /// <param name="p_Token">Cancellation token</param>
-        /// <param name="p_Progress">Progress reporter</param>
-        /// <param name="p_ShouldRetry">Should retry in case of failure?</param>
-        /// <returns></returns>
-        public async Task<byte[]> DownloadAsync(string p_URL, CancellationToken p_Token, IProgress<double> p_Progress, bool p_DontRetry = false)
-        {
-#if DEBUG
-            ChatPlexUnitySDK.Logger.Debug("[CP_SDK.Network][APIClient.DownloadAsync] GET " + p_URL);
-#endif
-            p_Token.ThrowIfCancellationRequested();
-
-            HttpResponseMessage l_Reply = null;
-            for (int l_Retry = 0; l_Retry < MaxRetry; l_Retry++)
-            {
-                if (p_Token.IsCancellationRequested)
-                    p_Token.ThrowIfCancellationRequested();
-
-                try
-                {
-                    l_Reply = await m_Client.GetAsync(p_URL, HttpCompletionOption.ResponseHeadersRead, p_Token);
-
-                    if (p_DontRetry || l_Reply.IsSuccessStatusCode || l_Reply.StatusCode == HttpStatusCode.NotFound || l_Reply.StatusCode == HttpStatusCode.BadRequest)
-                    {
-                        var l_MemoryStream = new MemoryStream();
-                        var l_Stream = await l_Reply.Content.ReadAsStreamAsync().ConfigureAwait(false);
-
-                        byte[] l_Buffer = new byte[8192];
-                        long? l_ContentLength = l_Reply.Content.Headers.ContentLength;
-                        long l_TotalRead = 0;
-                        p_Progress?.Report(0.0);
-
-                        while (true)
-                        {
-                            int l_ReadBytes;
-                            if ((l_ReadBytes = await l_Stream.ReadAsync(l_Buffer, 0, l_Buffer.Length, p_Token).ConfigureAwait(false)) > 0)
-                            {
-                                if (!p_Token.IsCancellationRequested)
-                                {
-                                    if (l_ContentLength.HasValue)
-                                        p_Progress?.Report((double)l_TotalRead / (double)l_ContentLength.Value);
-
-                                    await l_MemoryStream.WriteAsync(l_Buffer, 0, l_ReadBytes, p_Token).ConfigureAwait(false);
-                                    l_TotalRead += (long)l_ReadBytes;
-                                }
-                                else
-                                    break;
-                            }
-                            else
-                            {
-                                p_Progress?.Report(1.0);
-                                return l_MemoryStream.ToArray();
-                            }
-                        }
-                    }
-                }
-                catch (System.Exception)
-                {
-                    /// Do nothing here
-                }
-
-                if (p_Token.IsCancellationRequested)
-                    p_Token.ThrowIfCancellationRequested();
-
-                if (l_Reply != null)
-                    ChatPlexSDK.Logger.Error($"[CP_SDK.Network][APIClient.DownloadAsync] Request {SafeURL(p_URL)} failed with code {l_Reply.StatusCode}:\"{l_Reply.ReasonPhrase}\", next try in 5 seconds...");
-                else
-                    ChatPlexSDK.Logger.Error($"[CP_SDK.Network][APIClient.DownloadAsync] Request {SafeURL(p_URL)} failed, next try in 5 seconds...");
-
-                /// Short exit
-                if (p_DontRetry)
-                    return null;
-
-                /// Wait 5 seconds
-                await Task.Delay(RetryInterval).ConfigureAwait(false);
-            }
-
-            return null;
-        }
-        /// <summary>
-        /// Download async one shot
-        /// </summary>
-        /// <param name="p_Content">Request content</param>
-        /// <returns>HTTPResponse</returns>
-        public async Task<byte[]> DownloadAsyncOneShot(string p_URL, CancellationToken p_Token, bool p_DontRetry = false)
-        {
-#if DEBUG
-            ChatPlexUnitySDK.Logger.Debug("[CP_SDK.Network][APIClient.DownloadAsyncOneShot] GET " + p_URL);
-#endif
-            p_Token.ThrowIfCancellationRequested();
-
-            byte[] l_Reply = null;
-            for (int l_Retry = 0; l_Retry < MaxRetry; l_Retry++)
-            {
-                if (p_Token.IsCancellationRequested)
-                    p_Token.ThrowIfCancellationRequested();
-
-                try
-                {
-                    l_Reply = await m_Client.GetByteArrayAsync(p_URL).ConfigureAwait(false);
-                }
-                catch (Exception)
-                {
-                    /// Do nothing here
-                }
-
-                if (p_Token.IsCancellationRequested)
-                    p_Token.ThrowIfCancellationRequested();
-
-                if (l_Reply != null)
-                    return l_Reply;
-
-                ChatPlexSDK.Logger.Error($"[CP_SDK.Network][APIClient.DownloadAsyncOneShot] Request {SafeURL(p_URL)} failed, next try in 5 seconds...");
 
                 /// Short exit
                 if (p_DontRetry)

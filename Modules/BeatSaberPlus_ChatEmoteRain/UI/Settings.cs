@@ -7,6 +7,8 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 
+using EmitterConfig = CP_SDK.Unity.Components.EnhancedImageParticleEmitter.EmitterConfig;
+
 namespace ChatPlexMod_ChatEmoteRain.UI
 {
     /// <summary>
@@ -286,14 +288,14 @@ namespace ChatPlexMod_ChatEmoteRain.UI
         /// Rebuilt emitter list
         /// </summary>
         /// <param name="p_EmitterToFocus">Emitter to focus</param>
-        public void RebuildEmitterList(CERConfig._Emitter p_EmitterToFocus)
+        public void RebuildEmitterList(EmitterConfig p_EmitterToFocus)
         {
             if (!UICreated)
                 return;
 
-            var l_TargetList = m_MenuEmittersTab.activeSelf ? m_MenuEmittersTab_List : m_SongEmittersTab_List;
-            var l_DataSource = m_MenuEmittersTab.activeSelf ? CERConfig.Instance.MenuEmitters : CERConfig.Instance.SongEmitters;
-            var l_CurrentPage = m_MenuEmittersTab.activeSelf ? m_MenuEmittersCurrentPage : m_SongEmittersCurrentPage;
+            var l_TargetList    = m_MenuEmittersTab.activeSelf ? m_MenuEmittersTab_List : m_SongEmittersTab_List;
+            var l_DataSource    = m_MenuEmittersTab.activeSelf ? CERConfig.Instance.MenuEmitters : CERConfig.Instance.SongEmitters;
+            var l_CurrentPage   = m_MenuEmittersTab.activeSelf ? m_MenuEmittersCurrentPage : m_SongEmittersCurrentPage;
 
             /// Update page count
             var l_PageCount  = Math.Max(1, Mathf.CeilToInt((float)(l_DataSource.Count) / (float)(s_EMITTER_PER_PAGE)));
@@ -428,7 +430,7 @@ namespace ChatPlexMod_ChatEmoteRain.UI
         [UIAction("click-emitters-add-btn-pressed")]
         private void OnEmitterAdd()
         {
-            var l_Emitter = new CERConfig._Emitter();
+            var l_Emitter = new EmitterConfig();
             if (m_MenuEmittersTab.activeSelf)
             {
                 CERConfig.Instance.MenuEmitters.Add(l_Emitter);

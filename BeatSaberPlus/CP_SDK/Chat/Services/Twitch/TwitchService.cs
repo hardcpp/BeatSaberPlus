@@ -829,7 +829,7 @@ namespace CP_SDK.Chat.Services.Twitch
             lock (m_MessageReceivedLock)
             {
                 //System.IO.File.AppendAllText("out.txt", p_RawMessage + "\r\n");
-                ///ChatPlexUnitySDK.Logger.Info("RawMessage: " + p_RawMessage);
+                ///ChatPlexSDK.Logger.Info("RawMessage: " + p_RawMessage);
                 m_MessageReceivedParsingBuffer.Clear();
                 if (!m_MessageParser.ParseRawMessage(p_RawMessage, m_Channels, m_LoggedInUser, m_MessageReceivedParsingBuffer, m_LoggedInUsername))
                 {
@@ -903,7 +903,7 @@ namespace CP_SDK.Chat.Services.Twitch
                             continue;
 
                         case "JOIN":
-                            ///ChatPlexUnitySDK.Logger.Info($"{twitchMessage.Sender.Name} JOINED {twitchMessage.Channel.Id}. LoggedInuser: {LoggedInUser.Name}");
+                            ///ChatPlexSDK.Logger.Info($"{twitchMessage.Sender.Name} JOINED {twitchMessage.Channel.Id}. LoggedInuser: {LoggedInUser.Name}");
                             if (l_TwitchMessage.Sender.UserName == m_LoggedInUsername
                                 && !m_Channels.ContainsKey(l_TwitchMessage.Channel.Id))
                             {
@@ -917,7 +917,7 @@ namespace CP_SDK.Chat.Services.Twitch
                             continue;
 
                         case "PART":
-                            ///ChatPlexUnitySDK.Logger.Info($"{twitchMessage.Sender.Name} PARTED {twitchMessage.Channel.Id}. LoggedInuser: {LoggedInUser.Name}");
+                            ///ChatPlexSDK.Logger.Info($"{twitchMessage.Sender.Name} PARTED {twitchMessage.Channel.Id}. LoggedInuser: {LoggedInUser.Name}");
                             if (l_TwitchMessage.Sender.UserName == m_LoggedInUsername
                                 && m_Channels.TryRemove(l_TwitchMessage.Channel.Id, out var l_Channel))
                             {
@@ -981,7 +981,7 @@ namespace CP_SDK.Chat.Services.Twitch
                         ///case "NAMES":
                         ///case "HOSTTARGET":
                         ///case "RECONNECT":
-                        ///    ChatPlexUnitySDK.Logger.Info($"No handler exists for type {twitchMessage.Type}. {rawMessage}");
+                        ///    ChatPlexSDK.Logger.Info($"No handler exists for type {twitchMessage.Type}. {rawMessage}");
                         ///    continue;
                     }
                 }
@@ -1021,7 +1021,7 @@ namespace CP_SDK.Chat.Services.Twitch
         {
             lock (m_MessageReceivedLock)
             {
-                ///ChatPlexUnitySDK.Logger.Warning("TwitchPubSub " + p_RawMessage);
+                ///ChatPlexSDK.Logger.Warning("TwitchPubSub " + p_RawMessage);
 
                 var l_MessageType = "";
                 if (SimpleJSON.JSON.Parse(p_RawMessage).TryGetKey("type", out var l_TypeValue))
@@ -1035,7 +1035,7 @@ namespace CP_SDK.Chat.Services.Twitch
                         break;
 
                     case "message":
-                        ///ChatPlexUnitySDK.Logger.Warning("TwitchPubSub " + SimpleJSON.JSON.Parse(p_RawMessage));
+                        ///ChatPlexSDK.Logger.Warning("TwitchPubSub " + SimpleJSON.JSON.Parse(p_RawMessage));
                         var l_Message = new PubSubMessage(p_RawMessage);
                         switch (l_Message.Topic.Split('.')[0])
                         {

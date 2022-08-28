@@ -59,7 +59,7 @@ namespace CP_SDK.Unity
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
-        /// Unity GameObject initialize
+        /// Initialize
         /// </summary>
         internal static void Initialize()
         {
@@ -102,7 +102,7 @@ namespace CP_SDK.Unity
                 var l_Queue = m_Queues[m_FrontQueue];
                 if (l_Queue.WritePos >= MAX_QUEUE_SIZE)
                 {
-                    UnityEngine.Debug.LogError("[CP_SDK.Unity][MTThreadInvoker.Enqueue] Too many actions pushed!");
+                    ChatPlexSDK.Logger.Error("[CP_SDK.Unity][MTThreadInvoker.EnqueueOnThread] Too many actions pushed!");
                     return;
                 }
 
@@ -115,7 +115,7 @@ namespace CP_SDK.Unity
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
-        /// Unity GameObject update
+        /// Thread update
         /// </summary>
         private static void Update()
         {

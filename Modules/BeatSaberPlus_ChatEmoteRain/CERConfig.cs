@@ -1,29 +1,12 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
 
+using EmitterConfig = CP_SDK.Unity.Components.EnhancedImageParticleEmitter.EmitterConfig;
+
 namespace ChatPlexMod_ChatEmoteRain
 {
     internal class CERConfig : CP_SDK.Config.JsonConfig<CERConfig>
     {
-        internal class _Emitter
-        {
-            [JsonProperty] internal bool Enabled = true;
-            [JsonProperty] internal string Name = "New emitter";
-
-            [JsonProperty] internal float Size = 1f;
-            [JsonProperty] internal float Speed = 1f;
-
-            [JsonProperty] internal float PosX =   0.00f;
-            [JsonProperty] internal float PosY =  11.00f;
-            [JsonProperty] internal float PosZ =   3.50f;
-            [JsonProperty] internal float RotX =  90.00f;
-            [JsonProperty] internal float RotY =   0.00f;
-            [JsonProperty] internal float RotZ =   0.00f;
-            [JsonProperty] internal float SizeX = 10.00f;
-            [JsonProperty] internal float SizeY =  1.25f;
-            [JsonProperty] internal float SizeZ =  2.00f;
-        }
-
         internal class _ChatCommands
         {
             [JsonProperty] internal bool ModeratorPower = true;
@@ -47,15 +30,10 @@ namespace ChatPlexMod_ChatEmoteRain
         [JsonProperty] internal bool SubRain = true;
         [JsonProperty] internal int SubRainEmoteCount = 20;
 
-        [JsonProperty] internal bool ComboMode = false;
-        [JsonProperty] internal int ComboModeType = 0;
-        [JsonProperty] internal float ComboTimer = 5f;
-        [JsonProperty] internal int ComboCount = 3;
-
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        internal List<_Emitter> MenuEmitters = new List<_Emitter>();
+        internal List<EmitterConfig> MenuEmitters = new List<EmitterConfig>();
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        internal List<_Emitter> SongEmitters = new List<_Emitter>();
+        internal List<EmitterConfig> SongEmitters = new List<EmitterConfig>();
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         internal _ChatCommands ChatCommands = new _ChatCommands();
@@ -81,7 +59,7 @@ namespace ChatPlexMod_ChatEmoteRain
         {
             if (p_OnCreation)
             {
-                MenuEmitters.Add(new _Emitter()
+                MenuEmitters.Add(new EmitterConfig()
                 {
                     Enabled = true,
                     Name = "Top",
@@ -97,7 +75,7 @@ namespace ChatPlexMod_ChatEmoteRain
                     SizeY =  1.25f,
                     SizeZ =  2.00f
                 });
-                SongEmitters.Add(new _Emitter()
+                SongEmitters.Add(new EmitterConfig()
                 {
                     Enabled = true,
                     Name = "LeftSide",
@@ -113,7 +91,7 @@ namespace ChatPlexMod_ChatEmoteRain
                     SizeY =  4.50f,
                     SizeZ =  4.40f
                 });
-                SongEmitters.Add(new _Emitter()
+                SongEmitters.Add(new EmitterConfig()
                 {
                     Enabled = true,
                     Name = "RightSide",

@@ -77,7 +77,7 @@ namespace BeatSaberPlus.UI
         /// <summary>
         /// Go to settings
         /// </summary>
-        [UIAction("click-btn-settings")]
+        [UIAction("OnSettingsPressed")]
         private void OnSettingsPressed()
         {
             MainViewFlowCoordinator.Instance().SwitchToSettingsView();

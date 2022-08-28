@@ -238,6 +238,8 @@
     <Compile Include="CP_SDK\Network\APIClient.cs" />
     <Compile Include="CP_SDK\Network\APIResponse.cs" />
     <Compile Include="CP_SDK\Network\RateLimitInfo.cs" />
+    <Compile Include="CP_SDK\Network\WebClient_Unity.cs" />
+    <Compile Include="CP_SDK\Network\WebResponse.cs" />
     <Compile Include="CP_SDK\Network\websocket-sharp\ByteOrder.cs" />
     <Compile Include="CP_SDK\Network\websocket-sharp\CloseEventArgs.cs" />
     <Compile Include="CP_SDK\Network\websocket-sharp\CloseStatusCode.cs" />
@@ -317,6 +319,11 @@
     <Compile Include="CP_SDK\Network\websocket-sharp\WebSocketState.cs" />
     <Compile Include="CP_SDK\Network\WebSocketClient.cs" />
     <Compile Include="CP_SDK\OBS\OBSModSettings.cs" />
+    <Compile Include="CP_SDK\Unity\Components\EnhancedImageParticleEmitter.cs" />
+    <Compile Include="CP_SDK\Unity\Components\EnhancedImageParticleEmitterGroup.cs" />
+    <Compile Include="CP_SDK\Unity\Components\EnhancedImageParticleEmitterManager.cs" />
+    <Compile Include="CP_SDK\Unity\EnhancedImageParticleMaterialProvider.cs" />
+    <Compile Include="CP_SDK\Unity\EnhancedImageParticleSystemProvider.cs" />
     <Compile Include="CP_SDK\Unity\Extensions\ColorU.cs" />
     <Compile Include="CP_SDK\Unity\FontManager.cs" />
     <Compile Include="CP_SDK\Unity\MTThreadInvoker.cs" />
@@ -482,7 +489,7 @@
     <Compile Include="SDK\UI\ViewController.cs" />
     <Compile Include="SDK\UI\ViewFlowCoordinator.cs" />
     <Compile Include="CP_SDK\Unity\EnhancedImage.cs" />
-    <Compile Include="CP_SDK\Unity\GameObjectU.cs" />
+    <Compile Include="CP_SDK\Unity\Extensions\GameObjectU.cs" />
     <Compile Include="CP_SDK\Unity\MTCoroutineStarter.cs" />
     <Compile Include="CP_SDK\Unity\MTMainThreadInvoker.cs" />
     <Compile Include="CP_SDK\Unity\SpriteU.cs" />
@@ -491,7 +498,6 @@
     <Compile Include="CP_SDK\Chat\ChatImageProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CP_SDK\VoiceAttack\Service.cs" />
-    <Compile Include="UI\ChangeLogView.cs" />
     <Compile Include="UI\InfoView.cs" />
     <Compile Include="UI\MainView.cs" />
     <Compile Include="UI\SettingsLeftView.cs" />
@@ -518,9 +524,6 @@
     <EmbeddedResource Include="UI\SettingsView.bsml">
       <DependentUpon>SettingsView.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="UI\ChangeLogView.bsml">
-      <DependentUpon>ChangeLogView.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="UI\SettingsLeftView.bsml">
       <DependentUpon>SettingsLeftView.cs</DependentUpon>
     </EmbeddedResource>
@@ -538,10 +541,11 @@
     <EmbeddedResource Include="CP_SDK\Chat\Resources\index.html" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="CP_SDK\libwebp.dll" />
-    <EmbeddedResource Include="CP_SDK\libwebpdemux.dll" />
+    <EmbeddedResource Include="CP_SDK\_Resources\libwebp.dll" />
+    <EmbeddedResource Include="CP_SDK\_Resources\libwebpdemux.dll" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="CP_SDK\_Resources\Heart.png" />
     <EmbeddedResource Include="CP_SDK\Chat\Services\Twitch\TwitchHTMLForm.html" />
     <EmbeddedResource Include="CP_SDK\Chat\Services\Twitch\TwitchHTML.html" />
     <EmbeddedResource Include="CP_SDK\Chat\Services\Twitch\TwitchJSValidate.js" />

@@ -7,10 +7,18 @@ using UnityEngine;
 namespace CP_SDK
 {
     /// <summary>
-    /// ChatPlex Unity SDK main class
+    /// ChatPlex SDK main class
     /// </summary>
     public static class ChatPlexSDK
     {
+        /// <summary>
+        /// Render pipeline
+        /// </summary>
+        public enum ERenderPipeline
+        {
+            BuiltIn,
+            URP
+        }
         /// <summary>
         /// Generic scene enum
         /// </summary>
@@ -46,6 +54,10 @@ namespace CP_SDK
         /// </summary>
         public static string NetworkUserAgent { get; private set; } = string.Empty;
         /// <summary>
+        /// Render pipeline
+        /// </summary>
+        public static ERenderPipeline RenderPipeline { get; private set; } = ERenderPipeline.BuiltIn;
+        /// <summary>
         /// Active scene type
         /// </summary>
         public static EGenericScene ActiveGenericScene { get; private set; } = EGenericScene.None;
@@ -65,14 +77,16 @@ namespace CP_SDK
         /// <summary>
         /// Configure
         /// </summary>
-        /// <param name="p_ProductName">Product name</param>
         /// <param name="p_Logger">Logger instance</param>
-        internal static void Configure(Logging.ILogger p_Logger, string p_ProductName)
+        /// <param name="p_ProductName">Product name</param>
+        /// <param name="p_RenderPipeline">Rendering pipeline</param>
+        internal static void Configure(Logging.ILogger p_Logger, string p_ProductName, ERenderPipeline p_RenderPipeline)
         {
             Logger = p_Logger;
 
             ProductName         = p_ProductName;
-            NetworkUserAgent    = $"ChatPlexUnitySDK_{p_ProductName}/{Application.version}";
+            NetworkUserAgent    = $"ChatPlexSDK_{p_ProductName}/{Application.version}";
+            RenderPipeline      = p_RenderPipeline;
         }
         /// <summary>
         /// When the assembly is loaded
@@ -97,10 +111,10 @@ namespace CP_SDK
                 VoiceAttack.Service.Release(true);
                 OBS.Service.Release(true);
             }
-            catch (Exception p_Exception)
+            catch (Exception l_Exception)
             {
-                Logger.Error("[CP_SDK][ChatPlexUnitySDK.OnAssemblyExit] Error:");
-                Logger.Error(p_Exception);
+                Logger.Error("[CP_SDK][ChatPlexSDK.OnAssemblyExit] Error:");
+                Logger.Error(l_Exception);
             }
         }
 
@@ -124,7 +138,7 @@ namespace CP_SDK
             }
             catch (Exception p_Exception)
             {
-                Logger.Error("[CP_SDK][ChatPlexUnitySDK.OnUnityReady] Error:");
+                Logger.Error("[CP_SDK][ChatPlexSDK.OnUnityReady] Error:");
                 Logger.Error(p_Exception);
             }
         }
@@ -139,7 +153,7 @@ namespace CP_SDK
             }
             catch (Exception p_Exception)
             {
-                Logger.Error("[CP_SDK][ChatPlexUnitySDK.OnUnityExit] Error:");
+                Logger.Error("[CP_SDK][ChatPlexSDK.OnUnityExit] Error:");
                 Logger.Error(p_Exception);
             }
         }
@@ -155,7 +169,7 @@ namespace CP_SDK
         {
             try
             {
-                ChatPlexSDK.Logger.Debug("[CP_SDK][ChatPlexUnitySDK.InitModules] Init modules.");
+                Logger.Debug("[CP_SDK][ChatPlexSDK.InitModules] Init modules.");
 
                 foreach (var l_Assembly in AppDomain.CurrentDomain.GetAssemblies())
                 {
@@ -171,18 +185,18 @@ namespace CP_SDK
 
                             var l_Module = (IModuleBase)Activator.CreateInstance(l_Type);
 
-                            Logger.Debug("[CP_SDK][ChatPlexUnitySDK.InitModules] - " + l_Module.Name);
+                            Logger.Debug("[CP_SDK][ChatPlexSDK.InitModules] - " + l_Module.Name);
 
                             /// Add plugin to the list
                             m_Modules.Add(l_Module);
 
                             try                                 { l_Module.CheckForActivation(EIModuleBaseActivationType.OnStart);                                                               }
-                            catch (Exception p_InitException)   { Logger.Error("[CP_SDK][ChatPlexUnitySDK.InitModules] Error on module init " + l_Module.Name); Logger.Error(p_InitException);   }
+                            catch (Exception p_InitException)   { Logger.Error("[CP_SDK][ChatPlexSDK.InitModules] Error on module init " + l_Module.Name); Logger.Error(p_InitException);   }
                         }
                     }
                     catch (Exception l_Exception)
                     {
-                        Logger.Error("[CP_SDK][ChatPlexUnitySDK.InitModules] Failed to find modules in " + l_Assembly.FullName);
+                        Logger.Error("[CP_SDK][ChatPlexSDK.InitModules] Failed to find modules in " + l_Assembly.FullName);
                         Logger.Error(l_Exception);
                     }
                 }
@@ -191,7 +205,7 @@ namespace CP_SDK
             }
             catch (Exception p_Exception)
             {
-                Logger.Error("[CP_SDK][ChatPlexUnitySDK.InitModules] Error:");
+                Logger.Error("[CP_SDK][ChatPlexSDK.InitModules] Error:");
                 Logger.Error(p_Exception);
             }
         }
@@ -209,7 +223,7 @@ namespace CP_SDK
                 }
                 catch (Exception p_Exception)
                 {
-                    Logger.Error("[CP_SDK][ChatPlexUnitySDK.StopModules] Error:");
+                    Logger.Error("[CP_SDK][ChatPlexSDK.StopModules] Error:");
                     Logger.Error(p_Exception);
                 }
             }
@@ -233,10 +247,10 @@ namespace CP_SDK
             {
                 UI.LoadingProgressBar.TouchInstance();
             }
-            catch (Exception p_Exception)
+            catch (Exception l_Exception)
             {
-                Logger.Error("[CP_SDK][ChatPlexUnitySDK.OnGenericMenuScene] Error :");
-                Logger.Error(p_Exception);
+                Logger.Error("[CP_SDK][ChatPlexSDK.Fire_OnGenericMenuSceneLoaded] Error :");
+                Logger.Error(l_Exception);
             }
 
             ActiveGenericScene = EGenericScene.Menu;
@@ -245,18 +259,18 @@ namespace CP_SDK
             {
                 var l_Module = m_Modules[l_I];
 
-                try                                 { l_Module.CheckForActivation(EIModuleBaseActivationType.OnMenuSceneLoaded);                                                     }
-                catch (Exception p_InitException)   { Logger.Error("[CP_SDK][ChatPlexUnitySDK.InitModules] Error on module init " + l_Module.Name); Logger.Error(p_InitException);   }
+                try                                 { l_Module.CheckForActivation(EIModuleBaseActivationType.OnMenuSceneLoaded);                                                                }
+                catch (Exception p_InitException)   { Logger.Error("[CP_SDK][ChatPlexSDK.Fire_OnGenericMenuSceneLoaded] Error on module init " + l_Module.Name); Logger.Error(p_InitException); }
             }
 
             try
             {
                 OnGenericMenuSceneLoaded?.Invoke();
             }
-            catch (Exception p_Exception)
+            catch (Exception l_Exception)
             {
-                Logger.Error("[CP_SDK][ChatPlexUnitySDK.OnGenericMenuScene] Error :");
-                Logger.Error(p_Exception);
+                Logger.Error("[CP_SDK][ChatPlexSDK.OnGenericMenuScene] Error :");
+                Logger.Error(l_Exception);
             }
         }
         /// <summary>
@@ -272,10 +286,10 @@ namespace CP_SDK
 
                 Chat.Service.StartServices();
             }
-            catch (Exception p_Exception)
+            catch (Exception l_Exception)
             {
-                Logger.Error("[CP_SDK][ChatPlexUnitySDK.OnGenericMenuScene] Error :");
-                Logger.Error(p_Exception);
+                Logger.Error("[CP_SDK][ChatPlexSDK.OnGenericMenuScene] Error :");
+                Logger.Error(l_Exception);
             }
         }
         /// <summary>
@@ -289,10 +303,10 @@ namespace CP_SDK
             {
                 OnGenericSceneChange?.Invoke(EGenericScene.Playing);
             }
-            catch (Exception p_Exception)
+            catch (Exception l_Exception)
             {
-                Logger.Error("[CP_SDK][ChatPlexUnitySDK.OnGenericPlayingScene] Error:");
-                Logger.Error(p_Exception);
+                Logger.Error("[CP_SDK][ChatPlexSDK.OnGenericPlayingScene] Error:");
+                Logger.Error(l_Exception);
             }
         }
 
@@ -311,15 +325,18 @@ namespace CP_SDK
                     Directory.CreateDirectory("Libs/Natives/");
 
                 if (!File.Exists("Libs/Natives/libwebp.dll"))
-                    File.WriteAllBytes("Libs/Natives/libwebp.dll", Misc.Resources.FromRelPath(Assembly.GetExecutingAssembly(), "CP_SDK.libwebp.dll"));
+                    File.WriteAllBytes("Libs/Natives/libwebp.dll", Misc.Resources.FromRelPath(Assembly.GetExecutingAssembly(), "CP_SDK._Resources.libwebp.dll"));
                 if (!File.Exists("Libs/Natives/libwebpdemux.dll"))
-                    File.WriteAllBytes("Libs/Natives/libwebpdemux.dll", Misc.Resources.FromRelPath(Assembly.GetExecutingAssembly(), "CP_SDK.libwebpdemux.dll"));
+                    File.WriteAllBytes("Libs/Natives/libwebpdemux.dll", Misc.Resources.FromRelPath(Assembly.GetExecutingAssembly(), "CP_SDK._Resources.libwebpdemux.dll"));
             }
             catch (Exception l_Exception)
             {
-                Logger.Error("[CP_SDK][ChatPlexUnitySDK.InstallWEBPCodecs] Error:");
+                Logger.Error("[CP_SDK][ChatPlexSDK.InstallWEBPCodecs] Error:");
                 Logger.Error(l_Exception);
             }
         }
     }
 }
+
+
+

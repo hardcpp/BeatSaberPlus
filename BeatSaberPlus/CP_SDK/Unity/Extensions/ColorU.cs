@@ -1,5 +1,4 @@
-﻿#if CP_SDK_UNITY
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace CP_SDK.Unity.Extensions
 {
@@ -21,4 +20,3 @@ namespace CP_SDK.Unity.Extensions
         }
     }
 }
-#endif

@@ -26,7 +26,7 @@ namespace BeatSaberPlus.SDK.Game
         /// <summary>
         /// BeatMaps client
         /// </summary>
-        private static CP_SDK.Network.APIClient m_APIClient;
+        private static CP_SDK.Network.WebClient m_WebClient;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -34,7 +34,7 @@ namespace BeatSaberPlus.SDK.Game
         /// <summary>
         /// BeatMaps client
         /// </summary>
-        public static CP_SDK.Network.APIClient APIClient => m_APIClient;
+        public static CP_SDK.Network.WebClient WebClient => m_WebClient;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -44,8 +44,9 @@ namespace BeatSaberPlus.SDK.Game
         /// </summary>
         internal static void Init()
         {
-            m_CacheFolder   = $"UserData/{CP_SDK.ChatPlexSDK.ProductName}/Cache/BeatMaps/";
-            m_APIClient     = new CP_SDK.Network.APIClient("https://api.beatsaver.com/", TimeSpan.FromSeconds(30), true, false);
+            m_CacheFolder       = $"UserData/{CP_SDK.ChatPlexSDK.ProductName}/Cache/BeatMaps/";
+            m_WebClient         = new CP_SDK.Network.WebClient();
+            m_WebClient.Timeout = 5;
 
             try
             {
@@ -68,25 +69,12 @@ namespace BeatSaberPlus.SDK.Game
 
         public static void GetOnlineByKey(string p_Key, Action<bool, BeatMaps.MapDetail> p_Callback)
         {
-            var l_Task = m_APIClient.GetAsync("maps/id/" + p_Key, CancellationToken.None);
-            l_Task.ContinueWith((p_APIResult) =>
+            m_WebClient.GetAsync("https://api.beatsaver.com/maps/id/" + p_Key, CancellationToken.None, (p_Result) =>
             {
                 try
                 {
-                    if (   p_APIResult == null
-                        || p_APIResult.IsCanceled
-                        || p_APIResult.Status != TaskStatus.RanToCompletion
-                        || p_APIResult.Result == null)
-                    {
-                        p_Callback?.Invoke(false, null);
-                        return;
-                    }
-
-                    var l_Response  = p_APIResult.Result;
-                    var l_BeatMap   = null as BeatMaps.MapDetail;
-
-                    if (   !l_Response.IsSuccessStatusCode
-                        || !GetObjectFromJsonString(l_Response.BodyString, out l_BeatMap))
+                    if (!p_Result.IsSuccessStatusCode
+                        || !GetObjectFromJsonString<BeatMaps.MapDetail>(p_Result.BodyString, out var l_BeatMap))
                     {
                         p_Callback?.Invoke(false, null);
                         return;
@@ -101,33 +89,21 @@ namespace BeatSaberPlus.SDK.Game
                     CP_SDK.ChatPlexSDK.Logger.Error(l_Exception);
                     p_Callback?.Invoke(false, null);
                 }
-            }).ConfigureAwait(false);
+            });
         }
         public static void PopulateOnlineByKey(BeatMaps.MapDetail p_BeatMap, Action<bool> p_Callback)
         {
-            var l_Task = m_APIClient.GetAsync("maps/id/" + p_BeatMap.id, CancellationToken.None);
-            l_Task.ContinueWith((p_APIResult) =>
+            m_WebClient.GetAsync("https://api.beatsaver.com/maps/id/" + p_BeatMap.id, CancellationToken.None, (p_Result) =>
             {
                 try
                 {
-                    if (   p_APIResult == null
-                        || p_APIResult.IsCanceled
-                        || p_APIResult.Status != TaskStatus.RanToCompletion
-                        || p_APIResult.Result == null)
+                    if (!p_Result.IsSuccessStatusCode)
                     {
                         p_Callback?.Invoke(false);
                         return;
                     }
 
-                    var l_Response = p_APIResult.Result;
-
-                    if (!l_Response.IsSuccessStatusCode)
-                    {
-                        p_Callback?.Invoke(false);
-                        return;
-                    }
-
-                    JsonConvert.PopulateObject(l_Response.BodyString, p_BeatMap);
+                    JsonConvert.PopulateObject(p_Result.BodyString, p_BeatMap);
                     p_BeatMap.Partial = false;
                     p_Callback?.Invoke(true);
                 }
@@ -137,29 +113,16 @@ namespace BeatSaberPlus.SDK.Game
                     CP_SDK.ChatPlexSDK.Logger.Error(l_Exception);
                     p_Callback?.Invoke(false);
                 }
-            }).ConfigureAwait(false);
+            });
         }
         public static void GetOnlineByHash(string p_Hash, Action<bool, BeatMaps.MapDetail> p_Callback)
         {
-            var l_Task = m_APIClient.GetAsync("maps/hash/" + p_Hash, CancellationToken.None);
-            l_Task.ContinueWith((p_APIResult) =>
+            m_WebClient.GetAsync("https://api.beatsaver.com/maps/hash/" + p_Hash, CancellationToken.None, (p_Result) =>
             {
                 try
                 {
-                    if (   p_APIResult == null
-                        || p_APIResult.IsCanceled
-                        || p_APIResult.Status != TaskStatus.RanToCompletion
-                        || p_APIResult.Result == null)
-                    {
-                        p_Callback?.Invoke(false, null);
-                        return;
-                    }
-
-                    var l_Response  = p_APIResult.Result;
-                    var l_BeatMap   = null as BeatMaps.MapDetail;
-
-                    if (   !l_Response.IsSuccessStatusCode
-                        || !GetObjectFromJsonString(l_Response.BodyString, out l_BeatMap))
+                    if (!p_Result.IsSuccessStatusCode
+                        || !GetObjectFromJsonString<BeatMaps.MapDetail>(p_Result.BodyString, out var l_BeatMap))
                     {
                         p_Callback?.Invoke(false, null);
                         return;
@@ -174,29 +137,22 @@ namespace BeatSaberPlus.SDK.Game
                     CP_SDK.ChatPlexSDK.Logger.Error(l_Exception);
                     p_Callback?.Invoke(false, null);
                 }
-            }).ConfigureAwait(false);
+            });
         }
         public static void GetOnlineBySearch(string p_Query, Action<bool, BeatMaps.MapDetail[]> p_Callback)
         {
-            var l_Task = m_APIClient.GetAsync("search/text/0?sortOrder=Relevance&q=" + HttpUtility.UrlEncode(p_Query), CancellationToken.None);
-            l_Task.ContinueWith((p_APIResult) =>
+            m_WebClient.GetAsync("https://api.beatsaver.com/search/text/0?sortOrder=Relevance&q=" + HttpUtility.UrlEncode(p_Query), CancellationToken.None, (p_Result) =>
             {
                 try
                 {
-                    if (   p_APIResult == null
-                        || p_APIResult.IsCanceled
-                        || p_APIResult.Status != TaskStatus.RanToCompletion
-                        || p_APIResult.Result == null)
+                    if (!p_Result.IsSuccessStatusCode)
                     {
                         p_Callback?.Invoke(false, null);
                         return;
                     }
 
-                    var l_Response      = p_APIResult.Result;
-                    var l_SearchResult  = null as BeatMaps.SearchResponse;
-
-                    if (   !l_Response.IsSuccessStatusCode
-                        || !GetObjectFromJsonString(l_Response.BodyString, out l_SearchResult))
+                    if (!p_Result.IsSuccessStatusCode
+                        || !GetObjectFromJsonString<BeatMaps.SearchResponse>(p_Result.BodyString, out var l_SearchResult))
                     {
                         p_Callback?.Invoke(false, null);
                         return;
@@ -213,7 +169,7 @@ namespace BeatSaberPlus.SDK.Game
                     CP_SDK.ChatPlexSDK.Logger.Error(l_Exception);
                     p_Callback?.Invoke(false, null);
                 }
-            }).ConfigureAwait(false);
+            });
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -398,63 +354,39 @@ namespace BeatSaberPlus.SDK.Game
         /// <param name="p_Token">Cancellation token</param>
         /// <param name="p_Progress">Progress reporter</param>
         /// <returns></returns>
-        public static async Task<(bool, string)> DownloadSong(BeatMaps.MapDetail p_Song, BeatMaps.MapVersion p_Version, CancellationToken p_Token, IProgress<double> p_Progress = null)
+        public static void DownloadSong(BeatMaps.MapDetail p_Song, BeatMaps.MapVersion p_Version, CancellationToken p_Token, Action<bool, string> p_Callback, IProgress<float> p_Progress = null)
         {
-            /*
-               Code from https://github.com/Kylemc1413/BeatSaverDownloader
-
-               MIT License
-
-               Copyright (c) 2019 andruzzzhka
-
-               Permission is hereby granted, free of charge, to any person obtaining a copy
-               of this software and associated documentation files (the "Software"), to deal
-               in the Software without restriction, including without limitation the rights
-               to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-               copies of the Software, and to permit persons to whom the Software is
-               furnished to do so, subject to the following conditions:
-
-               The above copyright notice and this permission notice shall be included in all
-               copies or substantial portions of the Software.
-
-               THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-               IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-               FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-               AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-               LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-               OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-               SOFTWARE.
-            */
-
-            p_Token.ThrowIfCancellationRequested();
-
-            try
+            p_Version.ZipBytes(p_Token, (p_Result) =>
             {
-                string l_CustomSongsPath = CustomLevelPathHelper.customLevelsDirectoryPath;
-
-                if (!Directory.Exists(l_CustomSongsPath))
-                    Directory.CreateDirectory(l_CustomSongsPath);
-
-                var l_ZIPBytes = await p_Version.ZipBytes(p_Token, p_Progress).ConfigureAwait(false);
-                if (l_ZIPBytes == null || l_ZIPBytes.Length == 0)
-                    return (false, "");
-
-                CP_SDK.ChatPlexSDK.Logger.Info("[SDK.Game][BeatMapsClient] Downloaded zip!");
-
-                return ExtractZipAsync(p_Token, p_Song, p_Version, l_ZIPBytes, l_CustomSongsPath);
-            }
-            catch (Exception p_Exception)
-            {
-                if (p_Exception is TaskCanceledException)
+                if (p_Result == null || p_Token.IsCancellationRequested)
                 {
-                    CP_SDK.ChatPlexSDK.Logger.Warning("[SDK.Game][BeatMapsClient] Song Download Aborted.");
-                    throw p_Exception;
+                    p_Callback?.Invoke(false, string.Empty);
+                    return;
                 }
-                else
-                    CP_SDK.ChatPlexSDK.Logger.Error("[SDK.Game][BeatMapsClient] Failed to download Song!");
-            }
 
-            return (false, "");
+                try
+                {
+                    string l_CustomSongsPath = CustomLevelPathHelper.customLevelsDirectoryPath;
+
+                    if (!Directory.Exists(l_CustomSongsPath))
+                        Directory.CreateDirectory(l_CustomSongsPath);
+
+                    CP_SDK.ChatPlexSDK.Logger.Info("[SDK.Game][BeatMapsClient] Downloaded zip!");
+
+                    var l_ExtractResult = ExtractZipAsync(p_Token, p_Song, p_Version, p_Result, l_CustomSongsPath);
+                    p_Callback?.Invoke(l_ExtractResult.Item1, l_ExtractResult.Item2);
+                }
+                catch (Exception p_Exception)
+                {
+                    if (p_Exception is TaskCanceledException)
+                    {
+                        CP_SDK.ChatPlexSDK.Logger.Warning("[SDK.Game][BeatMapsClient] Song Download Aborted.");
+                        throw p_Exception;
+                    }
+                    else
+                        CP_SDK.ChatPlexSDK.Logger.Error("[SDK.Game][BeatMapsClient] Failed to download Song!");
+                }
+            }, p_Progress);
         }
 
         ////////////////////////////////////////////////////////////////////////////

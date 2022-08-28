@@ -266,10 +266,17 @@ namespace BeatSaberPlus_ChatRequest
                         {
                             m_RequestedThisSession.Add(l_Key.ToLower());
 
+                            var l_RequesterName = p_Message.Sender.UserName;
+                            if (p_ModeratorAddCommand && p_Params.Length == 2 && p_Params[1].Length > 3 && p_Params[1][0] == '@')
+                            {
+                                l_RequesterName = p_Params[1].Substring(1) + "\n(Added by " + l_NamePrefix + " " + p_Message.Sender.UserName + ")";
+                                l_NamePrefix    = string.Empty;
+                            }
+
                             var l_Entry = new SongEntry()
                             {
                                 BeatMap         = p_BeatMap,
-                                RequesterName   = p_Message.Sender.UserName,
+                                RequesterName   = l_RequesterName,
                                 RequestTime     = DateTime.Now,
                                 NamePrefix      = l_NamePrefix
                             };

@@ -1,5 +1,4 @@
-﻿#if CP_SDK_UNITY
-using CP_SDK.Unity.OpenType;
+﻿using CP_SDK.Unity.OpenType;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -393,4 +392,3 @@ namespace CP_SDK.Unity
         }
     }
 }
-#endif

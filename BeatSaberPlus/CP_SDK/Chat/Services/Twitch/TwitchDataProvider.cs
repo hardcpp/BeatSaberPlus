@@ -68,7 +68,7 @@ namespace CP_SDK.Chat.Services.Twitch
                     await m_BTTVDataProvider.TryRequestResources(null, p_Token).ConfigureAwait(false);
                     await m_FFZDataProvider.TryRequestResources(null, p_Token).ConfigureAwait(false);
                     await m_7TVDataProvider.TryRequestResources(null, p_Token).ConfigureAwait(false);
-                    ///ChatPlexUnitySDK.Logger.Information("Finished caching global emotes/badges.");
+                    ///ChatPlexSDK.Logger.Information("Finished caching global emotes/badges.");
                 }
                 catch (Exception l_Exception)
                 {
@@ -141,7 +141,7 @@ namespace CP_SDK.Chat.Services.Twitch
                         m_ChannelDataCached.Add(p_Channel.Id);
 
                         IsReady = true;
-                        //ChatPlexUnitySDK.Logger.Information($"Finished caching emotes for channel {channel.Id}.");
+                        //ChatPlexSDK.Logger.Information($"Finished caching emotes for channel {channel.Id}.");
                     }
                 }
                 catch (Exception l_Exception)

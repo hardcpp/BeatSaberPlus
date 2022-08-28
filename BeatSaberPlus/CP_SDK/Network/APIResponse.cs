@@ -45,12 +45,12 @@ namespace CP_SDK.Network
             BodyBytes           = p_BodyBytes;
             BodyString          = p_BodyString;
 #if DEBUG
-            ChatPlexUnitySDK.Logger.Debug("[CP_SDK.Network][APIResponse.APIResponse] Result " + p_Reply.RequestMessage.RequestUri.ToString() + " - " + StatusCode);
+            ChatPlexSDK.Logger.Debug("[CP_SDK.Network][APIResponse.APIResponse] Result " + p_Reply.RequestMessage.RequestUri.ToString() + " - " + StatusCode);
             /*foreach (var l_Header in p_Reply.RequestMessage.Headers)
             {
-                ChatPlexUnitySDK.Logger.Debug(l_Header.Key);
+                ChatPlexSDK.Logger.Debug(l_Header.Key);
                 foreach (var l_Value in l_Header.Value)
-                    ChatPlexUnitySDK.Logger.Debug("    " + l_Value);
+                    ChatPlexSDK.Logger.Debug("    " + l_Value);
             }*/
 #endif
 

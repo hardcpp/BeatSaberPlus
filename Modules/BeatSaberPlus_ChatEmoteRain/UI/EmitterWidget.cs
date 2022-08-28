@@ -6,6 +6,8 @@ using System;
 using System.Reflection;
 using UnityEngine;
 
+using EmitterConfig = CP_SDK.Unity.Components.EnhancedImageParticleEmitter.EmitterConfig;
+
 namespace ChatPlexMod_ChatEmoteRain.UI
 {
     class EmitterWidget
@@ -54,7 +56,7 @@ namespace ChatPlexMod_ChatEmoteRain.UI
         /// <summary>
         /// Current focused emitter
         /// </summary>
-        private CERConfig._Emitter m_CurrentEmitter = null;
+        private EmitterConfig m_CurrentEmitter = null;
         /// <summary>
         /// Input keyboard callback
         /// </summary>
@@ -63,11 +65,11 @@ namespace ChatPlexMod_ChatEmoteRain.UI
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        public void BuildUI(Transform p_Parent, CERConfig._Emitter l_Emitter)
+        public void BuildUI(Transform p_Parent, EmitterConfig l_Emitter)
         {
             m_CurrentEmitter = l_Emitter;
 
-            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, GetType().Name) + ".bsml");
+            string l_BSML = CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(GetType()), string.Join(".", GetType().Namespace, GetType().Name));
             BSMLParser.instance.Parse(l_BSML, p_Parent.gameObject, this);
 
             var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(this, this.GetType().GetMethod(nameof(OnSettingChanged), BindingFlags.Instance | BindingFlags.NonPublic));
@@ -115,10 +117,6 @@ namespace ChatPlexMod_ChatEmoteRain.UI
             m_CurrentEmitter.SizeZ = m_SizeZ.Value;
 
             ChatEmoteRain.Instance.OnSettingsChanged();
-            ///if (CERConfig.Instance.MenuEmitters.Contains(m_CurrentEmitter))
-            ///    ChatEmoteRain.Instance.UpdateTemplateFor(SDK.Game.Logic.SceneType.Menu);
-            ///else
-            ///    ChatEmoteRain.Instance.UpdateTemplateFor(SDK.Game.Logic.SceneType.Playing);
         }
 
         ////////////////////////////////////////////////////////////////////////////

@@ -7,7 +7,7 @@ using UnityEngine;
 namespace BeatSaberPlus.SDK.UI
 {
     /// <summary>
-    /// View controller base class
+    /// View flow coordinator base class
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public abstract class ViewFlowCoordinator<T> : HMUI.FlowCoordinator
@@ -22,7 +22,7 @@ namespace BeatSaberPlus.SDK.UI
         /// </summary>
         private Queue<(HMUI.ViewController, HMUI.ViewController, HMUI.ViewController)> m_SwitchQueue = new Queue<(HMUI.ViewController, HMUI.ViewController, HMUI.ViewController)>();
         /// <summary>
-        /// Is dequeue engaged ?
+        /// Is dequeue engaged?
         /// </summary>
         private bool m_IsDequeueEngaged = false;
         /// <summary>
@@ -72,8 +72,9 @@ namespace BeatSaberPlus.SDK.UI
         /// On activation
         /// </summary>
         /// <param name="p_FirstActivation">Is the first activation ?</param>
-        /// <param name="p_ActivationType">Activation type</param>
-        protected override sealed void DidActivate(bool p_FirstActivation, bool p_AddedToHierarchy, bool screenSystemEnabling)
+        /// <param name="p_AddedToHierarchy">Activation type</param>
+        /// <param name="p_ScreenSystemEnabling">Is the screen system enabling?</param>
+        protected override sealed void DidActivate(bool p_FirstActivation, bool p_AddedToHierarchy, bool p_ScreenSystemEnabling)
         {
             if (p_FirstActivation)
             {

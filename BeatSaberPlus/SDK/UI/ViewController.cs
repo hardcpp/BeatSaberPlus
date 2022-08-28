@@ -35,7 +35,7 @@ namespace BeatSaberPlus.SDK.UI
         protected override sealed string GetViewContentDescription()
         {
 #if DEBUG
-            ChatPlexUnitySDK.Logger.Debug("Loading " + string.Join(".", typeof(T).Namespace, typeof(T).Name));
+            ChatPlexSDK.Logger.Debug("Loading " + string.Join(".", typeof(T).Namespace, typeof(T).Name));
 #endif
             return CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(typeof(T)), string.Join(".", typeof(T).Namespace, typeof(T).Name));
         }
@@ -89,7 +89,7 @@ namespace BeatSaberPlus.SDK.UI
         protected HMUI.ModalView m_SDK_LoadingModal = null;
         [UIObject("SDK_LoadingModal_Text")]
         protected GameObject m_SDK_LoadingModalText = null;
-        private LoadingControl m_LoadingModal_Spinner = null;
+        private LoadingControl m_SDK_LoadingModal_Spinner = null;
 #pragma warning restore CS0414
 
         ////////////////////////////////////////////////////////////////////////////
@@ -135,9 +135,6 @@ namespace BeatSaberPlus.SDK.UI
         /// <param name="p_ScreenSystemEnabling">Is screen system enabled</param>
         protected override sealed void DidActivate(bool p_FirstActivation, bool p_AddedToHierarchy, bool p_ScreenSystemEnabling)
         {
-            /// Forward event
-            base.DidActivate(p_FirstActivation, p_AddedToHierarchy, p_ScreenSystemEnabling);
-
             /// Bind singleton
             Instance = this as T;
 
@@ -183,15 +180,17 @@ namespace BeatSaberPlus.SDK.UI
                 UICreated = true;
 
                 /// Setup loading modal
-                SDK.UI.ModalView.SetupLoadingControl(m_SDK_LoadingModal, out m_LoadingModal_Spinner);
+                m_SDK_LoadingModal_Spinner = SDK.UI.ModalView.SetupLoadingControl(m_SDK_LoadingModal);
                 SDK.UI.ModalView.SetOpacity(m_SDK_MessageModal, 0.75f);
                 SDK.UI.ModalView.SetOpacity(m_SDK_ConfirmModal, 0.75f);
                 SDK.UI.ModalView.SetOpacity(m_SDK_LoadingModal, 0.75f);
 
-                /// bind events
+                /// Bind events
                 m_SDK_ConfirmModal_Button.onClick.RemoveAllListeners();
                 m_SDK_ConfirmModal_Button.onClick.AddListener(OnSDKConfirmModal);
 
+                /// Make sure buttons are active
+                m_SDK_ConfirmModal_Button.gameObject.SetActive(true);
                 m_SDK_ConfirmModal_DiscardButton.gameObject.SetActive(true);
 
                 /// Call implementation
@@ -208,9 +207,6 @@ namespace BeatSaberPlus.SDK.UI
         /// <param name="p_ScreenSystemDisabling">Is screen system disabling</param>
         protected override sealed void DidDeactivate(bool p_RemovedFromHierarchy, bool p_ScreenSystemDisabling)
         {
-            /// Forward event
-            base.DidDeactivate(p_RemovedFromHierarchy, p_ScreenSystemDisabling);
-
             /// Close all remaining modals
             CloseAllModals();
 
@@ -286,8 +282,15 @@ namespace BeatSaberPlus.SDK.UI
                 return;
             }
 
-            if (m_LoadingModal_Spinner.gameObject.activeSelf)
-                m_LoadingModal_Spinner.ShowDownloadingProgress(p_Text, p_Progress);
+            try
+            {
+                if (m_SDK_LoadingModal_Spinner.gameObject.activeSelf)
+                    m_SDK_LoadingModal_Spinner.ShowDownloadingProgress(p_Text, p_Progress);
+            }
+            catch (Exception)
+            {
+
+            }
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -309,11 +312,18 @@ namespace BeatSaberPlus.SDK.UI
 
             /// Show the modal
             ShowModal("SDK_ShowLoadingModal", () => {
-                /// Show animator
-                if (!p_Download)
-                    m_LoadingModal_Spinner.ShowLoading();
-                else
-                    m_LoadingModal_Spinner.ShowDownloadingProgress(p_Message, 0);
+                try
+                {
+                    /// Show animator
+                    if (!p_Download)
+                        m_SDK_LoadingModal_Spinner.ShowLoading();
+                    else
+                        m_SDK_LoadingModal_Spinner.ShowDownloadingProgress(p_Message, 0);
+                }
+                catch (Exception)
+                {
+
+                }
             });
         }
         /// <summary>
@@ -388,7 +398,7 @@ namespace BeatSaberPlus.SDK.UI
         protected void HideLoadingModal()
         {
             CloseModal("SDK_CloseLoadingModal");
-            m_LoadingModal_Spinner.Hide();
+            m_SDK_LoadingModal_Spinner.Hide();
 
             /// Should display a pending message
             if (m_PendingMessage != null)

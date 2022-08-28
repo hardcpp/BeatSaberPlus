@@ -1,6 +1,7 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.FloatingScreen;
+using CP_SDK.Unity.Extensions;
 using HMUI;
 using System.Linq;
 using UnityEngine;
@@ -111,8 +112,7 @@ namespace ChatPlexMod_Chat.UI
 
             /// Hide/show the lock icon
             m_LockIcon.gameObject.SetActive(CConfig.Instance.ShowLockIcon);
-
-            CP_SDK.Unity.GameObjectU.ChangerLayerRecursive(gameObject, LayerMask.NameToLayer("UI"));
+            gameObject.ChangerLayerRecursive(LayerMask.NameToLayer("UI"));
 
             /// Make icons easier to click
             m_SettingsIcon.gameObject.AddComponent<SphereCollider>().radius = 10f;

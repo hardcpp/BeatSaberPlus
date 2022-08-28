@@ -87,7 +87,7 @@ namespace CP_SDK.UI
 
             DontDestroyOnLoad(gameObject);
 
-            ChatPlexSDK.OnGenericSceneChange += ChatPlexUnitySDK_OnGenericSceneChange;
+            ChatPlexSDK.OnGenericSceneChange += ChatPlexSDK_OnGenericSceneChange;
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -159,7 +159,7 @@ namespace CP_SDK.UI
         /// On scene changed
         /// </summary>
         /// <param name="p_NewScene">New scene type</param>
-        private void ChatPlexUnitySDK_OnGenericSceneChange(ChatPlexSDK.EGenericScene p_NewScene)
+        private void ChatPlexSDK_OnGenericSceneChange(ChatPlexSDK.EGenericScene p_NewScene)
         {
             if (p_NewScene != ChatPlexSDK.EGenericScene.Menu)
             {

@@ -36,7 +36,7 @@ namespace CP_SDK.Chat.Services.Twitch
         /// </summary>
         /// <returns></returns>
         public override string GetFullPath()
-            => System.IO.Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), $".ChatPlex/{GetRelativePath()}.json"));
+            => Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), $".ChatPlex/{GetRelativePath()}.json"));
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////

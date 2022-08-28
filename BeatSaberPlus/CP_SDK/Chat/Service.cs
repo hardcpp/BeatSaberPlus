@@ -43,6 +43,14 @@ namespace CP_SDK.Chat
         /// Is service started
         /// </summary>
         private static bool m_Started = false;
+        /// <summary>
+        /// Loading emote count
+        /// </summary>
+        private static int m_LoadingEmotes = 0;
+        /// <summary>
+        /// Loaded emote count
+        /// </summary>
+        private static int m_LoadedEmotes = 0;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -131,6 +139,16 @@ namespace CP_SDK.Chat
         public static void OpenWebConfigurator()
         {
             Process.Start($"http://localhost:{ChatModSettings.Instance.WebAppPort}");
+        }
+        /// <summary>
+        /// Recache all the emotes
+        /// </summary>
+        public static void RecacheEmotes()
+        {
+            m_LoadingEmotes = 0;
+            m_LoadedEmotes = 0;
+
+            Multiplexer.RecacheEmotes();
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -221,9 +239,6 @@ namespace CP_SDK.Chat
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
-
-        static int m_LoadingEmotes = 0;
-        static int m_LoadedEmotes = 0;
 
         /// <summary>
         /// On channel resources received

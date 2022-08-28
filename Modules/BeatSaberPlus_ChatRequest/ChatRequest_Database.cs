@@ -260,27 +260,30 @@ namespace BeatSaberPlus_ChatRequest
             string l_Content = "";
             string l_Format  = CRConfig.Instance.OverlayIntegration.SimpleQueueFileFormat;
 
-            lock (SongQueue)
-            {
-                int l_Added = 0;
-                for (int l_I = 0; l_I < SongQueue.Count && l_Added < CRConfig.Instance.OverlayIntegration.SimpleQueueFileCount; ++l_I)
-                {
-                    string l_Line = l_Format.Replace("%i", (l_I + 1).ToString())
-                                            .Replace("%n", SongQueue[l_I].BeatMap.name)
-                                            .Replace("%m", SongQueue[l_I].BeatMap.metadata.levelAuthorName)
-                                            .Replace("%r", SongQueue[l_I].RequesterName)
-                                            .Replace("%k", SongQueue[l_I].BeatMap.id);
-
-                    if (l_I > 0)
-                        l_Content += "\n";
-                    l_Content += l_Line;
-
-                    ++l_Added;
-                }
-            }
-
             try
             {
+                lock (SongQueue)
+                {
+                    int l_Added = 0;
+                    for (int l_I = 0; l_I < SongQueue.Count && l_Added < CRConfig.Instance.OverlayIntegration.SimpleQueueFileCount; ++l_I)
+                    {
+                        if (SongQueue[l_I].BeatMap == null || SongQueue[l_I].BeatMap.Partial)
+                            continue;
+
+                        string l_Line = l_Format.Replace("%i", (l_I + 1).ToString())
+                                                .Replace("%n", SongQueue[l_I].BeatMap.name)
+                                                .Replace("%m", SongQueue[l_I].BeatMap.metadata.levelAuthorName)
+                                                .Replace("%r", SongQueue[l_I].RequesterName)
+                                                .Replace("%k", SongQueue[l_I].BeatMap.id);
+
+                        if (l_I > 0)
+                            l_Content += "\n";
+                        l_Content += l_Line;
+
+                        ++l_Added;
+                    }
+                }
+
                 using (var l_FileStream = new System.IO.FileStream(m_SimpleQueueFilePath, System.IO.FileMode.Create, System.IO.FileAccess.Write, System.IO.FileShare.ReadWrite))
                 {
                     using (var l_StreamWritter = new System.IO.StreamWriter(l_FileStream, Encoding.UTF8))

@@ -1,12 +1,13 @@
 ﻿using BeatSaberMarkupLanguage;
 using CP_SDK.Chat.Interfaces;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
+
+using EmitterConfig = CP_SDK.Unity.Components.EnhancedImageParticleEmitter.EmitterConfig;
 
 namespace ChatPlexMod_ChatEmoteRain
 {
@@ -15,10 +16,6 @@ namespace ChatPlexMod_ChatEmoteRain
     /// </summary>
     public class ChatEmoteRain : BeatSaberPlus.SDK.BSPModuleBase<ChatEmoteRain>
     {
-        /// <summary>
-        /// No emote SUBRAIN default ID
-        /// </summary>
-        private static string s_SUBRAIN_NO_EMOTE = "_CPSubRain_$DEFAULT$_";
         /// <summary>
         /// Warm-up size per scene
         /// </summary>
@@ -80,40 +77,17 @@ namespace ChatPlexMod_ChatEmoteRain
         /// </summary>
         private Material m_PreviewMaterial;
         /// <summary>
-        /// Template particle system
+        /// Menu emitter manager
         /// </summary>
-        private GameObject m_TemplateParticleSystem = null;
+        private CP_SDK.Unity.Components.EnhancedImageParticleEmitterManager m_MenuManager;
         /// <summary>
-        /// Template material for particles
+        /// Playing emitter manager
         /// </summary>
-        private Material m_TemplateMaterial = null;
-        /// <summary>
-        /// Templates per scene
-        /// </summary>
-        private Dictionary<CP_SDK.ChatPlexSDK.EGenericScene, Components.EmitterGroup> m_Templates
-            = new Dictionary<CP_SDK.ChatPlexSDK.EGenericScene, Components.EmitterGroup>();
-        /// <summary>
-        /// Active systems
-        /// </summary>
-        private List<(string, Components.EmitterGroup)> m_ActiveSystems
-            = new List<(string, Components.EmitterGroup)>();
-        /// <summary>
-        /// Available systems
-        /// </summary>
-        private Dictionary<CP_SDK.ChatPlexSDK.EGenericScene, Queue<Components.EmitterGroup>> m_ReadySystems
-            = new Dictionary<CP_SDK.ChatPlexSDK.EGenericScene, Queue<Components.EmitterGroup>>();
-        /// <summary>
-        /// Combo state Dictionary<EmoteID, Tuple<ComboCount, lastSeenTickCount>>
-        /// </summary>
-        private Dictionary<string, Tuple<int, int>> m_ComboState = new Dictionary<string, Tuple<int, int>>();
-        /// <summary>
-        /// Combo state Dictionary<EmoteID, Tuple<List<UserIDs>, lastSeenTickCount>>
-        /// </summary>
-        private Dictionary<string, Tuple<List<string>, int>> m_ComboState2 = new Dictionary<string, Tuple<List<string>, int>>();
+        private CP_SDK.Unity.Components.EnhancedImageParticleEmitterManager m_PlayingManager;
         /// <summary>
         /// SubRain emotes
         /// </summary>
-        private Dictionary<string, CP_SDK.Unity.EnhancedImage> m_SubRainTextures = new Dictionary<string, CP_SDK.Unity.EnhancedImage>();
+        private List<CP_SDK.Unity.EnhancedImage> m_SubRainTextures = new List<CP_SDK.Unity.EnhancedImage>();
         /// <summary>
         /// Temp disable
         /// </summary>
@@ -128,14 +102,20 @@ namespace ChatPlexMod_ChatEmoteRain
         protected override void OnEnable()
         {
             /// Bind events
-            CP_SDK.ChatPlexSDK.OnGenericSceneChange += ChatPlexUnitySDK_OnGenericSceneChange;
+            CP_SDK.ChatPlexSDK.OnGenericSceneChange += ChatPlexSDK_OnGenericSceneChange;
 
             /// Create CustomMenuSongs directory if not existing
             if (!Directory.Exists("CustomSubRain"))
                 Directory.CreateDirectory("CustomSubRain");
 
             LoadAssets();
-            CreateTemplate();
+
+            m_MenuManager       = new GameObject("[ChatPlexMod_ChatEmoteRain.MenuManager]").AddComponent<CP_SDK.Unity.Components.EnhancedImageParticleEmitterManager>();
+            m_PlayingManager    = new GameObject("[ChatPlexMod_ChatEmoteRain.PlayingManager]").AddComponent<CP_SDK.Unity.Components.EnhancedImageParticleEmitterManager>();
+
+            GameObject.DontDestroyOnLoad(m_MenuManager.gameObject);
+            GameObject.DontDestroyOnLoad(m_PlayingManager.gameObject);
+
             UpdateTemplateFor(CP_SDK.ChatPlexSDK.EGenericScene.Menu);
             UpdateTemplateFor(CP_SDK.ChatPlexSDK.EGenericScene.Playing);
 
@@ -168,15 +148,17 @@ namespace ChatPlexMod_ChatEmoteRain
                 m_ChatCoreAcquired = false;
             }
 
+            if (m_MenuManager != null)      GameObject.DestroyImmediate(m_MenuManager.gameObject);
+            if (m_PlayingManager != null)   GameObject.DestroyImmediate(m_PlayingManager.gameObject);
+
             /// Unload assets
             UnloadAssets();
-            DestroyTemplate();
 
             /// Unload SubRain emotes
             m_SubRainTextures.Clear();
 
             /// Unbind events
-            CP_SDK.ChatPlexSDK.OnGenericSceneChange -= ChatPlexUnitySDK_OnGenericSceneChange;
+            CP_SDK.ChatPlexSDK.OnGenericSceneChange -= ChatPlexSDK_OnGenericSceneChange;
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -208,7 +190,7 @@ namespace ChatPlexMod_ChatEmoteRain
         /// On game scene change
         /// </summary>
         /// <param name="p_Scene">New scene</param>
-        private void ChatPlexUnitySDK_OnGenericSceneChange(CP_SDK.ChatPlexSDK.EGenericScene p_Scene)
+        private void ChatPlexSDK_OnGenericSceneChange(CP_SDK.ChatPlexSDK.EGenericScene p_Scene)
         {
             if (m_TempDisable)
             {
@@ -216,25 +198,11 @@ namespace ChatPlexMod_ChatEmoteRain
                 m_TempDisable = false;
             }
 
-            for (int l_I = 0; l_I < m_ActiveSystems.Count; ++l_I)
-            {
-                var l_CurrentSystem = m_ActiveSystems[l_I].Item2;
-                if (l_CurrentSystem.GenericScene == p_Scene)
-                    continue;
+            if (p_Scene != CP_SDK.ChatPlexSDK.EGenericScene.Menu)
+                m_MenuManager.Clear();
 
-                l_CurrentSystem.Stop();
-                l_CurrentSystem.gameObject.SetActive(false);
-
-                m_ActiveSystems.RemoveAt(l_I);
-                l_I--;
-
-                if (m_ReadySystems[l_CurrentSystem.GenericScene].Count < POOL_SIZE_PER_SCENE)
-                    m_ReadySystems[l_CurrentSystem.GenericScene].Enqueue(l_CurrentSystem);
-                else
-                    GameObject.Destroy(l_CurrentSystem);
-
-                continue;
-            }
+            if (p_Scene != CP_SDK.ChatPlexSDK.EGenericScene.Playing)
+                m_PlayingManager.Clear();
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -245,163 +213,8 @@ namespace ChatPlexMod_ChatEmoteRain
         /// </summary>
         internal void OnSettingsChanged()
         {
-            for (int l_I = 0; l_I < m_ActiveSystems.Count; ++l_I)
-                m_ActiveSystems[l_I].Item2.UpdateEmitters();
-
-            foreach (var l_KVP in m_ReadySystems)
-            {
-                foreach (var l_Group in l_KVP.Value)
-                    l_Group.UpdateEmitters();
-            }
-
-            foreach (var l_KVP in m_Templates)
-            {
-                l_KVP.Value.UpdateEmitters();
-            }
-        }
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        /// <summary>
-        /// Create template
-        /// </summary>
-        private void CreateTemplate()
-        {
-            m_TemplateMaterial = new Material(Shader.Find("Particles/Standard Unlit"));
-            m_TemplateMaterial.EnableKeyword("ETC1_EXTERNAL_ALPHA");
-            m_TemplateMaterial.EnableKeyword("_ALPHABLEND_ON");
-            m_TemplateMaterial.EnableKeyword("_GLOSSYREFLECTIONS_OFF");
-            m_TemplateMaterial.EnableKeyword("_SPECULARHIGHLIGHTS_OFF");
-            m_TemplateMaterial.SetOverrideTag("RenderType", "Transparent");
-            m_TemplateMaterial.renderQueue = 3000;
-            m_TemplateMaterial.SetFloat("_BlendOp",                         0f);
-            m_TemplateMaterial.SetFloat("_BumpScale",                       1f);
-            m_TemplateMaterial.SetFloat("_CameraFadingEnabled",             0f);
-            m_TemplateMaterial.SetFloat("_CameraFarFadeDistance",           2f);
-            m_TemplateMaterial.SetFloat("_CameraNearFadeDistance",          1f);
-            m_TemplateMaterial.SetFloat("_ColorMode",                       0f);
-            m_TemplateMaterial.SetFloat("_Cull",                            2f);
-            m_TemplateMaterial.SetFloat("_Cutoff",                        0.5f);
-            m_TemplateMaterial.SetFloat("_DetailNormalMapScale",            1f);
-            m_TemplateMaterial.SetFloat("_DistortionBlend",               0.5f);
-            m_TemplateMaterial.SetFloat("_DistortionEnabled",               0f);
-            m_TemplateMaterial.SetFloat("_DistortionStrength",              1f);
-            m_TemplateMaterial.SetFloat("_DistortionStrengthScaled",        0f);
-            m_TemplateMaterial.SetFloat("_DstBlend",                       10f);
-            m_TemplateMaterial.SetFloat("_EmissionEnabled",                 0f);
-            m_TemplateMaterial.SetFloat("_EnableExternalAlpha",             0f);
-            m_TemplateMaterial.SetFloat("_FlipbookMode",                    0f);
-            m_TemplateMaterial.SetFloat("_GlossMapScale",                   1f);
-            m_TemplateMaterial.SetFloat("_Glossiness",                      1f);
-            m_TemplateMaterial.SetFloat("_GlossyReflections",               0f);
-            m_TemplateMaterial.SetFloat("_InvFade",                      1.15f);
-            m_TemplateMaterial.SetFloat("_LightingEnabled",                 0f);
-            m_TemplateMaterial.SetFloat("_Metallic",                        0f);
-            m_TemplateMaterial.SetFloat("_Mode",                            2f);
-            m_TemplateMaterial.SetFloat("_OcclusionStrength",               1f);
-            m_TemplateMaterial.SetFloat("_Parallax",                     0.02f);
-            m_TemplateMaterial.SetFloat("_SmoothnessTextureChannel",        0f);
-            m_TemplateMaterial.SetFloat("_SoftParticlesEnabled",            0f);
-            m_TemplateMaterial.SetFloat("_SoftParticlesFarFadeDistance",    1f);
-            m_TemplateMaterial.SetFloat("_SoftParticlesNearFadeDistance",   0f);
-            m_TemplateMaterial.SetFloat("_SrcBlend",                        5f);
-            m_TemplateMaterial.SetFloat("_UVSec",                           0f);
-            m_TemplateMaterial.SetFloat("_ZWrite",                          0f);
-            m_TemplateMaterial.enableInstancing = true;
-
-            m_TemplateMaterial.mainTexture = CP_SDK.Unity.Texture2DU.CreateFromRaw(
-                CP_SDK.Misc.Resources.FromRelPath(Assembly.GetExecutingAssembly(), "Resources.DefaultEmote.png")
-            );
-
-            m_TemplateParticleSystem = new GameObject("CP_ChatEmoteRain_Template");
-            GameObject.DontDestroyOnLoad(m_TemplateParticleSystem);
-
-            var l_PS    = m_TemplateParticleSystem.AddComponent<ParticleSystem>();
-            var l_PSR   = m_TemplateParticleSystem.GetComponent<ParticleSystemRenderer>();
-
-            var l_Main = l_PS.main;
-            l_Main.duration             = 1.0f;
-            l_Main.loop                 = true;
-            l_Main.startDelay           = 0;
-            l_Main.startLifetime        = 5;
-            l_Main.startSpeed           = 3;
-            l_Main.startSize            = 0.4f;
-            l_Main.startColor           = Color.white;
-            l_Main.gravityModifier      = 0f;
-            l_Main.simulationSpace      = ParticleSystemSimulationSpace.World;
-            l_Main.playOnAwake          = false;
-            l_Main.emitterVelocityMode  = ParticleSystemEmitterVelocityMode.Transform;
-            l_Main.maxParticles         = 200;
-            l_Main.prewarm              = true;
-
-            var l_Emission = l_PS.emission;
-            l_Emission.enabled          = false;
-            l_Emission.rateOverTime     = 1;
-            l_Emission.rateOverDistance = 0;
-            l_Emission.burstCount       = 1;
-            l_Emission.SetBurst(0, new ParticleSystem.Burst()
-            {
-                time            = 0,
-                count           = 1,
-                cycleCount      = 1,
-                repeatInterval  = 0.010f,
-                probability     = 1f
-            });
-
-            var l_Shape = l_PS.shape;
-            l_Shape.shapeType       = ParticleSystemShapeType.Box;
-            l_Shape.position        = Vector3.zero;
-            l_Shape.rotation        = new Vector3(90f, 0f, 0f);
-            l_Shape.scale           = new Vector3(10f, 1.5f, 2f);
-            l_Shape.angle           = 25f;
-            l_Shape.length          = 5;
-            l_Shape.boxThickness    = Vector3.zero;
-            l_Shape.radiusThickness = 1f;
-
-            var l_UVModule = l_PS.textureSheetAnimation;
-            l_UVModule.enabled = false;
-
-            var l_ColorOT = l_PS.colorOverLifetime;
-            l_ColorOT.enabled = true;
-            l_ColorOT.color = new ParticleSystem.MinMaxGradient(new Gradient()
-            {
-                alphaKeys = new GradientAlphaKey[]
-                {
-                    new GradientAlphaKey() { time = 0.00f, alpha = 0f},
-                    new GradientAlphaKey() { time = 0.05f, alpha = 1f},
-                    new GradientAlphaKey() { time = 0.75f, alpha = 1f},
-                    new GradientAlphaKey() { time = 1.00f, alpha = 0f}
-                },
-                colorKeys = new GradientColorKey[]
-                {
-                    new GradientColorKey() { time = 0.00f, color = Color.white },
-                    new GradientColorKey() { time = 1.00f, color = Color.white }
-                }
-            });
-
-            var l_TextureSheetAnimation = l_PS.textureSheetAnimation;
-            l_TextureSheetAnimation.enabled     = false;
-            l_TextureSheetAnimation.mode        = ParticleSystemAnimationMode.Sprites;
-            l_TextureSheetAnimation.timeMode    = ParticleSystemAnimationTimeMode.Lifetime;
-
-            l_PSR.renderMode = ParticleSystemRenderMode.VerticalBillboard;
-            l_PSR.normalDirection   = 1f;
-            l_PSR.material          = m_TemplateMaterial;
-            l_PSR.minParticleSize   = 0.0f;
-            l_PSR.maxParticleSize   = 0.5f;
-            l_PSR.receiveShadows    = false;
-            l_PSR.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-        }
-        /// <summary>
-        /// Destroy template
-        /// </summary>
-        private void DestroyTemplate()
-        {
-            if (m_TemplateParticleSystem != null)
-                GameObject.Destroy(m_TemplateParticleSystem);
-
-            m_TemplateMaterial = null;
+            m_MenuManager.UpdateFromConfig();
+            m_PlayingManager.UpdateFromConfig();
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -413,59 +226,17 @@ namespace ChatPlexMod_ChatEmoteRain
         /// <param name="p_Scene"></param>
         internal void UpdateTemplateFor(CP_SDK.ChatPlexSDK.EGenericScene p_Scene)
         {
-            if (!m_Templates.TryGetValue(p_Scene, out var l_Group))
-            {
-                l_Group = new GameObject("CP_ChatEmoteRain_Group" + p_Scene.ToString()).AddComponent<Components.EmitterGroup>();
-                m_Templates.Add(p_Scene, l_Group);
-            }
-
-            var l_Configs = p_Scene == CP_SDK.ChatPlexSDK.EGenericScene.Menu
-                ?
-                    CERConfig.Instance.MenuEmitters
-                :
-                    CERConfig.Instance.SongEmitters
-                ;
-
-            l_Group.GenericScene = p_Scene;
-            l_Group.Setup(l_Configs, m_TemplateParticleSystem);
-            l_Group.SetupMaterial(m_TemplateMaterial, m_TemplateMaterial.mainTexture, m_PreviewMaterial);
-
-            if (!m_ReadySystems.ContainsKey(p_Scene))
-                m_ReadySystems.Add(p_Scene, new Queue<Components.EmitterGroup>());
-
-            if (m_ReadySystems[p_Scene].Count == 0)
-            {
-                for (int l_I = 0; l_I < POOL_SIZE_PER_SCENE; ++l_I)
-                {
-                    var l_Instance = new GameObject("CP_ChatEmoteRain_Group" + p_Scene.ToString()).AddComponent<Components.EmitterGroup>();
-                    l_Instance.GenericScene = p_Scene;
-                    l_Instance.Setup(l_Configs, m_TemplateParticleSystem);
-                    l_Instance.SetupMaterial(m_TemplateMaterial, m_TemplateMaterial.mainTexture, m_PreviewMaterial);
-                    l_Instance.gameObject.SetActive(false);
-
-                    m_ReadySystems[p_Scene].Enqueue(l_Instance);
-                }
-            }
-            else
-            {
-                foreach (var l_Current in m_ReadySystems[p_Scene])
-                    l_Current.Setup(l_Configs, m_TemplateParticleSystem);
-            }
-
-            foreach (var l_Current in m_ActiveSystems)
-            {
-                if (l_Current.Item2.GenericScene != p_Scene)
-                    continue;
-
-                l_Current.Item2.Setup(l_Configs, m_TemplateParticleSystem);
-            }
+            if (p_Scene == CP_SDK.ChatPlexSDK.EGenericScene.Menu)
+                m_MenuManager.Configure(POOL_SIZE_PER_SCENE, CERConfig.Instance.MenuEmitters, m_PreviewMaterial, CERConfig.Instance.MenuSize, CERConfig.Instance.MenuSpeed, CERConfig.Instance.EmoteDelay);
+            else if (p_Scene == CP_SDK.ChatPlexSDK.EGenericScene.Playing)
+                m_PlayingManager.Configure(POOL_SIZE_PER_SCENE, CERConfig.Instance.SongEmitters, m_PreviewMaterial, CERConfig.Instance.SongSize, CERConfig.Instance.SongSpeed, CERConfig.Instance.EmoteDelay);
         }
-        internal void SetTemplatesPreview(CP_SDK.ChatPlexSDK.EGenericScene p_Scene, bool p_Enabled, CERConfig._Emitter p_Focus)
+        internal void SetTemplatesPreview(CP_SDK.ChatPlexSDK.EGenericScene p_Scene, bool p_Enabled, EmitterConfig p_Focus)
         {
-            if (!m_Templates.TryGetValue(p_Scene, out var l_Group))
-                return;
-
-            l_Group.SetPreview(p_Enabled, p_Focus);
+            if (p_Scene == CP_SDK.ChatPlexSDK.EGenericScene.Menu)
+                m_MenuManager.SetPreview(p_Enabled, p_Focus);
+            else if (p_Scene == CP_SDK.ChatPlexSDK.EGenericScene.Playing)
+                m_PlayingManager.SetPreview(p_Enabled, p_Focus);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -491,6 +262,10 @@ namespace ChatPlexMod_ChatEmoteRain
                 m_PreviewMateralAssetBundle = null;
             }
         }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
         /// <summary>
         /// Load SubRain emotes
         /// </summary>
@@ -498,78 +273,22 @@ namespace ChatPlexMod_ChatEmoteRain
         {
             m_SubRainTextures.Clear();
 
-            var l_Files = Directory.GetFiles("CustomSubRain",   "*.png")
-                   .Union(Directory.GetFiles("CustomSubRain",   "*.gif"))
-                   .Union(Directory.GetFiles("CustomSubRain",   "*.apng")).ToArray();
+            var l_Files = Directory.GetFiles("CustomSubRain", "*.png")
+                   .Union(Directory.GetFiles("CustomSubRain", "*.gif"))
+                   .Union(Directory.GetFiles("CustomSubRain", "*.apng")).ToArray();
 
             foreach (string l_CurrentFile in l_Files)
             {
                 string l_EmoteName = Path.GetFileNameWithoutExtension(l_CurrentFile);
-                l_EmoteName = "_BSPSubRain_" + l_EmoteName.Substring(l_EmoteName.LastIndexOf('\\') + 1);
+                l_EmoteName = "$CPM$CER$SR$_" + l_EmoteName.Substring(l_EmoteName.LastIndexOf('\\') + 1);
 
-                LoadExternalEmote(l_CurrentFile, l_EmoteName, (p_Result) =>
+                CP_SDK.Unity.EnhancedImage.FromFile(l_CurrentFile, l_EmoteName, (p_Result) =>
                 {
                     if (p_Result != null)
-                        m_SubRainTextures.Add(l_EmoteName, p_Result);
+                        lock (m_SubRainTextures) { m_SubRainTextures.Add(p_Result); }
                 });
             }
         }
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        /// <summary>
-        /// Load external emote
-        /// </summary>
-        /// <param name="p_FileName">File name</param>
-        /// <param name="p_ID">New emote id</param>
-        /// <param name="p_Callback">Load callback</param>
-        public void LoadExternalEmote(string p_FileName, string p_ID, Action<CP_SDK.Unity.EnhancedImage> p_Callback)
-        {
-            if (p_FileName.ToLower().EndsWith(".png"))
-            {
-                CP_SDK.Unity.EnhancedImage.FromRawStatic(p_ID, File.ReadAllBytes(p_FileName), (p_Result) =>
-                {
-                    if (p_Result != null)
-                    {
-                        p_Result.Sprite.texture.wrapMode = TextureWrapMode.Mirror;
-                        p_Callback?.Invoke(p_Result);
-                    }
-                    else
-                        Logger.Instance.Warning("Failed to load image " + p_FileName);
-                });
-            }
-            else if (p_FileName.ToLower().EndsWith(".gif"))
-            {
-                CP_SDK.Unity.EnhancedImage.FromRawAnimated(
-                    p_ID,
-                    CP_SDK.Animation.EAnimationType.GIF,
-                    File.ReadAllBytes(p_FileName), (p_Result) =>
-                    {
-                        if (p_Result != null)
-                            p_Callback?.Invoke(p_Result);
-                        else
-                            Logger.Instance.Warning("Failed to load image " + p_FileName);
-                    });
-            }
-            else if (p_FileName.ToLower().EndsWith(".apng"))
-            {
-                CP_SDK.Unity.EnhancedImage.FromRawAnimated(
-                    p_ID,
-                    CP_SDK.Animation.EAnimationType.APNG,
-                    File.ReadAllBytes(p_FileName), (p_Result) =>
-                    {
-                        if (p_Result != null)
-                            p_Callback?.Invoke(p_Result);
-                        else
-                            Logger.Instance.Warning("Failed to load image " + p_FileName);
-                    });
-            }
-        }
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
         /// <summary>
         /// Start a SubRain
         /// </summary>
@@ -582,54 +301,14 @@ namespace ChatPlexMod_ChatEmoteRain
                 || (CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.ChatPlexSDK.EGenericScene.Playing && CERConfig.Instance.EnableSong))
             {
                 var l_EmitCount = (uint)CERConfig.Instance.SubRainEmoteCount;
-                if (m_SubRainTextures.Count == 0)
-                    CP_SDK.Unity.MTCoroutineStarter.Start(StartParticleSystem(s_SUBRAIN_NO_EMOTE, null, l_EmitCount));
-                else
+                lock (m_SubRainTextures)
                 {
-                    foreach (var l_KVP in m_SubRainTextures)
-                        CP_SDK.Unity.MTCoroutineStarter.Start(StartParticleSystem(l_KVP.Key, l_KVP.Value, l_EmitCount));
+                    for (int l_I = 0; l_I < m_SubRainTextures.Count; ++l_I)
+                    {
+                        var l_Emote = m_SubRainTextures[l_I];
+                        CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() => EmitEnhancedImage(l_Emote, l_EmitCount));
+                    }
                 }
-            }
-        }
-        /// <summary>
-        /// Unregister a particle system
-        /// </summary>
-        /// <param name="p_EmoteID">Emote ID</param>
-        /// <param name="p_Mode">Game mode</param>
-        internal void UnregisterGroup(Components.EmitterGroup p_Group)
-        {
-#if DEBUG
-            Logger.Instance.Debug("[ChatEmoteRain] UnregisterGroup group " + p_Group.GetHashCode());
-#endif
-
-            p_Group.Stop();
-            p_Group.gameObject.SetActive(false);
-
-            for (int l_I = 0; l_I < m_ActiveSystems.Count; ++l_I)
-            {
-                var l_CurrentSystem = m_ActiveSystems[l_I].Item2;
-                if (l_CurrentSystem != p_Group)
-                    continue;
-
-                m_ActiveSystems.RemoveAt(l_I);
-                l_I--;
-
-                if (m_ReadySystems[l_CurrentSystem.GenericScene].Count < POOL_SIZE_PER_SCENE)
-                {
-                    m_ReadySystems[l_CurrentSystem.GenericScene].Enqueue(l_CurrentSystem);
-#if DEBUG
-                    Logger.Instance.Debug("[ChatEmoteRain] Queuing back group " + p_Group.GetHashCode());
-#endif
-                }
-                else
-                {
-                    GameObject.Destroy(l_CurrentSystem.gameObject);
-#if DEBUG
-                    Logger.Instance.Debug("[ChatEmoteRain] Destroying overflow group " + p_Group.GetHashCode());
-#endif
-                }
-
-                continue;
             }
         }
 
@@ -673,10 +352,8 @@ namespace ChatPlexMod_ChatEmoteRain
                             return;
                         }
 
-                        CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() => {
-                            for (int l_EmoteI = 0; l_EmoteI < p_Message.Emotes.Length; ++l_EmoteI)
-                                EnqueueEmote(p_Message.Emotes[l_EmoteI], l_Count);
-                        });
+                        for (int l_EmoteI = 0; l_EmoteI < p_Message.Emotes.Length; ++l_EmoteI)
+                            EnqueueEmote(p_Message.Emotes[l_EmoteI], l_Count);
 
                         SendChatMessage($"@{p_Message.Sender.UserName} Let em' rain!", p_Service, p_Message);
                     }
@@ -689,11 +366,10 @@ namespace ChatPlexMod_ChatEmoteRain
                     {
                         CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() =>
                         {
-                            var l_ActiveScene   = CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.ChatPlexSDK.EGenericScene.Menu ? CP_SDK.ChatPlexSDK.EGenericScene.Menu : CP_SDK.ChatPlexSDK.EGenericScene.Playing;
-                            var l_EmitterGroup  = m_ActiveSystems.Where(x => x.Item2.GenericScene == l_ActiveScene).Select(x => x.Item2);
-
-                            foreach (var l_Emitter in l_EmitterGroup)
-                                l_Emitter.Clear();
+                            if (CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.ChatPlexSDK.EGenericScene.Menu)
+                                m_MenuManager.Clear();
+                            else if (CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.ChatPlexSDK.EGenericScene.Playing)
+                                m_PlayingManager.Clear();
                         });
                     }
                     else
@@ -704,13 +380,10 @@ namespace ChatPlexMod_ChatEmoteRain
             if (m_TempDisable)
                 return;
 
-            if (p_Message.IsSystemMessage && CERConfig.Instance.SubRain
-                && (p_Message.Message.StartsWith("⭐") || p_Message.Message.StartsWith("👑")))
-            {
-                CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() => StartSubRain());
-            }
+            if (p_Message.IsSystemMessage && CERConfig.Instance.SubRain && (p_Message.Message.StartsWith("⭐") || p_Message.Message.StartsWith("👑")))
+                StartSubRain();
 
-            IChatEmote[] l_Emotes = CERConfig.Instance.ComboMode ? FilterEmotesForCombo(p_Message) : p_Message.Emotes;
+            IChatEmote[] l_Emotes = p_Message.Emotes;
             if (l_Emotes != null && l_Emotes.Length > 0)
             {
                 var l_EmotesToRain =
@@ -719,11 +392,8 @@ namespace ChatPlexMod_ChatEmoteRain
                                       select new { emote = emoteGrouping.First(), count = (byte)emoteGrouping.Count() }
                     ).ToArray();
 
-                CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() =>
-                {
-                    for (int l_I = 0; l_I < l_EmotesToRain.Length; ++l_I)
-                        EnqueueEmote(l_EmotesToRain[l_I].emote, (uint)l_EmotesToRain[l_I].count);
-                });
+                for (int l_I = 0; l_I < l_EmotesToRain.Length; ++l_I)
+                    EnqueueEmote(l_EmotesToRain[l_I].emote, (uint)l_EmotesToRain[l_I].count);
             }
         }
 
@@ -741,7 +411,15 @@ namespace ChatPlexMod_ChatEmoteRain
             if (   (CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.ChatPlexSDK.EGenericScene.Menu    && CERConfig.Instance.EnableMenu)
                 || (CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.ChatPlexSDK.EGenericScene.Playing && CERConfig.Instance.EnableSong))
             {
-                CP_SDK.Unity.MTCoroutineStarter.Start(StartParticleSystem(p_Emote.Id, null, p_Count));
+                if (!CP_SDK.Chat.ChatImageProvider.CachedImageInfo.TryGetValue(p_Emote.Id, out var l_EnhancedImageInfo))
+                {
+                    CP_SDK.Chat.ChatImageProvider.TryCacheSingleImage(EChatResourceCategory.Emote, p_Emote.Id, p_Emote.Uri, p_Emote.Animation, (l_Info) =>
+                    {
+                        CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() => EmitEnhancedImage(l_Info, p_Count));
+                    });
+                }
+                else
+                    CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() => EmitEnhancedImage(l_EnhancedImageInfo, p_Count));
             }
         }
         /// <summary>
@@ -750,242 +428,15 @@ namespace ChatPlexMod_ChatEmoteRain
         /// <param name="p_EmoteID">ID of the emote</param>
         /// <param name="p_Count">Display count</param>
         /// <returns></returns>
-        public IEnumerator StartParticleSystem(string p_EmoteID, CP_SDK.Unity.EnhancedImage p_Raw, uint p_Count)
+        public void EmitEnhancedImage(CP_SDK.Unity.EnhancedImage p_EnhancedImage, uint p_Count)
         {
-            CP_SDK.Unity.EnhancedImage l_EnhancedImageInfo = p_Raw;
+            if (p_EnhancedImage == null)
+                return;
 
-            if (p_Raw == null)
-                yield return new WaitUntil(() => CP_SDK.Chat.ChatImageProvider.CachedImageInfo.TryGetValue(p_EmoteID, out l_EnhancedImageInfo) && CP_SDK.ChatPlexSDK.ActiveGenericScene != CP_SDK.ChatPlexSDK.EGenericScene.None);
-
-            /// If not enhanced info, we skip
-            if (l_EnhancedImageInfo == null && p_EmoteID != s_SUBRAIN_NO_EMOTE)
-                yield break;
-
-            var l_ActiveScene   = CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.ChatPlexSDK.EGenericScene.Menu ? CP_SDK.ChatPlexSDK.EGenericScene.Menu : CP_SDK.ChatPlexSDK.EGenericScene.Playing;
-            var l_EmitterGroup  = m_ActiveSystems.Where(x => x.Item2.GenericScene == l_ActiveScene && x.Item1 == p_EmoteID).Select(x => x.Item2).FirstOrDefault();
-
-            if (l_EmitterGroup == null || !l_EmitterGroup)
-            {
-                if (m_ReadySystems[l_ActiveScene].Count > 0)
-                {
-                    l_EmitterGroup = m_ReadySystems[l_ActiveScene].Dequeue();
-                    l_EmitterGroup.gameObject.SetActive(true);
-
-                    /// Reset animated images animator
-                    for (int l_EmitterI = 0; l_EmitterI < l_EmitterGroup.Emitters.Length; ++l_EmitterI)
-                    {
-                        var l_Current = l_EmitterGroup.Emitters[l_EmitterI];
-                        var l_TextureSheetAnimation = l_Current.PS.textureSheetAnimation;
-                        l_TextureSheetAnimation.enabled = false;
-                    }
-
-                    m_ActiveSystems.Add((p_EmoteID, l_EmitterGroup));
-
-                    Components.EmitterGroupManager.instance.Register(l_EmitterGroup);
-                }
-                else
-                {
-                    var l_Configs = l_ActiveScene == CP_SDK.ChatPlexSDK.EGenericScene.Menu
-                        ?
-                            CERConfig.Instance.MenuEmitters
-                        :
-                            CERConfig.Instance.SongEmitters
-                        ;
-
-                    l_EmitterGroup = new GameObject("CP_ChatEmoteRain_Group" + l_ActiveScene.ToString()).AddComponent<Components.EmitterGroup>();
-                    l_EmitterGroup.GenericScene = l_ActiveScene;
-                    l_EmitterGroup.Setup(l_Configs, m_TemplateParticleSystem);
-                    l_EmitterGroup.SetupMaterial(m_TemplateMaterial, m_TemplateMaterial.mainTexture, m_PreviewMaterial);
-
-                    m_ActiveSystems.Add((p_EmoteID, l_EmitterGroup));
-
-                    Components.EmitterGroupManager.instance.Register(l_EmitterGroup);
-#if DEBUG
-                    Logger.Instance.Debug("[ChatEmoteRain] Allocating overgrown group " + l_EmitterGroup.GetHashCode());
-#endif
-                }
-
-                float l_AspectRatio = (float)l_EnhancedImageInfo.Width / (float)l_EnhancedImageInfo.Height;
-
-                /// Sorta working animated emotes
-                if (p_EmoteID != s_SUBRAIN_NO_EMOTE && l_EnhancedImageInfo.AnimControllerData != null)
-                {
-                    for (int l_EmitterI = 0; l_EmitterI < l_EmitterGroup.Emitters.Length; ++l_EmitterI)
-                    {
-                        var l_Current               = l_EmitterGroup.Emitters[l_EmitterI];
-                        var l_TextureSheetAnimation = l_Current.PS.textureSheetAnimation;
-
-                        /// Clear old sprites
-                        while (l_TextureSheetAnimation.spriteCount > 0)
-                            l_TextureSheetAnimation.RemoveSprite(0);
-
-                        var l_SpriteCount   = l_EnhancedImageInfo.AnimControllerData.Frames.Length;
-                        var l_TimeForEmote  = 0f;
-                        for (int l_I = 0; l_I < l_SpriteCount; ++l_I)
-                        {
-                            l_TextureSheetAnimation.AddSprite(l_EnhancedImageInfo.AnimControllerData.Frames[l_I]);
-                            l_TimeForEmote += l_EnhancedImageInfo.AnimControllerData.Delays[l_I];
-                        }
-
-                        AnimationCurve l_AnimationCurve = new AnimationCurve();
-                        float l_TimeAccumulator         = 0f;
-                        float l_SingleFramePercentage   = 1.0f / (float)l_SpriteCount;
-                        for (int l_FrameI = 0; l_FrameI < l_SpriteCount; ++l_FrameI)
-                        {
-                            l_AnimationCurve.AddKey(l_TimeAccumulator / l_TimeForEmote, ((float)l_FrameI) * l_SingleFramePercentage);
-                            l_TimeAccumulator += l_EnhancedImageInfo.AnimControllerData.Delays[l_FrameI];
-                        }
-                        l_AnimationCurve.AddKey(1f, 1f);
-
-                        l_TextureSheetAnimation.enabled         = true;
-                        l_TextureSheetAnimation.frameOverTime   = new ParticleSystem.MinMaxCurve(1f, l_AnimationCurve);
-
-                        var l_CycleCount = (int)Mathf.Max(1f, (l_Current.LifeTime * 1000f) / l_TimeForEmote);
-                        l_TextureSheetAnimation.cycleCount = l_CycleCount;
-
-                        var l_PSMain = l_Current.PS.main;
-                        l_PSMain.startLifetime = l_CycleCount * (l_TimeForEmote / 1000f);
-
-                        /// Wide emote support
-                        if (Mathf.Abs(1f - l_AspectRatio) > 0.1f)
-                        {
-                            var l_StartSize3D = new Vector3(
-                                    l_PSMain.startSize.constant * l_AspectRatio,
-                                    l_PSMain.startSize.constant,
-                                    l_PSMain.startSize.constant
-                                );
-                            l_PSMain.startSize3D = true;
-                            l_PSMain.startSizeXMultiplier = l_StartSize3D.x;
-                            l_PSMain.startSizeYMultiplier = l_StartSize3D.y;
-                            l_PSMain.startSizeZMultiplier = l_StartSize3D.z;
-                        }
-                    }
-                }
-                else
-                {
-                    for (int l_EmitterI = 0; l_EmitterI < l_EmitterGroup.Emitters.Length; ++l_EmitterI)
-                    {
-                        var l_Current = l_EmitterGroup.Emitters[l_EmitterI];
-
-                        var l_TextureSheetAnimation = l_Current.PS.textureSheetAnimation;
-                        l_TextureSheetAnimation.enabled = false;
-
-                        var l_PSMain = l_Current.PS.main;
-                        l_PSMain.startLifetime = l_Current.LifeTime;
-
-                        /// Wide emote support
-                        if (Mathf.Abs(1f - l_AspectRatio) > 0.1f)
-                        {
-                            var l_StartSize3D = new Vector3(
-                                    l_PSMain.startSize.constant * l_AspectRatio,
-                                    l_PSMain.startSize.constant,
-                                    l_PSMain.startSize.constant
-                                );
-                            l_PSMain.startSize3D = true;
-                            l_PSMain.startSizeXMultiplier = l_StartSize3D.x;
-                            l_PSMain.startSizeYMultiplier = l_StartSize3D.y;
-                            l_PSMain.startSizeZMultiplier = l_StartSize3D.z;
-                        }
-                    }
-
-                    l_EmitterGroup.UpdateEmitters();
-                }
-
-                l_EmitterGroup.UpdateTexture(l_EnhancedImageInfo.Sprite.texture);
-            }
-
-            l_EmitterGroup.Emit(p_Count);
-
-            yield return null;
-        }
-        /// <summary>
-        /// Filter emotes for combo
-        /// </summary>
-        /// <param name="p_Emotes">Emotes to filter</param>
-        /// <returns></returns>
-        private IChatEmote[] FilterEmotesForCombo(IChatMessage p_Message)
-        {
-            IChatEmote[] returner = null;
-            if (CERConfig.Instance.ComboModeType == 1) // Trigger type: 0 = Emote; 1 = User
-            {
-                IChatEmote[] l_Emotes = p_Message.Emotes;
-                string l_Sender = p_Message.Sender.Id;
-
-                List<IChatEmote> l_FirstFiltering = new List<IChatEmote>();
-                foreach(IChatEmote l_CurrentEmote in l_Emotes)
-                {
-                    if(l_FirstFiltering.Count(x => x.Id == l_CurrentEmote.Id) == 0)
-                        l_FirstFiltering.Add(l_CurrentEmote);
-                }
-
-                List<IChatEmote> l_SecondFiltering = new List<IChatEmote>();
-                foreach (IChatEmote e in l_FirstFiltering)
-                {
-                    if (m_ComboState2.ContainsKey(e.Id))
-                    {
-                        if (Environment.TickCount - m_ComboState2[e.Id].Item2 < CERConfig.Instance.ComboTimer * 1000 &&
-                            !m_ComboState2[e.Id].Item1.Contains(l_Sender))
-                        {
-                            m_ComboState2[e.Id].Item1.Add(l_Sender);
-                            m_ComboState2[e.Id] = new Tuple<List<string>, int>(m_ComboState2[e.Id].Item1, Environment.TickCount & int.MaxValue);
-                        }
-                        else
-                        {
-                            m_ComboState2.Remove(e.Id);
-                            List<string> temp = new List<string>();
-                            temp.Add(l_Sender);
-                            m_ComboState2.Add(e.Id, new Tuple<List<string>, int>(temp, Environment.TickCount & int.MaxValue));
-                        }
-
-                        if(m_ComboState2[e.Id].Item1.Count >= CERConfig.Instance.ComboCount)
-                        {
-                            l_SecondFiltering.Add(e);
-                        }
-                    }
-                    else
-                    {
-                        List<string> temp = new List<string>();
-                        temp.Add(l_Sender);
-                        m_ComboState2.Add(e.Id, new Tuple<List<string>, int>(temp, Environment.TickCount & int.MaxValue));
-                    }
-                }
-                returner = l_SecondFiltering.ToArray();
-            }
-            else
-            {
-                IChatEmote[] l_Emotes = p_Message.Emotes;
-
-                List<IChatEmote> l_FirstFiltering = new List<IChatEmote>();
-                foreach (IChatEmote l_CurrentEmote in l_Emotes)
-                {
-                    if (l_FirstFiltering.Count(x => x.Id == l_CurrentEmote.Id) == 0)
-                        l_FirstFiltering.Add(l_CurrentEmote);
-                }
-
-                List<IChatEmote> l_SecondFiltering = new List<IChatEmote>();
-                foreach (IChatEmote l_CurrentEmote in l_FirstFiltering)
-                {
-                    if (m_ComboState.ContainsKey(l_CurrentEmote.Id))
-                    {
-                        if (Environment.TickCount - m_ComboState[l_CurrentEmote.Id].Item2 < CERConfig.Instance.ComboTimer * 1000)
-                            m_ComboState[l_CurrentEmote.Id] = new Tuple<int, int>(m_ComboState[l_CurrentEmote.Id].Item1 + 1, Environment.TickCount & int.MaxValue);
-                        else
-                        {
-                            m_ComboState.Remove(l_CurrentEmote.Id);
-                            m_ComboState.Add(l_CurrentEmote.Id, new Tuple<int, int>(1, Environment.TickCount & int.MaxValue));
-                        }
-
-                        if (m_ComboState[l_CurrentEmote.Id].Item1 >= CERConfig.Instance.ComboCount)
-                            l_SecondFiltering.Add(l_CurrentEmote);
-                    }
-                    else
-                        m_ComboState.Add(l_CurrentEmote.Id, new Tuple<int, int>(1, Environment.TickCount & int.MaxValue));
-                }
-
-                returner = l_SecondFiltering.ToArray();
-            }
-
-            return returner;
+            if (CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.ChatPlexSDK.EGenericScene.Menu)
+                m_MenuManager.Emit(p_EnhancedImage, p_Count);
+            else if (CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.ChatPlexSDK.EGenericScene.Playing)
+                m_PlayingManager.Emit(p_EnhancedImage, p_Count);
         }
 
         ////////////////////////////////////////////////////////////////////////////

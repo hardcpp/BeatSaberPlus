@@ -242,7 +242,7 @@ namespace BeatSaberPlus.UI
         [UIAction("EmotesTab_ApplyButton")]
         private void EmotesTab_ApplyButton()
         {
-            CP_SDK.Chat.Service.Multiplexer.RecacheEmotes();
+            CP_SDK.Chat.Service.RecacheEmotes();
             ShowMessageModal("OK!");
         }
 

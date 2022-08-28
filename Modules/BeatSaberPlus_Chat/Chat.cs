@@ -1,6 +1,7 @@
 ﻿using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.FloatingScreen;
 using CP_SDK.Chat.Interfaces;
+using CP_SDK.Unity.Extensions;
 using HMUI;
 using System;
 using System.Collections;
@@ -179,12 +180,12 @@ namespace ChatPlexMod_Chat
             m_ChannelsVideoPlaybackStatus.Clear();
 
             /// Bind events
-            CP_SDK.ChatPlexSDK.OnGenericMenuSceneLoaded   += ChatPlexUnitySDK_OnGenericMenuSceneLoaded;
-            CP_SDK.ChatPlexSDK.OnGenericSceneChange       += ChatPlexUnitySDK_OnGenericSceneChange;
+            CP_SDK.ChatPlexSDK.OnGenericMenuSceneLoaded   += ChatPlexSDK_OnGenericMenuSceneLoaded;
+            CP_SDK.ChatPlexSDK.OnGenericSceneChange       += ChatPlexSDK_OnGenericSceneChange;
 
             /// If we are already in menu scene, activate
             if (CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.ChatPlexSDK.EGenericScene.Menu)
-                ChatPlexUnitySDK_OnGenericSceneChange(CP_SDK.ChatPlexSDK.ActiveGenericScene);
+                ChatPlexSDK_OnGenericSceneChange(CP_SDK.ChatPlexSDK.ActiveGenericScene);
 
             if (!m_ChatCoreAcquired)
             {
@@ -254,8 +255,8 @@ namespace ChatPlexMod_Chat
             }
 
             /// Unbind events
-            CP_SDK.ChatPlexSDK.OnGenericSceneChange       -= ChatPlexUnitySDK_OnGenericSceneChange;
-            CP_SDK.ChatPlexSDK.OnGenericMenuSceneLoaded   -= ChatPlexUnitySDK_OnGenericMenuSceneLoaded;
+            CP_SDK.ChatPlexSDK.OnGenericSceneChange       -= ChatPlexSDK_OnGenericSceneChange;
+            CP_SDK.ChatPlexSDK.OnGenericMenuSceneLoaded   -= ChatPlexSDK_OnGenericMenuSceneLoaded;
 
             /// Stop coroutine
             if (m_CreateButtonCoroutine != null)
@@ -300,7 +301,7 @@ namespace ChatPlexMod_Chat
         /// <summary>
         /// When the menu loaded
         /// </summary>
-        private void ChatPlexUnitySDK_OnGenericMenuSceneLoaded()
+        private void ChatPlexSDK_OnGenericMenuSceneLoaded()
         {
             if (m_ModerationButton == null || !m_ModerationButton )
             {
@@ -327,7 +328,7 @@ namespace ChatPlexMod_Chat
         /// When the active scene is changed
         /// </summary>
         /// <param name="p_SceneType"></param>
-        private void ChatPlexUnitySDK_OnGenericSceneChange(CP_SDK.ChatPlexSDK.EGenericScene p_SceneType)
+        private void ChatPlexSDK_OnGenericSceneChange(CP_SDK.ChatPlexSDK.EGenericScene p_SceneType)
         {
             if (m_RootGameObject)
                 m_RootGameObject.transform.localScale = Vector3.one;
@@ -714,8 +715,7 @@ namespace ChatPlexMod_Chat
 
                 /// Bind floating window to the root game object
                 m_ViewerCountFloatingScreen.transform.SetParent(m_ViewerCountOwner.transform, false);
-
-                CP_SDK.Unity.GameObjectU.ChangerLayerRecursive(m_ViewerCountFloatingScreen.gameObject, LayerMask.NameToLayer("UI"));
+                m_ViewerCountFloatingScreen.gameObject.ChangerLayerRecursive(LayerMask.NameToLayer("UI"));
 
                 UpdateViewerCount();
 

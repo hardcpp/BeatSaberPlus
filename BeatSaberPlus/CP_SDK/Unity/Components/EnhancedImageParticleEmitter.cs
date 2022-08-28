@@ -1,16 +1,43 @@
-﻿using UnityEngine;
+﻿using Newtonsoft.Json;
+using UnityEngine;
 
-namespace ChatPlexMod_ChatEmoteRain.Components
+namespace CP_SDK.Unity.Components
 {
     /// <summary>
     /// Emitter instance component
     /// </summary>
-    internal class EmitterInstance : MonoBehaviour
+    public class EnhancedImageParticleEmitter : MonoBehaviour
     {
+        public class EmitterConfig
+        {
+            [JsonProperty] public bool Enabled = true;
+            [JsonProperty] public string Name = "New emitter";
+
+            [JsonProperty] public float Size = 1f;
+            [JsonProperty] public float Speed = 1f;
+
+            [JsonProperty] public float PosX = 0.00f;
+            [JsonProperty] public float PosY = 11.00f;
+            [JsonProperty] public float PosZ = 3.50f;
+            [JsonProperty] public float RotX = 90.00f;
+            [JsonProperty] public float RotY = 0.00f;
+            [JsonProperty] public float RotZ = 0.00f;
+            [JsonProperty] public float SizeX = 10.00f;
+            [JsonProperty] public float SizeY = 1.25f;
+            [JsonProperty] public float SizeZ = 2.00f;
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Group
+        /// </summary>
+        internal EnhancedImageParticleEmitterGroup Group = null;
         /// <summary>
         /// Emitter config
         /// </summary>
-        internal CERConfig._Emitter Emitter;
+        internal EmitterConfig Config = null;
         /// <summary>
         /// Particle system
         /// </summary>
@@ -54,16 +81,16 @@ namespace ChatPlexMod_ChatEmoteRain.Components
         /// <summary>
         /// Update from emitter config
         /// </summary>
-        internal void UpdateFromEmitter(CP_SDK.ChatPlexSDK.EGenericScene p_Scene)
+        internal void UpdateFromConfig()
         {
-            if (Emitter == null)
+            if (Config == null)
                 return;
 
-            transform.localPosition = new Vector3(Emitter.PosX, Emitter.PosY, Emitter.PosZ);
+            transform.localPosition = new Vector3(Config.PosX, Config.PosY, Config.PosZ);
 
             var l_Shape = PS.shape;
-            l_Shape.rotation    = new Vector3(Emitter.RotX,     Emitter.RotY,   Emitter.RotZ);
-            l_Shape.scale       = new Vector3(Emitter.SizeX,    Emitter.SizeY,  Emitter.SizeZ);
+            l_Shape.rotation    = new Vector3(Config.RotX,     Config.RotY,   Config.RotZ);
+            l_Shape.scale       = new Vector3(Config.SizeX,    Config.SizeY,  Config.SizeZ);
 
             /// Update preview if enabled
             if (m_Preview)
@@ -72,9 +99,8 @@ namespace ChatPlexMod_ChatEmoteRain.Components
                 m_Preview.transform.localEulerAngles    = l_Shape.rotation;
             }
 
-            var l_IsMenu    = p_Scene == CP_SDK.ChatPlexSDK.EGenericScene.Menu;
-            var l_Size      = (l_IsMenu ? CERConfig.Instance.MenuSize  : CERConfig.Instance.SongSize)  * Emitter.Size;
-            var l_Speed     = (l_IsMenu ? CERConfig.Instance.MenuSpeed : CERConfig.Instance.SongSpeed) * Emitter.Speed;
+            var l_Size  = Group.Manager.Size  * Config.Size;
+            var l_Speed = Group.Manager.Speed * Config.Speed;
 
             var l_Main = PS.main;
             l_Main.startSize3D      = false;

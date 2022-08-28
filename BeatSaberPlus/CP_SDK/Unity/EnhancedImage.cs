@@ -1,5 +1,5 @@
-﻿#if CP_SDK_UNITY
-using System;
+﻿using System;
+using System.IO;
 using UnityEngine;
 
 namespace CP_SDK.Unity
@@ -9,6 +9,19 @@ namespace CP_SDK.Unity
     /// </summary>
     public class EnhancedImage
     {
+
+        /// <summary>
+        /// Animated gif byte pattern for fast lookup
+        /// </summary>
+        private static byte[] ANIMATED_GIF_PATTERN = new byte[] { 0x4E, 0x45, 0x54, 0x53, 0x43, 0x41, 0x50, 0x45, 0x32, 0x2E, 0x30 };
+        /// <summary>
+        /// WEBPV8 byte pattern
+        /// </summary>
+        private static byte[] WEBPVP8_PATTERN = new byte[] { 0x57, 0x45, 0x42, 0x50, 0x56, 0x50, 0x38 };
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
         /// <summary>
         /// ID of the image
         /// </summary>
@@ -16,7 +29,7 @@ namespace CP_SDK.Unity
         /// <summary>
         /// Sprite instance
         /// </summary>
-        public UnityEngine.Sprite Sprite { get; set; }
+        public Sprite Sprite { get; set; }
         /// <summary>
         /// Width
         /// </summary>
@@ -55,6 +68,22 @@ namespace CP_SDK.Unity
         /// <returns></returns>
         public static void FromRawAnimated(string p_ID, Animation.EAnimationType p_Type, byte[] p_Bytes, Action<EnhancedImage> p_Callback, int p_ForcedHeight = -1)
         {
+            if (p_Type == Animation.EAnimationType.AUTODETECT && p_Bytes != null && p_Bytes.Length > 0)
+            {
+                if (p_Bytes.Length > 3 && p_Bytes[0] == 0x47 && ContainBytePattern(p_Bytes, ANIMATED_GIF_PATTERN))
+                    p_Type = Animation.EAnimationType.GIF;
+                else if (p_Bytes.Length > 16 && ContainBytePattern(p_Bytes, WEBPVP8_PATTERN))
+                    p_Type = Animation.EAnimationType.WEBP;
+                else
+                    p_Type = Animation.EAnimationType.NONE;
+            }
+
+            if (p_Type == Animation.EAnimationType.NONE)
+            {
+                FromRawStatic(p_ID, p_Bytes, p_Callback, p_ForcedHeight);
+                return;
+            }
+
             Animation.AnimationLoader.Load(
                 p_Type,
                 p_Bytes,
@@ -62,11 +91,59 @@ namespace CP_SDK.Unity
                 (p_Sprite)                                      => OnRawStaticCallback(p_ID, p_Sprite, p_Callback, p_ForcedHeight)
             );
         }
+        /// <summary>
+        /// From file
+        /// </summary>
+        /// <param name="p_FileName">File name</param>
+        /// <param name="p_ID">ID</param>
+        /// <param name="p_Callback">On finish callback</param>
+        public static void FromFile(string p_FileName, string p_ID, Action<EnhancedImage> p_Callback)
+        {
+            if (p_FileName.ToLower().EndsWith(".png"))
+            {
+                FromRawStatic(p_ID, File.ReadAllBytes(p_FileName), (p_Result) =>
+                {
+                    if (p_Result != null)
+                    {
+                        p_Result.Sprite.texture.wrapMode = TextureWrapMode.Mirror;
+                        p_Callback?.Invoke(p_Result);
+                    }
+                    else
+                        ChatPlexSDK.Logger.Error("[CP_SDK.Unity][EnhancedImage.FromFile] Failed to load image " + p_FileName);
+                });
+            }
+            else if (p_FileName.ToLower().EndsWith(".gif"))
+            {
+                FromRawAnimated(
+                    p_ID,
+                    Animation.EAnimationType.AUTODETECT,
+                    File.ReadAllBytes(p_FileName), (p_Result) =>
+                    {
+                        if (p_Result != null)
+                            p_Callback?.Invoke(p_Result);
+                        else
+                            ChatPlexSDK.Logger.Error("[CP_SDK.Unity][EnhancedImage.FromFile] Failed to load image " + p_FileName);
+                    });
+            }
+            else if (p_FileName.ToLower().EndsWith(".apng"))
+            {
+                EnhancedImage.FromRawAnimated(
+                    p_ID,
+                    Animation.EAnimationType.APNG,
+                    File.ReadAllBytes(p_FileName), (p_Result) =>
+                    {
+                        if (p_Result != null)
+                            p_Callback?.Invoke(p_Result);
+                        else
+                            ChatPlexSDK.Logger.Error("[CP_SDK.Unity][EnhancedImage.FromFile] Failed to load image " + p_FileName);
+                    });
+            }
+        }
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        private static void OnRawStaticCallback(string p_ID, UnityEngine.Sprite p_Sprite, Action<EnhancedImage> p_Callback, int p_ForcedHeight = -1)
+        private static void OnRawStaticCallback(string p_ID, Sprite p_Sprite, Action<EnhancedImage> p_Callback, int p_ForcedHeight = -1)
         {
             /// RUN ON MAIN THREAD
 
@@ -100,7 +177,7 @@ namespace CP_SDK.Unity
 
             p_Callback?.Invoke(l_Result);
         }
-        private static void OnRawAnimatedCallback(string p_ID, UnityEngine.Texture2D p_Texture, Rect[] p_UVs, ushort[] p_Delays, int p_Width, int p_Height, Action<EnhancedImage> p_Callback, int p_ForcedHeight = -1)
+        private static void OnRawAnimatedCallback(string p_ID, Texture2D p_Texture, Rect[] p_UVs, ushort[] p_Delays, int p_Width, int p_Height, Action<EnhancedImage> p_Callback, int p_ForcedHeight = -1)
         {
             /// RUN ON MAIN THREAD
 
@@ -189,6 +266,33 @@ namespace CP_SDK.Unity
                 ChatPlexSDK.Logger.Error($"[CP_SDK.Unity][EnhancedImageInfo.EnsureValidForHeight] Too wide emote ImageID {ImageID} Width {Width} height {Height}");
             }
         }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Fast lookup for byte pattern
+        /// </summary>
+        /// <param name="p_Array">Input array</param>
+        /// <param name="p_Pattern">Lookup pattern</param>
+        /// <returns></returns>
+        private static bool ContainBytePattern(byte[] p_Array, byte[] p_Pattern)
+        {
+            var l_PatternPosition = 0;
+            for (int l_I = 0; l_I < p_Array.Length; ++l_I)
+            {
+                if (p_Array[l_I] != p_Pattern[l_PatternPosition])
+                {
+                    l_PatternPosition = 0;
+                    continue;
+                }
+
+                l_PatternPosition++;
+                if (l_PatternPosition == p_Pattern.Length)
+                    return true;
+            }
+
+            return l_PatternPosition == p_Pattern.Length;
+        }
     }
 }
-#endif

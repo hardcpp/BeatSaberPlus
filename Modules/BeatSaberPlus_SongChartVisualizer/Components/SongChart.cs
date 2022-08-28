@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using CP_SDK.Unity.Extensions;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
@@ -267,7 +268,7 @@ namespace BeatSaberPlus_SongChartVisualizer.Components
                         (m_Pointer.transform as RectTransform).anchorMax         = Vector2.zero;
                         (m_Pointer.transform as RectTransform).anchoredPosition  = m_Points.Count > 0 ? m_Points[m_CurrentGraphDataIndex] : Vector2.zero;
 
-                        CP_SDK.Unity.GameObjectU.ChangerLayerRecursive(gameObject, LayerMask.NameToLayer("UI"));
+                        gameObject.ChangerLayerRecursive(LayerMask.NameToLayer("UI"));
                     }
                 }
             }

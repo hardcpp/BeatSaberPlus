@@ -31,6 +31,8 @@ namespace BeatSaberPlus.SDK.Game
         /// </summary>
         private static MethodBase m_BeatLeader_RecorderUtils_OnActionButtonWasPressed;
 
+        private static PropertyInfo m_BeatLeader_ReplayerMenuLauncher_IsStartedAsReplay;
+
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
@@ -76,10 +78,10 @@ namespace BeatSaberPlus.SDK.Game
         {
             Init();
 
-            if (!m_IsScoreSaberPresent || m_ScoreSaber_playbackEnabled == null)
+            if (!m_IsBeatLeaderPresent || m_BeatLeader_ReplayerMenuLauncher_IsStartedAsReplay == null)
                 return false;
 
-            return !(bool)m_ScoreSaber_playbackEnabled.Invoke(null, null);
+            return (bool)m_BeatLeader_ReplayerMenuLauncher_IsStartedAsReplay.GetValue(null);
         }
         /// <summary>
         /// Warmup BeatLeader score submission
@@ -121,6 +123,9 @@ namespace BeatSaberPlus.SDK.Game
             {
                 m_BeatLeader_RecorderUtils_OnActionButtonWasPressed = l_BeatLeaderMetaData.Assembly.GetType("BeatLeader.Utils.RecorderUtils")?
                                                                       .GetMethod("OnActionButtonWasPressed", BindingFlags.Static | BindingFlags.NonPublic);
+
+                m_BeatLeader_ReplayerMenuLauncher_IsStartedAsReplay = l_BeatLeaderMetaData.Assembly.GetType("BeatLeader.Replayer.ReplayerLauncher")?
+                                                                      .GetProperty("IsStartedAsReplay", BindingFlags.Static | BindingFlags.Public);
 
                 m_IsBeatLeaderPresent = true;
             }
