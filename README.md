@@ -5,7 +5,7 @@
 
 **[READ THE PATCH NOTES ! 🥖](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-Patchnotes)**
 
-Current version : 5.0.3
+Current version : 5.0.3  
 BeatSaber : 1.21 to 1.25.1
 
 IMPORTANT Most of the modules are disabled by default, you can enable then in BeatSaberPlus -> Settings  
@@ -82,9 +82,12 @@ IMPORTANT When you enable Multiplayer+ module, you can setup them in BeatSaberPl
 - SongCore [https://github.com/Kylemc1413/SongCore](https://github.com/Kylemc1413/SongCore)
 - BeatSaberMarkupLanguage [https://github.com/monkeymanboy/BeatSaberMarkupLanguage](https://github.com/monkeymanboy/BeatSaberMarkupLanguage)
 
-## **[See the FAQ](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-FAQ)**
 
-## **[READ THE PATCH NOTES ! 🥖](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-Patchnotes)**
+### **[How to install](https://github.com/hardcpp/BeatSaberPlus/wiki#2---How-to-Install)**
+
+### **[See the FAQ](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-FAQ)**
+
+### **[READ THE PATCH NOTES ! 🥖](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-Patchnotes)**
 
 ## **Special Thanks**:
 - **Vred#0001** For art & documentation
