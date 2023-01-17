@@ -325,6 +325,7 @@
     <Compile Include="CP_SDK\Unity\EnhancedImageParticleMaterialProvider.cs" />
     <Compile Include="CP_SDK\Unity\EnhancedImageParticleSystemProvider.cs" />
     <Compile Include="CP_SDK\Unity\Extensions\ColorU.cs" />
+    <Compile Include="CP_SDK\Unity\Extensions\StringU.cs" />
     <Compile Include="CP_SDK\Unity\FontManager.cs" />
     <Compile Include="CP_SDK\Unity\MTThreadInvoker.cs" />
     <Compile Include="CP_SDK\Unity\OpenType\CollectionHeader.cs" />
@@ -338,6 +339,7 @@
     <Compile Include="CP_SDK\Unity\OpenType\OpenTypeTable.cs" />
     <Compile Include="CP_SDK\Unity\OpenType\OpenTypeTag.cs" />
     <Compile Include="CP_SDK\Unity\OpenType\TableRecord.cs" />
+    <Compile Include="CP_SDK\Unity\PersistentSingleton.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="CP_SDK\Animation\AnimationControllerManager.cs" />
     <Compile Include="CP_SDK\Animation\AnimationControllerInstance.cs" />
@@ -466,6 +468,7 @@
     <Compile Include="SDK\UI\Button.cs" />
     <Compile Include="SDK\UI\ColorSetting.cs" />
     <Compile Include="SDK\UI\DataSource\SimpleTextList.cs" />
+    <Compile Include="SDK\UI\DataSource\SongListCustom.cs" />
     <Compile Include="SDK\UI\DataSource\SongList.cs" />
     <Compile Include="SDK\UI\DropDownListSetting.cs" />
     <Compile Include="SDK\UI\IncrementSetting.cs" />

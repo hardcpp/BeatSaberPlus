@@ -265,7 +265,7 @@ namespace CP_SDK.Chat
             var l_ProgressA = m_LoadingEmotes > 0 ? (float)m_LoadedEmotes / (float)m_LoadingEmotes : 0f;
 
             OnLoadingProgressChanged?.Invoke(l_ProgressA, m_LoadingEmotes);
-            Unity.MTMainThreadInvoker.Enqueue(() => UI.LoadingProgressBar.instance.ShowLoadingProgressBar($"Loading {m_LoadingEmotes} emotes...", l_ProgressA));
+            Unity.MTMainThreadInvoker.Enqueue(() => UI.LoadingProgressBar.Instance.ShowLoadingProgressBar($"Loading {m_LoadingEmotes} emotes...", l_ProgressA));
 
             foreach (var l_Current in p_Resources)
             {
@@ -277,7 +277,7 @@ namespace CP_SDK.Chat
                         var l_ProgressB     = (float)l_CurrentLoaded / (float)m_LoadingEmotes;
 
                         OnLoadingProgressChanged?.Invoke(l_ProgressB, m_LoadingEmotes);
-                        Unity.MTMainThreadInvoker.Enqueue(() => UI.LoadingProgressBar.instance.SetProgress($"Loading {m_LoadingEmotes} emotes...", l_ProgressB));
+                        Unity.MTMainThreadInvoker.Enqueue(() => UI.LoadingProgressBar.Instance.SetProgress($"Loading {m_LoadingEmotes} emotes...", l_ProgressB));
 
                         if (l_CurrentLoaded == m_LoadingEmotes)
                         {
@@ -286,8 +286,8 @@ namespace CP_SDK.Chat
 
                             Unity.MTMainThreadInvoker.Enqueue(() =>
                             {
-                                UI.LoadingProgressBar.instance.SetProgress($"Loading {m_LoadingEmotes} emotes...", 1f);
-                                UI.LoadingProgressBar.instance.HideTimed(3f);
+                                UI.LoadingProgressBar.Instance.SetProgress($"Loading {m_LoadingEmotes} emotes...", 1f);
+                                UI.LoadingProgressBar.Instance.HideTimed(3f);
                             });
 
                             Multiplexer.InternalBroadcastSystemMessage($"Loaded {m_LoadingEmotes} animated emotes.");
@@ -304,8 +304,8 @@ namespace CP_SDK.Chat
 
                 Unity.MTMainThreadInvoker.Enqueue(() =>
                 {
-                    UI.LoadingProgressBar.instance.SetProgress($"Loading {m_LoadingEmotes} emotes...", 1f);
-                    UI.LoadingProgressBar.instance.HideTimed(3f);
+                    UI.LoadingProgressBar.Instance.SetProgress($"Loading {m_LoadingEmotes} emotes...", 1f);
+                    UI.LoadingProgressBar.Instance.HideTimed(3f);
                 });
 
                 Multiplexer.InternalBroadcastSystemMessage($"Loaded {m_LoadingEmotes} animated emotes.");

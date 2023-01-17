@@ -171,6 +171,10 @@ namespace CP_SDK.Chat.Services.Twitch
         /// Twitch users cache
         /// </summary>
         private ConcurrentDictionary<string, TwitchUser> m_TwitchUsers = new ConcurrentDictionary<string, TwitchUser>();
+        /// <summary>
+        /// Temp joined channels
+        /// </summary>
+        private ConcurrentDictionary<string, (string GroupIdentifier, string Prefix, bool CanSend)> m_TempChannels = new ConcurrentDictionary<string, (string GroupIdentifier, string Prefix, bool CanSend)>();
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -263,7 +267,7 @@ namespace CP_SDK.Chat.Services.Twitch
                 {
                     m_DataProvider.TryReleaseChannelResources(l_Channel.Value);
                     ChatPlexSDK.Logger.Info($"Removed channel {l_Channel.Value.Id} from the channel list.");
-                    m_OnRoomVideoPlaybackUpdatedCallbacks?.InvokeAll(this, l_Channel.Value, false, 0);
+                    m_OnLiveStatusUpdatedCallbacks?.InvokeAll(this, l_Channel.Value, false, 0);
                     m_OnLeaveRoomCallbacks?.InvokeAll(this, l_Channel.Value);
                 }
                 m_Channels.Clear();
@@ -500,8 +504,6 @@ namespace CP_SDK.Chat.Services.Twitch
 
                     m_OnSystemMessageCallbacks?.InvokeAll(this, $"<color=yellow>Your Twitch token is missing permission <b>{l_Scope}</b>, some features may not work, please update your token!");
                 }
-
-                HelixAPI.OnBroadcasterIDChanged(p_TokenUserID);
             }
             else
             {
@@ -644,6 +646,95 @@ namespace CP_SDK.Chat.Services.Twitch
             }
             else
                 ChatPlexSDK.Logger.Warning("WebSocket service is not connected!");
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Is connected
+        /// </summary>
+        /// <returns></returns>
+        public bool IsConnectedAndLive()
+        {
+            if (HelixAPI == null)
+                return false;
+
+            if (string.IsNullOrEmpty(HelixAPI.BroadcasterLogin))
+                return false;
+
+            var l_Channel = m_Channels.Where(x => x.Key.ToLower() == HelixAPI.BroadcasterLogin.ToLower()).Select(x => x.Value).SingleOrDefault();
+            return l_Channel != null && l_Channel.Live;
+        }
+        /// <summary>
+        /// Get primary channel name
+        /// </summary>
+        /// <returns></returns>
+        public string PrimaryChannelName()
+        {
+            if (HelixAPI == null)
+                return string.Empty;
+
+            if (string.IsNullOrEmpty(HelixAPI.BroadcasterLogin))
+                return string.Empty;
+
+            return HelixAPI.BroadcasterLogin;
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Join temp channel with group identifier
+        /// </summary>
+        /// <param name="p_GroupIdentifier">Group identifier</param>
+        /// <param name="p_ChannelName">Name of the channel</param>
+        /// <param name="p_Prefix">Messages prefix</param>
+        /// <param name="p_CanSendMessage">Can send message</param>
+        public void JoinTempChannel(string p_GroupIdentifier, string p_ChannelName, string p_Prefix, bool p_CanSendMessage)
+        {
+            if (m_Channels.Any(x => x.Key.ToLower() == p_ChannelName.ToLower())
+                || m_TempChannels.Any(x => x.Key.ToLower() == p_ChannelName.ToLower()))
+                return;
+
+            m_TempChannels.TryAdd(p_ChannelName, (p_GroupIdentifier, p_Prefix, p_CanSendMessage));
+
+            JoinChannel(p_ChannelName);
+        }
+        /// <summary>
+        /// Leave temp channel
+        /// </summary>
+        /// <param name="p_ChannelName">Name of the channel</param>
+        public void LeaveTempChannel(string p_ChannelName)
+        {
+            var l_ToLeave = m_TempChannels.Where(x => x.Key.ToLower() == p_ChannelName.ToLower()).ToList();
+
+            for (var l_I = 0; l_I < l_ToLeave.Count; ++l_I)
+            {
+                PartChannel(l_ToLeave[l_I].Key);
+                m_TempChannels.TryRemove(l_ToLeave[l_I].Key, out _);
+            }
+        }
+        /// <summary>
+        /// Is in temp channel
+        /// </summary>
+        /// <param name="p_ChannelName">Channel name</param>
+        /// <returns></returns>
+        public bool IsInTempChannel(string p_ChannelName)
+            => m_TempChannels.Any(x => x.Key.ToLower() == p_ChannelName.ToLower());
+        /// <summary>
+        /// Leave all temp channel by group identifier
+        /// </summary>
+        /// <param name="p_GroupIdentifier"></param>
+        public void LeaveAllTempChannel(string p_GroupIdentifier)
+        {
+            var l_ToLeave = m_TempChannels.Where(x => x.Value.GroupIdentifier == p_GroupIdentifier).Select(x => x.Key).ToList();
+
+            for (var l_I = 0; l_I < l_ToLeave.Count; ++l_I)
+            {
+                PartChannel(l_ToLeave[l_I]);
+                m_TempChannels.TryRemove(l_ToLeave[l_I], out _);
+            }
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -907,11 +998,25 @@ namespace CP_SDK.Chat.Services.Twitch
                             if (l_TwitchMessage.Sender.UserName == m_LoggedInUsername
                                 && !m_Channels.ContainsKey(l_TwitchMessage.Channel.Id))
                             {
+                                var l_CanSend       = true;
+                                var l_ChannelConfig = TwitchSettingsConfig.Instance.Channels.FirstOrDefault(x => x.Name.ToLower() == l_TwitchMessage.Channel.Id.ToLower());
+
+                                if (l_ChannelConfig != null)
+                                    l_CanSend = l_ChannelConfig.CanSendMessages;
+                                else
+                                    l_CanSend = m_TempChannels.FirstOrDefault(x => x.Key.ToLower() == l_TwitchMessage.Channel.Id.ToLower()).Value.CanSend;
+
                                 m_Channels[l_TwitchMessage.Channel.Id] = l_TwitchMessage.Channel.AsTwitchChannel();
-                                m_Channels[l_TwitchMessage.Channel.Id].CanSendMessages =
-                                    TwitchSettingsConfig.Instance.Channels.FirstOrDefault(x => x.Name.ToLower() == m_Channels[l_TwitchMessage.Channel.Id].Name.ToLower())
-                                    ?.CanSendMessages ?? true;
+                                m_Channels[l_TwitchMessage.Channel.Id].CanSendMessages = l_CanSend;
+
+                                if (m_TempChannels.Any(x => x.Key.ToLower() == l_TwitchChannel.Name.ToLower()))
+                                {
+                                    m_Channels[l_TwitchMessage.Channel.Id].Prefix = m_TempChannels.FirstOrDefault(x => x.Key.ToLower() == l_TwitchMessage.Channel.Id.ToLower()).Value.Prefix;
+                                    m_Channels[l_TwitchMessage.Channel.Id].IsTemp = true;
+                                }
+
                                 ChatPlexSDK.Logger.Info($"Added channel {l_TwitchMessage.Channel.Id} to the channel list.");
+
                                 m_OnJoinRoomCallbacks?.InvokeAll(this, l_TwitchMessage.Channel);
                             }
                             continue;
@@ -923,32 +1028,47 @@ namespace CP_SDK.Chat.Services.Twitch
                             {
                                 m_DataProvider.TryReleaseChannelResources(l_TwitchMessage.Channel);
                                 ChatPlexSDK.Logger.Info($"Removed channel {l_Channel.Id} from the channel list.");
-                                m_OnRoomVideoPlaybackUpdatedCallbacks?.InvokeAll(this, l_TwitchMessage.Channel, false, 0);
+                                m_OnLiveStatusUpdatedCallbacks?.InvokeAll(this, l_TwitchMessage.Channel, false, 0);
                                 m_OnLeaveRoomCallbacks?.InvokeAll(this, l_TwitchMessage.Channel);
 
-                                if (!string.IsNullOrEmpty(m_TokenChannel))
+                                if (!string.IsNullOrEmpty(m_TokenChannel) && !m_TempChannels.Any(x => x.Key.ToLower() == l_TwitchChannel.Name.ToLower()))
                                     UnsubscribeTopics(l_TwitchChannel.Roomstate.RoomId, l_TwitchChannel.Name);
                             }
                             continue;
 
                         case "ROOMSTATE":
-                            m_Channels[l_TwitchMessage.Channel.Id] = l_TwitchMessage.Channel as TwitchChannel;
-                            m_Channels[l_TwitchMessage.Channel.Id].CanSendMessages =
-                                    TwitchSettingsConfig.Instance.Channels.FirstOrDefault(x => x.Name.ToLower() == m_Channels[l_TwitchMessage.Channel.Id].Name.ToLower())
-                                    ?.CanSendMessages ?? true;
-                            m_DataProvider.TryRequestChannelResources(l_TwitchMessage.Channel, m_TokenChannel, (x) => m_OnChannelResourceDataCached?.InvokeAll(this, l_TwitchMessage.Channel, x));
-
-                            m_OnRoomStateUpdatedCallbacks?.InvokeAll(this, l_TwitchMessage.Channel);
-
-                            if (!string.IsNullOrEmpty(m_TokenChannel))
                             {
-                                SubscribeTopics(new string[] {
-                                    "following",
-                                    "channel-subscribe-events-v1",
-                                    "channel-bits-events-v2",
-                                    "channel-points-channel-v1",
-                                    "video-playback"
-                                }, l_TwitchChannel.Roomstate.RoomId, l_TwitchChannel.Name);
+                                var l_CanSend       = true;
+                                var l_ChannelConfig = TwitchSettingsConfig.Instance.Channels.FirstOrDefault(x => x.Name.ToLower() == m_Channels[l_TwitchMessage.Channel.Id].Name.ToLower());
+
+                                if (l_ChannelConfig != null)
+                                    l_CanSend = l_ChannelConfig.CanSendMessages;
+                                else
+                                    l_CanSend = m_TempChannels.FirstOrDefault(x => x.Key.ToLower() == m_Channels[l_TwitchMessage.Channel.Id].Name.ToLower()).Value.CanSend;
+
+                                m_Channels[l_TwitchMessage.Channel.Id] = l_TwitchMessage.Channel as TwitchChannel;
+                                m_Channels[l_TwitchMessage.Channel.Id].CanSendMessages = l_CanSend;
+
+                                if (m_TempChannels.Any(x => x.Key.ToLower() == l_TwitchChannel.Name.ToLower()))
+                                {
+                                    m_Channels[l_TwitchMessage.Channel.Id].Prefix = m_TempChannels.FirstOrDefault(x => x.Key.ToLower() == l_TwitchMessage.Channel.Id.ToLower()).Value.Prefix;
+                                    m_Channels[l_TwitchMessage.Channel.Id].IsTemp = true;
+                                }
+
+                                m_DataProvider.TryRequestChannelResources(l_TwitchMessage.Channel, m_TokenChannel, (x) => m_OnChannelResourceDataCached?.InvokeAll(this, l_TwitchMessage.Channel, x));
+
+                                m_OnRoomStateUpdatedCallbacks?.InvokeAll(this, l_TwitchMessage.Channel);
+
+                                if (!string.IsNullOrEmpty(m_TokenChannel) && !m_TempChannels.Any(x => x.Key.ToLower() == l_TwitchChannel.Name.ToLower()))
+                                {
+                                    SubscribeTopics(new string[] {
+                                        "following",
+                                        "channel-subscribe-events-v1",
+                                        "channel-bits-events-v2",
+                                        "channel-points-channel-v1",
+                                        "video-playback"
+                                    }, l_TwitchChannel.Roomstate.RoomId, l_TwitchChannel.Name);
+                                }
                             }
                             continue;
 
@@ -1107,8 +1227,11 @@ namespace CP_SDK.Chat.Services.Twitch
                                 var l_VideoPlaybackMessage  = l_Message.MessageData as PubSubVideoPlayback;
                                 var l_Channel               = m_Channels.Where(x => x.Key.ToLower() == l_Message.Topic.Split('.')[1].ToLower()).Select(x => x.Value).SingleOrDefault();
 
+                                l_Channel.Live          = l_VideoPlaybackMessage.Type == PubSubVideoPlayback.VideoPlaybackType.StreamUp || l_VideoPlaybackMessage.Viewers != 0;
+                                l_Channel.ViewerCount   = l_VideoPlaybackMessage.Viewers;
+
                                 if (l_Channel != null)
-                                    m_OnRoomVideoPlaybackUpdatedCallbacks?.InvokeAll(this, l_Channel, l_VideoPlaybackMessage.Type == PubSubVideoPlayback.VideoPlaybackType.StreamUp || l_VideoPlaybackMessage.Viewers != 0, l_VideoPlaybackMessage.Viewers);
+                                    m_OnLiveStatusUpdatedCallbacks?.InvokeAll(this, l_Channel, l_VideoPlaybackMessage.Type == PubSubVideoPlayback.VideoPlaybackType.StreamUp || l_VideoPlaybackMessage.Viewers != 0, l_VideoPlaybackMessage.Viewers);
 
                                 break;
 

@@ -79,7 +79,7 @@ namespace BeatSaberPlus_ChatRequest
         /// <param name="p_Message">ID of the message</param>
         private void ChatCoreMutiplixer_OnTextMessageReceived(IChatService p_Service, IChatMessage p_Message)
         {
-            if (p_Message.Message.Length < 2 || p_Message.Message[0] != '!')
+            if (p_Message.Channel.IsTemp || p_Message.Message.Length < 2 || p_Message.Message[0] != '!')
                 return;
 
             var l_Parts         = Regex.Split(p_Message.Message, "(?<=^[^\"]*(?:\"[^\"]*\"[^\"]*)*) (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
@@ -316,7 +316,10 @@ namespace BeatSaberPlus_ChatRequest
         }
         private void Command_BSRHelp(IChatService p_Service, IChatMessage p_Message, string[] p_Params)
         {
-            SendChatMessage(CRConfig.Instance.Commands.BSRHelpCommand_Reply, p_Service, p_Message);
+            if (p_Params?.Length > 0)
+                SendChatMessage(CRConfig.Instance.Commands.BSRHelpCommand_Reply.Replace("$UserName", p_Params[0]), p_Service, p_Message);
+            else
+                SendChatMessage(CRConfig.Instance.Commands.BSRHelpCommand_Reply, p_Service, p_Message);
         }
         private void Command_Link(IChatService p_Service, IChatMessage p_Message, string[] p_Params)
         {

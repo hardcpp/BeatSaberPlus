@@ -194,19 +194,19 @@ namespace ChatPlexMod_Chat
                 CP_SDK.Chat.Service.Acquire();
 
                 /// Run all services
-                CP_SDK.Chat.Service.Multiplexer.OnSystemMessage            += ChatCoreMutiplixer_OnSystemMessage;
-                CP_SDK.Chat.Service.Multiplexer.OnLogin                    += ChatCoreMutiplixer_OnLogin;
-                CP_SDK.Chat.Service.Multiplexer.OnJoinChannel              += ChatCoreMutiplixer_OnJoinChannel;
-                CP_SDK.Chat.Service.Multiplexer.OnLeaveChannel             += ChatCoreMutiplixer_OnLeaveChannel;
-                CP_SDK.Chat.Service.Multiplexer.OnChannelFollow            += ChatCoreMutiplixer_OnChannelFollow;
-                CP_SDK.Chat.Service.Multiplexer.OnChannelBits              += ChatCoreMutiplixer_OnChannelBits;
-                CP_SDK.Chat.Service.Multiplexer.OnChannelPoints            += ChatCoreMutiplixer_OnChannelPoints;
-                CP_SDK.Chat.Service.Multiplexer.OnChannelSubscription      += ChatCoreMutiplixer_OnChannelSubscription;
-                CP_SDK.Chat.Service.Multiplexer.OnTextMessageReceived      += ChatCoreMutiplixer_OnTextMessageReceived;
-                CP_SDK.Chat.Service.Multiplexer.OnRoomStateUpdated         += ChatCoreMutiplixer_OnRoomStateUpdated;
-                CP_SDK.Chat.Service.Multiplexer.OnRoomVideoPlaybackUpdated += ChatCoreMutiplixer_OnRoomVideoPlaybackUpdated;
-                CP_SDK.Chat.Service.Multiplexer.OnChatCleared              += ChatCoreMutiplixer_OnChatCleared;
-                CP_SDK.Chat.Service.Multiplexer.OnMessageCleared           += ChatCoreMutiplixer_OnMessageCleared;
+                CP_SDK.Chat.Service.Multiplexer.OnSystemMessage         += ChatCoreMutiplixer_OnSystemMessage;
+                CP_SDK.Chat.Service.Multiplexer.OnLogin                 += ChatCoreMutiplixer_OnLogin;
+                CP_SDK.Chat.Service.Multiplexer.OnJoinChannel           += ChatCoreMutiplixer_OnJoinChannel;
+                CP_SDK.Chat.Service.Multiplexer.OnLeaveChannel          += ChatCoreMutiplixer_OnLeaveChannel;
+                CP_SDK.Chat.Service.Multiplexer.OnChannelFollow         += ChatCoreMutiplixer_OnChannelFollow;
+                CP_SDK.Chat.Service.Multiplexer.OnChannelBits           += ChatCoreMutiplixer_OnChannelBits;
+                CP_SDK.Chat.Service.Multiplexer.OnChannelPoints         += ChatCoreMutiplixer_OnChannelPoints;
+                CP_SDK.Chat.Service.Multiplexer.OnChannelSubscription   += ChatCoreMutiplixer_OnChannelSubscription;
+                CP_SDK.Chat.Service.Multiplexer.OnTextMessageReceived   += ChatCoreMutiplixer_OnTextMessageReceived;
+                CP_SDK.Chat.Service.Multiplexer.OnRoomStateUpdated      += ChatCoreMutiplixer_OnRoomStateUpdated;
+                CP_SDK.Chat.Service.Multiplexer.OnLiveStatusUpdated     += ChatCoreMutiplixer_OnLiveStatusUpdated;
+                CP_SDK.Chat.Service.Multiplexer.OnChatCleared           += ChatCoreMutiplixer_OnChatCleared;
+                CP_SDK.Chat.Service.Multiplexer.OnMessageCleared        += ChatCoreMutiplixer_OnMessageCleared;
 
                 /// Get back channels
                 foreach (var l_Channel in CP_SDK.Chat.Service.Multiplexer.Channels)
@@ -232,19 +232,19 @@ namespace ChatPlexMod_Chat
             if (m_ChatCoreAcquired)
             {
                 /// Unbind services
-                CP_SDK.Chat.Service.Multiplexer.OnSystemMessage            -= ChatCoreMutiplixer_OnSystemMessage;
-                CP_SDK.Chat.Service.Multiplexer.OnLogin                    -= ChatCoreMutiplixer_OnLogin;
-                CP_SDK.Chat.Service.Multiplexer.OnJoinChannel              -= ChatCoreMutiplixer_OnJoinChannel;
-                CP_SDK.Chat.Service.Multiplexer.OnLeaveChannel             -= ChatCoreMutiplixer_OnLeaveChannel;
-                CP_SDK.Chat.Service.Multiplexer.OnChannelFollow            -= ChatCoreMutiplixer_OnChannelFollow;
-                CP_SDK.Chat.Service.Multiplexer.OnChannelBits              -= ChatCoreMutiplixer_OnChannelBits;
-                CP_SDK.Chat.Service.Multiplexer.OnChannelPoints            -= ChatCoreMutiplixer_OnChannelPoints;
-                CP_SDK.Chat.Service.Multiplexer.OnChannelSubscription      -= ChatCoreMutiplixer_OnChannelSubscription;
-                CP_SDK.Chat.Service.Multiplexer.OnTextMessageReceived      -= ChatCoreMutiplixer_OnTextMessageReceived;
-                CP_SDK.Chat.Service.Multiplexer.OnRoomStateUpdated         -= ChatCoreMutiplixer_OnRoomStateUpdated;
-                CP_SDK.Chat.Service.Multiplexer.OnRoomVideoPlaybackUpdated -= ChatCoreMutiplixer_OnRoomVideoPlaybackUpdated;
-                CP_SDK.Chat.Service.Multiplexer.OnChatCleared              -= ChatCoreMutiplixer_OnChatCleared;
-                CP_SDK.Chat.Service.Multiplexer.OnMessageCleared           -= ChatCoreMutiplixer_OnMessageCleared;
+                CP_SDK.Chat.Service.Multiplexer.OnSystemMessage         -= ChatCoreMutiplixer_OnSystemMessage;
+                CP_SDK.Chat.Service.Multiplexer.OnLogin                 -= ChatCoreMutiplixer_OnLogin;
+                CP_SDK.Chat.Service.Multiplexer.OnJoinChannel           -= ChatCoreMutiplixer_OnJoinChannel;
+                CP_SDK.Chat.Service.Multiplexer.OnLeaveChannel          -= ChatCoreMutiplixer_OnLeaveChannel;
+                CP_SDK.Chat.Service.Multiplexer.OnChannelFollow         -= ChatCoreMutiplixer_OnChannelFollow;
+                CP_SDK.Chat.Service.Multiplexer.OnChannelBits           -= ChatCoreMutiplixer_OnChannelBits;
+                CP_SDK.Chat.Service.Multiplexer.OnChannelPoints         -= ChatCoreMutiplixer_OnChannelPoints;
+                CP_SDK.Chat.Service.Multiplexer.OnChannelSubscription   -= ChatCoreMutiplixer_OnChannelSubscription;
+                CP_SDK.Chat.Service.Multiplexer.OnTextMessageReceived   -= ChatCoreMutiplixer_OnTextMessageReceived;
+                CP_SDK.Chat.Service.Multiplexer.OnRoomStateUpdated      -= ChatCoreMutiplixer_OnRoomStateUpdated;
+                CP_SDK.Chat.Service.Multiplexer.OnLiveStatusUpdated     -= ChatCoreMutiplixer_OnLiveStatusUpdated;
+                CP_SDK.Chat.Service.Multiplexer.OnChatCleared           -= ChatCoreMutiplixer_OnChatCleared;
+                CP_SDK.Chat.Service.Multiplexer.OnMessageCleared        -= ChatCoreMutiplixer_OnMessageCleared;
 
                 /// Stop all chat services
                 CP_SDK.Chat.Service.Release();
@@ -555,7 +555,7 @@ namespace ChatPlexMod_Chat
         /// <param name="p_Channel">Channel instance</param>
         /// <param name="p_StreamUP">Is the stream up</param>
         /// <param name="p_ViewerCount">Viewer count</param>
-        private void ChatCoreMutiplixer_OnRoomVideoPlaybackUpdated(IChatService p_ChatService, IChatChannel p_Channel, bool p_StreamUP, int p_ViewerCount)
+        private void ChatCoreMutiplixer_OnLiveStatusUpdated(IChatService p_ChatService, IChatChannel p_Channel, bool p_StreamUP, int p_ViewerCount)
         {
             string l_Key = "[" + p_ChatService.DisplayName + "]_" + p_Channel.Name.ToLower();
 
@@ -642,7 +642,7 @@ namespace ChatPlexMod_Chat
             try
             {
                 /// Prepare root game object
-                m_RootGameObject = new GameObject("BeatSaberPlus_StreamChat");
+                m_RootGameObject = new GameObject("ChatPlexSDK_Chat");
                 GameObject.DontDestroyOnLoad(m_RootGameObject);
 
                 /// Prepare size, position, rotation
@@ -707,11 +707,11 @@ namespace ChatPlexMod_Chat
                 /// Viewer text
                 var l_TextTag = new BeatSaberMarkupLanguage.Tags.TextTag();
                 var l_Text    = l_TextTag.CreateObject(l_Layout.transform);
-                l_Text.GetComponent<TextMeshProUGUI>().margin   = new Vector4(-3, 3, 0, 0);
-                l_Text.GetComponent<TextMeshProUGUI>().fontSize = 5;
-                l_Text.GetComponent<TextMeshProUGUI>().text     = "0";
 
                 m_ViewerCountText = l_Text.GetComponent<TextMeshProUGUI>();
+                m_ViewerCountText.margin   = new Vector4(-3, 3, 0, 0);
+                m_ViewerCountText.fontSize = 5;
+                m_ViewerCountText.text     = "0";
 
                 /// Bind floating window to the root game object
                 m_ViewerCountFloatingScreen.transform.SetParent(m_ViewerCountOwner.transform, false);

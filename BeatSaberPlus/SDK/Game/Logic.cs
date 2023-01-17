@@ -1,7 +1,5 @@
-﻿using IPA.Loader;
-using System;
+﻿using System;
 using System.Linq;
-using System.Reflection;
 using Zenject;
 
 namespace BeatSaberPlus.SDK.Game
@@ -91,16 +89,13 @@ namespace BeatSaberPlus.SDK.Game
         private static void SceneManager_activeSceneChanged(UnityEngine.SceneManagement.Scene p_Current, UnityEngine.SceneManagement.Scene p_Next)
         {
 #if DEBUG
-            ChatPlexSDK.Logger?.Error($"====== [SDK.Game][Logic.SceneManager_activeSceneChanged] {p_Next.name} ======");
+            CP_SDK.ChatPlexSDK.Logger?.Error($"====== [SDK.Game][Logic.SceneManager_activeSceneChanged] {p_Next.name} ======");
 #endif
 
             try
             {
                 if (p_Next.name == "GameCore")
-                {
-                    if (ActiveScene != SceneType.Playing)
-                        OnGameSceneActive();
-                }
+                    OnGameSceneActive();
                 else if (p_Next.name == "MainMenu")
                 {
                     if (ActiveScene != SceneType.Menu)
@@ -138,7 +133,7 @@ namespace BeatSaberPlus.SDK.Game
         private static void OnMenuSceneActive()
         {
 #if DEBUG
-            ChatPlexSDK.Logger?.Error("====== [SDK.Game][Logic.OnMenuSceneActive] ======");
+            CP_SDK.ChatPlexSDK.Logger?.Error("====== [SDK.Game][Logic.OnMenuSceneActive] ======");
 #endif
             try
             {
@@ -166,7 +161,7 @@ namespace BeatSaberPlus.SDK.Game
         private static void OnMenuSceneLoadedFresh(ScenesTransitionSetupDataSO p_Object, DiContainer p_DiContainer)
         {
 #if DEBUG
-            ChatPlexSDK.Logger?.Error("====== [SDK.Game][Logic.OnMenuSceneLoadedFresh] ======");
+            CP_SDK.ChatPlexSDK.Logger?.Error("====== [SDK.Game][Logic.OnMenuSceneLoadedFresh] ======");
 #endif
             try
             {
@@ -200,12 +195,11 @@ namespace BeatSaberPlus.SDK.Game
         private static void OnGameSceneActive()
         {
 #if DEBUG
-            ChatPlexSDK.Logger?.Error("====== [SDK.Game][Logic.OnGameSceneActive] ======");
+            CP_SDK.ChatPlexSDK.Logger?.Error("====== [SDK.Game][Logic.OnGameSceneActive] ======");
 #endif
             try
             {
                 ActiveScene             = SceneType.Playing;
-                LevelCompletionData     = null;
                 m_WasInReplay           = Scoring.IsInReplay;
 
                 CP_SDK.ChatPlexSDK.Fire_OnGenericPlayingScene();
@@ -217,8 +211,13 @@ namespace BeatSaberPlus.SDK.Game
                 {
                     LevelData.IsReplay = m_WasInReplay;
 
+                    if (LevelData.Data != null && LevelData.Data.transformedBeatmapData != null)
+                        LevelData.MaxMultipliedScore = ScoreModel.ComputeMaxMultipliedScoreForBeatmap(LevelData.Data.transformedBeatmapData);
+
+                    LevelCompletionData = null;
+
 #if DEBUG
-                    ChatPlexSDK.Logger?.Error($"====== [SDK.Game][Logic.OnGameSceneActive] OnLevelStarted ======");
+                    CP_SDK.ChatPlexSDK.Logger?.Error($"====== [SDK.Game][Logic.OnGameSceneActive] OnLevelStarted ======");
 #endif
 
                     if (OnLevelStarted != null)
@@ -238,9 +237,13 @@ namespace BeatSaberPlus.SDK.Game
         internal static void FireLevelStarted(LevelData p_LevelData)
         {
 #if DEBUG
-            ChatPlexSDK.Logger?.Error("====== [SDK.Game][Logic.FireLevelStarted] ======");
+            CP_SDK.ChatPlexSDK.Logger?.Error("====== [SDK.Game][Logic.FireLevelStarted] ======");
 #endif
-            LevelData = p_LevelData;
+            LevelCompletionData     = null;
+            LevelData               = p_LevelData;
+
+            if (LevelData != null && LevelData.Data != null && LevelData.Data.transformedBeatmapData != null)
+                LevelData.MaxMultipliedScore = ScoreModel.ComputeMaxMultipliedScoreForBeatmap(LevelData.Data.transformedBeatmapData);
         }
         /// <summary>
         /// On level ended
@@ -249,10 +252,14 @@ namespace BeatSaberPlus.SDK.Game
         internal static void FireLevelEnded(LevelCompletionData p_LevelCompletionData)
         {
 #if DEBUG
-            ChatPlexSDK.Logger?.Error("====== [SDK.Game][Logic.FireLevelEnded] ======");
+            CP_SDK.ChatPlexSDK.Logger?.Error("====== [SDK.Game][Logic.FireLevelEnded] ======");
 #endif
+
             LevelCompletionData             = p_LevelCompletionData;
             LevelCompletionData.IsReplay    = m_WasInReplay;
+
+            if (LevelCompletionData != null && LevelCompletionData.Data != null && LevelCompletionData.Data.transformedBeatmapData != null)
+                LevelCompletionData.MaxMultipliedScore = ScoreModel.ComputeMaxMultipliedScoreForBeatmap(LevelCompletionData.Data.transformedBeatmapData);
         }
     }
 }

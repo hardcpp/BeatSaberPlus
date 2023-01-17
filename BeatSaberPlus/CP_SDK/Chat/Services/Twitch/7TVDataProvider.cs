@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using System.Linq;
 using UnityEngine;
 using System.Collections.Generic;
+using CP_SDK.Unity.Extensions;
 
 namespace CP_SDK.Chat.Services.Twitch
 {
@@ -178,11 +179,11 @@ namespace CP_SDK.Chat.Services.Twitch
 
                                 for (int l_SI = 0; l_SI < l_StopsS.Length; ++l_SI)
                                 {
-                                    ColorUtility.TryParseHtmlString((string)l_StopsC[l_SI], out var l_Color);
+                                    //ColorUtility.TryParseHtmlString((string)l_StopsC[l_SI], out var l_Color);
                                     l_Converted.Add(new CachedPaintStop()
                                     {
                                         Stop        = float.Parse(l_StopsS[l_SI].ToString()),
-                                        StopColor   = l_Color
+                                        StopColor   = ((string)l_StopsC[l_SI]).ToUnityColor()
                                     });
                                 }
 

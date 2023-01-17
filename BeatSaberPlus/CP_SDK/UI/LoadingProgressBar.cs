@@ -8,7 +8,7 @@ namespace CP_SDK.UI
     /// <summary>
     /// Loading progress bar
     /// </summary>
-    public class LoadingProgressBar : PersistentSingleton<LoadingProgressBar>
+    public class LoadingProgressBar : Unity.PersistentSingleton<LoadingProgressBar>
     {
         private static readonly Vector3 POSITION            = new Vector3(0, 2.5f, 4f);
         private static readonly Vector3 ROTATION            = new Vector3(0, 0, 0);
@@ -18,7 +18,7 @@ namespace CP_SDK.UI
         private static readonly Vector2 HEADER_POSITION     = new Vector2(0, 15);
         private static readonly Vector2 HEADER_SIZE         = new Vector2(100, 20);
         private static readonly Color   BACKGROUND_COLOR    = new Color(0, 0, 0, 0.2f);
-        private const           float   HEADER_FONT_SIZE    = 14f;
+        private const           float   HEADER_FONT_SIZE    = 10f;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -67,6 +67,7 @@ namespace CP_SDK.UI
                 l_RectTransform.anchoredPosition    = HEADER_POSITION;
                 l_RectTransform.sizeDelta           = HEADER_SIZE;
                 m_HeaderText.fontSize               = HEADER_FONT_SIZE;
+                m_HeaderText.font                   = Unity.FontManager.GetMainFont();
                 m_HeaderText.alignment              = TextAlignmentOptions.Midline;
             }
 

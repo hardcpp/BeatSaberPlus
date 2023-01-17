@@ -1,4 +1,5 @@
 ﻿using CP_SDK.Chat.Interfaces;
+using System.Runtime.Remoting.Channels;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -55,7 +56,8 @@ namespace ChatPlexMod_Chat.UI
         /// <param name="p_Channel">Channel service</param>
         internal void OnJoinChannel(IChatService p_Service, IChatChannel p_Channel)
         {
-            var l_MessageStr = $"<color=#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] Success joining <b>{p_Channel.Name}</b></color>";
+            var l_Prefix        = !string.IsNullOrEmpty(p_Channel.Prefix) ? $"<b><color=yellow>[{p_Channel.Prefix}]</color></b> " : string.Empty;
+            var l_MessageStr    = $"<color=#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] Success joining {l_Prefix}<b>{p_Channel.Name}</b></color>";
 
             CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() =>
             {
@@ -75,7 +77,8 @@ namespace ChatPlexMod_Chat.UI
         /// <param name="p_Channel">Channel service</param>
         internal void OnLeaveChannel(IChatService p_Service, IChatChannel p_Channel)
         {
-            var l_MessageStr = $"<color=#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] Success leaving <b>{p_Channel.Name}</b></color>";
+            var l_Prefix        = !string.IsNullOrEmpty(p_Channel.Prefix) ? $"<b><color=yellow>[{p_Channel.Prefix}]</color></b> " : string.Empty;
+            var l_MessageStr    = $"<color=#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] Success leaving {l_Prefix}<b>{p_Channel.Name}</b></color>";
 
             CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() =>
             {
@@ -99,7 +102,8 @@ namespace ChatPlexMod_Chat.UI
             if (!CConfig.Instance.ShowFollowEvents)
                 return;
 
-            var l_MessageStr = $"<color=#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] <b><color={p_User.Color}>@{p_User.PaintedName}</color></b> is now following <b><color={p_User.Color}>{p_Channel.Name}</color></b></color>";
+            var l_Prefix        = !string.IsNullOrEmpty(p_Channel.Prefix) ? $"<b><color=yellow>[{p_Channel.Prefix}]</color></b> " : string.Empty;
+            var l_MessageStr    = $"{l_Prefix}<color=#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] <b><color={p_User.Color}>@{p_User.PaintedName}</color></b> is now following <b><color={p_User.Color}>{p_Channel.Name}</color></b></color>";
 
             CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() =>
             {
@@ -124,7 +128,8 @@ namespace ChatPlexMod_Chat.UI
             if (!CConfig.Instance.ShowBitsCheeringEvents)
                 return;
 
-            var l_MessageStr = $"<color=#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] <b><color={p_User.Color}>@{p_User.PaintedName}</color></b> cheered <b>{p_BitsUsed}</b> bits!</color>";
+            var l_Prefix        = !string.IsNullOrEmpty(p_Channel.Prefix) ? $"<b><color=yellow>[{p_Channel.Prefix}]</color></b> " : string.Empty;
+            var l_MessageStr    = $"{l_Prefix}<color=#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] <b><color={p_User.Color}>@{p_User.PaintedName}</color></b> cheered <b>{p_BitsUsed}</b> bits!</color>";
 
             CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() =>
             {
@@ -169,7 +174,8 @@ namespace ChatPlexMod_Chat.UI
             if (m_ChatFont.TryGetReplaceCharacter("TwitchChannelPoint_" + p_Event.Title, out uint p_Character))
                 l_ImagePart = char.ConvertFromUtf32((int)p_Character);
 
-            var l_MessageStr = $"<color=#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] <color={p_User.Color}><b>@{p_User.PaintedName}</b></color> redeemed <color={p_User.Color}><b>{p_Event.Title}</b></color> {l_ImagePart} <color={p_User.Color}><b>{p_Event.Cost}</b></color>!</color>";
+            var l_Prefix        = !string.IsNullOrEmpty(p_Channel.Prefix) ? $"<b><color=yellow>[{p_Channel.Prefix}]</color></b> " : string.Empty;
+            var l_MessageStr    = $"{l_Prefix}<color=#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] <color={p_User.Color}><b>@{p_User.PaintedName}</b></color> redeemed <color={p_User.Color}><b>{p_Event.Title}</b></color> {l_ImagePart} <color={p_User.Color}><b>{p_Event.Cost}</b></color>!</color>";
 
             if (ColorUtility.TryParseHtmlString(p_Event.BackgroundColor + "FF", out var l_HighlightColor))
                 l_HighlightColor.a = 0.24f;
@@ -205,7 +211,8 @@ namespace ChatPlexMod_Chat.UI
             if (!CConfig.Instance.ShowSubscriptionEvents)
                 return;
 
-            var l_MessageStr = $"<color=#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] <color={p_User.Color}><b>@{p_User.PaintedName}</b></color> ";
+            var l_Prefix        = !string.IsNullOrEmpty(p_Channel.Prefix) ? $"<b><color=yellow>[{p_Channel.Prefix}]</color></b> " : string.Empty;
+            var l_MessageStr    = $"{l_Prefix}<color=#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] <color={p_User.Color}><b>@{p_User.PaintedName}</b></color> ";
             if (p_Event.IsGift)
                 l_MessageStr += $"gifted <color={p_User.Color}><b>{p_Event.PurchasedMonthCount}</b></color> month of <color={p_User.Color}><b>{p_Event.SubPlan}</b></color> to <color={p_User.Color}><b>@{p_Event.RecipientDisplayName}</b></color>!";
             else
@@ -282,7 +289,9 @@ namespace ChatPlexMod_Chat.UI
                     return;
             }
 
-            string l_ParsedMessage = await Utils.ChatMessageBuilder.BuildMessage(p_Message, m_ChatFont).ConfigureAwait(false);
+            var l_Prefix        = !string.IsNullOrEmpty(p_Message.Channel.Prefix) ? $"<b><color=yellow>[{p_Message.Channel.Prefix}]</color></b> " : string.Empty;
+            var l_Message       = await Utils.ChatMessageBuilder.BuildMessage(p_Message, m_ChatFont).ConfigureAwait(false);
+            var l_ParsedMessage = l_Prefix + l_Message;
 
             CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() =>
             {

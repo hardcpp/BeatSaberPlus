@@ -100,8 +100,10 @@ namespace CP_SDK.Unity
         /// Adds a specified OpenType file to the font manager for lookup by name.
         /// </summary>
         /// <param name="p_Path">the path to add to the manager</param>
-        public static Font AddFontFile(string p_Path)
+        public static Font AddFontFile(string p_Path, out string p_FamilyName)
         {
+            p_FamilyName = string.Empty;
+
             ThrowIfNotInitialized();
 
             lock (m_FontsByFamily)
@@ -109,6 +111,8 @@ namespace CP_SDK.Unity
                 var l_Result = AddFontFileToCache(m_FontsByFamily, m_FontsByFullName, p_Path);
                 if (!l_Result.Any())
                     throw new ArgumentException("File is not an OpenType font or collection", nameof(p_Path));
+
+                p_FamilyName = l_Result.First().Info.Family;
 
                 return GetFontFromCacheOrLoad(l_Result.First());
             }
@@ -133,13 +137,9 @@ namespace CP_SDK.Unity
                     l_Task.Wait();
             }
 
-            TryGetTMPFontByFamily(MainFontName, out var l_Font);
-            if (m_FontClone != null)
-                m_MainFont = m_FontClone(l_Font);
-            else
-                m_MainFont = UnityEngine.Object.Instantiate(l_Font);
+            TryGetTMPFontByFamily(MainFontName, out m_MainFont);
 
-            return l_Font;
+            return m_MainFont;
         }
         /// <summary>
         /// Get chat font
@@ -150,11 +150,7 @@ namespace CP_SDK.Unity
             if (m_ChatFont != null)
                 return m_ChatFont;
 
-            var l_MainFont = GetMainFont();
-            if (m_FontClone != null)
-                m_ChatFont = m_FontClone(l_MainFont);
-            else
-                m_ChatFont = UnityEngine.Object.Instantiate(l_MainFont);
+            m_ChatFont = GetMainFont();
 
             return m_ChatFont;
         }
@@ -180,6 +176,12 @@ namespace CP_SDK.Unity
             }
 
             p_Font = GetOrSetupTMPFontFor(info, p_SetupOsFallbacks);
+
+            if (m_FontClone != null)
+                p_Font = m_FontClone(p_Font);
+            else
+                p_Font = UnityEngine.Object.Instantiate(p_Font);
+
             return true;
         }
 

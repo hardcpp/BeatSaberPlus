@@ -44,9 +44,10 @@ namespace BeatSaberPlus.SDK.Game
         /// </summary>
         internal static void Init()
         {
-            m_CacheFolder       = $"UserData/{CP_SDK.ChatPlexSDK.ProductName}/Cache/BeatMaps/";
-            m_WebClient         = new CP_SDK.Network.WebClient();
-            m_WebClient.Timeout = 5;
+            m_CacheFolder               = $"UserData/{CP_SDK.ChatPlexSDK.ProductName}/Cache/BeatMaps/";
+            m_WebClient                 = new CP_SDK.Network.WebClient();
+            m_WebClient.Timeout         = 10;
+            m_WebClient.DownloadTimeout = 2 * 60;
 
             try
             {

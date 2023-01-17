@@ -20,6 +20,10 @@ namespace BeatSaberPlus.SDK.Game
         /// </summary>
         public LevelCompletionResults Results { get; internal set; } = null;
         /// <summary>
+        /// Max possible multiplied score
+        /// </summary>
+        public int MaxMultipliedScore { get; internal set; }
+        /// <summary>
         /// Is a noodle extension map?
         /// </summary>
         public bool IsNoodle

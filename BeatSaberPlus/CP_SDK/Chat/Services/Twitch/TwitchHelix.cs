@@ -51,6 +51,10 @@ namespace CP_SDK.Chat.Services.Twitch
         /// </summary>
         private string m_BroadcasterID = "";
         /// <summary>
+        /// Broadcast login
+        /// </summary>
+        private string m_BroadcasterLogin = "";
+        /// <summary>
         /// API Token
         /// </summary>
         private string m_APIToken = "";
@@ -94,6 +98,10 @@ namespace CP_SDK.Chat.Services.Twitch
         /// Broadcaster ID
         /// </summary>
         public string BroadcasterID => m_BroadcasterID;
+        /// <summary>
+        /// Broadcaster login
+        /// </summary>
+        public string BroadcasterLogin => m_BroadcasterLogin;
 
         /// <summary>
         /// On token validate
@@ -140,14 +148,6 @@ namespace CP_SDK.Chat.Services.Twitch
             m_APIToken          = p_Token;
 
             ValidateToken();
-        }
-        /// <summary>
-        /// On broadcaster changed
-        /// </summary>
-        /// <param name="p_BroadcasterID"></param>
-        internal void OnBroadcasterIDChanged(string p_BroadcasterID)
-        {
-            m_BroadcasterID = p_BroadcasterID;
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -285,14 +285,24 @@ namespace CP_SDK.Chat.Services.Twitch
                 {
                     if (GetObjectFromJsonString<Helix_TokenValidate>(p_Result.Result.BodyString, out var l_Validate))
                     {
-                        m_APITokenScopes = new List<string>(l_Validate.scopes);
+                        m_APITokenScopes    = new List<string>(l_Validate.scopes);
+                        m_BroadcasterID     = l_Validate.user_id;
+                        m_BroadcasterLogin  = l_Validate.login;
+
+
                         OnTokenValidate?.Invoke(true, l_Validate, l_Validate.user_id);
                     }
                     else
                         ChatPlexSDK.Logger.Error("[CP_SDK.Chat.Service.Twitch][TwitchHelix.ValidateToken] Failed to parse reply");
                 }
                 else
+                {
+                    m_APITokenScopes.Clear();
+                    m_BroadcasterID     = string.Empty;
+                    m_BroadcasterLogin  = string.Empty;
+
                     OnTokenValidate?.Invoke(false, null, string.Empty);
+                }
             }).ConfigureAwait(false);
         }
         /// <summary>

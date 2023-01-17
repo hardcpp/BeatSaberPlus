@@ -467,14 +467,15 @@ namespace BeatSaberPlus.SDK.UI
             {
                 try
                 {
-                    var l_Task = l_DifficultyBeatmap.GetBeatmapDataBasicInfoAsync();
+                    /* var l_Task = l_DifficultyBeatmap.GetBeatmapDataBasicInfoAsync();
+                    l_Task.ConfigureAwait(false);
                     l_Task.Wait();
-                    var l_Info = l_Task.Result;
-
+                   var l_Info = l_Task.Result;
+                    l_DifficultyBeatmap.beatmapLevelData.
                     NPS         = ((float)l_Info.cuttableNotesCount / (float)p_BeatMap.beatsPerMinute);
                     Notes       = l_Info.cuttableNotesCount;
                     Obstacles   = l_Info.obstaclesCount;
-                    Bombs       = l_Info.bombsCount;
+                    Bombs       = l_Info.bombsCount;*/
                 }
                 catch
                 {

@@ -16,14 +16,6 @@ namespace CP_SDK.Chat.Services.Twitch
     public class TwitchCheermoteProvider : IChatResourceProvider<TwitchCheermoteData>
     {
         /// <summary>
-        /// HTTP Client
-        /// </summary>
-        private HttpClient m_HTTPClient = new HttpClient();
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        /// <summary>
         /// Resource cache
         /// </summary>
         public ConcurrentDictionary<string, TwitchCheermoteData> Resources { get; } = new ConcurrentDictionary<string, TwitchCheermoteData>();

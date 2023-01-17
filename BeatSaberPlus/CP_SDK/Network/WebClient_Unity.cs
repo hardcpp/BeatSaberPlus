@@ -25,6 +25,10 @@ namespace CP_SDK.Network
         /// </summary>
         public int Timeout = 10;
         /// <summary>
+        /// Timeout seconds
+        /// </summary>
+        public int DownloadTimeout = 2 * 60;
+        /// <summary>
         /// Maximum retry attempt
         /// </summary>
         public int MaxRetry = 2;
@@ -138,7 +142,7 @@ namespace CP_SDK.Network
                 var l_Request = new UnityWebRequest(p_URL)
                 {
                     downloadHandler = new DownloadHandlerBuffer(),
-                    timeout         = Timeout
+                    timeout         = DownloadTimeout
                 };
 
                 p_Progress?.Report(0f);
@@ -150,7 +154,7 @@ namespace CP_SDK.Network
                     yield return l_Waiter;
                     p_Progress?.Report(l_Request.downloadProgress);
 
-                    if (l_Request.isDone || l_Request.isHttpError || l_Request.isNetworkError)
+                    if (p_Token.IsCancellationRequested || l_Request.isDone || l_Request.isHttpError || l_Request.isNetworkError)
                         break;
                 } while (true);
 

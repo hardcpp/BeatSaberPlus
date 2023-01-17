@@ -44,6 +44,18 @@ namespace CP_SDK.Unity
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
+        /// Set custom material
+        /// </summary>
+        /// <param name="p_Material">Custom material</param>
+        public static void SetCustomMaterial(Material p_Material)
+        {
+            m_Material = p_Material;
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
         /// Create BuiltIn material
         /// </summary>
         /// <returns></returns>

@@ -82,7 +82,7 @@ namespace CP_SDK.Chat
         /// </summary>
         internal static void Init()
         {
-            m_CacheFolder   = $"UserData/{ChatPlexSDK.ProductName}/Cache/Chat/";
+            m_CacheFolder   = Path.Combine(ChatPlexSDK.BasePath, $"UserData/{ChatPlexSDK.ProductName}/Cache/Chat/");
             m_WebClient     = new Network.WebClient();
             m_WebClient.Timeout = 10;
 

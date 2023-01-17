@@ -6,7 +6,7 @@ namespace CP_SDK.Animation
     /// <summary>
     /// Animation controller manager
     /// </summary>
-    public class AnimationControllerManager : PersistentSingleton<AnimationControllerManager>
+    public class AnimationControllerManager : Unity.PersistentSingleton<AnimationControllerManager>
     {
         /// <summary>
         /// Registered dictionary

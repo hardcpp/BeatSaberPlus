@@ -1,7 +1,6 @@
 ﻿using CP_SDK.Chat.Interfaces;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Reflection;
 using System.Text;
 
 namespace CP_SDK.Chat.Services
@@ -74,7 +73,7 @@ namespace CP_SDK.Chat.Services
                 l_Service.OnJoinChannel                 += Service_OnJoinChannel;
                 l_Service.OnLeaveChannel                += Service_OnLeaveChannel;
                 l_Service.OnRoomStateUpdated            += Service_OnRoomStateUpdated;
-                l_Service.OnRoomVideoPlaybackUpdated    += Service_OnRoomVideoPlaybackUpdated;
+                l_Service.OnLiveStatusUpdated           += Service_OnLiveStatusUpdated;
                 l_Service.OnChannelResourceDataCached   += Service_OnChannelResourceDataCached;
                 l_Service.OnChannelFollow               += Service_OnChannelFollow;
                 l_Service.OnChannelBits                 += Service_OnChannelBits;
@@ -86,7 +85,7 @@ namespace CP_SDK.Chat.Services
                 l_Service.OnChatCleared                 += Service_OnChatCleared;
                 l_Service.OnMessageCleared              += Service_OnMessageCleared;
 
-                if(l_NameBuilder.Length > 0)
+                if (l_NameBuilder.Length > 0)
                     l_NameBuilder.Append(", ");
 
                 l_NameBuilder.Append(l_Service.DisplayName);
@@ -201,6 +200,66 @@ namespace CP_SDK.Chat.Services
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
+        /// <summary>
+        /// Is connected
+        /// </summary>
+        /// <returns></returns>
+        public bool IsConnectedAndLive()
+        {
+            throw new System.NotImplementedException();
+        }
+        /// <summary>
+        /// Get primary channel name
+        /// </summary>
+        /// <returns></returns>
+        public string PrimaryChannelName()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Join temp channel with group identifier
+        /// </summary>
+        /// <param name="p_GroupIdentifier">Group identifier</param>
+        /// <param name="p_ChannelName">Name of the channel</param>
+        /// <param name="p_Prefix">Messages prefix</param>
+        /// <param name="p_CanSendMessage">Can send message</param>
+        public void JoinTempChannel(string p_GroupIdentifier, string p_ChannelName, string p_Prefix, bool p_CanSendMessage)
+        {
+            throw new System.NotImplementedException();
+        }
+        /// <summary>
+        /// Leave temp channel
+        /// </summary>
+        /// <param name="p_ChannelName">Name of the channel</param>
+        public void LeaveTempChannel(string p_ChannelName)
+        {
+            throw new System.NotImplementedException();
+        }
+        /// <summary>
+        /// Is in temp channel
+        /// </summary>
+        /// <param name="p_ChannelName">Channel name</param>
+        /// <returns></returns>
+        public bool IsInTempChannel(string p_ChannelName)
+        {
+            throw new System.NotImplementedException();
+        }
+        /// <summary>
+        /// Leave all temp channel by group identifier
+        /// </summary>
+        /// <param name="p_GroupIdentifier"></param>
+        public void LeaveAllTempChannel(string p_GroupIdentifier)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
         private void Service_OnSystemMessage(IChatService p_ChatService, string p_Message)
         {
             lock (m_InvokeLock)
@@ -231,10 +290,10 @@ namespace CP_SDK.Chat.Services
                 m_OnRoomStateUpdatedCallbacks.InvokeAll(p_ChatService, p_Channel);
         }
 
-        private void Service_OnRoomVideoPlaybackUpdated(IChatService p_ChatService, IChatChannel p_Channel, bool isup, int count)
+        private void Service_OnLiveStatusUpdated(IChatService p_ChatService, IChatChannel p_Channel, bool isup, int count)
         {
             lock (m_InvokeLock)
-                m_OnRoomVideoPlaybackUpdatedCallbacks.InvokeAll(p_ChatService, p_Channel, isup, count);
+                m_OnLiveStatusUpdatedCallbacks.InvokeAll(p_ChatService, p_Channel, isup, count);
         }
 
         private void Service_OnChannelResourceDataCached(IChatService p_ChatService, IChatChannel p_Channel, Dictionary<string, IChatResourceData> resources)

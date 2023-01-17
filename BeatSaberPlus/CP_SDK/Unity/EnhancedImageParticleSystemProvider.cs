@@ -41,6 +41,8 @@ namespace CP_SDK.Unity
             var l_PS    = m_ParticleSystem.AddComponent<ParticleSystem>();
             var l_PSR   = m_ParticleSystem.GetComponent<ParticleSystemRenderer>();
 
+            l_PS.Stop();
+
             var l_Main = l_PS.main;
             l_Main.duration             = 1.0f;
             l_Main.loop                 = true;
@@ -113,6 +115,8 @@ namespace CP_SDK.Unity
             l_PSR.maxParticleSize   = 0.5f;
             l_PSR.receiveShadows    = false;
             l_PSR.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+
+            l_PS.Play();
         }
     }
 }

@@ -187,7 +187,7 @@ namespace CP_SDK.Unity
                 return;
             }
 
-            var l_AnimControllerData    = Animation.AnimationControllerManager.instance.Register(p_ID, p_Texture, p_UVs, p_Delays);
+            var l_AnimControllerData    = Animation.AnimationControllerManager.Instance.Register(p_ID, p_Texture, p_UVs, p_Delays);
             var l_AnimResult            = null as EnhancedImage;
 
             if (l_AnimControllerData != null)

@@ -43,7 +43,7 @@ namespace CP_SDK.Chat.Interfaces
         /// <summary>
         /// Callback that occurs when a chat channel receives VideoPlayback info
         /// </summary>
-        event Action<IChatService, IChatChannel, bool, int> OnRoomVideoPlaybackUpdated;
+        event Action<IChatService, IChatChannel, bool, int> OnLiveStatusUpdated;
         /// <summary>
         /// Fired once all known resources have been cached for this channel
         /// </summary>
@@ -140,5 +140,47 @@ namespace CP_SDK.Chat.Interfaces
         /// <param name="p_Channel">The chat channel to send the message to</param>
         /// <param name="p_Message">The text message to be sent</param>
         void SendTextMessage(IChatChannel p_Channel, string p_Message);
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Is connected
+        /// </summary>
+        /// <returns></returns>
+        bool IsConnectedAndLive();
+        /// <summary>
+        /// Get primary channel name
+        /// </summary>
+        /// <returns></returns>
+        string PrimaryChannelName();
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Join temp channel with group identifier
+        /// </summary>
+        /// <param name="p_GroupIdentifier">Group identifier</param>
+        /// <param name="p_ChannelName">Name of the channel</param>
+        /// <param name="p_Prefix">Messages prefix</param>
+        /// <param name="p_CanSendMessage">Can send message</param>
+        void JoinTempChannel(string p_GroupIdentifier, string p_ChannelName, string p_Prefix, bool p_CanSendMessage);
+        /// <summary>
+        /// Leave temp channel
+        /// </summary>
+        /// <param name="p_ChannelName">Name of the channel</param>
+        void LeaveTempChannel(string p_ChannelName);
+        /// <summary>
+        /// Is in temp channel
+        /// </summary>
+        /// <param name="p_ChannelName">Channel name</param>
+        /// <returns></returns>
+        bool IsInTempChannel(string p_ChannelName);
+        /// <summary>
+        /// Leave all temp channel by group identifier
+        /// </summary>
+        /// <param name="p_GroupIdentifier"></param>
+        void LeaveAllTempChannel(string p_GroupIdentifier);
     }
 }

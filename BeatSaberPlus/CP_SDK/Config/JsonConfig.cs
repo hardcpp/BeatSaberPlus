@@ -105,7 +105,7 @@ namespace CP_SDK.Config
         /// </summary>
         /// <returns></returns>
         public virtual string GetFullPath()
-            => Path.Combine(Environment.CurrentDirectory, $"UserData/{GetRelativePath()}.json");
+            => Path.Combine(ChatPlexSDK.BasePath, $"UserData/{GetRelativePath()}.json");
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////

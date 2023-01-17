@@ -11,9 +11,9 @@ namespace CP_SDK.Chat.Services
     /// </summary>
     public class ChatServiceBase
     {
-        protected ConcurrentDictionary<ChatServiceBase, Action<IChatService, string>>   m_OnSystemMessageCallbacks 
+        protected ConcurrentDictionary<ChatServiceBase, Action<IChatService, string>>   m_OnSystemMessageCallbacks
             = new ConcurrentDictionary<ChatServiceBase, Action<IChatService, string>>();
-        protected ConcurrentDictionary<ChatServiceBase, Action<IChatService>>           m_OnLoginCallbacks 
+        protected ConcurrentDictionary<ChatServiceBase, Action<IChatService>>           m_OnLoginCallbacks
             = new ConcurrentDictionary<ChatServiceBase, Action<IChatService>>();
 
         ////////////////////////////////////////////////////////////////////////////
@@ -25,7 +25,7 @@ namespace CP_SDK.Chat.Services
             = new ConcurrentDictionary<ChatServiceBase, Action<IChatService, IChatChannel>>();
         protected ConcurrentDictionary<ChatServiceBase, Action<IChatService, IChatChannel>>                                        m_OnRoomStateUpdatedCallbacks
             = new ConcurrentDictionary<ChatServiceBase, Action<IChatService, IChatChannel>>();
-        protected ConcurrentDictionary<ChatServiceBase, Action<IChatService, IChatChannel, bool, int>>                             m_OnRoomVideoPlaybackUpdatedCallbacks
+        protected ConcurrentDictionary<ChatServiceBase, Action<IChatService, IChatChannel, bool, int>>                             m_OnLiveStatusUpdatedCallbacks
             = new ConcurrentDictionary<ChatServiceBase, Action<IChatService, IChatChannel, bool, int>>();
         protected ConcurrentDictionary<ChatServiceBase, Action<IChatService, IChatChannel, Dictionary<string, IChatResourceData>>> m_OnChannelResourceDataCached
             = new ConcurrentDictionary<ChatServiceBase, Action<IChatService, IChatChannel, Dictionary<string, IChatResourceData>>>();
@@ -82,10 +82,10 @@ namespace CP_SDK.Chat.Services
             add     => m_OnRoomStateUpdatedCallbacks.AddAction(this, value);
             remove  => m_OnRoomStateUpdatedCallbacks.RemoveAction(this, value);
         }
-        public event Action<IChatService, IChatChannel, bool, int> OnRoomVideoPlaybackUpdated
+        public event Action<IChatService, IChatChannel, bool, int> OnLiveStatusUpdated
         {
-            add     => m_OnRoomVideoPlaybackUpdatedCallbacks.AddAction(this, value);
-            remove  => m_OnRoomVideoPlaybackUpdatedCallbacks.RemoveAction(this, value);
+            add     => m_OnLiveStatusUpdatedCallbacks.AddAction(this, value);
+            remove  => m_OnLiveStatusUpdatedCallbacks.RemoveAction(this, value);
         }
         public event Action<IChatService, IChatChannel, Dictionary<string, IChatResourceData>> OnChannelResourceDataCached
         {

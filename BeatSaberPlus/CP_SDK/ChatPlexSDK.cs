@@ -50,6 +50,10 @@ namespace CP_SDK
         /// </summary>
         public static string ProductName { get; private set; } = string.Empty;
         /// <summary>
+        /// Product name
+        /// </summary>
+        public static string BasePath { get; private set; } = string.Empty;
+        /// <summary>
         /// Network user agent
         /// </summary>
         public static string NetworkUserAgent { get; private set; } = string.Empty;
@@ -78,13 +82,15 @@ namespace CP_SDK
         /// Configure
         /// </summary>
         /// <param name="p_Logger">Logger instance</param>
+        /// <param name="p_BasePath">Base path</param>
         /// <param name="p_ProductName">Product name</param>
         /// <param name="p_RenderPipeline">Rendering pipeline</param>
-        internal static void Configure(Logging.ILogger p_Logger, string p_ProductName, ERenderPipeline p_RenderPipeline)
+        internal static void Configure(Logging.ILogger p_Logger, string p_ProductName, string p_BasePath, ERenderPipeline p_RenderPipeline)
         {
             Logger = p_Logger;
 
             ProductName         = p_ProductName;
+            BasePath            = p_BasePath;
             NetworkUserAgent    = $"ChatPlexSDK_{p_ProductName}/{Application.version}";
             RenderPipeline      = p_RenderPipeline;
         }
@@ -190,7 +196,7 @@ namespace CP_SDK
                             /// Add plugin to the list
                             m_Modules.Add(l_Module);
 
-                            try                                 { l_Module.CheckForActivation(EIModuleBaseActivationType.OnStart);                                                               }
+                            try                                 { l_Module.CheckForActivation(EIModuleBaseActivationType.OnStart);                                                          }
                             catch (Exception p_InitException)   { Logger.Error("[CP_SDK][ChatPlexSDK.InitModules] Error on module init " + l_Module.Name); Logger.Error(p_InitException);   }
                         }
                     }
@@ -324,10 +330,20 @@ namespace CP_SDK
                 if (!Directory.Exists("Libs/Natives/"))
                     Directory.CreateDirectory("Libs/Natives/");
 
-                if (!File.Exists("Libs/Natives/libwebp.dll"))
-                    File.WriteAllBytes("Libs/Natives/libwebp.dll", Misc.Resources.FromRelPath(Assembly.GetExecutingAssembly(), "CP_SDK._Resources.libwebp.dll"));
-                if (!File.Exists("Libs/Natives/libwebpdemux.dll"))
-                    File.WriteAllBytes("Libs/Natives/libwebpdemux.dll", Misc.Resources.FromRelPath(Assembly.GetExecutingAssembly(), "CP_SDK._Resources.libwebpdemux.dll"));
+                var l_LibWEBP       = Misc.Resources.FromRelPath(Assembly.GetExecutingAssembly(), "CP_SDK._Resources.libwebp.dll");
+                var l_LibWEBPDemux  = Misc.Resources.FromRelPath(Assembly.GetExecutingAssembly(), "CP_SDK._Resources.libwebpdemux.dll");
+
+                if (!File.Exists("Libs/Natives/libwebp.dll")
+                    || Cryptography.SHA1.GetHashString(File.ReadAllBytes("Libs/Natives/libwebp.dll")) != Cryptography.SHA1.GetHashString(l_LibWEBP))
+                {
+                    File.WriteAllBytes("Libs/Natives/libwebp.dll", l_LibWEBP);
+                }
+
+                if (!File.Exists("Libs/Natives/libwebpdemux.dll")
+                    || Cryptography.SHA1.GetHashString(File.ReadAllBytes("Libs/Natives/libwebpdemux.dll")) != Cryptography.SHA1.GetHashString(l_LibWEBPDemux))
+                {
+                    File.WriteAllBytes("Libs/Natives/libwebpdemux.dll", l_LibWEBPDemux);
+                }
             }
             catch (Exception l_Exception)
             {
@@ -337,6 +353,3 @@ namespace CP_SDK
         }
     }
 }
-
-
-

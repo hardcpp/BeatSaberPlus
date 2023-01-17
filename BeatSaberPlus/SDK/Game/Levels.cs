@@ -100,7 +100,9 @@ namespace BeatSaberPlus.SDK.Game
                SOFTWARE.
             */
 
-            IPreviewBeatmapLevel l_Level = Loader.CustomLevelsCollection.beatmapLevels.Where(x => x.levelID == p_LevelID).First();
+            await Task.Yield();
+
+            IPreviewBeatmapLevel l_Level = Loader.GetLevelById(p_LevelID);
 
             /// Load IBeatmapLevel
             if (l_Level is PreviewBeatmapLevelSO || l_Level is CustomPreviewBeatmapLevel)
@@ -164,19 +166,20 @@ namespace BeatSaberPlus.SDK.Game
                 var l_DifficultyBeatmap = p_Level.beatmapLevelData.GetDifficultyBeatmap(p_Characteristic, p_Difficulty);
 
                 l_MenuSceneSetupData.StartStandardLevel(
-                    "Solo",
-                    l_DifficultyBeatmap,
-                    p_Level,
-                    p_OverrideEnvironmentSettings,
-                    p_ColorScheme,
-                    p_GameplayModifiers ?? new GameplayModifiers(),
-                    p_PlayerSettings    ?? new PlayerSpecificSettings(),
-                    null,
-                    p_MenuButtonText,
-                    false,
-                    false,
-                    null,
-                    (p_StandardLevelScenesTransitionSetupData, p_Results) => p_SongFinishedCallback?.Invoke(p_StandardLevelScenesTransitionSetupData, p_Results, l_DifficultyBeatmap)
+                    gameMode:                       "Solo",
+                    difficultyBeatmap:              l_DifficultyBeatmap,
+                    previewBeatmapLevel:            p_Level,
+                    overrideEnvironmentSettings:    p_OverrideEnvironmentSettings,
+                    overrideColorScheme:            p_ColorScheme,
+                    gameplayModifiers:              p_GameplayModifiers ?? new GameplayModifiers(),
+                    playerSpecificSettings:         p_PlayerSettings    ?? new PlayerSpecificSettings(),
+                    practiceSettings:               null,
+                    backButtonText:                 p_MenuButtonText,
+                    useTestNoteCutSoundEffects:     false,
+                    startPaused:                    false,
+                    beforeSceneSwitchCallback:      null,
+                    levelFinishedCallback:          (p_StandardLevelScenesTransitionSetupData, p_Results) => p_SongFinishedCallback?.Invoke(p_StandardLevelScenesTransitionSetupData, p_Results, l_DifficultyBeatmap),
+                    levelRestartedCallback:         null
                 );
             }
             catch (Exception l_Exception)

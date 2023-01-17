@@ -1,4 +1,5 @@
 ﻿using BeatSaberMarkupLanguage.MenuButtons;
+using CP_SDK.Unity.Extensions;
 using HarmonyLib;
 using IPA;
 using System;
@@ -58,7 +59,12 @@ namespace BeatSaberPlus
         [Init]
         public Plugin(IPA.Logging.Logger p_Logger)
         {
-            CP_SDK.ChatPlexSDK.Configure(new CP_SDK.Logging.IPALogger(p_Logger), "BeatSaberPlus", CP_SDK.ChatPlexSDK.ERenderPipeline.BuiltIn);
+            CP_SDK.ChatPlexSDK.Configure(
+                new CP_SDK.Logging.IPALogger(p_Logger),
+                "BeatSaberPlus",
+                Environment.CurrentDirectory,
+                CP_SDK.ChatPlexSDK.ERenderPipeline.BuiltIn
+            );
             CP_SDK.ChatPlexSDK.OnAssemblyLoaded();
 
             CP_SDK.Chat.Service.Discrete_OnTextMessageReceived += Service_Discrete_OnTextMessageReceived;
@@ -66,13 +72,19 @@ namespace BeatSaberPlus
             CP_SDK.Unity.FontManager.Setup(p_FontClone: (p_Input) =>
             {
                 var l_MainFont  = Resources.FindObjectsOfTypeAll<TMP_FontAsset>().FirstOrDefault(t => t.name == "Teko-Medium SDF");
-                var l_NewFont   = UnityEngine.Object.Instantiate(p_Input);
+                var l_NewFont   = TMP_FontAsset.CreateFontAsset(p_Input.sourceFontFile);
+
+                l_NewFont.name                      = p_Input.name;
+                l_NewFont.hashCode                  = TMP_TextUtilities.GetSimpleHashCode(p_Input.name + "Clone" + CP_SDK.Misc.Time.UnixTimeNowMS());
+                l_NewFont.fallbackFontAssetTable    = p_Input.fallbackFontAssetTable;
 
                 if (l_MainFont)
+                {
                     l_NewFont.material.shader = l_MainFont.material.shader;
-
-                l_NewFont.material.EnableKeyword("CURVED");
-                l_NewFont.material.EnableKeyword("UNITY_UI_CLIP_RECT");
+                    l_NewFont.material.color = l_NewFont.material.color.WithAlpha(0.5f);
+                    l_NewFont.material.EnableKeyword("CURVED");
+                    l_NewFont.material.EnableKeyword("UNITY_UI_CLIP_RECT");
+                }
 
                 return l_NewFont;
             });

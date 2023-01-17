@@ -35,7 +35,7 @@ namespace BeatSaberPlus.SDK.UI
         protected override sealed string GetViewContentDescription()
         {
 #if DEBUG
-            ChatPlexSDK.Logger.Debug("Loading " + string.Join(".", typeof(T).Namespace, typeof(T).Name));
+            CP_SDK.ChatPlexSDK.Logger.Debug("Loading " + string.Join(".", typeof(T).Namespace, typeof(T).Name));
 #endif
             return CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(typeof(T)), string.Join(".", typeof(T).Namespace, typeof(T).Name));
         }
