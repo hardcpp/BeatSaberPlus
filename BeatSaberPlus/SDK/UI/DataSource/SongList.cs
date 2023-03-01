@@ -20,7 +20,7 @@ namespace BeatSaberPlus.SDK.UI.DataSource
         /// <summary>
         /// Cell template
         /// </summary>
-        private LevelListTableCell m_SongListTableCellInstance;
+        private static LevelListTableCell m_SongListTableCellInstance;
         /// <summary>
         /// Default cover image
         /// </summary>
@@ -201,7 +201,6 @@ namespace BeatSaberPlus.SDK.UI.DataSource
 
             TextMeshProUGUI l_Text      = l_Cell.GetField<TextMeshProUGUI, LevelListTableCell>("_songNameText");
             TextMeshProUGUI l_SubText   = l_Cell.GetField<TextMeshProUGUI, LevelListTableCell>("_songAuthorText");
-            l_Cell.GetField<UnityEngine.UI.Image, LevelListTableCell>("_favoritesBadgeImage").gameObject.SetActive(false);
 
             var l_HoverHint = l_Cell.gameObject.GetComponent<HMUI.HoverHint>();
             if (l_HoverHint == null || !l_HoverHint)
@@ -515,7 +514,30 @@ namespace BeatSaberPlus.SDK.UI.DataSource
             if (!l_Cell)
             {
                 if (m_SongListTableCellInstance == null)
+                {
                     m_SongListTableCellInstance = UnityEngine.Resources.FindObjectsOfTypeAll<LevelListTableCell>().First(x => (x.name == "LevelListTableCell"));
+                    m_SongListTableCellInstance = Instantiate(m_SongListTableCellInstance);
+                    m_SongListTableCellInstance.gameObject.name = "BSP_LevelListTableCell";
+                    m_SongListTableCellInstance.transform.SetParent(null, true);
+                    UnityEngine.GameObject.DontDestroyOnLoad(m_SongListTableCellInstance.gameObject);
+
+                    TextMeshProUGUI l_Text = m_SongListTableCellInstance.GetField<TextMeshProUGUI, LevelListTableCell>("_songNameText");
+
+                    m_SongListTableCellInstance.transform.Find("PromoBackground")?.gameObject?.SetActive(false);
+                    m_SongListTableCellInstance.GetField<UnityEngine.UI.Image, LevelListTableCell>("_favoritesBadgeImage").gameObject.SetActive(false);
+
+                    if (l_Text.overflowMode != TextOverflowModes.Overflow)
+                        l_Text.overflowMode = TextOverflowModes.Overflow;
+
+                    var l_TextComponents     = l_Text.GetComponents<MonoBehaviour>();
+                    var l_LayoutWidthLimiter = l_TextComponents.FirstOrDefault(x => x.GetType().Name == "LayoutWidthLimiter");
+                    if (l_LayoutWidthLimiter)
+                        l_LayoutWidthLimiter.enabled = false;
+
+                    l_Text.transform.Find("PromoBadge")?.gameObject?.SetActive(false);
+                    l_Text.transform.Find("UpdatedBadge")?.gameObject?.SetActive(false);
+                    l_Text.rectTransform.sizeDelta = new Vector2(-22.7f, 5.74f);
+                }
 
                 l_Cell = Instantiate(m_SongListTableCellInstance);
             }

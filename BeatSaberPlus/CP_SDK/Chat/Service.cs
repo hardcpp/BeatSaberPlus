@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 
 namespace CP_SDK.Chat
 {
@@ -163,6 +164,10 @@ namespace CP_SDK.Chat
         /// </summary>
         public static event Action<IChatService, IChatMessage> Discrete_OnTextMessageReceived;
         /// <summary>
+        /// Discrete OnLiveStatusUpdated
+        /// </summary>
+        public static event Action<IChatService, IChatChannel, bool, int> Discrete_OnLiveStatusUpdated;
+        /// <summary>
         /// On channel resource loading state changed
         /// </summary>
         public static event Action<bool> OnLoadingStateChanged;
@@ -189,11 +194,13 @@ namespace CP_SDK.Chat
 
             /// Run all services
             m_ChatCoreMutiplixer = new Services.ChatServiceMultiplexer(m_Services);
-            m_ChatCoreMutiplixer.OnChannelResourceDataCached += ChatCoreMutiplixer_OnChannelResourceDataCached;
-            m_ChatCoreMutiplixer.OnTextMessageReceived       += ChatCoreMutiplixer_OnTextMessageReceived;
+            m_ChatCoreMutiplixer.OnChannelResourceDataCached    += ChatCoreMutiplixer_OnChannelResourceDataCached;
+            m_ChatCoreMutiplixer.OnTextMessageReceived          += ChatCoreMutiplixer_OnTextMessageReceived;
+            m_ChatCoreMutiplixer.OnLiveStatusUpdated            += ChatCoreMutiplixer_OnLiveStatusUpdated;
 
             /// WebApp
             WebApp.Start();
+
             if (ChatModSettings.Instance.LaunchWebAppOnStartup)
                 OpenWebConfigurator();
         }
@@ -212,8 +219,9 @@ namespace CP_SDK.Chat
             ChatImageProvider.ClearCache();
 
             /// Unbind services
-            m_ChatCoreMutiplixer.OnChannelResourceDataCached -= ChatCoreMutiplixer_OnChannelResourceDataCached;
-            m_ChatCoreMutiplixer.OnTextMessageReceived       -= ChatCoreMutiplixer_OnTextMessageReceived;
+            m_ChatCoreMutiplixer.OnLiveStatusUpdated            -= ChatCoreMutiplixer_OnLiveStatusUpdated;
+            m_ChatCoreMutiplixer.OnChannelResourceDataCached    -= ChatCoreMutiplixer_OnChannelResourceDataCached;
+            m_ChatCoreMutiplixer.OnTextMessageReceived          -= ChatCoreMutiplixer_OnTextMessageReceived;
             m_ChatCoreMutiplixer = null;
 
             /// Stop all chat services
@@ -322,6 +330,24 @@ namespace CP_SDK.Chat
             try
             {
                 Discrete_OnTextMessageReceived?.Invoke(p_Service, p_Message);
+            }
+            catch
+            {
+
+            }
+        }
+        /// <summary>
+        /// On room video playback updated
+        /// </summary>
+        /// <param name="p_Service">Chat service</param>
+        /// <param name="p_Channel">Channel instance</param>
+        /// <param name="p_StreamUP">Is the stream up</param>
+        /// <param name="p_ViewerCount">Viewer count</param>
+        private static void ChatCoreMutiplixer_OnLiveStatusUpdated(IChatService p_Service, IChatChannel p_Channel, bool p_StreamUP, int p_ViewerCount)
+        {
+            try
+            {
+                Discrete_OnLiveStatusUpdated?.Invoke(p_Service, p_Channel, p_StreamUP, p_ViewerCount);
             }
             catch
             {

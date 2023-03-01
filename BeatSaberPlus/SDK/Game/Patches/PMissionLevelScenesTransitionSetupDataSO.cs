@@ -41,6 +41,16 @@ namespace BeatSaberPlus.SDK.Game.Patches
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
+        /// Restore the level data (Fix for the new restart mechanic)
+        /// </summary>
+        /// <param name="p_LevelData">Level data to restore</param>
+        internal static void RestoreLevelData(LevelData p_LevelData)
+            => m_LevelData = p_LevelData;
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
         /// On level finish
         /// </summary>
         /// <param name="p_Transition">Transition data</param>
