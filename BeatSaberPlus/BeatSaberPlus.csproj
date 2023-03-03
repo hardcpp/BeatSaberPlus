@@ -24,14 +24,14 @@
     <DebugSymbols>true</DebugSymbols>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;CP_SDK_IPA;CP_SDK_UNITY</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;CP_SDK_IPA;CP_SDK_UNITY;UNITY_5_3_OR_NEWER;UNITY_2018_2_OR_NEWER;UNITY_2019_1_OR_NEWER UNITY_STANDALONE_WIN;UNITY_2018_3_OR_NEWER;NETSTANDARD</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>CP_SDK_IPA;CP_SDK_UNITY</DefineConstants>
+    <DefineConstants>CP_SDK_IPA;CP_SDK_UNITY;UNITY_5_3_OR_NEWER;UNITY_2018_2_OR_NEWER;UNITY_2019_1_OR_NEWER UNITY_STANDALONE_WIN;UNITY_2018_3_OR_NEWER;NETSTANDARD</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -117,6 +117,11 @@
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\System.IO.Compression.FileSystem.dll</HintPath>
     </Reference>
     <Reference Include="System.Net.Http, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="System.Runtime.Serialization">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\System.Runtime.Serialization.dll</HintPath>
+      <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
     <Reference Include="System.Web, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\System.Web.dll</HintPath>
       <Private>False</Private>
@@ -237,6 +242,33 @@
     <Compile Include="CP_SDK\ModuleBase.cs" />
     <Compile Include="CP_SDK\Network\APIClient.cs" />
     <Compile Include="CP_SDK\Network\APIResponse.cs" />
+    <Compile Include="CP_SDK\Network\LiteNetLib\BaseChannel.cs" />
+    <Compile Include="CP_SDK\Network\LiteNetLib\ConnectionRequest.cs" />
+    <Compile Include="CP_SDK\Network\LiteNetLib\INetEventListener.cs" />
+    <Compile Include="CP_SDK\Network\LiteNetLib\Layers\Crc32cLayer.cs" />
+    <Compile Include="CP_SDK\Network\LiteNetLib\Layers\PacketLayerBase.cs" />
+    <Compile Include="CP_SDK\Network\LiteNetLib\Layers\XorEncryptLayer.cs" />
+    <Compile Include="CP_SDK\Network\LiteNetLib\NatPunchModule.cs" />
+    <Compile Include="CP_SDK\Network\LiteNetLib\NetConstants.cs" />
+    <Compile Include="CP_SDK\Network\LiteNetLib\NetDebug.cs" />
+    <Compile Include="CP_SDK\Network\LiteNetLib\NetManager.cs" />
+    <Compile Include="CP_SDK\Network\LiteNetLib\NetPacket.cs" />
+    <Compile Include="CP_SDK\Network\LiteNetLib\NetPacketPool.cs" />
+    <Compile Include="CP_SDK\Network\LiteNetLib\NetPeer.cs" />
+    <Compile Include="CP_SDK\Network\LiteNetLib\NetSocket.cs" />
+    <Compile Include="CP_SDK\Network\LiteNetLib\NetStatistics.cs" />
+    <Compile Include="CP_SDK\Network\LiteNetLib\NetUtils.cs" />
+    <Compile Include="CP_SDK\Network\LiteNetLib\ReliableChannel.cs" />
+    <Compile Include="CP_SDK\Network\LiteNetLib\SequencedChannel.cs" />
+    <Compile Include="CP_SDK\Network\LiteNetLib\Utils\CRC32C.cs" />
+    <Compile Include="CP_SDK\Network\LiteNetLib\Utils\FastBitConverter.cs" />
+    <Compile Include="CP_SDK\Network\LiteNetLib\Utils\INetSerializable.cs" />
+    <Compile Include="CP_SDK\Network\LiteNetLib\Utils\NetDataReader.cs" />
+    <Compile Include="CP_SDK\Network\LiteNetLib\Utils\NetDataWriter.cs" />
+    <Compile Include="CP_SDK\Network\LiteNetLib\Utils\NetPacketProcessor.cs" />
+    <Compile Include="CP_SDK\Network\LiteNetLib\Utils\NetSerializer.cs" />
+    <Compile Include="CP_SDK\Network\LiteNetLib\Utils\NtpPacket.cs" />
+    <Compile Include="CP_SDK\Network\LiteNetLib\Utils\NtpRequest.cs" />
     <Compile Include="CP_SDK\Network\RateLimitInfo.cs" />
     <Compile Include="CP_SDK\Network\WebClient_Unity.cs" />
     <Compile Include="CP_SDK\Network\WebResponse.cs" />
