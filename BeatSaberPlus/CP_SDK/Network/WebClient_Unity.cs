@@ -183,7 +183,7 @@ namespace CP_SDK.Network
                 }
             }
 
-            Unity.MTThreadInvoker.EnqueueOnThread(() => p_Callback(null));
+            Unity.MTThreadInvoker.EnqueueOnThread(() => p_Callback?.Invoke(null));
         }
 
         ////////////////////////////////////////////////////////////////////////////

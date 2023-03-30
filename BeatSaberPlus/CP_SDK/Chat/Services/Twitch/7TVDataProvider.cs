@@ -72,7 +72,7 @@ namespace CP_SDK.Chat.Services.Twitch
 
             try
             {
-                ChatPlexSDK.Logger.Debug($"Requesting 7TV {(l_IsGlobal ? "global " : "")}emotes{(l_IsGlobal ? "." : $" for channel {p_Category}")}.");
+                ChatPlexSDK.Logger.Debug($"Requesting 7TV {(l_IsGlobal ? "global " : "")}emotes{(l_IsGlobal ? "." : $" for channel {p_Category}")}. " + (l_IsGlobal ? "https://api.7tv.app/v2/emotes/global" : $"https://api.7tv.app/v2/users/{p_Category}/emotes"));
 
                 using (HttpRequestMessage msg = new HttpRequestMessage(HttpMethod.Get, l_IsGlobal ? "https://api.7tv.app/v2/emotes/global" : $"https://api.7tv.app/v2/users/{p_Category}/emotes"))
                 {
@@ -85,15 +85,15 @@ namespace CP_SDK.Chat.Services.Twitch
                             int l_Count = 0;
                             foreach (JSONObject l_Object in l_JSON.AsArray)
                             {
-                                string l_URI = $"https://cdn.7tv.app/emote/{l_Object["id"].Value}/2x";
-                                string l_ID = l_IsGlobal ? l_Object["name"].Value : $"{p_Category}_{l_Object["name"].Value}";
+                                string l_URI    = l_Object["urls"].AsArray.Count >= 2 ? l_Object["urls"].AsArray[2].AsArray[1] : l_Object["urls"].AsArray[0].AsArray[0];
+                                string l_ID     = l_IsGlobal ? l_Object["name"].Value : $"{p_Category}_{l_Object["name"].Value}";
 
                                 Resources.TryAdd(l_ID, new ChatResourceData()
                                 {
-                                    Uri = l_URI,
-                                    Animation = Animation.EAnimationType.AUTODETECT,
-                                    Category = EChatResourceCategory.Emote,
-                                    Type = l_IsGlobal ? "7TVGlobalEmote" : "7TVChannelEmote"
+                                    Uri         = l_URI,
+                                    Animation   = Animation.EAnimationType.AUTODETECT,
+                                    Category    = EChatResourceCategory.Emote,
+                                    Type        = l_IsGlobal ? "7TVGlobalEmote" : "7TVChannelEmote"
                                 });
                                 l_Count++;
                             }
