@@ -177,10 +177,10 @@ namespace BeatSaberPlus_ChatRequest
             {
                 lock (SongBlackList)
                 {
-                    var l_BeatMap = SongBlackList.Where(x => x.BeatMap.id.ToLower() == l_Key).FirstOrDefault();
+                    var l_BeatMap = SongBlackList.Where(x => x.BeatSaver_Map.id.ToLower() == l_Key).FirstOrDefault();
                     if (l_BeatMap != null)
                     {
-                        SendChatMessage(CRConfig.Instance.Commands.BSRCommand_Blacklisted, p_Service, p_Message, l_BeatMap.BeatMap);
+                        SendChatMessage(CRConfig.Instance.Commands.BSRCommand_Blacklisted, p_Service, p_Message, l_BeatMap.BeatSaver_Map);
                         return;
                     }
                 }
@@ -189,10 +189,10 @@ namespace BeatSaberPlus_ChatRequest
             /// Check if already in queue
             lock (SongQueue)
             {
-                var l_BeatMap = SongQueue.Where(x => x.BeatMap.id.ToLower() == l_Key).FirstOrDefault();
+                var l_BeatMap = SongQueue.Where(x => x.BeatSaver_Map.id.ToLower() == l_Key).FirstOrDefault();
                 if (l_BeatMap != null)
                 {
-                    SendChatMessage(CRConfig.Instance.Commands.BSRCommand_AlreadyQueued, p_Service, p_Message, l_BeatMap.BeatMap);
+                    SendChatMessage(CRConfig.Instance.Commands.BSRCommand_AlreadyQueued, p_Service, p_Message, l_BeatMap.BeatSaver_Map);
                     return;
                 }
 
@@ -273,12 +273,12 @@ namespace BeatSaberPlus_ChatRequest
                                 l_NamePrefix    = string.Empty;
                             }
 
-                            var l_Entry = new SongEntry()
+                            var l_Entry = new Data.SongEntry()
                             {
-                                BeatMap         = p_BeatMap,
+                                BeatSaver_Map   = p_BeatMap,
                                 RequesterName   = l_RequesterName,
                                 RequestTime     = DateTime.Now,
-                                NamePrefix      = l_NamePrefix
+                                TitlePrefix     = l_NamePrefix
                             };
 
                             lock (SongQueue)
@@ -317,7 +317,7 @@ namespace BeatSaberPlus_ChatRequest
         private void Command_BSRHelp(IChatService p_Service, IChatMessage p_Message, string[] p_Params)
         {
             if (p_Params?.Length > 0)
-                SendChatMessage(CRConfig.Instance.Commands.BSRHelpCommand_Reply.Replace("$UserName", p_Params[0]), p_Service, p_Message);
+                SendChatMessage(CRConfig.Instance.Commands.BSRHelpCommand_Reply.Replace("$UserName", p_Params[0].Replace("@", "")), p_Service, p_Message);
             else
                 SendChatMessage(CRConfig.Instance.Commands.BSRHelpCommand_Reply, p_Service, p_Message);
         }
@@ -366,7 +366,7 @@ namespace BeatSaberPlus_ChatRequest
                         if (l_I != 0)
                             l_Reply += ", ";
 
-                        l_Reply += " (bsr " + SongQueue[l_I].BeatMap.id.ToLower() + ") " + (CRConfig.Instance.SafeMode2 ? string.Empty : SongQueue[l_I].BeatMap.name);
+                        l_Reply += " (bsr " + SongQueue[l_I].BeatSaver_Map.id.ToLower() + ") " + (CRConfig.Instance.SafeMode2 ? string.Empty : SongQueue[l_I].BeatSaver_Map.name);
                     }
 
                     if (l_I < SongQueue.Count)
@@ -397,7 +397,7 @@ namespace BeatSaberPlus_ChatRequest
         }
         private void Command_Wrong(IChatService p_Service, IChatMessage p_Message, string[] p_Params)
         {
-            SongEntry l_SongEntry = null;
+            var l_SongEntry = null as Data.SongEntry;
 
             if (p_Params.Length == 0)
             {
@@ -410,7 +410,7 @@ namespace BeatSaberPlus_ChatRequest
 
                 if (l_SongEntry != null)
                 {
-                    SendChatMessage("@$UserName (bsr $BSRKey) $SongName / $LevelAuthorName is removed from queue!", p_Service, p_Message, l_SongEntry.BeatMap);
+                    SendChatMessage("@$UserName (bsr $BSRKey) $SongName / $LevelAuthorName is removed from queue!", p_Service, p_Message, l_SongEntry.BeatSaver_Map);
 
                     /// Update request manager
                     OnQueueChanged();
@@ -426,7 +426,7 @@ namespace BeatSaberPlus_ChatRequest
                     l_Key = l_Key.TrimStart('0');
                     lock (SongQueue)
                     {
-                        l_SongEntry = SongQueue.Where(x => x.RequesterName == p_Message.Sender.UserName && x.BeatMap.id == l_Key).LastOrDefault();
+                        l_SongEntry = SongQueue.Where(x => x.RequesterName == p_Message.Sender.UserName && x.BeatSaver_Map.id == l_Key).LastOrDefault();
                         if (l_SongEntry != null)
                             SongQueue.Remove(l_SongEntry);
                     }
@@ -434,7 +434,7 @@ namespace BeatSaberPlus_ChatRequest
 
                 if (l_SongEntry != null)
                 {
-                    SendChatMessage("@$UserName (bsr $BSRKey) $SongName / $LevelAuthorName is removed from queue!", p_Service, p_Message, l_SongEntry.BeatMap);
+                    SendChatMessage("@$UserName (bsr $BSRKey) $SongName / $LevelAuthorName is removed from queue!", p_Service, p_Message, l_SongEntry.BeatSaver_Map);
 
                     /// Update request manager
                     OnQueueChanged();
@@ -523,9 +523,9 @@ namespace BeatSaberPlus_ChatRequest
             var l_Key       = p_Params[0].ToLower();
             var l_Message   = string.Join(" ", p_Params.Skip(1));
 
-            SongEntry l_SongEntry = null;
+            var l_SongEntry = null as Data.SongEntry;
             lock (SongQueue)
-                l_SongEntry = SongQueue.Where(x => (l_Key.StartsWith("@") ? (l_Key.ToLower() == ("@" + x.RequesterName.ToLower())) : x.BeatMap.id.ToLower() == l_Key)).FirstOrDefault();
+                l_SongEntry = SongQueue.Where(x => (l_Key.StartsWith("@") ? (l_Key.ToLower() == ("@" + x.RequesterName.ToLower())) : x.BeatSaver_Map.id.ToLower() == l_Key)).FirstOrDefault();
 
             if (l_SongEntry != null)
             {
@@ -550,13 +550,13 @@ namespace BeatSaberPlus_ChatRequest
             string l_Key = p_Params.Length > 0 ? p_Params[0].ToLower().Trim() : "";
             lock (SongQueue)
             {
-                var l_SongEntry = SongQueue.Where(x => (l_Key.StartsWith("@") ? (l_Key.ToLower() == ("@" + x.RequesterName.ToLower())) : x.BeatMap.id.ToLower() == l_Key)).FirstOrDefault();
+                var l_SongEntry = SongQueue.Where(x => (l_Key.StartsWith("@") ? (l_Key.ToLower() == ("@" + x.RequesterName.ToLower())) : x.BeatSaver_Map.id.ToLower() == l_Key)).FirstOrDefault();
                 if (l_SongEntry != null)
                 {
                     SongQueue.Remove(l_SongEntry);
                     SongQueue.Insert(0, l_SongEntry);
 
-                    SendChatMessage($"@$UserName (bsr $BSRKey) $SongName / $LevelAuthorName requested by @{l_SongEntry.RequesterName} is now on top of queue!", p_Service, p_Message, l_SongEntry.BeatMap);
+                    SendChatMessage($"@$UserName (bsr $BSRKey) $SongName / $LevelAuthorName requested by @{l_SongEntry.RequesterName} is now on top of queue!", p_Service, p_Message, l_SongEntry.BeatSaver_Map);
 
                     /// Update request manager
                     OnQueueChanged();
@@ -582,10 +582,10 @@ namespace BeatSaberPlus_ChatRequest
                 return;
             }
 
-            SongEntry l_SongEntry = null;
+            var l_SongEntry = null as Data.SongEntry;
             lock (SongQueue)
             {
-                l_SongEntry = SongQueue.Where(x => (l_Key.StartsWith("@") ? (l_Key.ToLower() == ("@" + x.RequesterName.ToLower())) : x.BeatMap.id.ToLower() == l_Key)).FirstOrDefault();
+                l_SongEntry = SongQueue.Where(x => (l_Key.StartsWith("@") ? (l_Key.ToLower() == ("@" + x.RequesterName.ToLower())) : x.BeatSaver_Map.id.ToLower() == l_Key)).FirstOrDefault();
 
                 if (l_SongEntry != null)
                     SongQueue.Remove(l_SongEntry);
@@ -593,7 +593,7 @@ namespace BeatSaberPlus_ChatRequest
 
             if (l_SongEntry != null)
             {
-                SendChatMessage($"@$UserName (bsr $BSRKey) $SongName / $LevelAuthorName request by @{l_SongEntry.RequesterName} is removed from queue!", p_Service, p_Message, l_SongEntry.BeatMap);
+                SendChatMessage($"@$UserName (bsr $BSRKey) $SongName / $LevelAuthorName request by @{l_SongEntry.RequesterName} is removed from queue!", p_Service, p_Message, l_SongEntry.BeatSaver_Map);
 
                 /// Update request manager
                 OnQueueChanged();
@@ -789,10 +789,10 @@ namespace BeatSaberPlus_ChatRequest
 
             lock (SongBlackList)
             {
-                var l_SongEntry = SongBlackList.Where(x => x.BeatMap.id.ToLower() == l_Key).FirstOrDefault();
+                var l_SongEntry = SongBlackList.Where(x => x.BeatSaver_Map.id.ToLower() == l_Key).FirstOrDefault();
                 if (l_SongEntry != null)
                 {
-                    SendChatMessage("@$UserName (bsr $BSRKey) $SongName / $LevelAuthorName is already blacklisted!", p_Service, p_Message, l_SongEntry.BeatMap);
+                    SendChatMessage("@$UserName (bsr $BSRKey) $SongName / $LevelAuthorName is already blacklisted!", p_Service, p_Message, l_SongEntry.BeatSaver_Map);
                     return;
                 }
             }
@@ -808,12 +808,12 @@ namespace BeatSaberPlus_ChatRequest
                         l_Reply = "@$UserName (bsr $BSRKey) $SongName / $LevelAuthorName is now blacklisted!";
 
                         lock (SongQueue) { lock (SongHistory) { lock (SongBlackList) {
-                            SongQueue.RemoveAll(x => x.BeatMap.id   == p_BeatMap.id);
-                            SongHistory.RemoveAll(x => x.BeatMap.id == p_BeatMap.id);
+                            SongQueue.RemoveAll(x => x.BeatSaver_Map.id   == p_BeatMap.id);
+                            SongHistory.RemoveAll(x => x.BeatSaver_Map.id == p_BeatMap.id);
 
                             /// Add to blacklist
-                            SongBlackList.RemoveAll(x => x.BeatMap.id == p_BeatMap.id);
-                            SongBlackList.Insert(0, new SongEntry() { BeatMap = p_BeatMap, NamePrefix = "🗡", RequesterName = p_Message.Sender.DisplayName });
+                            SongBlackList.RemoveAll(x => x.BeatSaver_Map.id == p_BeatMap.id);
+                            SongBlackList.Insert(0, new Data.SongEntry() { BeatSaver_Map = p_BeatMap, TitlePrefix = "🗡", RequesterName = p_Message.Sender.DisplayName });
                         } } }
 
                         /// Update request manager

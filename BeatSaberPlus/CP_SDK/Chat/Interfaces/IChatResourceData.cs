@@ -1,4 +1,6 @@
-﻿namespace CP_SDK.Chat.Interfaces
+﻿using CP_SDK.Animation;
+
+namespace CP_SDK.Chat.Interfaces
 {
     public enum EChatResourceCategory
     {
@@ -9,9 +11,9 @@
 
     public interface IChatResourceData
     {
-        string Uri { get; }
-        Animation.EAnimationType Animation { get; }
-        EChatResourceCategory Category { get; }
-        string Type { get; }
+        string                      Uri         { get; }
+        EAnimationType              Animation   { get; }
+        EChatResourceCategory       Category    { get; }
+        string                      Type        { get; }
     }
 }

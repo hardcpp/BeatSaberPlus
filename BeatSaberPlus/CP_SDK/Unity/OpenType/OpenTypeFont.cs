@@ -1,122 +1,129 @@
 ﻿#if CP_SDK_UNITY
-using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace CP_SDK.Unity.OpenType
 {
-    internal class OpenTypeFont
+    /// <summary>
+    /// OpenType font
+    /// </summary>
+    public class OpenTypeFont
     {
-        private readonly OffsetTable offsetTable;
+        private readonly OffsetTable    m_OffsetTable;
+        private readonly TableRecord[]  m_Tables;
+        private readonly TableRecord?   m_NameTableRecord;
 
-        private readonly TableRecord[] tables;
-        private readonly TableRecord? nameTableRecord;
+        private OpenTypeNameTable   m_NameTable = null;
+        private string              m_UniqueID  = null;
+        private string              m_Family    = null;
+        private string              m_SubFamily = null;
+        private string              m_FullName  = null;
 
-        internal OpenTypeFontReader Reader { get; }
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
 
-        internal OpenTypeFont(OpenTypeFontReader reader, bool lazyLoad = true) : this(reader.ReadOffsetTable(), reader, lazyLoad)
+        public OpenTypeFontReader Reader { get; }
+
+        internal OpenTypeNameTable NameTable { get {
+                if (m_NameTable == null) m_NameTable = ReadNameTable(Reader);
+                return m_NameTable;
+        } }
+        internal string UniqueID { get {
+            if (m_UniqueID == null)     m_UniqueID  = FindBestNameRecord(NameRecord.ENameType.UniqueId)?.Value;
+            return m_UniqueID;
+        } }
+        internal string Family { get {
+            if (m_Family == null)       m_Family    = FindBestNameRecord(NameRecord.ENameType.FontFamily)?.Value;
+            return m_Family;
+        } }
+        internal string Subfamily { get {
+            if (m_SubFamily == null)    m_SubFamily = FindBestNameRecord(NameRecord.ENameType.FontSubfamily)?.Value;
+            return m_SubFamily;
+        } }
+        internal string FullName { get {
+                if (m_FullName == null) m_FullName  = FindBestNameRecord(NameRecord.ENameType.FullFontName)?.Value;
+                return m_FullName;
+        } }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="p_Reader">Reader instance</param>
+        /// <param name="p_LazyLoad">Should lazy load?</param>
+        public OpenTypeFont(OpenTypeFontReader p_Reader, bool p_LazyLoad = true)
+            : this(p_Reader.ReadOffsetTable(), p_Reader, p_LazyLoad)
         {
         }
-
-        internal OpenTypeFont(OffsetTable offsets, OpenTypeFontReader reader, bool lazyLoad = true)
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="p_Offsets">Offset table</param>
+        /// <param name="p_Reader">Reader instance</param>
+        /// <param name="p_LazyLoad">Should lazy load?</param>
+        public OpenTypeFont(OffsetTable p_Offsets, OpenTypeFontReader p_Reader, bool p_LazyLoad = true)
         {
-            offsetTable = offsets;
-            tables = reader.ReadTableRecords(offsetTable);
-            nameTableRecord = tables.Select(t => new TableRecord?(t))
-                .FirstOrDefault(t => t.Value.TableTag == OpenTypeTag.NAME);
+            m_OffsetTable       = p_Offsets;
+            m_Tables            = p_Reader.ReadTableRecords(m_OffsetTable);
+            m_NameTableRecord   = m_Tables.Select(t => new TableRecord?(t)).FirstOrDefault(t => t.Value.TableTag == OpenTypeTag.NAME);
 
-            if (lazyLoad)
-                Reader = reader;
+            if (p_LazyLoad)
+                Reader = p_Reader;
             else
-                LoadAllTables(reader);
+                LoadAllTables(p_Reader);
         }
 
-        private void LoadAllTables(OpenTypeFontReader reader)
-        {
-            nameTable = ReadNameTable(reader);
-            // TODO: do something with this
-        }
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
 
-        private OpenTypeNameTable nameTable = null;
-        internal OpenTypeNameTable NameTable
+        /// <summary>
+        /// Read name table
+        /// </summary>
+        /// <param name="p_Reader">Reader instance</param>
+        /// <returns></returns>
+        private OpenTypeNameTable ReadNameTable(OpenTypeFontReader p_Reader)
+            => p_Reader.TryReadTable(m_NameTableRecord.Value) as OpenTypeNameTable;
+        /// <summary>
+        /// Find best name record
+        /// </summary>
+        /// <param name="p_Type">Name type</param>
+        /// <returns></returns>
+        private NameRecord FindBestNameRecord(NameRecord.ENameType p_Type)
         {
-            get
+            int RankPlatform(NameRecord p_Record)
             {
-                if (nameTable == null) nameTable = ReadNameTable(Reader);
-                return nameTable;
-            }
-        }
-
-        private string uniqueId = null;
-        internal string UniqueId
-        {
-            get
-            {
-                if (uniqueId == null) uniqueId = FindBestNameRecord(OpenTypeNameTable.NameRecord.NameType.UniqueId)?.Value;
-                return uniqueId;
-            }
-        }
-
-        private string family = null;
-        internal string Family
-        {
-            get
-            {
-                if (family == null) family = FindBestNameRecord(OpenTypeNameTable.NameRecord.NameType.FontFamily)?.Value;
-                return family;
-            }
-        }
-
-        private string subfamily = null;
-        internal string Subfamily
-        {
-            get
-            {
-                if (subfamily == null) subfamily = FindBestNameRecord(OpenTypeNameTable.NameRecord.NameType.FontSubfamily)?.Value;
-                return subfamily;
-            }
-        }
-
-        private string fullName = null;
-        internal string FullName
-        {
-            get
-            {
-                if (fullName == null) fullName = FindBestNameRecord(OpenTypeNameTable.NameRecord.NameType.FullFontName)?.Value;
-                return fullName;
-            }
-        }
-
-
-        private OpenTypeNameTable ReadNameTable(OpenTypeFontReader reader)
-            => reader.TryReadTable(nameTableRecord.Value) as OpenTypeNameTable;
-
-        private OpenTypeNameTable.NameRecord FindBestNameRecord(OpenTypeNameTable.NameRecord.NameType type)
-        {
-            int RankPlatform(OpenTypeNameTable.NameRecord record)
-            {
-                if (record.PlatformID == OpenTypeNameTable.NameRecord.Platform.Windows) return 3000;
-                if (record.PlatformID == OpenTypeNameTable.NameRecord.Platform.Unicode) return 2000;
-                if (record.PlatformID == OpenTypeNameTable.NameRecord.Platform.Macintosh) return 1000;
+                if (p_Record.PlatformID == NameRecord.EPlatform.Windows)   return 3000;
+                if (p_Record.PlatformID == NameRecord.EPlatform.Unicode)   return 2000;
+                if (p_Record.PlatformID == NameRecord.EPlatform.Macintosh) return 1000;
 
                 return 0;
             }
 
-            int RankLanguage(OpenTypeNameTable.NameRecord record)
+            int RankLanguage(NameRecord p_Record)
             {
-                if (record.PlatformID == OpenTypeNameTable.NameRecord.Platform.Windows
-                    && record.LanguageID == OpenTypeNameTable.NameRecord.USEnglishLangID)
+                if (p_Record.PlatformID == NameRecord.EPlatform.Windows && p_Record.LanguageID == NameRecord.USE_ENGLISH_LANG_ID)
                     return 100;
 
                 return 0;
             }
 
-            return NameTable.NameRecords.Where(r => r.NameID == type)
+            return NameTable.NameRecords.Where(r => r.NameID == p_Type)
                 .OrderByDescending(r => RankPlatform(r) + RankLanguage(r))
                 .FirstOrDefault();
         }
 
-        internal IEnumerable<TableRecord> Tables => tables;
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Load all tables
+        /// </summary>
+        /// <param name="p_Reader">Reader</param>
+        private void LoadAllTables(OpenTypeFontReader p_Reader)
+        {
+            m_NameTable = ReadNameTable(p_Reader);
+        }
     }
 }
 #endif

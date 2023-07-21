@@ -1,9 +1,0 @@
-﻿<vertical min-height='55' child-align='UpperCenter'>
-  <text text='Queue status:' align='Center' />
-
-  <list-setting id='StatusList' value='StatusList_Value' choices='StatusList_Choices' apply-on-change='true' text='Status' />
-  <bool-setting id='SendMessageOnFailToggle' text='Send chat message on fail'></bool-setting>
-
-  <horizontal min-height='40'></horizontal>
-
-</vertical>

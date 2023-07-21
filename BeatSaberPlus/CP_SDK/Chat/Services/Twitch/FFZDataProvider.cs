@@ -30,23 +30,25 @@ namespace CP_SDK.Chat.Services.Twitch
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
-        /// Try request resources
+        /// Try request resources from the provider
         /// </summary>
-        /// <param name="p_Category">Category / Channel</param>
+        /// <param name="p_ChannelID">ID of the channel</param>
+        /// <param name="p_ChannelName">Name of the channel</param>
+        /// <param name="p_AccessToken">Access token for the API</param>
         /// <returns></returns>
-        public async Task TryRequestResources(string p_Category, string p_Token)
+        public async Task TryRequestResources(string p_ChannelID, string p_ChannelName, string p_AccessToken)
         {
-            bool l_IsGlobal = string.IsNullOrEmpty(p_Category);
+            bool l_IsGlobal = string.IsNullOrEmpty(p_ChannelID);
 
             try
             {
-                ChatPlexSDK.Logger.Debug($"Requesting FFZ {(l_IsGlobal ? "global " : "")}emotes{(l_IsGlobal ? "." : $" for channel {p_Category}")}.");
-                using (HttpRequestMessage l_Query = new HttpRequestMessage(HttpMethod.Get, l_IsGlobal ? "https://api.frankerfacez.com/v1/set/global" : $"https://api.frankerfacez.com/v1/room/{p_Category}"))
+                ChatPlexSDK.Logger.Debug($"Requesting FFZ {(l_IsGlobal ? "global " : "")}emotes{(l_IsGlobal ? "." : $" for channel {p_ChannelName}")}.");
+                using (HttpRequestMessage l_Query = new HttpRequestMessage(HttpMethod.Get, l_IsGlobal ? "https://api.frankerfacez.com/v1/set/global" : $"https://api.frankerfacez.com/v1/room/{p_ChannelName}"))
                 {
                     var l_Response = await m_HTTPClient.SendAsync(l_Query).ConfigureAwait(false);
                     if (!l_Response.IsSuccessStatusCode)
                     {
-                        ChatPlexSDK.Logger.Error($"Unsuccessful status code when requesting FFZ {(l_IsGlobal ? "global " : "")}emotes{(l_IsGlobal ? "." : " for channel " + p_Category)}. {l_Response.ReasonPhrase}");
+                        ChatPlexSDK.Logger.Error($"Unsuccessful status code when requesting FFZ {(l_IsGlobal ? "global " : "")}emotes{(l_IsGlobal ? "." : " for channel " + p_ChannelName)}. {l_Response.ReasonPhrase}");
                         return;
                     }
 
@@ -63,7 +65,7 @@ namespace CP_SDK.Chat.Services.Twitch
                         JSONObject l_URLs = l_Object["urls"].AsObject;
 
                         string l_URI = l_URLs[l_URLs.Count - 1].Value;
-                        string l_ID  = l_IsGlobal ? l_Object["name"].Value : $"{p_Category}_{l_Object["name"].Value}";
+                        string l_ID  = l_IsGlobal ? l_Object["name"].Value : $"{p_ChannelID}_{l_Object["name"].Value}";
 
                         if (l_URI.Length > 0 && l_URI[0] == '/')
                             l_URI = "https:" + l_URI;
@@ -78,13 +80,13 @@ namespace CP_SDK.Chat.Services.Twitch
                         l_Count++;
                     }
 
-                    ChatPlexSDK.Logger.Debug($"Success caching {l_Count} FFZ {(l_IsGlobal ? "global " : "")}emotes{(l_IsGlobal ? "." : " for channel " + p_Category)}.");
+                    ChatPlexSDK.Logger.Debug($"Success caching {l_Count} FFZ {(l_IsGlobal ? "global " : "")}emotes{(l_IsGlobal ? "." : " for channel " + p_ChannelName)}.");
                     return;
                 }
             }
             catch (Exception l_Exception)
             {
-                ChatPlexSDK.Logger.Error($"An error occurred while requesting FFZ {(l_IsGlobal ? "global " : "")}emotes{(l_IsGlobal ? "." : " for channel " + p_Category)}.");
+                ChatPlexSDK.Logger.Error($"An error occurred while requesting FFZ {(l_IsGlobal ? "global " : "")}emotes{(l_IsGlobal ? "." : " for channel " + p_ChannelName)}.");
                 ChatPlexSDK.Logger.Error(l_Exception);
             }
 

@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using CP_SDK.Unity.Extensions;
+using HarmonyLib;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -81,7 +82,7 @@ namespace BeatSaberPlus_NoteTweaker.Patches
                             for (int l_MBI = 0; l_MBI < m_ComponentsCache.Count; ++l_MBI)
                             {
                                 var l_CurrentBlock = m_ComponentsCache[l_MBI];
-                                l_CurrentBlock.materialPropertyBlock.SetColor(_colorId, l_Color.ColorWithAlpha(0.6f));
+                                l_CurrentBlock.materialPropertyBlock.SetColor(_colorId, ColorU.WithAlpha(l_Color, 0.6f));
                                 l_CurrentBlock.ApplyChanges();
                             }
                         }
@@ -98,11 +99,11 @@ namespace BeatSaberPlus_NoteTweaker.Patches
 
             var l_BaseColor = ____colorManager.ColorForType(l_ColorType);
 
-            var l_ArrowColor = (m_OverrideArrowColors ? (l_ColorType == ColorType.ColorB ? m_RightArrowColor  : m_LeftArrowColor)  : l_BaseColor).ColorWithAlpha(m_ArrowAlpha);
-            var l_DotColor   = (m_OverrideDotColors   ? (l_ColorType == ColorType.ColorB ? m_RightCircleColor : m_LeftCircleColor) : l_BaseColor).ColorWithAlpha(m_DotAlpha);
+            var l_ArrowColor = ColorU.WithAlpha(m_OverrideArrowColors ? (l_ColorType == ColorType.ColorB ? m_RightArrowColor  : m_LeftArrowColor)  : l_BaseColor, m_ArrowAlpha);
+            var l_DotColor   = ColorU.WithAlpha(m_OverrideDotColors   ? (l_ColorType == ColorType.ColorB ? m_RightCircleColor : m_LeftCircleColor) : l_BaseColor, m_DotAlpha);
 
             if (m_BlockColorsEnabled)
-                l_ArrowColor = (l_ColorType == ColorType.ColorA ? m_LeftBlockColor : m_RightBlockColor).ColorWithAlpha(0.6f);
+                l_ArrowColor = ColorU.WithAlpha(l_ColorType == ColorType.ColorA ? m_LeftBlockColor : m_RightBlockColor, 0.6f);
 
             for (int l_I = 0; l_I < ____arrowMeshRenderers.Length; ++l_I)
             {
@@ -184,8 +185,8 @@ namespace BeatSaberPlus_NoteTweaker.Patches
         public static void SetBlockColorOverride(bool p_Enabled, Color p_Left, Color p_Right)
         {
             m_BlockColorsEnabled    = p_Enabled;
-            m_LeftBlockColor        = p_Left.ColorWithAlpha(1f);
-            m_RightBlockColor       = p_Right.ColorWithAlpha(1f);
+            m_LeftBlockColor        = ColorU.WithAlpha(p_Left,  1f);
+            m_RightBlockColor       = ColorU.WithAlpha(p_Right, 1f);
         }
 
         ////////////////////////////////////////////////////////////////////////////

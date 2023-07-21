@@ -73,10 +73,10 @@ namespace CP_SDK.Animation
         /// <summary>
         /// Process loaded animation
         /// </summary>
-        /// <param name="p_AnimationInfo"></param>
-        /// <param name="p_Callback"></param>
+        /// <param name="p_AnimationInfo">Animation infos</param>
+        /// <param name="p_Callback">Callback</param>
         /// <returns></returns>
-        public static IEnumerator Coroutine_ProcessLoadedAnimation(AnimationInfo p_AnimationInfo, Action<Texture2D, Rect[], ushort[], int, int> p_Callback)
+        private static IEnumerator Coroutine_ProcessLoadedAnimation(AnimationInfo p_AnimationInfo, Action<Texture2D, Rect[], ushort[], int, int> p_Callback)
         {
             if (p_AnimationInfo == null)
                 p_Callback?.Invoke(null, null, null, 0, 0);

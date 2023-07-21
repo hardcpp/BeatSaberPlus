@@ -19,21 +19,25 @@
     <AppOutputBase>$(MSBuildProjectDirectory)\</AppOutputBase>
     <PathMap>$(AppOutputBase)=X:\$(AssemblyName)\</PathMap>
     <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;CP_SDK_IPA;CP_SDK_UNITY;UNITY_5_3_OR_NEWER;UNITY_2018_2_OR_NEWER;UNITY_2019_1_OR_NEWER UNITY_STANDALONE_WIN;UNITY_2018_3_OR_NEWER;NETSTANDARD</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;CP_SDK_IPA;CP_SDK_UNITY;BEATSABER;UNITY_5_3_OR_NEWER;UNITY_2018_2_OR_NEWER;UNITY_2019_1_OR_NEWER UNITY_STANDALONE_WIN;UNITY_2018_3_OR_NEWER;NETSTANDARD;BEATSABER_1_29_4_OR_NEWER;BEATSABER_1_31_0_OR_NEWER</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>CP_SDK_IPA;CP_SDK_UNITY;UNITY_5_3_OR_NEWER;UNITY_2018_2_OR_NEWER;UNITY_2019_1_OR_NEWER UNITY_STANDALONE_WIN;UNITY_2018_3_OR_NEWER;NETSTANDARD</DefineConstants>
+    <DefineConstants>CP_SDK_IPA;CP_SDK_UNITY;BEATSABER;UNITY_5_3_OR_NEWER;UNITY_2018_2_OR_NEWER;UNITY_2019_1_OR_NEWER UNITY_STANDALONE_WIN;UNITY_2018_3_OR_NEWER;NETSTANDARD;BEATSABER_1_29_4_OR_NEWER;BEATSABER_1_31_0_OR_NEWER</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition="$(DefineConstants.Contains('CIBuild')) OR '$(NCrunch)' == '1'">
     <DisableCopyToPlugins>True</DisableCopyToPlugins>
@@ -62,6 +66,12 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="0Harmony, Version=2.0.0.7, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(BeatSaberDir)\Libs\0Harmony.dll</HintPath>
@@ -88,7 +98,7 @@
       <Private>False</Private>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
-    <Reference Include="HMRendering">
+    <Reference Include="HMRendering" Publicize="true">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\HMRendering.dll</HintPath>
       <Private>False</Private>
       <SpecificVersion>False</SpecificVersion>
@@ -108,14 +118,6 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
-    <Reference Include="System.IO.Compression, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\System.IO.Compression.dll</HintPath>
-    </Reference>
-    <Reference Include="System.IO.Compression.FileSystem, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\System.IO.Compression.FileSystem.dll</HintPath>
-    </Reference>
     <Reference Include="System.Net.Http, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="System.Runtime.Serialization">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\System.Runtime.Serialization.dll</HintPath>
@@ -131,15 +133,15 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="Main">
+    <Reference Include="Main" Publicize="true">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Main.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="HMLib">
+    <Reference Include="HMLib" Publicize="true">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\HMLib.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="HMUI">
+    <Reference Include="HMUI" Publicize="true">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\HMUI.dll</HintPath>
       <Private>False</Private>
     </Reference>
@@ -172,6 +174,11 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.IMGUIModule">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
+      <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
     <Reference Include="UnityEngine.InputLegacyModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
@@ -187,9 +194,10 @@
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
-    <Reference Include="UnityEngine.TextCoreModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="UnityEngine.TextCoreFontEngineModule">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.TextCoreFontEngineModule.dll</HintPath>
+      <Private>False</Private>
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.TextCoreModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.TextRenderingModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -224,7 +232,7 @@
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.XRModule.dll</HintPath>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
-    <Reference Include="VRUI, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="VRUI, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL" Publicize="true">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\VRUI.dll</HintPath>
     </Reference>
@@ -234,14 +242,78 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BSPConfig.cs" />
     <Compile Include="CP_SDK\ChatPlexSDK.cs" />
+    <Compile Include="CP_SDK\Chat\Interfaces\EBadgeType.cs" />
+    <Compile Include="CP_SDK\Chat\Interfaces\IChatServiceResourceProvider.cs" />
+    <Compile Include="CP_SDK\Chat\Models\Twitch\TwitchCheermoteTier.cs" />
+    <Compile Include="CP_SDK\Chat\Services\ChatPlexGradientNamesDataProvider.cs" />
+    <Compile Include="CP_SDK\Chat\Services\RelayChatService.cs" />
+    <Compile Include="CP_SDK\Chat\Services\RelayChatServiceProtocol.cs" />
+    <Compile Include="CP_SDK\Chat\Utilities\7TVUtils.cs" />
+    <Compile Include="CP_SDK\Config\JsonConverters\QuaternionConverter.cs" />
+    <Compile Include="CP_SDK\CPConfig.cs" />
     <Compile Include="CP_SDK\Logging\IPALogger.cs" />
     <Compile Include="CP_SDK\Logging\ILogger.cs" />
     <Compile Include="CP_SDK\Logging\UnityLogger.cs" />
+    <Compile Include="CP_SDK\Misc\FastCancellationToken.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Checksum\Adler32.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Checksum\BZip2Crc.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Checksum\Crc32.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Checksum\CrcUtilities.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Checksum\IChecksum.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Core\ByteOrderUtils.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Core\EmptyRefs.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Core\Exceptions\SharpZipBaseException.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Core\Exceptions\StreamDecodingException.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Core\Exceptions\StreamUnsupportedException.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Core\Exceptions\UnexpectedEndOfStreamException.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Core\Exceptions\ValueOutOfRangeException.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Core\FileSystemScanner.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Core\INameTransform.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Core\InvalidNameException.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Core\IScanFilter.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Core\NameFilter.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Core\PathFilter.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Core\PathUtils.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Core\StreamUtils.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Core\StringBuilderPool.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Encryption\PkzipClassic.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Encryption\ZipAESStream.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Encryption\ZipAESTransform.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Zip\Compression\Deflater.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Zip\Compression\DeflaterConstants.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Zip\Compression\DeflaterEngine.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Zip\Compression\DeflaterHuffman.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Zip\Compression\DeflaterPending.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Zip\Compression\Inflater.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Zip\Compression\InflaterDynHeader.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Zip\Compression\InflaterHuffmanTree.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Zip\Compression\PendingBuffer.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Zip\Compression\Streams\DeflaterOutputStream.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Zip\Compression\Streams\InflaterInputStream.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Zip\Compression\Streams\OutputWindow.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Zip\Compression\Streams\StreamManipulator.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Zip\FastZip.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Zip\IEntryFactory.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Zip\WindowsNameTransform.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Zip\ZipConstants.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Zip\ZipEncryptionMethod.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Zip\ZipEntry.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Zip\ZipEntryExtensions.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Zip\ZipEntryFactory.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Zip\ZipException.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Zip\ZipExtraData.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Zip\ZipFile.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Zip\ZipFormat.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Zip\ZipHelperStream.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Zip\ZipInputStream.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Zip\ZipNameTransform.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Zip\ZipOutputStream.cs" />
+    <Compile Include="CP_SDK\Misc\ICSharpCode.SharpZipLib\Zip\ZipStrings.cs" />
     <Compile Include="CP_SDK\ModuleBase.cs" />
-    <Compile Include="CP_SDK\Network\APIClient.cs" />
-    <Compile Include="CP_SDK\Network\APIResponse.cs" />
+    <Compile Include="CP_SDK\Network\IWebClient.cs" />
+    <Compile Include="CP_SDK\Network\JsonRPCClient.cs" />
+    <Compile Include="CP_SDK\Network\JsonRPCResult.cs" />
     <Compile Include="CP_SDK\Network\LiteNetLib\BaseChannel.cs" />
     <Compile Include="CP_SDK\Network\LiteNetLib\ConnectionRequest.cs" />
     <Compile Include="CP_SDK\Network\LiteNetLib\INetEventListener.cs" />
@@ -270,7 +342,8 @@
     <Compile Include="CP_SDK\Network\LiteNetLib\Utils\NtpPacket.cs" />
     <Compile Include="CP_SDK\Network\LiteNetLib\Utils\NtpRequest.cs" />
     <Compile Include="CP_SDK\Network\RateLimitInfo.cs" />
-    <Compile Include="CP_SDK\Network\WebClient_Unity.cs" />
+    <Compile Include="CP_SDK\Network\WebClient.cs" />
+    <Compile Include="CP_SDK\Network\WebClientEx.cs" />
     <Compile Include="CP_SDK\Network\WebResponse.cs" />
     <Compile Include="CP_SDK\Network\websocket-sharp\ByteOrder.cs" />
     <Compile Include="CP_SDK\Network\websocket-sharp\CloseEventArgs.cs" />
@@ -351,17 +424,178 @@
     <Compile Include="CP_SDK\Network\websocket-sharp\WebSocketState.cs" />
     <Compile Include="CP_SDK\Network\WebSocketClient.cs" />
     <Compile Include="CP_SDK\OBS\OBSModSettings.cs" />
+    <Compile Include="CP_SDK\Pool\CollectionPool.cs" />
+    <Compile Include="CP_SDK\Pool\ListPool.cs" />
+    <Compile Include="CP_SDK\UI\Components\CColorInput.cs" />
+    <Compile Include="CP_SDK\UI\Components\CDropdown.cs" />
+    <Compile Include="CP_SDK\UI\Components\CFLayout.cs" />
+    <Compile Include="CP_SDK\UI\Components\CFloatingPanel.cs" />
+    <Compile Include="CP_SDK\UI\Components\CGLayout.cs" />
+    <Compile Include="CP_SDK\UI\Components\CIconButton.cs" />
+    <Compile Include="CP_SDK\UI\Components\CImage.cs" />
+    <Compile Include="CP_SDK\UI\Components\CSlider.cs" />
+    <Compile Include="CP_SDK\UI\Components\CTabControl.cs" />
+    <Compile Include="CP_SDK\UI\Components\CTextInput.cs" />
+    <Compile Include="CP_SDK\UI\Components\CTextSegmentedControl.cs" />
+    <Compile Include="CP_SDK\UI\Components\CVVList.cs" />
+    <Compile Include="CP_SDK\UI\Components\Generics\CVXList.cs" />
+    <Compile Include="CP_SDK\UI\Data\IListCell.cs" />
+    <Compile Include="CP_SDK\UI\Data\IListItem.cs" />
+    <Compile Include="CP_SDK\UI\Data\ListCellPrefabs.cs" />
+    <Compile Include="CP_SDK\UI\Data\TextListCell.cs" />
+    <Compile Include="CP_SDK\UI\Data\TextListItem.cs" />
+    <Compile Include="CP_SDK\UI\DefaultComponents\DefaultCColorInput.cs" />
+    <Compile Include="CP_SDK\UI\DefaultComponents\DefaultCDropdown.cs" />
+    <Compile Include="CP_SDK\UI\DefaultComponents\DefaultCFLayout.cs" />
+    <Compile Include="CP_SDK\UI\DefaultComponents\DefaultCGLayout.cs" />
+    <Compile Include="CP_SDK\UI\DefaultComponents\DefaultCImage.cs" />
+    <Compile Include="CP_SDK\UI\DefaultComponents\DefaultCSlider.cs" />
+    <Compile Include="CP_SDK\UI\DefaultComponents\DefaultCTabControl.cs" />
+    <Compile Include="CP_SDK\UI\DefaultComponents\DefaultCTextInput.cs" />
+    <Compile Include="CP_SDK\UI\DefaultComponents\DefaultCTextSegmentedControl.cs" />
+    <Compile Include="CP_SDK\UI\DefaultComponents\DefaultCVVList.cs" />
+    <Compile Include="CP_SDK\UI\DefaultComponents\Subs\SubVScrollViewContent.cs" />
+    <Compile Include="CP_SDK\UI\Components\CSecondaryButton.cs" />
+    <Compile Include="CP_SDK\UI\Components\CText.cs" />
+    <Compile Include="CP_SDK\UI\Components\CToggle.cs" />
+    <Compile Include="CP_SDK\UI\DefaultComponents\Subs\SubToggleWithCallbacks.cs" />
+    <Compile Include="CP_SDK\UI\DefaultComponents\Subs\SubVScrollIndicator.cs" />
+    <Compile Include="CP_SDK\UI\Components\CVScrollView.cs" />
+    <Compile Include="CP_SDK\UI\Components\Generics\CPOrSButton.cs" />
+    <Compile Include="CP_SDK\UI\Components\CPrimaryButton.cs" />
+    <Compile Include="CP_SDK\UI\DefaultComponents\DefaultCIconButton.cs" />
+    <Compile Include="CP_SDK\UI\DefaultComponents\DefaultCVScrollView.cs" />
+    <Compile Include="CP_SDK\UI\DefaultComponents\DefaultCToggle.cs" />
+    <Compile Include="CP_SDK\UI\DefaultComponents\DefaultCText.cs" />
+    <Compile Include="CP_SDK\UI\DefaultComponents\DefaultCSecondaryButton.cs" />
+    <Compile Include="CP_SDK\UI\DefaultComponents\DefaultCPrimaryButton.cs" />
+    <Compile Include="CP_SDK\UI\DefaultComponents\Subs\SubStackLayoutGroup.cs" />
+    <Compile Include="CP_SDK\UI\DefaultFactories\DefaultColorInput.cs" />
+    <Compile Include="CP_SDK\UI\DefaultFactories\DefaultDropdownFactory.cs" />
+    <Compile Include="CP_SDK\UI\DefaultFactories\DefaultFLayoutFactory.cs" />
+    <Compile Include="CP_SDK\UI\DefaultFactories\DefaultGLayoutFactory.cs" />
+    <Compile Include="CP_SDK\UI\DefaultFactories\DefaultImageFactory.cs" />
+    <Compile Include="CP_SDK\UI\DefaultFactories\DefaultTabControlFactory.cs" />
+    <Compile Include="CP_SDK\UI\DefaultFactories\DefaultSliderFactory.cs" />
+    <Compile Include="CP_SDK\UI\DefaultFactories\DefaultTextInputFactory.cs" />
+    <Compile Include="CP_SDK\UI\DefaultFactories\DefaultTextSegmentedControlFactory.cs" />
+    <Compile Include="CP_SDK\UI\DefaultFactories\DefaultVVListFactory.cs" />
+    <Compile Include="CP_SDK\UI\FactoryInterfaces\IColorInput.cs" />
+    <Compile Include="CP_SDK\UI\FactoryInterfaces\IFLayoutFactory.cs" />
+    <Compile Include="CP_SDK\UI\FactoryInterfaces\IGLayoutFactory.cs" />
+    <Compile Include="CP_SDK\UI\FactoryInterfaces\IImageFactory.cs" />
+    <Compile Include="CP_SDK\UI\FactoryInterfaces\ITabControlFactory.cs" />
+    <Compile Include="CP_SDK\UI\FactoryInterfaces\ISliderFactory.cs" />
+    <Compile Include="CP_SDK\UI\FactoryInterfaces\ITextInputFactory.cs" />
+    <Compile Include="CP_SDK\UI\FactoryInterfaces\ITextSegmentedControlFactory.cs" />
+    <Compile Include="CP_SDK\UI\FactoryInterfaces\IVVListFactory.cs" />
+    <Compile Include="CP_SDK\UI\FlowCoordinator.cs" />
+    <Compile Include="CP_SDK\UI\FlowCoordinators\MainFlowCoordinator.cs" />
+    <Compile Include="CP_SDK\UI\IFlowCoordinator.cs" />
+    <Compile Include="CP_SDK\UI\IModal.cs" />
+    <Compile Include="CP_SDK\UI\IScreen.cs" />
+    <Compile Include="CP_SDK\UI\IViewController.cs" />
+    <Compile Include="CP_SDK\UI\Modals\ColorPicker.cs" />
+    <Compile Include="CP_SDK\UI\Modals\Confirmation.cs" />
+    <Compile Include="CP_SDK\UI\Modals\Dropdown.cs" />
+    <Compile Include="CP_SDK\UI\Modals\Keyboard.cs" />
+    <Compile Include="CP_SDK\UI\Modals\Loading.cs" />
+    <Compile Include="CP_SDK\UI\Modals\Message.cs" />
+    <Compile Include="CP_SDK\UI\ModButton.cs" />
+    <Compile Include="CP_SDK\UI\ModMenu.cs" />
+    <Compile Include="CP_SDK\UI\ScreenSystem.cs" />
+    <Compile Include="CP_SDK\UI\Tooltip.cs" />
+    <Compile Include="CP_SDK\UI\ViewController.cs" />
+    <Compile Include="CP_SDK\UI\Views\MainLeftView.cs" />
+    <Compile Include="CP_SDK\UI\Views\MainMainView.cs" />
+    <Compile Include="CP_SDK\UI\Views\MainRightView.cs" />
+    <Compile Include="CP_SDK\UI\Views\ModMenuView.cs" />
+    <Compile Include="CP_SDK\UI\Views\SettingsLeftView.cs" />
+    <Compile Include="CP_SDK\UI\Views\SettingsMainView.cs" />
+    <Compile Include="CP_SDK\UI\Views\SettingsRightView.cs" />
+    <Compile Include="CP_SDK\UI\Views\TopNavigationView.cs" />
+    <Compile Include="CP_SDK\Unity\OpenType\NameRecord.cs" />
+    <Compile Include="CP_SDK\Unity\OpenType\OpenTypeNameTable.cs" />
+    <Compile Include="CP_SDK\Unity\PersistentSingletonInput.cs" />
+    <Compile Include="CP_SDK\Unity\RaycastResultU.cs" />
+    <Compile Include="CP_SDK\Unity\TextureRaw.cs" />
+    <Compile Include="CP_SDK\XRInput\InputInternals\FakeButtonState.cs" />
+    <Compile Include="CP_SDK\XRInput\InputInternals\FakeMouseState.cs" />
+    <Compile Include="CP_SDK\XRInput\InputInternals\FrameCachedPhysicsRaycaster.cs" />
+    <Compile Include="CP_SDK\XRInput\XRController.cs" />
+    <Compile Include="CP_SDK\XRInput\XRGraphicRaycaster.cs" />
+    <Compile Include="CP_SDK\XRInput\XRInputSystem.cs" />
+    <Compile Include="CP_SDK\XRInput\XRLaserPointer.cs" />
+    <Compile Include="CP_SDK\XUI\Generics\IXUIBindable.cs" />
+    <Compile Include="CP_SDK\XUI\Templates.cs" />
+    <Compile Include="CP_SDK\XUI\XUIColorInput.cs" />
+    <Compile Include="CP_SDK\XUI\XUIDropdown.cs" />
+    <Compile Include="CP_SDK\XUI\XUIFLayout.cs" />
+    <Compile Include="CP_SDK\XUI\XUIGLayout.cs" />
+    <Compile Include="CP_SDK\XUI\Generics\XUIPOrSButton.cs" />
+    <Compile Include="CP_SDK\XUI\XUIImage.cs" />
+    <Compile Include="CP_SDK\XUI\XUITabControl.cs" />
+    <Compile Include="CP_SDK\XUI\XUITextInput.cs" />
+    <Compile Include="CP_SDK\XUI\XUITextSegmentedControl.cs" />
+    <Compile Include="CP_SDK\XUI\XUIVVList.cs" />
+    <Compile Include="SDK\Game\PlayerAvatarPicture.cs" />
+    <Compile Include="SDK\UI\CP_SDK_UI_IViewControllerBridge.cs" />
+    <Compile Include="SDK\UI\Data\SongListCell.cs" />
+    <Compile Include="SDK\UI\Data\SongListController.cs" />
+    <Compile Include="SDK\UI\Data\SongListItem.cs" />
+    <Compile Include="SDK\UI\DefaultFactoriesOverrides\BS_FloatingPanelFactory.cs" />
+    <Compile Include="CP_SDK\UI\DefaultFactories\DefaultFloatingPanelFactory.cs" />
+    <Compile Include="CP_SDK\UI\DefaultFactories\DefaultIconButtonFactory.cs" />
+    <Compile Include="CP_SDK\UI\DefaultFactories\DefaultVScrollViewFactory.cs" />
+    <Compile Include="CP_SDK\UI\DefaultFactories\DefaultSecondaryButtonFactory.cs" />
+    <Compile Include="CP_SDK\UI\DefaultFactories\DefaultPrimaryButtonFactory.cs" />
+    <Compile Include="CP_SDK\UI\DefaultFactories\DefaultToggleFactory.cs" />
+    <Compile Include="CP_SDK\UI\DefaultFactories\DefaultVLayoutFactory.cs" />
+    <Compile Include="CP_SDK\UI\DefaultComponents\DefaultCVLayout.cs" />
+    <Compile Include="CP_SDK\UI\DefaultComponents\DefaultCHLayout.cs" />
+    <Compile Include="CP_SDK\UI\DefaultFactories\DefaultHLayoutFactory.cs" />
+    <Compile Include="CP_SDK\UI\DefaultFactories\DefaultTextFactory.cs" />
+    <Compile Include="CP_SDK\UI\Components\Generics\CHOrVLayout.cs" />
+    <Compile Include="CP_SDK\UI\FactoryInterfaces\IFloatingPanelFactory.cs" />
+    <Compile Include="CP_SDK\UI\FactoryInterfaces\IIconButtonFactory.cs" />
+    <Compile Include="CP_SDK\UI\FactoryInterfaces\IToggleFactory.cs" />
+    <Compile Include="CP_SDK\UI\FactoryInterfaces\ISecondaryButtonFactory.cs" />
+    <Compile Include="CP_SDK\UI\FactoryInterfaces\IPrimaryButtonFactory.cs" />
+    <Compile Include="CP_SDK\UI\FactoryInterfaces\IDropDownFactory.cs" />
+    <Compile Include="CP_SDK\UI\FactoryInterfaces\IVScrollViewFactory.cs" />
+    <Compile Include="CP_SDK\UI\FactoryInterfaces\IVLayoutFactory.cs" />
+    <Compile Include="CP_SDK\UI\Components\CVLayout.cs" />
+    <Compile Include="CP_SDK\UI\Components\CHLayout.cs" />
+    <Compile Include="CP_SDK\UI\FactoryInterfaces\ITextFactory.cs" />
+    <Compile Include="CP_SDK\UI\FactoryInterfaces\IHLayoutFactory.cs" />
+    <Compile Include="CP_SDK\UI\DefaultComponents\DefaultCFloatingPanel.cs" />
+    <Compile Include="CP_SDK\UI\UISystem.cs" />
+    <Compile Include="CP_SDK\UI\ValueFormatters.cs" />
+    <Compile Include="CP_SDK\XUI\Generics\IXUIElement.cs" />
+    <Compile Include="CP_SDK\XUI\Generics\IXUIElementReady.cs" />
+    <Compile Include="CP_SDK\XUI\Generics\IXUIElementWithChilds.cs" />
+    <Compile Include="CP_SDK\XUI\XUIIconButton.cs" />
+    <Compile Include="CP_SDK\XUI\XUISecondaryButton.cs" />
+    <Compile Include="CP_SDK\XUI\XUISlider.cs" />
+    <Compile Include="CP_SDK\XUI\XUIToggle.cs" />
+    <Compile Include="CP_SDK\XUI\XUIHLayout.cs" />
+    <Compile Include="CP_SDK\XUI\XUIHSpacer.cs" />
+    <Compile Include="CP_SDK\XUI\Generics\XUIHOrVLayout.cs" />
+    <Compile Include="CP_SDK\XUI\Generics\XUIHOrVSpacer.cs" />
+    <Compile Include="CP_SDK\XUI\XUIPrimaryButton.cs" />
+    <Compile Include="CP_SDK\XUI\XUIText.cs" />
+    <Compile Include="CP_SDK\XUI\XUIVLayout.cs" />
+    <Compile Include="CP_SDK\XUI\XUIVScrollView.cs" />
+    <Compile Include="CP_SDK\XUI\XUIVSpacer.cs" />
     <Compile Include="CP_SDK\Unity\Components\EnhancedImageParticleEmitter.cs" />
     <Compile Include="CP_SDK\Unity\Components\EnhancedImageParticleEmitterGroup.cs" />
     <Compile Include="CP_SDK\Unity\Components\EnhancedImageParticleEmitterManager.cs" />
     <Compile Include="CP_SDK\Unity\EnhancedImageParticleMaterialProvider.cs" />
     <Compile Include="CP_SDK\Unity\EnhancedImageParticleSystemProvider.cs" />
     <Compile Include="CP_SDK\Unity\Extensions\ColorU.cs" />
-    <Compile Include="CP_SDK\Unity\Extensions\StringU.cs" />
     <Compile Include="CP_SDK\Unity\FontManager.cs" />
     <Compile Include="CP_SDK\Unity\MTThreadInvoker.cs" />
     <Compile Include="CP_SDK\Unity\OpenType\CollectionHeader.cs" />
-    <Compile Include="CP_SDK\Unity\OpenType\NumericHelpers.cs" />
     <Compile Include="CP_SDK\Unity\OpenType\OffsetTable.cs" />
     <Compile Include="CP_SDK\Unity\OpenType\OpenTypeCollection.cs" />
     <Compile Include="CP_SDK\Unity\OpenType\OpenTypeCollectionReader.cs" />
@@ -397,7 +631,6 @@
     <Compile Include="CP_SDK\Chat\Interfaces\IChatChannelPointEvent.cs" />
     <Compile Include="CP_SDK\Chat\Interfaces\IChatEmote.cs" />
     <Compile Include="CP_SDK\Chat\Interfaces\IChatMessage.cs" />
-    <Compile Include="CP_SDK\Chat\Interfaces\IChatMessageHandler.cs" />
     <Compile Include="CP_SDK\Chat\Interfaces\IChatResourceData.cs" />
     <Compile Include="CP_SDK\Chat\Interfaces\IChatResourceProvider.cs" />
     <Compile Include="CP_SDK\Chat\Interfaces\IChatService.cs" />
@@ -438,8 +671,6 @@
     <Compile Include="CP_SDK\UI\LoadingProgressBar.cs" />
     <Compile Include="CP_SDK\Chat\Models\ChatResourceData.cs" />
     <Compile Include="CP_SDK\Chat\Models\Emoji.cs" />
-    <Compile Include="CP_SDK\Chat\Models\EmoteType.cs" />
-    <Compile Include="CP_SDK\Chat\Models\ImageRect.cs" />
     <Compile Include="CP_SDK\Chat\Models\Twitch\7TVCosmetics.cs" />
     <Compile Include="CP_SDK\Chat\Models\Twitch\TwitchBadge.cs" />
     <Compile Include="CP_SDK\Chat\Models\Twitch\TwitchChannel.cs" />
@@ -497,32 +728,22 @@
     <Compile Include="SDK\Game\Patches\PMultiplayerLevelScenesTransitionSetupDataSO.cs" />
     <Compile Include="SDK\Game\Patches\PStandardLevelScenesTransitionSetupDataSO.cs" />
     <Compile Include="CP_SDK\Misc\RingBuffer.cs" />
-    <Compile Include="SDK\UI\Button.cs" />
-    <Compile Include="SDK\UI\ColorSetting.cs" />
-    <Compile Include="SDK\UI\DataSource\SimpleTextList.cs" />
-    <Compile Include="SDK\UI\DataSource\SongListCustom.cs" />
-    <Compile Include="SDK\UI\DataSource\SongList.cs" />
-    <Compile Include="SDK\UI\DropDownListSetting.cs" />
-    <Compile Include="SDK\UI\IncrementSetting.cs" />
-    <Compile Include="SDK\UI\Internal\BSMLPrimaryButtonTag.cs" />
-    <Compile Include="SDK\UI\ListSetting.cs" />
-    <Compile Include="SDK\UI\Patches\BSMLColorSetting.cs" />
-    <Compile Include="SDK\BSPModuleBase.cs" />
+    <Compile Include="SDK\UI\GameFont.cs" />
+    <Compile Include="SDK\UI\IHMUIViewController.cs" />
+    <Compile Include="SDK\UI\HMUIUIUtils.cs" />
+    <Compile Include="SDK\UI\__OLD__\Button.cs" />
+    <Compile Include="SDK\UI\DefaultComponentsOverrides\BS_CFloatingPanel.cs" />
+    <Compile Include="SDK\UI\DefaultComponentsOverrides\Subs\SubFloatingPanelMover.cs" />
+    <Compile Include="SDK\UI\DefaultComponentsOverrides\Subs\SubFloatingPanelMoverHandle.cs" />
     <Compile Include="SDK\Game\BeatMapsClient.cs" />
     <Compile Include="SDK\Game\Levels.cs" />
     <Compile Include="SDK\Game\UserPlatform.cs" />
     <Compile Include="CP_SDK\Misc\Time.cs" />
-    <Compile Include="SDK\UI\Backgroundable.cs" />
-    <Compile Include="SDK\UI\HorizontalIconSegmentedControl.cs" />
-    <Compile Include="SDK\UI\ModalView.cs" />
-    <Compile Include="SDK\UI\BSMLSettingFormartter.cs" />
-    <Compile Include="SDK\UI\Patches\PSimpleTextDropdown.cs" />
-    <Compile Include="SDK\UI\SliderSetting.cs" />
-    <Compile Include="SDK\UI\TextSegmentedControl.cs" />
-    <Compile Include="SDK\UI\ToggleSetting.cs" />
-    <Compile Include="SDK\UI\VerticalIconSegmentedControl.cs" />
+    <Compile Include="SDK\UI\HMUIIconSegmentedControl.cs" />
+    <Compile Include="SDK\UI\Patches\PVRPointer.cs" />
+    <Compile Include="SDK\UI\HMUITextSegmentedControl.cs" />
     <Compile Include="SDK\UI\ViewController.cs" />
-    <Compile Include="SDK\UI\ViewFlowCoordinator.cs" />
+    <Compile Include="SDK\UI\HMUIViewFlowCoordinator.cs" />
     <Compile Include="CP_SDK\Unity\EnhancedImage.cs" />
     <Compile Include="CP_SDK\Unity\Extensions\GameObjectU.cs" />
     <Compile Include="CP_SDK\Unity\MTCoroutineStarter.cs" />
@@ -533,38 +754,16 @@
     <Compile Include="CP_SDK\Chat\ChatImageProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CP_SDK\VoiceAttack\Service.cs" />
-    <Compile Include="UI\InfoView.cs" />
-    <Compile Include="UI\MainView.cs" />
-    <Compile Include="UI\SettingsLeftView.cs" />
-    <Compile Include="UI\SettingsRightView.cs" />
-    <Compile Include="UI\SettingsView.cs" />
-    <Compile Include="UI\MainViewFlowCoordinator.cs" />
     <Compile Include="SDK\UI\LevelDetail.cs" />
     <Compile Include="CP_SDK\Chat\Service.cs" />
     <Compile Include="SDK\Game\Logic.cs" />
-    <Compile Include="SDK\Unity\MaterialU.cs" />
-    <Compile Include="SDK\Unity\ShaderU.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="manifest.json" />
   </ItemGroup>
   <ItemGroup>
     <None Include="BuildTargets.targets" />
-    <EmbeddedResource Include="UI\MainView.bsml">
-      <DependentUpon>MainView.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UI\InfoView.bsml">
-      <DependentUpon>InfoView.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UI\SettingsView.bsml">
-      <DependentUpon>SettingsView.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UI\SettingsLeftView.bsml">
-      <DependentUpon>SettingsLeftView.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UI\SettingsRightView.bsml">
-      <DependentUpon>SettingsRightView.cs</DependentUpon>
-    </EmbeddedResource>
+    <EmbeddedResource Include="CP_SDK\_Resources\ChatPlexLogoLoading.webp" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="SDK\UI\Resources\NJS.png" />
@@ -580,6 +779,23 @@
     <EmbeddedResource Include="CP_SDK\_Resources\libwebpdemux.dll" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="CP_SDK\_Resources\UIRoundSmoothFrame.png" />
+    <EmbeddedResource Include="CP_SDK\_Resources\UIIconGear.png" />
+    <EmbeddedResource Include="CP_SDK\_Resources\UIIconLocked.png" />
+    <EmbeddedResource Include="CP_SDK\_Resources\UIIconUnlocked.png" />
+    <EmbeddedResource Include="CP_SDK\_Resources\UIColorPickerFBG.png" />
+    <EmbeddedResource Include="CP_SDK\_Resources\UIColorPickerHBG.png" />
+    <EmbeddedResource Include="CP_SDK\_Resources\UIColorPickerSBG.png" />
+    <EmbeddedResource Include="CP_SDK\_Resources\UIColorPickerVBG.png" />
+    <EmbeddedResource Include="CP_SDK\_Resources\UISliderBG.png" />
+    <EmbeddedResource Include="CP_SDK\_Resources\ChatPlexLogoTransparent.png" />
+    <EmbeddedResource Include="CP_SDK\_Resources\UIRoundRectRightBG.png" />
+    <EmbeddedResource Include="CP_SDK\_Resources\UIRoundBG.png" />
+    <EmbeddedResource Include="CP_SDK\_Resources\UISliderHandle.png" />
+    <EmbeddedResource Include="CP_SDK\_Resources\UIRectBG.png" />
+    <EmbeddedResource Include="CP_SDK\_Resources\UIRoundRectLeftBG.png" />
+    <EmbeddedResource Include="CP_SDK\_Resources\UIDownArrow.png" />
+    <EmbeddedResource Include="CP_SDK\_Resources\UIButton.png" />
     <EmbeddedResource Include="CP_SDK\_Resources\Heart.png" />
     <EmbeddedResource Include="CP_SDK\Chat\Services\Twitch\TwitchHTMLForm.html" />
     <EmbeddedResource Include="CP_SDK\Chat\Services\Twitch\TwitchHTML.html" />

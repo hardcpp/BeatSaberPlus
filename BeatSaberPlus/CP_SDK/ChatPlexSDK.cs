@@ -11,17 +11,11 @@ namespace CP_SDK
     /// </summary>
     public static class ChatPlexSDK
     {
-        /// <summary>
-        /// Render pipeline
-        /// </summary>
         public enum ERenderPipeline
         {
             BuiltIn,
             URP
         }
-        /// <summary>
-        /// Generic scene enum
-        /// </summary>
         public enum EGenericScene
         {
             None,
@@ -32,48 +26,22 @@ namespace CP_SDK
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        /// <summary>
-        /// Module list
-        /// </summary>
         private static List<IModuleBase> m_Modules = new List<IModuleBase>();
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        /// <summary>
-        /// Logger instance
-        /// </summary>
         public static Logging.ILogger Logger { get; private set; }
 
-        /// <summary>
-        /// Product name
-        /// </summary>
-        public static string ProductName { get; private set; } = string.Empty;
-        /// <summary>
-        /// Product name
-        /// </summary>
-        public static string BasePath { get; private set; } = string.Empty;
-        /// <summary>
-        /// Network user agent
-        /// </summary>
-        public static string NetworkUserAgent { get; private set; } = string.Empty;
-        /// <summary>
-        /// Render pipeline
-        /// </summary>
-        public static ERenderPipeline RenderPipeline { get; private set; } = ERenderPipeline.BuiltIn;
-        /// <summary>
-        /// Active scene type
-        /// </summary>
-        public static EGenericScene ActiveGenericScene { get; private set; } = EGenericScene.None;
+        public static string            ProductName         { get; private set; } = string.Empty;
+        public static string            ProductVersion      { get; private set; } = string.Empty;
+        public static string            BasePath            { get; private set; } = string.Empty;
+        public static string            NetworkUserAgent    { get; private set; } = string.Empty;
+        public static ERenderPipeline   RenderPipeline      { get; private set; } = ERenderPipeline.BuiltIn;
+        public static EGenericScene     ActiveGenericScene  { get; private set; } = EGenericScene.None;
 
-        /// <summary>
-        /// On scene change
-        /// </summary>
-        public static event Action<EGenericScene> OnGenericSceneChange;
-        /// <summary>
-        /// On menu scene loaded
-        /// </summary>
-        public static event Action OnGenericMenuSceneLoaded;
+        public static event Action<EGenericScene>   OnGenericSceneChange;
+        public static event Action                  OnGenericMenuSceneLoaded;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -85,11 +53,14 @@ namespace CP_SDK
         /// <param name="p_BasePath">Base path</param>
         /// <param name="p_ProductName">Product name</param>
         /// <param name="p_RenderPipeline">Rendering pipeline</param>
-        internal static void Configure(Logging.ILogger p_Logger, string p_ProductName, string p_BasePath, ERenderPipeline p_RenderPipeline)
+        public static void Configure(Logging.ILogger p_Logger, string p_ProductName, string p_BasePath, ERenderPipeline p_RenderPipeline)
         {
             Logger = p_Logger;
 
+            var l_Version = Assembly.GetExecutingAssembly().GetName().Version;
+
             ProductName         = p_ProductName;
+            ProductVersion      = $"{l_Version.Major}.{l_Version.Minor}.{l_Version.Build}";
             BasePath            = p_BasePath;
             NetworkUserAgent    = $"ChatPlexSDK_{p_ProductName}/{Application.version}";
             RenderPipeline      = p_RenderPipeline;
@@ -97,7 +68,7 @@ namespace CP_SDK
         /// <summary>
         /// When the assembly is loaded
         /// </summary>
-        internal static void OnAssemblyLoaded()
+        public static void OnAssemblyLoaded()
         {
             InstallWEBPCodecs();
 
@@ -109,7 +80,7 @@ namespace CP_SDK
         /// <summary>
         /// On assembly exit
         /// </summary>
-        internal static void OnAssemblyExit()
+        public static void OnAssemblyExit()
         {
             try
             {
@@ -131,7 +102,7 @@ namespace CP_SDK
         /// <summary>
         /// When unity is ready
         /// </summary>
-        internal static void OnUnityReady()
+        public static void OnUnityReady()
         {
             try
             {
@@ -141,6 +112,12 @@ namespace CP_SDK
 
                 /// Init fonts
                 Unity.FontManager.Init();
+
+                /// Init UI
+                UI.UISystem.Init();
+                UI.ModMenu.Register(new UI.ModButton(ProductName, () => {
+                    UI.FlowCoordinators.MainFlowCoordinator.Instance().Present(true);
+                }, ProductVersion));
             }
             catch (Exception p_Exception)
             {
@@ -151,11 +128,24 @@ namespace CP_SDK
         /// <summary>
         /// When unity is exiting
         /// </summary>
-        internal static void OnUnityExit()
+        public static void OnUnityExit()
         {
             try
             {
-                Unity.MTThreadInvoker.Stop();
+                OnGenericSceneChange        = null;
+                OnGenericMenuSceneLoaded    = null;
+
+                UI.UISystem.Destroy();
+                UI.LoadingProgressBar.Destroy();
+
+                Unity.EnhancedImageParticleMaterialProvider.Destroy();
+                Unity.EnhancedImageParticleSystemProvider.Destroy();
+
+                Unity.MTThreadInvoker.Destroy();
+                Unity.MTMainThreadInvoker.Destroy();
+                Unity.MTCoroutineStarter.Destroy();
+
+                Animation.AnimationControllerManager.Destroy();
             }
             catch (Exception p_Exception)
             {
@@ -171,7 +161,7 @@ namespace CP_SDK
         /// <summary>
         /// Init all the available modules
         /// </summary>
-        internal static void InitModules()
+        public static void InitModules()
         {
             try
             {
@@ -195,9 +185,6 @@ namespace CP_SDK
 
                             /// Add plugin to the list
                             m_Modules.Add(l_Module);
-
-                            try                                 { l_Module.CheckForActivation(EIModuleBaseActivationType.OnStart);                                                          }
-                            catch (Exception p_InitException)   { Logger.Error("[CP_SDK][ChatPlexSDK.InitModules] Error on module init " + l_Module.Name); Logger.Error(p_InitException);   }
                         }
                     }
                     catch (Exception l_Exception)
@@ -207,7 +194,17 @@ namespace CP_SDK
                     }
                 }
 
-                m_Modules.Sort((x, y) => x.Name.CompareTo(y.Name));
+                m_Modules.Sort((x, y) => x.FancyName.CompareTo(y.FancyName));
+
+                for (int l_I = 0; l_I < m_Modules.Count; l_I++)
+                {
+                    var l_Module = m_Modules[l_I];
+
+                    try                               { l_Module.CheckForActivation(EIModuleBaseActivationType.OnStart);                                                        }
+                    catch (Exception p_InitException) { Logger.Error("[CP_SDK][ChatPlexSDK.InitModules] Error on module init " + l_Module.Name); Logger.Error(p_InitException); }
+                }
+
+                Chat.Service.StartServices();
             }
             catch (Exception p_Exception)
             {
@@ -218,7 +215,7 @@ namespace CP_SDK
         /// <summary>
         /// Stop modules
         /// </summary>
-        internal static void StopModules()
+        public static void StopModules()
         {
             for (int l_I = 0; l_I < m_Modules.Count; l_I++)
             {
@@ -233,12 +230,14 @@ namespace CP_SDK
                     Logger.Error(p_Exception);
                 }
             }
+
+            m_Modules.Clear();
         }
         /// <summary>
         /// Get modules
         /// </summary>
         /// <returns></returns>
-        internal static List<IModuleBase> GetModules()
+        public static List<IModuleBase> GetModules()
             => new List<IModuleBase>(m_Modules);
 
         ////////////////////////////////////////////////////////////////////////////
@@ -247,7 +246,7 @@ namespace CP_SDK
         /// <summary>
         /// On generic menu scene
         /// </summary>
-        internal static void Fire_OnGenericMenuSceneLoaded()
+        public static void Fire_OnGenericMenuSceneLoaded()
         {
             try
             {
@@ -272,6 +271,7 @@ namespace CP_SDK
             try
             {
                 OnGenericMenuSceneLoaded?.Invoke();
+                Chat.Service.StartServices();
             }
             catch (Exception l_Exception)
             {
@@ -282,14 +282,13 @@ namespace CP_SDK
         /// <summary>
         /// On generic menu scene
         /// </summary>
-        internal static void Fire_OnGenericMenuScene()
+        public static void Fire_OnGenericMenuScene()
         {
             ActiveGenericScene = EGenericScene.Menu;
 
             try
             {
                 OnGenericSceneChange?.Invoke(EGenericScene.Menu);
-
                 Chat.Service.StartServices();
             }
             catch (Exception l_Exception)
@@ -301,13 +300,14 @@ namespace CP_SDK
         /// <summary>
         /// On generic play scene
         /// </summary>
-        internal static void Fire_OnGenericPlayingScene()
+        public static void Fire_OnGenericPlayingScene()
         {
             ActiveGenericScene = EGenericScene.Playing;
 
             try
             {
                 OnGenericSceneChange?.Invoke(EGenericScene.Playing);
+                Chat.Service.StartServices();
             }
             catch (Exception l_Exception)
             {

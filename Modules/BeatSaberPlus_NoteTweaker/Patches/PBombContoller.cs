@@ -16,15 +16,15 @@ namespace BeatSaberPlus_NoteTweaker.Patches
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        private static bool m_Enabled = false;
-        private static bool m_TempEnabled = false;
-        private static Color m_Color = DEFAULT_COLOR;
-        private static Material m_SharedMaterial = null;
-        private static bool m_ShouldRecolorize = false;
-        private static Vector3 m_Scale;
-        private static float m_InvScale;
-        private static Vector3 m_TempScale;
-        private static float m_TempInvScale;
+        private static bool     m_Enabled           = false;
+        private static bool     m_TempEnabled       = false;
+        private static Color    m_Color             = DEFAULT_COLOR;
+        private static Material m_SharedMaterial    = null;
+        private static bool     m_ShouldRecolorize  = false;
+        private static Vector3  m_Scale;
+        private static float    m_InvScale;
+        private static Vector3  m_TempScale;
+        private static float    m_TempInvScale;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -73,7 +73,7 @@ namespace BeatSaberPlus_NoteTweaker.Patches
 
             if (m_SharedMaterial)
             {
-                if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Playing)
+                if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.ESceneType.Playing)
                     m_SharedMaterial.SetColor(SIMPLE_COLOR_ID, m_Color);
                 else
                     m_SharedMaterial.SetColor(SIMPLE_COLOR_ID, DEFAULT_COLOR);

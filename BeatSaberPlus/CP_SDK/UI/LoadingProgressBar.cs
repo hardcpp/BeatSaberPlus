@@ -30,7 +30,7 @@ namespace CP_SDK.UI
         /// <summary>
         /// Top text instance
         /// </summary>
-        private TMP_Text m_HeaderText;
+        private Components.CText m_HeaderText;
         /// <summary>
         /// Image faking a loading bar background
         /// </summary>
@@ -59,16 +59,15 @@ namespace CP_SDK.UI
             var l_RectTransform = m_Canvas.transform as RectTransform;
             l_RectTransform.sizeDelta = CANVAS_SIZE;
 
-            m_HeaderText = BeatSaberMarkupLanguage.BeatSaberUI.CreateText(m_Canvas.transform as RectTransform, "", HEADER_POSITION);
+            m_HeaderText = UISystem.TextFactory.Create("", m_Canvas.transform as RectTransform);
             if (m_HeaderText)
             {
                 l_RectTransform = m_HeaderText.transform as RectTransform;
                 l_RectTransform.SetParent(m_Canvas.transform, false);
                 l_RectTransform.anchoredPosition    = HEADER_POSITION;
                 l_RectTransform.sizeDelta           = HEADER_SIZE;
-                m_HeaderText.fontSize               = HEADER_FONT_SIZE;
-                m_HeaderText.font                   = Unity.FontManager.GetMainFont();
-                m_HeaderText.alignment              = TextAlignmentOptions.Midline;
+                m_HeaderText.SetFontSize(HEADER_FONT_SIZE);
+                m_HeaderText.SetAlign(TextAlignmentOptions.Midline);
             }
 
             m_LoadingBackground = new GameObject("Background").AddComponent<Image>();
@@ -104,7 +103,7 @@ namespace CP_SDK.UI
             StopAllCoroutines();
 
             if (m_HeaderText)
-                m_HeaderText.text       = p_Message;
+                m_HeaderText.SetText(p_Message);
 
             m_LoadingBar.enabled        = false;
             m_LoadingBackground.enabled = false;
@@ -122,7 +121,7 @@ namespace CP_SDK.UI
             StopAllCoroutines();
 
             if (m_HeaderText)
-                m_HeaderText.text       = p_Message;
+                m_HeaderText.SetText(p_Message);
 
             m_LoadingBar.enabled        = true;
             m_LoadingBar.fillAmount     = p_Progress;
@@ -139,7 +138,7 @@ namespace CP_SDK.UI
             StopAllCoroutines();
 
             if (m_HeaderText)
-                m_HeaderText.text   = p_Message;
+                m_HeaderText.SetText(p_Message);
 
             m_LoadingBar.fillAmount = p_Progress;
         }

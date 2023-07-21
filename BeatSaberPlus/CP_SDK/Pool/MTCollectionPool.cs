@@ -5,12 +5,12 @@ namespace CP_SDK.Pool
     /// <summary>
     /// A Collection such as List, HashSet, Dictionary etc can be pooled and reused by using a CollectionPool.
     /// </summary>
-    public class MTCollectionPool<TCollection, TItem> where TCollection : class, ICollection<TItem>, new()
+    public class CollectionPool<TCollection, TItem> where TCollection : class, ICollection<TItem>, new()
     {
         /// <summary>
         /// Static collection
         /// </summary>
-        internal static readonly MTObjectPool<TCollection> s_Pool = new MTObjectPool<TCollection>(() => new TCollection(), actionOnRelease: (x => x.Clear()), defaultCapacity: 100);
+        internal static readonly ObjectPool<TCollection> s_Pool = new ObjectPool<TCollection>(() => new TCollection(), actionOnRelease: (x => x.Clear()), defaultCapacity: 100);
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////

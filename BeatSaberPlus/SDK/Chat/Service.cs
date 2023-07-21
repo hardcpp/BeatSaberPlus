@@ -55,7 +55,7 @@ namespace BeatSaberPlus.SDK.Chat
         /// Open web configurator
         /// </summary>
         public static void OpenWebConfigurator()
-            => CP_SDK.Chat.Service.OpenWebConfigurator();
+            => CP_SDK.Chat.Service.OpenWebConfiguration();
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////

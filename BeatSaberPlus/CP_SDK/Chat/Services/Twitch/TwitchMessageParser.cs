@@ -3,7 +3,6 @@ using CP_SDK.Chat.Models.Twitch;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -53,7 +52,6 @@ namespace CP_SDK.Chat.Services.Twitch
 #if DEBUG
             Stopwatch l_Stopwatch = Stopwatch.StartNew();
 #endif
-
             var l_Tags          = Pool.MTDictionaryPool<string, string>.Get();
             var l_RawMessages   = p_RawMessages.Split(m_SplitToken, StringSplitOptions.RemoveEmptyEntries);
             var l_Row           = 0;
@@ -184,7 +182,7 @@ namespace CP_SDK.Chat.Services.Twitch
 
                     var l_Emotes = null as IChatEmote[];
                     if (l_MessageType == "PRIVMSG" || l_MessageType == "NOTIFY" || l_MessageType == "USERNOTICE")
-                        l_Emotes = GetEmotes(l_Tags, l_MessageText, l_MessageRoomId, l_ChannelName, l_MessageBits);
+                        l_Emotes = GetEmotes(l_Channel, l_Tags, l_MessageText, l_MessageRoomId, l_ChannelName, l_MessageBits);
                     else if (l_MessageType == "ROOMSTATE")
                     {
                         var l_RoomState = l_Channel.Roomstate;
@@ -346,7 +344,6 @@ namespace CP_SDK.Chat.Services.Twitch
             return p_ParsedMessages.Count > 0;
         }
 
-
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
@@ -372,7 +369,9 @@ namespace CP_SDK.Chat.Services.Twitch
 
             if (m_TwitchDataProvider.IsReady && !l_User._FancyNameReady && !string.IsNullOrEmpty(l_User.Id))
             {
-                l_User.PaintedName      = m_TwitchDataProvider._7TVDataProvider.TryGetUserDisplayName(l_User.Id, l_User.DisplayName);
+                m_TwitchDataProvider.TryGetUserDisplayName(l_User.Id, l_User.DisplayName, out var l_PaintedName);
+
+                l_User.PaintedName      = l_PaintedName;
                 l_User._FancyNameReady  = true;
             }
 
@@ -403,7 +402,6 @@ namespace CP_SDK.Chat.Services.Twitch
                             Type    = EBadgeType.Image,
                             Content = l_BadgeInfo.Uri
                         };
-
                         l_Badges.Add(l_NewBadge);
                     }
                     else
@@ -424,6 +422,7 @@ namespace CP_SDK.Chat.Services.Twitch
         /// <summary>
         /// Extract emotes
         /// </summary>
+        /// <param name="p_Channel">Channel instance</param>
         /// <param name="p_Tags">IRC tags</param>
         /// <param name="p_MessageText">Raw message content</param>
         /// <param name="p_RoomID">Channel ID</param>
@@ -431,8 +430,11 @@ namespace CP_SDK.Chat.Services.Twitch
         /// <param name="p_MessageBits">Message bits</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IChatEmote[] GetEmotes(Dictionary<string, string> p_Tags, string p_MessageText, string p_RoomID, string p_RoomName, int p_MessageBits)
+        public IChatEmote[] GetEmotes(TwitchChannel p_Channel, Dictionary<string, string> p_Tags, string p_MessageText, string p_RoomID, string p_RoomName, int p_MessageBits)
         {
+            if (p_Channel.IsTemp && !ChatModSettings.Instance.Emotes.ParseTemporaryChannels)
+                return null;
+
             if (p_MessageText.Length == 0)
                 return null;
 
@@ -492,9 +494,11 @@ namespace CP_SDK.Chat.Services.Twitch
                         if (!l_FoundTwitchEmotes.Contains(l_LastWord))
                         {
                             /// Make sure we haven't already matched a Twitch emote with the same string, just incase the user has a BTTV/FFZ emote with the same name
-                            if (TwitchSettingsConfig.Instance.ParseCheermotes && p_MessageBits > 0 && m_TwitchDataProvider.TryGetCheermote(l_LastWord, p_RoomID, out var l_CheermoteData, out var l_NumBits) && l_NumBits > 0)
+                            if (TwitchSettingsConfig.Instance.ParseCheermotes
+                                && p_MessageBits > 0
+                                && m_TwitchDataProvider.TryGetCheermote(l_LastWord, p_RoomID, out var l_CheermoteData, out var l_NumBits)
+                                && l_NumBits > 0)
                             {
-                                ///ChatPlexSDK.Logger.Error($"Got cheermote! Total message bits: {l_NumBits} {l_CheermoteData.Prefix}");
                                 var l_Tier = l_CheermoteData.GetTier(l_NumBits);
                                 if (l_Tier != null)
                                 {
@@ -511,7 +515,7 @@ namespace CP_SDK.Chat.Services.Twitch
                                     });
                                 }
                             }
-                            else if (m_TwitchDataProvider.TryGetThirdPartyEmote(l_LastWord, p_RoomName, out var l_EmoteData))
+                            else if (m_TwitchDataProvider.TryGetThirdPartyEmote(l_LastWord, p_RoomID, out var l_EmoteData))
                             {
                                 if (   l_EmoteData.Type.StartsWith("BTTV") && ChatModSettings.Instance.Emotes.ParseBTTVEmotes
                                     || l_EmoteData.Type.StartsWith("FFZ")  && ChatModSettings.Instance.Emotes.ParseFFZEmotes

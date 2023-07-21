@@ -197,7 +197,7 @@ namespace CP_SDK.VoiceAttack
                 }
                 catch
                 {
-                    if (!m_Client.Connected)
+                    if (m_Client != null && !m_Client.Connected)
                     {
                         m_Client.Dispose();
                         m_Client = new System.Net.Sockets.TcpClient();

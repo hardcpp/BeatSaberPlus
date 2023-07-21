@@ -1,15 +1,14 @@
-﻿using BeatSaberMarkupLanguage;
+﻿using System.Collections.Generic;
 using System.IO;
-using UnityEngine;
 using System.Linq;
-using System.Collections.Generic;
+using UnityEngine;
 
 namespace BeatSaberPlus_NoteTweaker
 {
     /// <summary>
     /// NoteTweaker Module
     /// </summary>
-    public class NoteTweaker : BeatSaberPlus.SDK.BSPModuleBase<NoteTweaker>
+    public class NoteTweaker : CP_SDK.ModuleBase<NoteTweaker>
     {
         internal const string IMPORT_FOLDER = "UserData/BeatSaberPlus/NoteTweaker/Import/";
         internal const string EXPORT_FOLDER = "UserData/BeatSaberPlus/NoteTweaker/Export/";
@@ -17,46 +16,22 @@ namespace BeatSaberPlus_NoteTweaker
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        /// <summary>
-        /// Module type
-        /// </summary>
-        public override CP_SDK.EIModuleBaseType Type => CP_SDK.EIModuleBaseType.Integrated;
-        /// <summary>
-        /// Name of the Module
-        /// </summary>
-        public override string Name => "Note Tweaker";
-        /// <summary>
-        /// Description of the Module
-        /// </summary>
-        public override string Description => "Customize base notes!";
-        /// <summary>
-        /// Is the Module using chat features
-        /// </summary>
-        public override bool UseChatFeatures => false;
-        /// <summary>
-        /// Is enabled
-        /// </summary>
-        public override bool IsEnabled { get => NTConfig.Instance.Enabled; set { NTConfig.Instance.Enabled = value; NTConfig.Instance.Save(); } }
-        /// <summary>
-        /// Activation kind
-        /// </summary>
-        public override CP_SDK.EIModuleBaseActivationType ActivationType => CP_SDK.EIModuleBaseActivationType.OnMenuSceneLoaded;
+        public override CP_SDK.EIModuleBaseType             Type                => CP_SDK.EIModuleBaseType.Integrated;
+        public override string                              Name                => "Note Tweaker";
+        public override string                              Description         => "Customize base notes!";
+        public override string                              DocumentationURL    => "https://github.com/hardcpp/BeatSaberPlus/wiki#note-tweaker";
+        public override bool                                UseChatFeatures     => false;
+        public override bool                                IsEnabled           { get => NTConfig.Instance.Enabled; set { NTConfig.Instance.Enabled = value; NTConfig.Instance.Save(); } }
+        public override CP_SDK.EIModuleBaseActivationType   ActivationType      => CP_SDK.EIModuleBaseActivationType.OnMenuSceneLoaded;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        /// <summary>
-        /// NoteTweaker view
-        /// </summary>
-        private UI.Settings m_SettingsView = null;
-        /// <summary>
-        /// NoteTweaker left view
-        /// </summary>
-        private UI.SettingsLeft m_SettingsLeftView = null;
-        /// <summary>
-        /// NoteTweaker right view
-        /// </summary>
-        private UI.SettingsRight m_SettingsRightView = null;
+        private UI.SettingsLeftView     m_SettingsLeftView  = null;
+        private UI.SettingsMainView     m_SettingsMainView  = null;
+        private UI.SettingsRightView    m_SettingsRightView = null;
+
+        private int? m_BackupProfileIndex = null;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -69,7 +44,7 @@ namespace BeatSaberPlus_NoteTweaker
             BeatSaberPlus.SDK.Game.Logic.OnSceneChange += OnSceneChange;
 
             /// Trigger a Set config
-            OnSceneChange(BeatSaberPlus.SDK.Game.Logic.SceneType.Menu);
+            OnSceneChange(BeatSaberPlus.SDK.Game.Logic.ESceneType.Menu);
 
             try
             {
@@ -89,6 +64,10 @@ namespace BeatSaberPlus_NoteTweaker
         protected override void OnDisable()
         {
             BeatSaberPlus.SDK.Game.Logic.OnSceneChange -= OnSceneChange;
+
+            CP_SDK.UI.UISystem.DestroyUI(ref m_SettingsLeftView);
+            CP_SDK.UI.UISystem.DestroyUI(ref m_SettingsMainView);
+            CP_SDK.UI.UISystem.DestroyUI(ref m_SettingsRightView);
 
             /// Restore config
             Patches.PColorNoteVisuals.SetFromConfig(true);
@@ -116,10 +95,15 @@ namespace BeatSaberPlus_NoteTweaker
         /// Switch to profile
         /// </summary>
         /// <param name="p_Index">Profile index</param>
-        public void SwitchToProfile(int p_Index)
+        /// <param name="p_Temporary">Is a temporary change?</param>
+        public void SwitchToProfile(int p_Index, bool p_Temporary)
         {
-            p_Index = Mathf.Clamp(p_Index, 0, NTConfig.Instance.Profiles.Count);
-            NTConfig.Instance.ActiveProfile = p_Index;
+            if (p_Temporary)
+                m_BackupProfileIndex = NTConfig.Instance.ActiveProfile;
+            else
+                m_BackupProfileIndex = null;
+
+            NTConfig.Instance.ActiveProfile = Mathf.Clamp(p_Index, 0, NTConfig.Instance.Profiles.Count);
 
             Patches.PColorNoteVisuals.SetFromConfig(true);
             Patches.PGameNoteController.SetFromConfig(true);
@@ -127,6 +111,9 @@ namespace BeatSaberPlus_NoteTweaker
             Patches.PBombController.SetFromConfig(true);
             Patches.PSliderController.SetFromConfig(true);
             Patches.PSliderHapticFeedbackInteractionEffect.SetFromConfig(true);
+
+            if (!p_Temporary)
+                NTConfig.Instance.Save();
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -135,20 +122,14 @@ namespace BeatSaberPlus_NoteTweaker
         /// <summary>
         /// Get Module settings UI
         /// </summary>
-        protected override (HMUI.ViewController, HMUI.ViewController, HMUI.ViewController) GetSettingsUIImplementation()
+        protected override (CP_SDK.UI.IViewController, CP_SDK.UI.IViewController, CP_SDK.UI.IViewController) GetSettingsViewControllersImplementation()
         {
-            /// Create view if needed
-            if (m_SettingsView == null)
-                m_SettingsView = BeatSaberUI.CreateViewController<UI.Settings>();
-            /// Create view if needed
-            if (m_SettingsLeftView == null)
-                m_SettingsLeftView = BeatSaberUI.CreateViewController<UI.SettingsLeft>();
-            /// Create view if needed
-            if (m_SettingsRightView == null)
-                m_SettingsRightView = BeatSaberUI.CreateViewController<UI.SettingsRight>();
+            if (m_SettingsLeftView == null)     m_SettingsLeftView  = CP_SDK.UI.UISystem.CreateViewController<UI.SettingsLeftView>();
+            if (m_SettingsMainView == null)     m_SettingsMainView  = CP_SDK.UI.UISystem.CreateViewController<UI.SettingsMainView>();
+            if (m_SettingsRightView == null)    m_SettingsRightView = CP_SDK.UI.UISystem.CreateViewController<UI.SettingsRightView>();
 
             /// Change main view
-            return (m_SettingsView, m_SettingsLeftView, m_SettingsRightView);
+            return (m_SettingsMainView, m_SettingsLeftView, m_SettingsRightView);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -158,8 +139,11 @@ namespace BeatSaberPlus_NoteTweaker
         /// When the active scene change
         /// </summary>
         /// <param name="p_Scene">New active scene</param>
-        private void OnSceneChange(BeatSaberPlus.SDK.Game.Logic.SceneType p_Scene)
+        private void OnSceneChange(BeatSaberPlus.SDK.Game.Logic.ESceneType p_Scene)
         {
+            if (p_Scene == BeatSaberPlus.SDK.Game.Logic.ESceneType.Playing && m_BackupProfileIndex.HasValue)
+                NTConfig.Instance.ActiveProfile = Mathf.Clamp(m_BackupProfileIndex.Value, 0, NTConfig.Instance.Profiles.Count);
+
             Patches.PColorNoteVisuals.SetFromConfig(true);
             Patches.PColorNoteVisuals.SetBlockColorOverride(false, Color.black, Color.black);
             Patches.PGameNoteController.SetFromConfig(true);

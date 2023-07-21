@@ -1,9 +1,0 @@
-﻿<vertical min-height='55' child-align='UpperCenter'>
-
-	<dropdown-list-setting id='Scene_DropDown' choices='Scene_DropDownOptions' apply-on-change='true' />
-	
-	<primary-button on-click='click-test-btn-pressed' text='Test' min-width='20'></primary-button>
-
-	<horizontal min-height='40'></horizontal>
-
-</vertical>

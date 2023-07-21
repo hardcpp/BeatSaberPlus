@@ -1,7 +1,6 @@
-﻿using BeatSaberMarkupLanguage;
+﻿using IPA.Utilities;
 using System.Collections;
 using System.Linq;
-using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,35 +10,22 @@ namespace BeatSaberPlus_ChatRequest
     /// <summary>
     /// Chat Request instance
     /// </summary>
-    public partial class ChatRequest : BeatSaberPlus.SDK.BSPModuleBase<ChatRequest>
+    public partial class ChatRequest : CP_SDK.ModuleBase<ChatRequest>
     {
-        /// <summary>
-        /// Module type
-        /// </summary>
-        public override CP_SDK.EIModuleBaseType Type => CP_SDK.EIModuleBaseType.Integrated;
-        /// <summary>
-        /// Name of the Module
-        /// </summary>
-        public override string Name => "Chat Request";
-        /// <summary>
-        /// Description of the Module
-        /// </summary>
-        public override string Description => "Take song request from your chat!";
-        /// <summary>
-        /// Is the Module using chat features
-        /// </summary>
-        public override bool UseChatFeatures => true;
-        /// <summary>
-        /// Is enabled
-        /// </summary>
-        public override bool IsEnabled { get => CRConfig.Instance.Enabled; set { CRConfig.Instance.Enabled = value; CRConfig.Instance.Save(); } }
-        /// <summary>
-        /// Activation kind
-        /// </summary>
-        public override CP_SDK.EIModuleBaseActivationType ActivationType => CP_SDK.EIModuleBaseActivationType.OnMenuSceneLoaded;
+        public override CP_SDK.EIModuleBaseType             Type                => CP_SDK.EIModuleBaseType.Integrated;
+        public override string                              Name                => "Chat Request";
+        public override string                              Description         => "Take song request from your chat!";
+        public override string                              DocumentationURL    => "https://github.com/hardcpp/BeatSaberPlus/wiki#chat-request";
+        public override bool                                UseChatFeatures     => true;
+        public override bool                                IsEnabled           { get => CRConfig.Instance.Enabled; set { CRConfig.Instance.Enabled = value; CRConfig.Instance.Save(); } }
+        public override CP_SDK.EIModuleBaseActivationType   ActivationType      => CP_SDK.EIModuleBaseActivationType.OnMenuSceneLoaded;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
+
+        private UI.SettingsLeftView     m_SettingsLeftView  = null;
+        private UI.SettingsMainView     m_SettingsMainView  = null;
+        private UI.SettingsRightView    m_SettingsRightView = null;
 
         /// <summary>
         /// Create button coroutine
@@ -57,18 +43,6 @@ namespace BeatSaberPlus_ChatRequest
         /// Manager flow coordinator
         /// </summary>
         private UI.ManagerViewFlowCoordinator m_ManagerViewFlowCoordinator = null;
-        /// <summary>
-        /// Chat Request view
-        /// </summary>
-        private UI.Settings m_SettingsView = null;
-        /// <summary>
-        /// Chat Request left view
-        /// </summary>
-        private UI.SettingsLeft m_SettingsLeftView = null;
-        /// <summary>
-        /// Chat Request right view
-        /// </summary>
-        private UI.SettingsRight m_SettingsRightView = null;
         /// <summary>
         /// Chat core instance
         /// </summary>
@@ -95,43 +69,9 @@ namespace BeatSaberPlus_ChatRequest
                 Logger.Instance.Error(l_Exception);
             }
 
-            /// Move old file
-            try
-            {
-                if (System.IO.File.Exists(m_DBFilePathOld))
-                {
-                    if (System.IO.File.Exists(m_DBFilePath))
-                        System.IO.File.Delete(m_DBFilePathOld);
-                    else
-                        System.IO.File.Move(m_DBFilePathOld, m_DBFilePath);
-                }
-            }
-            catch (System.Exception l_Exception)
-            {
-                Logger.Instance.Error($"[ChatRequest][ChatRequest.OnEnable] Failed to move database \"{m_DBFilePathOld}\"");
-                Logger.Instance.Error(l_Exception);
-            }
-
-            /// Move old file
-            try
-            {
-                if (System.IO.File.Exists(m_SimpleQueueFilePathOld))
-                {
-                    if (System.IO.File.Exists(m_SimpleQueueFilePath))
-                        System.IO.File.Delete(m_SimpleQueueFilePathOld);
-                    else
-                        System.IO.File.Move(m_SimpleQueueFilePathOld, m_SimpleQueueFilePath);
-                }
-            }
-            catch (System.Exception l_Exception)
-            {
-                Logger.Instance.Error($"[ChatRequest][ChatRequest.OnEnable] Failed to move database \"{m_DBFilePathOld}\"");
-                Logger.Instance.Error(l_Exception);
-            }
-
             /// Try to load DB
             LoadDatabase();
-            UpdateSimpleQueueFile();
+            OnQueueChanged(true, true);
 
             /// Build command table
             BuildCommandTable();
@@ -206,6 +146,12 @@ namespace BeatSaberPlus_ChatRequest
                 m_ManagerViewFlowCoordinator = null;
             }
 
+            CP_SDK.UI.UISystem.DestroyUI(ref m_SettingsLeftView);
+            CP_SDK.UI.UISystem.DestroyUI(ref m_SettingsMainView);
+            CP_SDK.UI.UISystem.DestroyUI(ref m_SettingsRightView);
+
+            UI.ManagerViewFlowCoordinator.Destroy();
+
             /// Clear database
             SongQueue.Clear();
             SongHistory.Clear();
@@ -223,20 +169,13 @@ namespace BeatSaberPlus_ChatRequest
         /// <summary>
         /// Get Module settings UI
         /// </summary>
-        protected override (HMUI.ViewController, HMUI.ViewController, HMUI.ViewController) GetSettingsUIImplementation()
+        protected override (CP_SDK.UI.IViewController, CP_SDK.UI.IViewController, CP_SDK.UI.IViewController) GetSettingsViewControllersImplementation()
         {
-            /// Create view if needed
-            if (m_SettingsView == null)
-                m_SettingsView = BeatSaberUI.CreateViewController<UI.Settings>();
-            /// Create view if needed
-            if (m_SettingsLeftView == null)
-                m_SettingsLeftView = BeatSaberUI.CreateViewController<UI.SettingsLeft>();
-            /// Create view if needed
-            if (m_SettingsRightView == null)
-                m_SettingsRightView = BeatSaberUI.CreateViewController<UI.SettingsRight>();
+            if (m_SettingsLeftView == null)     m_SettingsLeftView  = CP_SDK.UI.UISystem.CreateViewController<UI.SettingsLeftView>();
+            if (m_SettingsMainView == null)     m_SettingsMainView  = CP_SDK.UI.UISystem.CreateViewController<UI.SettingsMainView>();
+            if (m_SettingsRightView == null)    m_SettingsRightView = CP_SDK.UI.UISystem.CreateViewController<UI.SettingsRightView>();
 
-            /// Change main view
-            return (m_SettingsView, m_SettingsLeftView, m_SettingsRightView);
+            return (m_SettingsMainView, m_SettingsLeftView, m_SettingsRightView);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -277,11 +216,11 @@ namespace BeatSaberPlus_ChatRequest
         /// When the active scene is changed
         /// </summary>
         /// <param name="p_Scene">New scene</param>
-        private void OnSceneChange(BeatSaberPlus.SDK.Game.Logic.SceneType p_Scene)
+        private void OnSceneChange(BeatSaberPlus.SDK.Game.Logic.ESceneType p_Scene)
         {
-            if (p_Scene == BeatSaberPlus.SDK.Game.Logic.SceneType.Menu)
+            if (p_Scene == BeatSaberPlus.SDK.Game.Logic.ESceneType.Menu)
                 UpdateButton();
-            else if (p_Scene == BeatSaberPlus.SDK.Game.Logic.SceneType.Playing)
+            else if (p_Scene == BeatSaberPlus.SDK.Game.Logic.ESceneType.Playing)
             {
                 try
                 {
@@ -302,10 +241,10 @@ namespace BeatSaberPlus_ChatRequest
                                 var l_Hash = l_CurrentMap.level.levelID.Substring("custom_level_".Length).ToLower();
                                 if (l_Hash != "")
                                 {
-                                    SongEntry l_CachedEntry = null;
+                                    var l_CachedEntry = null as Data.SongEntry;
 
                                     lock (SongHistory)
-                                        l_CachedEntry = SongHistory.Where(x => x.BeatMap != null && x.BeatMap.SelectMapVersion().hash.ToLower() == l_Hash).FirstOrDefault();
+                                        l_CachedEntry = SongHistory.Where(x => x.BeatSaver_Map != null && x.BeatSaver_Map.SelectMapVersion().hash.ToLower() == l_Hash).FirstOrDefault();
 
                                     if (l_CachedEntry == null)
                                     {
@@ -320,7 +259,7 @@ namespace BeatSaberPlus_ChatRequest
                                     }
                                     else
                                     {
-                                        m_LastPlayingLevelResponse += " https://beatsaver.com/maps/" + l_CachedEntry.BeatMap.id;
+                                        m_LastPlayingLevelResponse += " https://beatsaver.com/maps/" + l_CachedEntry.BeatSaver_Map.id;
                                     }
                                 }
                             }
@@ -344,30 +283,46 @@ namespace BeatSaberPlus_ChatRequest
         /// <returns></returns>
         private IEnumerator CreateButtonCoroutine()
         {
-            LevelSelectionNavigationController p_LevelSelectionNavigationController = null;
-
+            var l_LevelSelectionNavigationController    = null as LevelSelectionNavigationController;
+            var l_Waiter                                = new WaitForSeconds(0.25f);
             while (true)
             {
-                p_LevelSelectionNavigationController = Resources.FindObjectsOfTypeAll<LevelSelectionNavigationController>().LastOrDefault();
+                if (!l_LevelSelectionNavigationController)
+                    l_LevelSelectionNavigationController = Resources.FindObjectsOfTypeAll<LevelSelectionNavigationController>().LastOrDefault();
 
-                if (p_LevelSelectionNavigationController != null && p_LevelSelectionNavigationController.gameObject.transform.childCount >= 2)
+                if (l_LevelSelectionNavigationController != null && l_LevelSelectionNavigationController.gameObject.transform.childCount >= 2)
                     break;
 
-                yield return new WaitForSeconds(0.25f);
+                yield return l_Waiter;
             }
 
-            m_ManagerButtonP = BeatSaberPlus.SDK.UI.Button.CreatePrimary(p_LevelSelectionNavigationController.transform, "Chat\nRequest", () => UI.ManagerViewFlowCoordinator.Instance().Present(), null);
+            m_ManagerButtonP = BeatSaberPlus.SDK.UI.Button.CreatePrimary(l_LevelSelectionNavigationController.transform, "Chat\nRequest", () => UI.ManagerViewFlowCoordinator.Instance().Present(), null);
             m_ManagerButtonP.transform.localPosition = new Vector3(72.50f, 41.50f - 3, 2.6f);
             m_ManagerButtonP.transform.localScale    = new Vector3(0.8f, 0.6f, 0.8f);
             m_ManagerButtonP.transform.SetAsFirstSibling();
             m_ManagerButtonP.gameObject.SetActive(false);
+            m_ManagerButtonP.GetComponentInChildren<TextMeshProUGUI>().fontStyle = FontStyles.Normal;
 
-            m_ManagerButtonS = BeatSaberPlus.SDK.UI.Button.Create(p_LevelSelectionNavigationController.transform, "Chat\nRequest", () => UI.ManagerViewFlowCoordinator.Instance().Present(), null);
+            m_ManagerButtonS = BeatSaberPlus.SDK.UI.Button.Create(l_LevelSelectionNavigationController.transform, "Chat\nRequest", () => UI.ManagerViewFlowCoordinator.Instance().Present(), null);
             m_ManagerButtonS.transform.localPosition = new Vector3(72.50f, 38.50f - 3, 2.6f);
             m_ManagerButtonS.transform.localScale    = new Vector3(0.8f, 0.6f, 0.8f);
             m_ManagerButtonS.transform.SetAsFirstSibling();
             m_ManagerButtonS.gameObject.SetActive(true);
+            m_ManagerButtonP.GetComponentInChildren<TextMeshProUGUI>().fontStyle = FontStyles.Normal;
             m_ManagerButtonS.GetComponentInChildren<TextMeshProUGUI>().margin = new Vector4(0, 4, 0, 0);
+
+            var l_Images = m_ManagerButtonP.GetComponentsInChildren<HMUI.ImageView>();
+            foreach (var l_Image in l_Images)
+            {
+                l_Image._skew = 0f;
+                l_Image.SetAllDirty();
+            }
+            l_Images = m_ManagerButtonS.GetComponentsInChildren<HMUI.ImageView>();
+            foreach (var l_Image in l_Images)
+            {
+                l_Image._skew = 0f;
+                l_Image.SetAllDirty();
+            }
 
             UpdateButton();
 

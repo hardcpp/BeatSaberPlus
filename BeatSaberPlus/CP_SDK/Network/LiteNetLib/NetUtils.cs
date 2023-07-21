@@ -183,7 +183,7 @@ namespace CP_SDK_LiteNetLib
                     }
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 //NetDebug.WriteForce(NetLogLevel.Info, "Error while getting interface infos: {0}", e.ToString());
             }

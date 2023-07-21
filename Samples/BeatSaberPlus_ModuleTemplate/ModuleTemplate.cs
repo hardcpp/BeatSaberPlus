@@ -1,37 +1,21 @@
-﻿using BeatSaberMarkupLanguage;
-using UnityEngine;
-
-namespace BeatSaberPlus_ModuleTemplate
+﻿namespace BeatSaberPlus_ModuleTemplate
 {
     /// <summary>
     /// Online instance
     /// </summary>
-    internal class ModuleTemplate : BeatSaberPlus.SDK.BSPModuleBase<ModuleTemplate>
+    internal class ModuleTemplate : CP_SDK.ModuleBase<ModuleTemplate>
     {
-        /// <summary>
-        /// Module type
-        /// </summary>
-        public override CP_SDK.EIModuleBaseType Type => CP_SDK.EIModuleBaseType.Integrated;
-        /// <summary>
-        /// Name of the Module
-        /// </summary>
-        public override string Name => "Module Template";
-        /// <summary>
-        /// Description of the Module
-        /// </summary>
-        public override string Description => "Hello world!";
-        /// <summary>
-        /// Is the Module using chat features
-        /// </summary>
-        public override bool UseChatFeatures => false;
-        /// <summary>
-        /// Is enabled
-        /// </summary>
-        public override bool IsEnabled { get => MTConfig.Instance.Enabled; set { MTConfig.Instance.Enabled = value; MTConfig.Instance.Save(); } }
-        /// <summary>
-        /// Activation kind
-        /// </summary>
-        public override CP_SDK.EIModuleBaseActivationType ActivationType => CP_SDK.EIModuleBaseActivationType.OnStart;
+        public override CP_SDK.EIModuleBaseType             Type            => CP_SDK.EIModuleBaseType.Integrated;
+        public override string                              Name            => "Module Template";
+        public override string                              Description     => "Hello world!";
+        public override bool                                UseChatFeatures => false;
+        public override bool                                IsEnabled       { get => MTConfig.Instance.Enabled; set { MTConfig.Instance.Enabled = value; MTConfig.Instance.Save(); } }
+        public override CP_SDK.EIModuleBaseActivationType   ActivationType  => CP_SDK.EIModuleBaseActivationType.OnStart;
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        private UI.SettingsMainView m_SettingsMainView = null;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -59,23 +43,12 @@ namespace BeatSaberPlus_ModuleTemplate
         /// <summary>
         /// Get Module settings UI
         /// </summary>
-        protected override (HMUI.ViewController, HMUI.ViewController, HMUI.ViewController) GetSettingsUIImplementation()
+        protected override (CP_SDK.UI.IViewController, CP_SDK.UI.IViewController, CP_SDK.UI.IViewController) GetSettingsViewControllersImplementation()
         {
-            /// Create view if needed
-            if (m_SettingsView == null)
-                m_SettingsView = BeatSaberUI.CreateViewController<UI.Settings>();
+            if (m_SettingsMainView == null) m_SettingsMainView = CP_SDK.UI.UISystem.CreateViewController<UI.SettingsMainView>();
 
-            /// Change main view
-            return (m_SettingsView, null, null);
+            return (m_SettingsMainView, null, null);
         }
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        /// <summary>
-        /// Settings view
-        /// </summary>
-        private UI.Settings m_SettingsView = null;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -89,7 +62,7 @@ namespace BeatSaberPlus_ModuleTemplate
             var l_MapName = p_LevelData?.Data?.previewBeatmapLevel?.songName ?? "?";
             var l_PlatformName = p_LevelData?.Data?.environmentInfo?.serializedName ?? "?";
 
-            Logger.Instance.Warn($"Map {l_MapName} started on platform {l_PlatformName}");
+            Logger.Instance.Warning($"Map {l_MapName} started on platform {l_PlatformName}");
         }
     }
 }

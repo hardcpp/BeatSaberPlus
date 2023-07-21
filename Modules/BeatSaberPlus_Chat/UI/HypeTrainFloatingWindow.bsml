@@ -1,5 +1,0 @@
-﻿<horizontal id='TopFrame' min-height='7'>
-	<horizontal anchor-min-x='0' anchor-max-x='1' min-height='7' pad-left='2' pad-right='2'>
-		<text font-size='5' min-height='6' align='MidlineLeft' id='Label' text='LVL 1 Hype Train!'></text>
-	</horizontal>
-</horizontal>

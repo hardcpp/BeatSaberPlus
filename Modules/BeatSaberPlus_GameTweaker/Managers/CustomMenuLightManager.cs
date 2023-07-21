@@ -1,5 +1,4 @@
-﻿using IPA.Utilities;
-using System.Collections;
+﻿using System.Collections;
 using System.Linq;
 using UnityEngine;
 
@@ -105,7 +104,7 @@ namespace BeatSaberPlus_GameTweaker.Managers
             {
                 if (m_MenuLightsManager && m_DefaultPreset)
                 {
-                    m_MenuLightsManager.SetField("_preset", m_DefaultPreset);
+                    m_MenuLightsManager._preset = m_DefaultPreset;
                     m_MenuLightsManager.enabled = true;
                 }
             }
@@ -126,7 +125,7 @@ namespace BeatSaberPlus_GameTweaker.Managers
             {
 	            if (m_MenuLightsManager && m_DefaultPreset)
                 {
-                    m_MenuLightsManager.SetField("_preset", m_DefaultPreset);
+                    m_MenuLightsManager._preset = m_DefaultPreset;
                     m_MenuLightsManager.enabled = true;
                 }
             }
@@ -147,7 +146,7 @@ namespace BeatSaberPlus_GameTweaker.Managers
             {
                 if (m_MenuLightsManager && m_LevelClearedPreset)
                 {
-                    m_MenuLightsManager.SetField("_preset", m_LevelClearedPreset);
+                    m_MenuLightsManager._preset = m_LevelClearedPreset;
                     m_MenuLightsManager.enabled = true;
                 }
             }
@@ -168,7 +167,7 @@ namespace BeatSaberPlus_GameTweaker.Managers
             {
                 if (m_MenuLightsManager && m_LevelFailedPreset)
                 {
-                    m_MenuLightsManager.SetField("_preset", m_LevelFailedPreset);
+                    m_MenuLightsManager._preset = m_LevelFailedPreset;
                     m_MenuLightsManager.enabled = true;
                 }
             }
@@ -190,7 +189,7 @@ namespace BeatSaberPlus_GameTweaker.Managers
             yield return new WaitUntil(() => GameObject.FindObjectOfType<MenuLightsManager>());
             m_MenuLightsManager = GameObject.FindObjectOfType<MenuLightsManager>();
 
-            m_DefaultPreset         = m_MenuLightsManager.GetField<MenuLightsPresetSO, MenuLightsManager>("_defaultPreset");
+            m_DefaultPreset         = m_MenuLightsManager._defaultPreset;
             m_DefaultPresetBackup   = m_DefaultPreset.lightIdColorPairs.Select(x => (x.intensity, x.baseColor)).ToArray();
 
             UpdateFromConfig();
@@ -198,8 +197,8 @@ namespace BeatSaberPlus_GameTweaker.Managers
             yield return new WaitUntil(() => GameObject.FindObjectOfType<SoloFreePlayFlowCoordinator>());
             var l_SoloFreePlayFlowCoordinator = GameObject.FindObjectOfType<SoloFreePlayFlowCoordinator>();
 
-            m_LevelClearedPreset    = l_SoloFreePlayFlowCoordinator.GetField<MenuLightsPresetSO, SoloFreePlayFlowCoordinator>("_resultsClearedLightsPreset");
-            m_LevelFailedPreset     = l_SoloFreePlayFlowCoordinator.GetField<MenuLightsPresetSO, SoloFreePlayFlowCoordinator>("_resultsFailedLightsPreset");
+            m_LevelClearedPreset    = l_SoloFreePlayFlowCoordinator._resultsClearedLightsPreset;
+            m_LevelFailedPreset     = l_SoloFreePlayFlowCoordinator._resultsFailedLightsPreset;
 
             m_LevelClearedPresetBackup  = m_LevelClearedPreset.lightIdColorPairs.Select(x => (x.intensity, x.baseColor)).ToArray();
             m_LevelFailedPresetBackup   = m_LevelFailedPreset.lightIdColorPairs.Select(x => (x.intensity, x.baseColor)).ToArray();

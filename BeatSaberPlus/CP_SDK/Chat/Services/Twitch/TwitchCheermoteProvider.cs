@@ -4,7 +4,6 @@ using CP_SDK.Chat.SimpleJSON;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -24,30 +23,40 @@ namespace CP_SDK.Chat.Services.Twitch
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
-        /// Try request resources
+        /// Try request resources from the provider
         /// </summary>
-        /// <param name="p_Category">Category / Channel</param>
+        /// <param name="p_ChannelID">ID of the channel</param>
+        /// <param name="p_ChannelName">Name of the channel</param>
+        /// <param name="p_AccessToken">Access token for the API</param>
         /// <returns></returns>
-        public async Task TryRequestResources(string p_Category, string p_Token)
+        public async Task TryRequestResources(string p_ChannelID, string p_ChannelName, string p_AccessToken)
         {
-            Network.APIClient m_APIClient = new Network.APIClient("https://api.twitch.tv/helix/", TimeSpan.FromSeconds(10), true);
-            if (!m_APIClient.InternalClient.DefaultRequestHeaders.Contains("client-id"))
-                m_APIClient.InternalClient.DefaultRequestHeaders.Add("client-id", TwitchService.TWITCH_CLIENT_ID);
+            var l_WebClient = new Network.WebClient("https://api.twitch.tv/helix/", TimeSpan.FromSeconds(10), true);
+            if (!l_WebClient.Headers.ContainsKey("Client-Id"))
+                l_WebClient.Headers.Remove("Authorization");
 
-            if (m_APIClient.InternalClient.DefaultRequestHeaders.Contains("Authorization"))
-                m_APIClient.InternalClient.DefaultRequestHeaders.Remove("Authorization");
+            if (l_WebClient.Headers.ContainsKey("Client-Id"))
+                l_WebClient.Headers.Remove("Authorization");
 
-            m_APIClient.InternalClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + p_Token.Replace("oauth:", ""));
+            l_WebClient.Headers.Add("client-id",     TwitchService.TWITCH_CLIENT_ID);
+            l_WebClient.Headers.Add("Authorization", "Bearer " + p_AccessToken.Replace("oauth:", ""));
 
-            bool l_IsGlobal = string.IsNullOrEmpty(p_Category);
+            bool l_IsGlobal = string.IsNullOrEmpty(p_ChannelID);
             try
             {
-                ChatPlexSDK.Logger.Debug($"Requesting Twitch {(l_IsGlobal ? "global " : "")}cheermotes{(l_IsGlobal ? "." : $" for channel {p_Category}")}.");
+                ChatPlexSDK.Logger.Debug($"Requesting Twitch {(l_IsGlobal ? "global " : "")}cheermotes{(l_IsGlobal ? "." : $" for channel {p_ChannelName}")}.");
 
-                var l_Response = await m_APIClient.GetAsync("bits/cheermotes" + (l_IsGlobal ? "" : "?broadcaster_id=" + p_Category), CancellationToken.None).ConfigureAwait(false);
+                var l_Completion = new TaskCompletionSource<Network.WebResponse>();
+                l_WebClient.GetAsync("bits/cheermotes" + (l_IsGlobal ? "" : "?broadcaster_id=" + p_ChannelID), CancellationToken.None, (p_Response) =>
+                {
+                    l_Completion.SetResult(p_Response);
+                });
+                await l_Completion.Task;
+                var l_Response = l_Completion.Task?.Result;
+
                 if (l_Response == null || !l_Response.IsSuccessStatusCode)
                 {
-                    ChatPlexSDK.Logger.Error($"Unsuccessful status code when requesting Twitch {(l_IsGlobal ? "global " : "")}cheermotes{(l_IsGlobal ? "." : " for channel " + p_Category)}. {l_Response.ReasonPhrase}");
+                    ChatPlexSDK.Logger.Error($"Unsuccessful status code when requesting Twitch {(l_IsGlobal ? "global " : "")}cheermotes{(l_IsGlobal ? "." : " for channel " + p_ChannelName)}. {l_Response.ReasonPhrase}");
                     return;
                 }
 
@@ -63,10 +72,11 @@ namespace CP_SDK.Chat.Services.Twitch
                 {
                     var l_Cheermote = new TwitchCheermoteData();
                     var l_Prefix    = l_Node["prefix"].Value.ToLower();
+                    var l_Type      = l_Node["type"].Value;
 
                     foreach (JSONNode l_Tier in l_Node["tiers"].Values)
                     {
-                        var l_NewTier = new CheermoteTier();
+                        var l_NewTier = new TwitchCheermoteTier();
                         l_NewTier.MinBits   = l_Tier["min_bits"].AsInt;
                         l_NewTier.Color     = l_Tier["color"].Value;
                         l_NewTier.Uri       = l_Tier["images"]["dark"]["animated"]["3"].Value;
@@ -74,20 +84,20 @@ namespace CP_SDK.Chat.Services.Twitch
                         l_Cheermote.Tiers.Add(l_NewTier);
                     }
 
-                    l_Cheermote.Prefix = l_Prefix;
-                    l_Cheermote.Tiers = l_Cheermote.Tiers.OrderBy(t => t.MinBits).ToList();
+                    l_Cheermote.Prefix  = l_Prefix;
+                    l_Cheermote.Tiers   = l_Cheermote.Tiers.OrderBy(t => t.MinBits).ToList();
 
-                    string l_ID = l_IsGlobal ? l_Prefix : $"{p_Category}_{l_Prefix}";
-                    Resources[l_ID] = l_Cheermote;
+                    var l_InternalID = l_Type != "channel_custom" ? l_Prefix : $"{p_ChannelName}_{l_Prefix}";
+                    Resources[l_InternalID] = l_Cheermote;
                     l_Count++;
                 }
 
-                ChatPlexSDK.Logger.Debug($"Success caching {l_Count} Twitch {(l_IsGlobal ? "global " : "")}cheermotes{(l_IsGlobal ? "." : " for channel " + p_Category)}.");
+                ChatPlexSDK.Logger.Debug($"Success caching {l_Count} Twitch {(l_IsGlobal ? "global " : "")}cheermotes{(l_IsGlobal ? "." : " for channel " + p_ChannelName)}.");
 
             }
             catch (Exception l_Exception)
             {
-                ChatPlexSDK.Logger.Error($"An error occurred while requesting Twitch {(l_IsGlobal ? "global " : "")}cheermotes{(l_IsGlobal ? "." : " for channel " + p_Category)}.");
+                ChatPlexSDK.Logger.Error($"An error occurred while requesting Twitch {(l_IsGlobal ? "global " : "")}cheermotes{(l_IsGlobal ? "." : " for channel " + p_ChannelName)}.");
                 ChatPlexSDK.Logger.Error(l_Exception);
             }
 

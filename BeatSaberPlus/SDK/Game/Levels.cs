@@ -13,14 +13,11 @@ namespace BeatSaberPlus.SDK.Game
     /// </summary>
     public class Levels
     {
-        /// <summary>
-        /// Get level cancellation token
-        /// </summary>
-        private static CancellationTokenSource m_GetLevelCancellationTokenSource;
-        /// <summary>
-        /// Get status cancellation token
-        /// </summary>
-        private static CancellationTokenSource m_GetStatusCancellationTokenSource;
+#if BEATSABER_1_31_0_OR_NEWER
+        private static BeatmapCharacteristicCollection      m_BeatmapCharacteristicCollection;
+#endif
+        private static CancellationTokenSource              m_GetLevelCancellationTokenSource;
+        private static CancellationTokenSource              m_GetStatusCancellationTokenSource;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -165,6 +162,26 @@ namespace BeatSaberPlus.SDK.Game
 
                 var l_DifficultyBeatmap = p_Level.beatmapLevelData.GetDifficultyBeatmap(p_Characteristic, p_Difficulty);
 
+#if BEATSABER_1_31_0_OR_NEWER
+                l_MenuSceneSetupData.StartStandardLevel(
+                    gameMode:                       "Solo",
+                    difficultyBeatmap:              l_DifficultyBeatmap,
+                    previewBeatmapLevel:            p_Level,
+                    overrideEnvironmentSettings:    p_OverrideEnvironmentSettings,
+                    overrideColorScheme:            p_ColorScheme,
+                    beatmapOverrideColorScheme:     null,
+                    gameplayModifiers:              p_GameplayModifiers ?? new GameplayModifiers(),
+                    playerSpecificSettings:         p_PlayerSettings    ?? new PlayerSpecificSettings(),
+                    practiceSettings:               null,
+                    backButtonText:                 p_MenuButtonText,
+                    useTestNoteCutSoundEffects:     false,
+                    startPaused:                    false,
+                    beforeSceneSwitchCallback:      null,
+                    afterSceneSwitchCallback:       null,
+                    levelFinishedCallback:          (p_StandardLevelScenesTransitionSetupData, p_Results) => p_SongFinishedCallback?.Invoke(p_StandardLevelScenesTransitionSetupData, p_Results, l_DifficultyBeatmap),
+                    levelRestartedCallback:         null
+                );
+#else
                 l_MenuSceneSetupData.StartStandardLevel(
                     gameMode:                       "Solo",
                     difficultyBeatmap:              l_DifficultyBeatmap,
@@ -178,9 +195,11 @@ namespace BeatSaberPlus.SDK.Game
                     useTestNoteCutSoundEffects:     false,
                     startPaused:                    false,
                     beforeSceneSwitchCallback:      null,
+                    afterSceneSwitchCallback:       null,
                     levelFinishedCallback:          (p_StandardLevelScenesTransitionSetupData, p_Results) => p_SongFinishedCallback?.Invoke(p_StandardLevelScenesTransitionSetupData, p_Results, l_DifficultyBeatmap),
                     levelRestartedCallback:         null
                 );
+#endif
             }
             catch (Exception l_Exception)
             {
@@ -262,9 +281,19 @@ namespace BeatSaberPlus.SDK.Game
         /// <returns></returns>
         public static BeatmapCharacteristicSO GetCharacteristicSOBySerializedName(string p_Name)
         {
+#if BEATSABER_1_31_0_OR_NEWER
+            if (m_BeatmapCharacteristicCollection == null)
+            {
+                var l_CustomLevelLoader = Resources.FindObjectsOfTypeAll<CustomLevelLoader>().FirstOrDefault();
+                m_BeatmapCharacteristicCollection = l_CustomLevelLoader?._beatmapCharacteristicCollection;
+            }
+
+            return m_BeatmapCharacteristicCollection.GetBeatmapCharacteristicBySerializedName(SanitizeCharacteristic(p_Name));
+#else
             return SongCore.Loader.beatmapCharacteristicCollection.GetBeatmapCharacteristicBySerializedName(
                 SanitizeCharacteristic(p_Name)
             );
+#endif
         }
         /// <summary>
         /// Sanitize characteristic

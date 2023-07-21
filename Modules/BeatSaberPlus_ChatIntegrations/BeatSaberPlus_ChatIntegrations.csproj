@@ -47,13 +47,14 @@
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BeatmapCore">
+    <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="BeatmapCore" Publicize="true">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatmapCore.dll</HintPath>
-      <Private>False</Private>
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="BSML">
-      <HintPath>$(BeatSaberDir)\Plugins\BSML.dll</HintPath>
       <Private>False</Private>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
@@ -67,12 +68,12 @@
       <Private>False</Private>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
-    <Reference Include="Core">
+    <Reference Include="Core" Publicize="true">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Core.dll</HintPath>
       <Private>False</Private>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
-    <Reference Include="GameplayCore">
+    <Reference Include="GameplayCore" Publicize="true">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\GameplayCore.dll</HintPath>
       <Private>False</Private>
       <SpecificVersion>False</SpecificVersion>
@@ -82,7 +83,7 @@
       <HintPath>$(BeatSaberDir)\Libs\Hive.Versioning.dll</HintPath>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
-    <Reference Include="HMRendering">
+    <Reference Include="HMRendering" Publicize="true">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\HMRendering.dll</HintPath>
       <Private>False</Private>
       <SpecificVersion>False</SpecificVersion>
@@ -95,11 +96,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net.Http, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-    <Reference Include="Main">
+    <Reference Include="Main" Publicize="true">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Main.dll</HintPath>
       <Private>False</Private>
     </Reference>
@@ -132,21 +129,13 @@
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="UnityEngine.IMGUIModule">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
       <Private>False</Private>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UI.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="UnityEngine.UIElementsModule">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UIElementsModule.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="UnityEngine.UIModule">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UIModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.UnityWebRequestAudioModule">
@@ -159,161 +148,111 @@
       <Private>False</Private>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
-    <Reference Include="UnityEngine.VRModule">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.VRModule.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Actions\Camera2.cs" />
-    <Compile Include="Actions\NoteTweaker.cs" />
-    <Compile Include="Actions\OBS.cs" />
-    <Compile Include="Actions\SongChartVisualizer.cs" />
-    <Compile Include="CIConfig.cs" />
-    <Compile Include="Conditions\OBS.cs" />
-    <Compile Include="Events\ChatRaid.cs" />
-    <Compile Include="Events\LevelPaused.cs" />
-    <Compile Include="Events\LevelResumed.cs" />
-    <Compile Include="Logger.cs" />
-    <Compile Include="Actions\Chat.cs" />
-    <Compile Include="Actions\EmoteRain.cs" />
-    <Compile Include="Actions\Event.cs" />
-    <Compile Include="Actions\GamePlay.cs" />
-    <Compile Include="Actions\Misc.cs" />
-    <Compile Include="Actions\Twitch.cs" />
-    <Compile Include="ChatIntegrations.cs" />
-    <Compile Include="ChatIntegrations_Database.cs" />
-    <Compile Include="ChatIntegrations_Events.cs" />
-    <Compile Include="Conditions\Bits.cs" />
-    <Compile Include="Conditions\ChatRequest.cs" />
-    <Compile Include="Conditions\Event.cs" />
-    <Compile Include="Conditions\GamePlay.cs" />
-    <Compile Include="Conditions\Misc.cs" />
-    <Compile Include="Conditions\Subscription.cs" />
-    <Compile Include="Conditions\User.cs" />
-    <Compile Include="Events\ChatBits.cs" />
-    <Compile Include="Events\ChatCommand.cs" />
-    <Compile Include="Events\ChatFollow.cs" />
-    <Compile Include="Events\ChatPointsReward.cs" />
-    <Compile Include="Events\ChatSubscription.cs" />
-    <Compile Include="Events\Dummy.cs" />
-    <Compile Include="Events\LevelEnded.cs" />
-    <Compile Include="Events\LevelStarted.cs" />
-    <Compile Include="Events\VoiceAttackCommand.cs" />
-    <Compile Include="Interfaces\IAction.cs" />
-    <Compile Include="Interfaces\ICondition.cs" />
-    <Compile Include="Interfaces\IEvent.cs" />
-    <Compile Include="Interfaces\TriggerType.cs" />
-    <Compile Include="Interfaces\ValueType.cs" />
-    <Compile Include="Models\Action.cs" />
-    <Compile Include="Models\Actions\Camera2.cs" />
-    <Compile Include="Models\Actions\Chat.cs" />
-    <Compile Include="Models\Actions\EmoteRain.cs" />
-    <Compile Include="Models\Actions\Event.cs" />
-    <Compile Include="Models\Actions\GamePlay.cs" />
-    <Compile Include="Models\Actions\Misc.cs" />
-    <Compile Include="Models\Actions\OBS.cs" />
-    <Compile Include="Models\Actions\SongChartVisualizer.cs" />
-    <Compile Include="Models\Condition.cs" />
-    <Compile Include="Models\Conditions\Bits.cs" />
-    <Compile Include="Models\Conditions\ChatRequest.cs" />
-    <Compile Include="Models\Conditions\Events.cs" />
-    <Compile Include="Models\Conditions\GamePlay.cs" />
-    <Compile Include="Models\Conditions\Misc.cs" />
-    <Compile Include="Models\Conditions\OBS.cs" />
-    <Compile Include="Models\Conditions\Subscription.cs" />
-    <Compile Include="Models\Conditions\User.cs" />
-    <Compile Include="Models\Event.cs" />
-    <Compile Include="Models\EventContext.cs" />
-    <Compile Include="Models\Events\ChatBits.cs" />
-    <Compile Include="Models\Events\ChatCommand.cs" />
-    <Compile Include="Models\Events\ChatFollow.cs" />
-    <Compile Include="Models\Events\ChatPointsReward.cs" />
-    <Compile Include="Models\Events\ChatSubscription.cs" />
-    <Compile Include="Models\Events\VoiceAttackCommand.cs" />
-    <Compile Include="ModPresence.cs" />
-    <Compile Include="ModulePresence.cs" />
-    <Compile Include="UI\Settings.cs" />
-    <Compile Include="UI\SettingsLeft.cs" />
-    <Compile Include="UI\SettingsRight.cs" />
-    <Compile Include="UI\Settings_AddActionFrame.cs" />
-    <Compile Include="UI\Settings_AddConditionFrame.cs" />
-    <Compile Include="Plugin.cs" />
+    <Compile Include="BeatSaber\Actions\Camera2.cs" />
+    <Compile Include="BeatSaber\Actions\NoteTweaker.cs" />
+    <Compile Include="BeatSaber\Enums\BeatmapModType.cs" />
+    <Compile Include="BeatSaber\Enums\ValueSource.cs" />
+    <Compile Include="BeatSaber\Enums\QueueStatus.cs" />
+    <Compile Include="BeatSaber\Enums\LevelType.cs" />
+    <Compile Include="BeatSaber\Manager.cs" />
+    <Compile Include="BeatSaber\Models\Actions\NoteTweaker.cs" />
+    <Compile Include="BeatSaber\ModulePresence.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Actions\OBS.cs" />
+    <Compile Include="BeatSaber\Actions\SongChartVisualizer.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\CIConfig.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Conditions\OBS.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Enums\Comparison.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Enums\Visibility.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Enums\TwitchSubscribtionPlanType.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Events\ChatRaid.cs" />
+    <Compile Include="BeatSaber\Events\LevelPaused.cs" />
+    <Compile Include="BeatSaber\Events\LevelResumed.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Interfaces\IAction.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Interfaces\IActionBase.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Interfaces\ICondition.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Interfaces\IConditionBase.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Interfaces\IEvent.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Interfaces\IEventBase.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Interfaces\IUIConfigurable.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Interfaces\ETriggerType.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Interfaces\EValueType.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Logger.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Actions\Chat.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Actions\EmoteRain.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Actions\Event.cs" />
+    <Compile Include="BeatSaber\Actions\GamePlay.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Actions\Misc.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Actions\Twitch.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\ChatIntegrations.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\ChatIntegrations_Database.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\ChatIntegrations_Events.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Conditions\Bits.cs" />
+    <Compile Include="BeatSaber\Conditions\ChatRequest.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Conditions\Event.cs" />
+    <Compile Include="BeatSaber\Conditions\GamePlay.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Conditions\Misc.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Conditions\Subscription.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Conditions\User.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Events\ChatBits.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Events\ChatCommand.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Events\ChatFollow.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Events\ChatPointsReward.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Events\ChatSubscription.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Events\Dummy.cs" />
+    <Compile Include="BeatSaber\Events\LevelEnded.cs" />
+    <Compile Include="BeatSaber\Events\LevelStarted.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Events\VoiceAttackCommand.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Models\Action.cs" />
+    <Compile Include="BeatSaber\Models\Actions\Camera2.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Models\Actions\Chat.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Models\Actions\EmoteRain.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Models\Actions\Event.cs" />
+    <Compile Include="BeatSaber\Models\Actions\GamePlay.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Models\Actions\Misc.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Models\Actions\OBS.cs" />
+    <Compile Include="BeatSaber\Models\Actions\SongChartVisualizer.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Models\Condition.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Models\Conditions\Bits.cs" />
+    <Compile Include="BeatSaber\Models\Conditions\ChatRequest.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Models\Conditions\Events.cs" />
+    <Compile Include="BeatSaber\Models\Conditions\GamePlay.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Models\Conditions\Misc.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Models\Conditions\OBS.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Models\Conditions\Subscription.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Models\Conditions\User.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Models\Event.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Models\EventContext.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Models\Events\ChatBits.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Models\Events\ChatCommand.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Models\Events\ChatFollow.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Models\Events\ChatPointsReward.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Models\Events\ChatSubscription.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Models\Events\VoiceAttackCommand.cs" />
+    <Compile Include="BeatSaber\ModPresence.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\ModulePresence.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\UI\Modals\AddXModal.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\UI\Data\ConditionListItem.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\UI\Data\ActionListItem.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\UI\Modals\EventCreateModal.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\UI\Modals\EventTemplateModal.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\UI\Data\EventListItem.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\UI\Modals\EventImportModal.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\UI\SettingsMainView.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\UI\SettingsLeftView.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\UI\SettingsRightView.cs" />
+    <Compile Include="BSIPA.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Enums\ChangeType.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Enums\Toggle.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ChatPlexMod_ChatIntegrations\Enums\EVisibility.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Actions\Views\Camera2_SwitchToScene.bsml" />
-    <EmbeddedResource Include="Actions\Views\Camera2_ToggleCamera.bsml" />
-    <EmbeddedResource Include="Actions\Views\Chat_SendMessage.bsml" />
-    <EmbeddedResource Include="Actions\Views\Chat_ToggleVisibility.bsml" />
-    <EmbeddedResource Include="Actions\Views\EmoteRain_CustomRain.bsml" />
-    <EmbeddedResource Include="Actions\Views\EmoteRain_EmoteBombRain.bsml" />
-    <EmbeddedResource Include="Actions\Views\Event_ExecuteDummy.bsml" />
-    <EmbeddedResource Include="Actions\Views\Event_Toggle.bsml" />
-    <EmbeddedResource Include="Actions\Views\GamePlay_ChangeBombScale.bsml" />
-    <EmbeddedResource Include="Actions\Views\GamePlay_ChangeDebris.bsml" />
-    <EmbeddedResource Include="Actions\Views\GamePlay_ChangeLightIntensity.bsml" />
-    <EmbeddedResource Include="Actions\Views\GamePlay_ChangeMusicVolume.bsml" />
-    <EmbeddedResource Include="Actions\Views\GamePlay_ChangeNoteColors.bsml" />
-    <EmbeddedResource Include="Actions\Views\GamePlay_ChangeNoteScale.bsml" />
-    <EmbeddedResource Include="Actions\Views\GamePlay_SpawnBombPatterns.bsml" />
-    <EmbeddedResource Include="Actions\Views\GamePlay_SpawnSquatWalls.bsml" />
-    <EmbeddedResource Include="Actions\Views\GamePlay_ToggleHUD.bsml" />
-    <EmbeddedResource Include="Actions\Views\GamePlay_ToggleLights.bsml" />
-    <EmbeddedResource Include="Actions\Views\Misc_Delay.bsml" />
-    <EmbeddedResource Include="Actions\Views\Misc_PlaySound.bsml" />
-    <EmbeddedResource Include="Actions\Views\OBS_SetRecordFilenameFormat.bsml" />
-    <EmbeddedResource Include="Actions\Views\OBS_SwitchPreviewToScene.bsml" />
-    <EmbeddedResource Include="Actions\Views\OBS_SwitchToScene.bsml" />
-    <EmbeddedResource Include="Actions\Views\OBS_ToggleSource.bsml" />
-    <EmbeddedResource Include="Actions\Views\OBS_ToggleStudioMode.bsml" />
-    <EmbeddedResource Include="Actions\Views\OBS_Transition.bsml" />
-    <EmbeddedResource Include="Actions\Views\SongChartVisualizer_ToggleVisibility.bsml" />
-    <EmbeddedResource Include="Actions\Views\Twitch_AddMarker.bsml" />
-    <EmbeddedResource Include="Conditions\Views\Bits_Amount.bsml" />
-    <EmbeddedResource Include="Conditions\Views\ChatRequest_QueueDuration.bsml" />
-    <EmbeddedResource Include="Conditions\Views\ChatRequest_QueueSize.bsml" />
-    <EmbeddedResource Include="Conditions\Views\ChatRequest_QueueStatus.bsml" />
-    <EmbeddedResource Include="Conditions\Views\Event_Disabled.bsml" />
-    <EmbeddedResource Include="Conditions\Views\Event_Enabled.bsml" />
-    <EmbeddedResource Include="Conditions\Views\GamePlay_LevelEndType.bsml" />
-    <EmbeddedResource Include="Conditions\Views\GamePlay_PlayingMap.bsml" />
-    <EmbeddedResource Include="Conditions\Views\Misc_Cooldown.bsml" />
-    <EmbeddedResource Include="Conditions\Views\OBS_IsInScene.bsml" />
-    <EmbeddedResource Include="Conditions\Views\OBS_IsNotInScene.bsml" />
-    <EmbeddedResource Include="Conditions\Views\Subscription_PlanType.bsml" />
-    <EmbeddedResource Include="Conditions\Views\Subscription_PurchasedMonthCount.bsml" />
-    <EmbeddedResource Include="Conditions\Views\User_Permissions.bsml" />
     <EmbeddedResource Include="manifest.json" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Actions\Views\OBS_ToggleSourceAudio.bsml" />
-    <EmbeddedResource Include="Actions\Views\GamePlay_Pause.bsml" />
-    <EmbeddedResource Include="Actions\Views\GamePlay_ChangeBombColor.bsml" />
-    <EmbeddedResource Include="Actions\Views\NoteTweaker_SwitchProfile.bsml" />
-    <EmbeddedResource Include="Actions\Views\OBS_RenameLastRecord.bsml" />
     <None Include="BuildTargets.targets" />
-    <EmbeddedResource Include="Events\Views\ChatBits.bsml" />
-    <EmbeddedResource Include="Events\Views\ChatCommand.bsml" />
-    <EmbeddedResource Include="Events\Views\ChatFollow.bsml" />
-    <EmbeddedResource Include="Events\Views\ChatPointsReward.bsml" />
-    <EmbeddedResource Include="Events\Views\ChatSubscription.bsml" />
-    <EmbeddedResource Include="Events\Views\Dummy.bsml" />
-    <EmbeddedResource Include="Events\Views\LevelEnded.bsml" />
-    <EmbeddedResource Include="Events\Views\LevelStarted.bsml" />
-    <EmbeddedResource Include="Events\Views\VoiceAttackCommand.bsml" />
-    <EmbeddedResource Include="UI\Settings.bsml">
-      <DependentUpon>Settings.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UI\SettingsLeft.bsml">
-      <DependentUpon>SettingsLeft.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UI\SettingsRight.bsml">
-      <DependentUpon>SettingsRight.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Events\Views\LevelPaused.bsml" />
-    <EmbeddedResource Include="Events\Views\LevelResumed.bsml" />
-    <EmbeddedResource Include="Events\Views\ChatRaid.bsml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\BeatSaberPlus\BeatSaberPlus.csproj">
@@ -345,6 +284,7 @@
       <Name>BeatSaberPlus_SongChartVisualizer</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="BuildTargets.targets" />
   <PropertyGroup>

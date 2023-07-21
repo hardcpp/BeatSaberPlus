@@ -67,12 +67,16 @@ namespace CP_SDK.Animation
             m_UVs   = p_UVs;
             Delays  = p_Delays;
 
+            var l_Width     = p_Texture.width;
+            var l_Height    = p_Texture.height;
             for (int l_Frame = 0; l_Frame < p_UVs.Length; ++l_Frame)
             {
-                Frames[l_Frame] = Sprite.Create(p_Texture,
-                    new Rect(p_UVs[l_Frame].x * p_Texture.width, p_UVs[l_Frame].y * p_Texture.height, p_UVs[l_Frame].width * p_Texture.width, p_UVs[l_Frame].height * p_Texture.height),
-                    Vector2.zero,
-                    100f,
+                var l_CurrentUV = p_UVs[l_Frame];
+                Frames[l_Frame] = Sprite.Create(
+                    p_Texture,
+                    new Rect(l_CurrentUV.x * l_Width, l_CurrentUV.y * l_Height, l_CurrentUV.width * l_Width, l_CurrentUV.height * l_Height),
+                    new Vector2(0.0f, 0.0f),
+                    100.0f,
                     0,
                     SpriteMeshType.FullRect
                 );
@@ -86,7 +90,7 @@ namespace CP_SDK.Animation
 
             FirstFrame = Frames[0];
 
-            m_LastFrameChange = (long)(Time.realtimeSinceStartup * 1000f);
+            m_LastFrameChange = (long)(Time.realtimeSinceStartup * 1000.0f);
         }
 
         ////////////////////////////////////////////////////////////////////////////

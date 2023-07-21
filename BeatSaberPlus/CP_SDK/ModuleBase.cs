@@ -1,4 +1,6 @@
-﻿namespace CP_SDK
+﻿using UnityEngine;
+
+namespace CP_SDK
 {
     /// <summary>
     /// Module type
@@ -26,34 +28,14 @@
     /// </summary>
     public interface IModuleBase
     {
-        /// <summary>
-        /// Module type
-        /// </summary>
-        EIModuleBaseType Type { get; }
-        /// <summary>
-        /// Name of the Module
-        /// </summary>
-        string Name { get; }
-        /// <summary>
-        /// Fancy Name of the Module
-        /// </summary>
-        string FancyName { get; }
-        /// <summary>
-        /// Description of the Module
-        /// </summary>
-        string Description { get; }
-        /// <summary>
-        /// Is the plugin using chat features
-        /// </summary>
-        bool UseChatFeatures { get; }
-        /// <summary>
-        /// Is enabled
-        /// </summary>
-        bool IsEnabled { get; set; }
-        /// <summary>
-        /// Activation type
-        /// </summary>
-        EIModuleBaseActivationType ActivationType { get; }
+        EIModuleBaseType            Type                { get;      }
+        string                      Name                { get;      }
+        string                      FancyName           { get;      }
+        string                      Description         { get;      }
+        string                      DocumentationURL    { get;      }
+        bool                        UseChatFeatures     { get;      }
+        bool                        IsEnabled           { get; set; }
+        EIModuleBaseActivationType  ActivationType      { get;      }
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -76,6 +58,14 @@
         /// On application exit
         /// </summary>
         void OnApplicationExit();
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Get Module settings UI
+        /// </summary>
+        (UI.IViewController, UI.IViewController, UI.IViewController) GetSettingsViewControllers();
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -84,37 +74,17 @@
     /// <summary>
     /// Module base interface
     /// </summary>
-    public abstract class ModuleBase<T> : IModuleBase
-        where T : ModuleBase<T>, new()
+    public abstract class ModuleBase<t_Type> : IModuleBase
+        where t_Type : ModuleBase<t_Type>, new()
     {
-        /// <summary>
-        /// Module type
-        /// </summary>
-        public abstract EIModuleBaseType Type { get; }
-        /// <summary>
-        /// Name of the Module
-        /// </summary>
-        public abstract string Name { get; }
-        /// <summary>
-        /// Fancy Name of the Module
-        /// </summary>
-        public virtual string FancyName => Name;
-        /// <summary>
-        /// Description of the Module
-        /// </summary>
-        public abstract string Description { get; }
-        /// <summary>
-        /// Is the plugin using chat features
-        /// </summary>
-        public abstract bool UseChatFeatures { get; }
-        /// <summary>
-        /// Is enabled
-        /// </summary>
-        public abstract bool IsEnabled { get; set; }
-        /// <summary>
-        /// Activation type
-        /// </summary>
-        public abstract EIModuleBaseActivationType ActivationType { get; }
+        public abstract EIModuleBaseType            Type                { get;      }
+        public abstract string                      Name                { get;      }
+        public virtual  string                      FancyName           => Name;
+        public abstract string                      Description         { get;      }
+        public virtual  string                      DocumentationURL    => string.Empty;
+        public abstract bool                        UseChatFeatures     { get;      }
+        public abstract bool                        IsEnabled           { get; set; }
+        public abstract EIModuleBaseActivationType  ActivationType      { get;      }
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -122,7 +92,7 @@
         /// <summary>
         /// Singleton
         /// </summary>
-        public static T Instance { get; private set; } = null;
+        public static t_Type Instance { get; private set; } = null;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -180,7 +150,7 @@
                 return;
 
             m_WasEnabled = true;
-            Instance = this as T;
+            Instance = this as t_Type;
             OnEnable();
         }
         /// <summary>
@@ -207,5 +177,22 @@
         /// Disable the Module
         /// </summary>
         protected abstract void OnDisable();
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Get Module settings UI
+        /// </summary>
+        public (UI.IViewController, UI.IViewController, UI.IViewController) GetSettingsViewControllers() => GetSettingsViewControllersImplementation();
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Get Module settings UI
+        /// </summary>
+        protected virtual (UI.IViewController, UI.IViewController, UI.IViewController) GetSettingsViewControllersImplementation()
+            => (null, null, null);
     }
 }

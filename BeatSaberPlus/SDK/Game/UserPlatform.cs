@@ -5,7 +5,7 @@ namespace BeatSaberPlus.SDK.Game
     /// <summary>
     /// UserPlatform helper
     /// </summary>
-    public class UserPlatform
+    public static class UserPlatform
     {
         /// <summary>
         /// User ID cache
@@ -33,7 +33,7 @@ namespace BeatSaberPlus.SDK.Game
             return m_UserID;
         }
         /// <summary>
-        /// Get User ID
+        /// Get User Name
         /// </summary>
         /// <returns></returns>
         public static string GetUserName()
@@ -57,11 +57,10 @@ namespace BeatSaberPlus.SDK.Game
             try
             {
                 var l_PlatformLeaderboardsModels = Resources.FindObjectsOfTypeAll<PlatformLeaderboardsModel>();
-                var l_FieldAccessor = typeof(PlatformLeaderboardsModel).GetField("_platformUserModel", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
 
                 foreach (var l_Current in l_PlatformLeaderboardsModels)
                 {
-                    var l_PlatformUserModel = l_FieldAccessor.GetValue(l_Current) as IPlatformUserModel;
+                    var l_PlatformUserModel = l_Current._platformUserModel;
                     if (l_PlatformUserModel == null)
                         continue;
 

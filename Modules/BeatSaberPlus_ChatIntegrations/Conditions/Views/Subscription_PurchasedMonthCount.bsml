@@ -1,8 +1,0 @@
-﻿<vertical min-height='55' child-align='UpperCenter'>
-  <text text='Purchased month count:' align='Center' />
-
-  <slider-setting min='1' max='100' increment='1' id='CountSlider' integer-only='true' apply-on-change='true' text='Count' />
-
-  <horizontal min-height='50'></horizontal>
-
-</vertical>

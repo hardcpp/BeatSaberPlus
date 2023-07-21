@@ -8,16 +8,11 @@ namespace CP_SDK.Chat.Models.Twitch
     [Serializable]
     public class Helix_TokenValidate
     {
-        [JsonProperty]
-        public string client_id = "";
-        [JsonProperty]
-        public string login = "";
-        [JsonProperty]
-        public List<string> scopes = new List<string>();
-        [JsonProperty]
-        public string user_id = "";
-        [JsonProperty]
-        public int expires_in = 0;
+        [JsonProperty] public string        client_id   = "";
+        [JsonProperty] public string        login       = "";
+        [JsonProperty] public List<string>  scopes      = new List<string>();
+        [JsonProperty] public string        user_id     = "";
+        [JsonProperty] public int           expires_in  = 0;
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -106,6 +101,17 @@ namespace CP_SDK.Chat.Models.Twitch
         [JsonProperty] public string cooldown_expires_at;
     }
     */
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
+
+    [Serializable]
+    public class Helix_CreateClip
+    {
+        [JsonProperty] public string edit_url { get; protected set; }
+        [JsonProperty] public string id { get; protected set; }
+    }
 
     ////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////

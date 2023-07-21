@@ -83,7 +83,7 @@ namespace CP_SDK.Chat
         internal static void Init()
         {
             m_CacheFolder   = Path.Combine(ChatPlexSDK.BasePath, $"UserData/{ChatPlexSDK.ProductName}/Cache/Chat/");
-            m_WebClient     = new Network.WebClient();
+            m_WebClient     = new Network.WebClient("", TimeSpan.FromSeconds(10));
             m_WebClient.Timeout = 10;
 
             try
@@ -141,7 +141,7 @@ namespace CP_SDK.Chat
 
             if (string.IsNullOrEmpty(p_URL))
             {
-                ChatPlexSDK.Logger.Error($"[CP_SDK.Chat][ImageProvider.DownloadContent] URI is null or empty in request for resource {p_URL}. Aborting!");
+                ChatPlexSDK.Logger.Error($"[CP_SDK.Chat][ChatImageProvider.TryCacheSingleImage] URI is null or empty in request for resource {p_URL} ID:{p_ID}. Aborting!");
 
                 m_CachedImageInfo[p_URL] = null;
                 p_Finally?.Invoke(null);
@@ -239,7 +239,7 @@ namespace CP_SDK.Chat
             m_ActiveDownloads[p_URL] -= p_Finally;
             m_ActiveDownloads[p_URL] += p_Finally;
 
-            m_WebClient.DownloadAsync(p_URL, System.Threading.CancellationToken.None, (p_Result) =>
+            m_WebClient.GetAsync(p_URL, System.Threading.CancellationToken.None, (p_Result) =>
             {
                 if (p_Result == null)
                 {
@@ -248,18 +248,18 @@ namespace CP_SDK.Chat
                     return;
                 }
 
-                if (m_CacheEnabled && p_Result != null && p_Result.Length > 0)
+                if (m_CacheEnabled && p_Result?.BodyBytes != null && p_Result.BodyBytes.Length > 0)
                 {
                     Unity.MTThreadInvoker.EnqueueOnThread(() =>
                     {
                         if (!Directory.Exists(m_CacheFolder))
                             Directory.CreateDirectory(m_CacheFolder);
 
-                        File.WriteAllBytes(m_CacheFolder + p_CacheID, p_Result);
+                        File.WriteAllBytes(m_CacheFolder + p_CacheID, p_Result.BodyBytes);
                     });
                 }
 
-                m_ActiveDownloads[p_URL]?.Invoke(p_Result);
+                m_ActiveDownloads[p_URL]?.Invoke(p_Result.BodyBytes);
                 m_ActiveDownloads.TryRemove(p_URL, out var _);
             });
         }

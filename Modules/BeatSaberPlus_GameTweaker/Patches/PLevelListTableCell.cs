@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using CP_SDK.Unity.Extensions;
+using HarmonyLib;
 using TMPro;
 using UnityEngine;
 
@@ -23,9 +24,9 @@ namespace BeatSaberPlus_GameTweaker.Patches
 
                 var l_ColorPrefix = "";
                 if (l_HaveAllScores)
-                    l_ColorPrefix = "<#" + ColorUtility.ToHtmlStringRGB(GTConfig.Instance.LevelSelection.HighlightAllPlayed) + ">";
+                    l_ColorPrefix = "<" + ColorU.ToHexRGB(GTConfig.Instance.LevelSelection.HighlightAllPlayed) + ">";
                 else if (l_HaveAnyScore)
-                    l_ColorPrefix = "<#" + ColorUtility.ToHtmlStringRGB(GTConfig.Instance.LevelSelection.HighlightPlayed) + ">";
+                    l_ColorPrefix = "<" + ColorU.ToHexRGB(GTConfig.Instance.LevelSelection.HighlightPlayed) + ">";
 
                 ____songNameText.text = l_ColorPrefix + ____songNameText.text;
             }

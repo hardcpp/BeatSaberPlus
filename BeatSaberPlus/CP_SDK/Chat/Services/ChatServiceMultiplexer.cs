@@ -1,7 +1,9 @@
 ﻿using CP_SDK.Chat.Interfaces;
+using CP_SDK.Unity.Extensions;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text;
+using UnityEngine;
 
 namespace CP_SDK.Chat.Services
 {
@@ -14,6 +16,10 @@ namespace CP_SDK.Chat.Services
         /// The display name of the service(s)
         /// </summary>
         public string DisplayName { get; private set; } = "System";
+        /// <summary>
+        /// Side handle of each message color
+        /// </summary>
+        public Color AccentColor { get; } = ColorU.WithAlpha(Color.gray, 0.75f);
 
         /// <summary>
         /// p_Channels

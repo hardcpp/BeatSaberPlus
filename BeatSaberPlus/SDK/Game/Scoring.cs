@@ -8,47 +8,22 @@ namespace BeatSaberPlus.SDK.Game
     /// </summary>
     public static class Scoring
     {
-        /// <summary>
-        /// Is initialized
-        /// </summary>
         private static bool m_Init;
 
-        /// <summary>
-        /// Is ScoreSaber present
-        /// </summary>
-        private static bool m_IsScoreSaberPresent;
-        /// <summary>
-        /// ScoreSaber PatchHandleHMDUnmounted harmony patch
-        /// </summary>
-        private static MethodBase m_ScoreSaber_playbackEnabled;
+        private static bool         m_IsScoreSaberPresent;
+        private static MethodBase   m_ScoreSaber_playbackEnabled;
 
-        /// <summary>
-        /// Is BeatLeader present
-        /// </summary>
-        private static bool m_IsBeatLeaderPresent;
-        /// <summary>
-        /// BeatLeader PatchHandleHMDUnmounted harmony patch
-        /// </summary>
-        private static MethodBase m_BeatLeader_RecorderUtils_OnActionButtonWasPressed;
-
+        private static bool         m_IsBeatLeaderPresent;
+        private static MethodBase   m_BeatLeader_RecorderUtils_OnActionButtonWasPressed;
         private static PropertyInfo m_BeatLeader_ReplayerMenuLauncher_IsStartedAsReplay;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        /// <summary>
-        /// Is ScoreSaber mod installed
-        /// </summary>
-        public static bool IsScoreSaberPresent { get { Init(); return m_IsScoreSaberPresent; } }
-        /// <summary>
-        /// Is BeatLeader mod installed
-        /// </summary>
-        public static bool IsBeatLeaderPresent { get { Init(); return m_IsBeatLeaderPresent; } }
+        public static bool IsScoreSaberPresent  { get { Init(); return m_IsScoreSaberPresent; } }
+        public static bool IsBeatLeaderPresent  { get { Init(); return m_IsBeatLeaderPresent; } }
 
-        /// <summary>
-        /// Is in ScoreSaber or BeatLeader replay
-        /// </summary>
-        public static bool IsInReplay { get { return ScoreSaber_IsInReplay() || BeatLeader_IsInReplay(); } }
+        public static bool IsInReplay           { get { return ScoreSaber_IsInReplay() || BeatLeader_IsInReplay(); } }
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////

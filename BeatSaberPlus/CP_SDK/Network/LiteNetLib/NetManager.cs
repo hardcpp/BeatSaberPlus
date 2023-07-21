@@ -828,7 +828,7 @@ namespace CP_SDK_LiteNetLib
                 //ProcessEvents
                 DataReceived(packet, remoteEndPoint);
             }
-            catch(Exception e)
+            catch(Exception)
             {
                 //protects socket receive thread
                 //NetDebug.WriteError("[NM] SocketReceiveThread error: " + e );
@@ -987,7 +987,7 @@ namespace CP_SDK_LiteNetLib
                     {
                         ntpPacket.ValidateReply();
                     }
-                    catch (InvalidOperationException ex)
+                    catch (InvalidOperationException)
                     {
                         //NetDebug.Write(NetLogLevel.Trace, "NTP response error: {}", ex.Message);
                         ntpPacket = null;

@@ -10,6 +10,7 @@ using System.Linq;
 using UnityEngine;
 using System.Collections.Generic;
 using CP_SDK.Unity.Extensions;
+using CP_SDK.Chat.Utilities;
 
 namespace CP_SDK.Chat.Services.Twitch
 {
@@ -18,6 +19,12 @@ namespace CP_SDK.Chat.Services.Twitch
     /// </summary>
     public class _7TVDataProvider : IChatResourceProvider<ChatResourceData>
     {
+        private const string s_PLATFORM_NAME            = "Twitch";
+        private const string s_REQUEST_PLATFORM_NAME    = "twitch";
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
         /// <summary>
         /// Paint cached stop
         /// </summary>
@@ -25,13 +32,6 @@ namespace CP_SDK.Chat.Services.Twitch
         {
             [JsonProperty] internal float Stop;
             [JsonProperty] internal Color32 StopColor;
-        }
-        private class CustomPaint
-        {
-#pragma warning disable CS0649
-            [JsonProperty] internal object[][] Stops;
-            [JsonProperty] internal string[] Users;
-#pragma warning restore CS0649
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -62,54 +62,29 @@ namespace CP_SDK.Chat.Services.Twitch
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
-        /// Try request resources
+        /// Try request resources from the provider
         /// </summary>
-        /// <param name="p_Category">Category / Channel</param>
+        /// <param name="p_ChannelID">ID of the channel</param>
+        /// <param name="p_ChannelName">Name of the channel</param>
+        /// <param name="p_AccessToken">Access token for the API</param>
         /// <returns></returns>
-        public async Task TryRequestResources(string p_Category, string p_Token)
+        public async Task TryRequestResources(string p_ChannelID, string p_ChannelName, string p_AccessToken)
         {
-            bool l_IsGlobal = string.IsNullOrEmpty(p_Category);
+            bool l_IsGlobal = string.IsNullOrEmpty(p_ChannelID);
 
             try
             {
-                ChatPlexSDK.Logger.Debug($"Requesting 7TV {(l_IsGlobal ? "global " : "")}emotes{(l_IsGlobal ? "." : $" for channel {p_Category}")}. " + (l_IsGlobal ? "https://api.7tv.app/v2/emotes/global" : $"https://api.7tv.app/v2/users/{p_Category}/emotes"));
+                int l_Count = 0;
+                if (l_IsGlobal)
+                    l_Count += await RequestGlobalEmotes();
+                else
+                    l_Count += await RequestChannelEmotes(p_ChannelID);
 
-                using (HttpRequestMessage msg = new HttpRequestMessage(HttpMethod.Get, l_IsGlobal ? "https://api.7tv.app/v2/emotes/global" : $"https://api.7tv.app/v2/users/{p_Category}/emotes"))
-                {
-                    var l_Response = await m_HTTPClient.SendAsync(msg).ConfigureAwait(false);
-                    if (l_Response.IsSuccessStatusCode)
-                    {
-                        JSONNode l_JSON = JSON.Parse(await l_Response.Content.ReadAsStringAsync().ConfigureAwait(false));
-                        if (l_JSON.IsArray)
-                        {
-                            int l_Count = 0;
-                            foreach (JSONObject l_Object in l_JSON.AsArray)
-                            {
-                                string l_URI    = l_Object["urls"].AsArray.Count >= 2 ? l_Object["urls"].AsArray[2].AsArray[1] : l_Object["urls"].AsArray[0].AsArray[0];
-                                string l_ID     = l_IsGlobal ? l_Object["name"].Value : $"{p_Category}_{l_Object["name"].Value}";
-
-                                Resources.TryAdd(l_ID, new ChatResourceData()
-                                {
-                                    Uri         = l_URI,
-                                    Animation   = Animation.EAnimationType.AUTODETECT,
-                                    Category    = EChatResourceCategory.Emote,
-                                    Type        = l_IsGlobal ? "7TVGlobalEmote" : "7TVChannelEmote"
-                                });
-                                l_Count++;
-                            }
-
-                            ChatPlexSDK.Logger.Debug($"Success caching {l_Count} 7TV {(l_IsGlobal ? "global " : "")}emotes{(l_IsGlobal ? "." : " for channel " + p_Category)}.");
-                        }
-                        else
-                            ChatPlexSDK.Logger.Error("emotes was not an array.");
-                    }
-                    else
-                        ChatPlexSDK.Logger.Error($"Unsuccessful status code when requesting 7TV {(l_IsGlobal ? "global " : "")}emotes{(l_IsGlobal ? "." : " for channel " + p_Category)}. {l_Response.ReasonPhrase}");
-                }
+                ChatPlexSDK.Logger.Debug($"Success caching {l_Count} 7TV {s_PLATFORM_NAME} {(l_IsGlobal ? "global " : "")}emotes{(l_IsGlobal ? "." : " for channel " + p_ChannelName)}.");
             }
             catch (Exception l_Exception)
             {
-                ChatPlexSDK.Logger.Error($"An error occurred while requesting 7TV {(l_IsGlobal ? "global " : "")}emotes{(l_IsGlobal ? "." : " for channel " + p_Category)}.");
+                ChatPlexSDK.Logger.Error($"An error occurred while requesting 7TV {(l_IsGlobal ? "global " : "")}emotes{(l_IsGlobal ? "." : " for channel " + p_ChannelName)}.");
                 ChatPlexSDK.Logger.Error(l_Exception);
             }
 
@@ -157,61 +132,6 @@ namespace CP_SDK.Chat.Services.Twitch
                     ChatPlexSDK.Logger.Error($"An error occurred while requesting 7TV cosmetics.");
                     ChatPlexSDK.Logger.Error(l_Exception);
                 }
-
-                try
-                {
-                    ChatPlexSDK.Logger.Debug($"Requesting 7TV cosmetics");
-
-                    using (var l_Message = new HttpRequestMessage(HttpMethod.Get, "https://data.chatplex.org/twitch_gradient_names.json"))
-                    {
-                        var l_Response = await m_HTTPClient.SendAsync(l_Message).ConfigureAwait(false);
-                        if (l_Response.IsSuccessStatusCode)
-                        {
-                            var l_CustomPaintings = JsonConvert.DeserializeObject<CustomPaint[]>(await l_Response.Content.ReadAsStringAsync().ConfigureAwait(false));
-                            var l_Count = 0;
-
-                            for (int l_I = 0; l_I < l_CustomPaintings.Length; ++l_I)
-                            {
-                                var l_CustomPainting    = l_CustomPaintings[l_I];
-                                var l_StopsS            = l_CustomPainting.Stops[0];
-                                var l_StopsC            = l_CustomPainting.Stops[1];
-                                var l_Converted         = new List<CachedPaintStop>();
-
-                                for (int l_SI = 0; l_SI < l_StopsS.Length; ++l_SI)
-                                {
-                                    //ColorUtility.TryParseHtmlString((string)l_StopsC[l_SI], out var l_Color);
-                                    l_Converted.Add(new CachedPaintStop()
-                                    {
-                                        Stop        = float.Parse(l_StopsS[l_SI].ToString()),
-                                        StopColor   = ((string)l_StopsC[l_SI]).ToUnityColor()
-                                    });
-                                }
-
-                                var l_AsArray = l_Converted.ToArray();
-                                for (int l_UI = 0; l_UI < l_CustomPainting.Users.Length; ++l_UI)
-                                {
-                                    var l_UserID = l_CustomPainting.Users[l_UI];
-                                    if (m_Paints.ContainsKey(l_UserID))
-                                        m_Paints[l_UserID] = l_AsArray;
-                                    else
-                                        m_Paints.TryAdd(l_UserID, l_AsArray);
-                                    l_Count++;
-                                }
-                            }
-
-                            ChatPlexSDK.Logger.Debug($"Success caching custom cosmetics ({l_Count} Paints).");
-                        }
-                        else
-                            ChatPlexSDK.Logger.Error($"Unsuccessful status code when requesting custom cosmetics. {l_Response.ReasonPhrase}");
-                    }
-
-                    m_PaintCache.Clear();
-                }
-                catch (Exception l_Exception)
-                {
-                    ChatPlexSDK.Logger.Error($"An error occurred while requesting custom cosmetics.");
-                    ChatPlexSDK.Logger.Error(l_Exception);
-                }
             }
         }
 
@@ -236,23 +156,24 @@ namespace CP_SDK.Chat.Services.Twitch
             p_Data = null;
             return false;
         }
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
         /// <summary>
         /// Try get a custom user display name
         /// </summary>
-        /// <param name="p_UserID">Twitch UserID</param>
+        /// <param name="p_UserID">UserID</param>
         /// <param name="p_Default">Default display name</param>
+        /// <param name="p_PaintedName">Output painted name</param>
         /// <returns></returns>
-        public string TryGetUserDisplayName(string p_UserID, string p_Default)
+        public bool TryGetUserDisplayName(string p_UserID, string p_Default, out string p_PaintedName)
         {
+            p_PaintedName = p_Default;
             if (string.IsNullOrEmpty(p_UserID))
-                return p_Default;
+                return false;
 
             if (m_PaintCache.TryGetValue(p_UserID, out var l_Cached))
-                return l_Cached;
+            {
+                p_PaintedName = l_Cached;
+                return true;
+            }
             else if (m_Paints.TryGetValue(p_UserID, out var l_Paint))
             {
                 var l_PaintedName = "";
@@ -275,14 +196,92 @@ namespace CP_SDK.Chat.Services.Twitch
                     }
 
                     var l_Color = Color.Lerp(l_StopA.StopColor, l_StopB.StopColor, (l_Progress - l_StopA.Stop) / (l_StopB.Stop - l_StopA.Stop));
-                    l_PaintedName += "<color=#" + ColorUtility.ToHtmlStringRGB(l_Color) + ">" + p_Default[l_C] + "</color>";
+                    l_PaintedName += "<color=" + ColorU.ToHexRGBA(l_Color) + ">" + p_Default[l_C] + "</color>";
                 }
 
                 m_PaintCache.TryAdd(p_UserID, l_PaintedName);
-                return l_PaintedName;
+                p_PaintedName = l_PaintedName;
+
+                return true;
             }
 
-            return p_Default;
+            return false;
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Request global emotes
+        /// </summary>
+        /// <returns></returns>
+        private async Task<int> RequestGlobalEmotes()
+        {
+            var l_URL = "https://7tv.io/v3/emote-sets/global";
+            ChatPlexSDK.Logger.Debug($"Requesting 7TV {s_PLATFORM_NAME} global emotes. {l_URL}");
+
+            try
+            {
+                using (HttpRequestMessage l_Request = new HttpRequestMessage(HttpMethod.Get, l_URL))
+                {
+                    var l_Response = await m_HTTPClient.SendAsync(l_Request);
+                    if (!l_Response.IsSuccessStatusCode)
+                    {
+                        ChatPlexSDK.Logger.Error($"Unsuccessful status code when requesting 7TV {s_PLATFORM_NAME} global emotes. {l_Response.ReasonPhrase}");
+                        return 0;
+                    }
+
+                    var l_JSON = JSON.Parse(await l_Response.Content.ReadAsStringAsync());
+                    if (l_JSON == null || !l_JSON.IsObject)
+                        return 0;
+
+                    return _7TVUtils.ParseEmoteSet(this, l_JSON.AsObject, "7TVGlobalEmote", string.Empty);
+                }
+            }
+            catch (Exception l_Exception)
+            {
+                ChatPlexSDK.Logger.Error($"An error occurred while requesting 7TV {s_PLATFORM_NAME} global emotes.");
+                ChatPlexSDK.Logger.Error(l_Exception);
+            }
+
+            return 0;
+        }
+        /// <summary>
+        /// Request channel emotes
+        /// </summary>
+        /// <param name="p_RequesterID">Requester ID</param>
+        /// <returns></returns>
+        private async Task<int> RequestChannelEmotes(string p_RequesterID)
+        {
+            var l_URL = $"https://7tv.io/v3/users/{s_REQUEST_PLATFORM_NAME}/{p_RequesterID}";
+            ChatPlexSDK.Logger.Debug($"Requesting 7TV {s_PLATFORM_NAME} channel emotes. {l_URL}");
+
+            try
+            {
+                using (HttpRequestMessage l_Request = new HttpRequestMessage(HttpMethod.Get, l_URL))
+                {
+                    var l_Response = await m_HTTPClient.SendAsync(l_Request);
+                    if (!l_Response.IsSuccessStatusCode)
+                    {
+                        ChatPlexSDK.Logger.Error($"Unsuccessful status code when requesting 7TV {s_PLATFORM_NAME} channel emotes. {l_Response.ReasonPhrase}");
+                        return 0;
+                    }
+
+                    var l_JSON = JSON.Parse(await l_Response.Content.ReadAsStringAsync());
+                    if (l_JSON == null || !l_JSON.HasKey("emote_set"))
+                        return 0;
+
+                    var l_EmoteSet = l_JSON["emote_set"].AsObject;
+                    return _7TVUtils.ParseEmoteSet(this, l_EmoteSet, "7TVChannelEmote", p_RequesterID);
+                }
+            }
+            catch (Exception l_Exception)
+            {
+                ChatPlexSDK.Logger.Error($"An error occurred while requesting 7TV {s_PLATFORM_NAME} global emotes.");
+                ChatPlexSDK.Logger.Error(l_Exception);
+            }
+
+            return 0;
         }
 
         ////////////////////////////////////////////////////////////////////////////

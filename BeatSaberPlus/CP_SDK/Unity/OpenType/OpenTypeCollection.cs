@@ -1,58 +1,60 @@
 ﻿#if CP_SDK_UNITY
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CP_SDK.Unity.OpenType
 {
-    internal class OpenTypeCollection : IEnumerable<OpenTypeFont>
+    /// <summary>
+    /// OpenType collection
+    /// </summary>
+    public class OpenTypeCollection
     {
-        private readonly CollectionHeader header;
-        private OpenTypeFont[] fonts;
-        private readonly bool lazy;
+        private CollectionHeader            m_Header;
+        private bool                        m_LazyLoad;
+        private OpenTypeCollectionReader    m_Reader;
+        private OpenTypeFont[]              m_Fonts;
 
-        internal OpenTypeCollectionReader Reader { get; }
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
 
-        internal OpenTypeCollection(OpenTypeCollectionReader reader, bool lazyLoad = true) : this(reader.ReadCollectionHeader(), reader, lazyLoad)
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="p_Reader">Reader instance</param>
+        /// <param name="p_LazyLoad">Lazy loading?</param>
+        public OpenTypeCollection(OpenTypeCollectionReader p_Reader, bool p_LazyLoad = true)
+            : this(p_Reader.ReadCollectionHeader(), p_Reader, p_LazyLoad)
         {
+
         }
-        internal OpenTypeCollection(CollectionHeader header, OpenTypeCollectionReader reader, bool lazyLoad = true)
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="p_Header">Collection header</param>
+        /// <param name="p_Reader">Reader instance</param>
+        /// <param name="p_LazyLoad">Lazy loading?</param>
+        public OpenTypeCollection(CollectionHeader p_Header, OpenTypeCollectionReader p_Reader, bool p_LazyLoad = true)
         {
-            this.header = header;
-            lazy = lazyLoad;
-            if (lazyLoad)
-                Reader = reader;
-            else
-                LoadAll(reader);
+            m_Header    = p_Header;
+            m_LazyLoad  = p_LazyLoad;
+            m_Reader    = p_Reader;
+
+            if (!p_LazyLoad)
+                m_Fonts = m_Reader.ReadFonts(m_Header, m_LazyLoad);
         }
 
-        private void LoadAll(OpenTypeCollectionReader reader)
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Get fonts
+        /// </summary>
+        /// <returns></returns>
+        public OpenTypeFont[] GetFonts()
         {
-            fonts = ReadFonts(reader);
+            if (m_Fonts == null && m_LazyLoad)
+                m_Fonts = m_Reader.ReadFonts(m_Header, m_LazyLoad);
+
+            return m_Fonts;
         }
-
-        internal IEnumerable<OpenTypeFont> Fonts
-        {
-            get
-            {
-                if (fonts == null)
-                    fonts = ReadFonts(Reader);
-
-                return fonts;
-            }
-        }
-
-        private OpenTypeFont[] ReadFonts(OpenTypeCollectionReader reader)
-            => reader.ReadFonts(header, lazy);
-
-        public IEnumerator<OpenTypeFont> GetEnumerator()
-            => Fonts.GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator()
-            => Fonts.GetEnumerator();
     }
 }
 #endif

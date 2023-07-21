@@ -22,10 +22,11 @@ namespace CP_SDK.Config
         /// </summary>
         protected List<JsonConverter> m_JsonConverters = new List<JsonConverter>()
         {
+            new JsonConverters.Color32Converter(),
+            new JsonConverters.ColorConverter(),
+            new JsonConverters.QuaternionConverter(),
             new JsonConverters.Vector2Converter(),
             new JsonConverters.Vector3Converter(),
-            new JsonConverters.ColorConverter(),
-            new JsonConverters.Color32Converter()
         };
         /// <summary>
         /// Raw loaded JSON

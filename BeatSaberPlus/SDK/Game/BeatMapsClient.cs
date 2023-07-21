@@ -1,12 +1,14 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
+using BSP_ICSharpCode.SharpZipLib;
+using BSP_ICSharpCode.SharpZipLib.Zip;
+using System.Runtime.Remoting;
+using System.Security.Cryptography;
 
 namespace BeatSaberPlus.SDK.Game
 {
@@ -45,7 +47,7 @@ namespace BeatSaberPlus.SDK.Game
         internal static void Init()
         {
             m_CacheFolder               = $"UserData/{CP_SDK.ChatPlexSDK.ProductName}/Cache/BeatMaps/";
-            m_WebClient                 = new CP_SDK.Network.WebClient();
+            m_WebClient                 = new CP_SDK.Network.WebClient("", TimeSpan.FromSeconds(10));
             m_WebClient.Timeout         = 10;
             m_WebClient.DownloadTimeout = 2 * 60;
 
@@ -116,6 +118,30 @@ namespace BeatSaberPlus.SDK.Game
                 }
             });
         }
+        public static void PopulateOnlineByHash(BeatMaps.MapDetail p_BeatMap, Action<bool> p_Callback)
+        {
+            m_WebClient.GetAsync("https://api.beatsaver.com/maps/hash/" + p_BeatMap.PartialHash, CancellationToken.None, (p_Result) =>
+            {
+                try
+                {
+                    if (!p_Result.IsSuccessStatusCode)
+                    {
+                        p_Callback?.Invoke(false);
+                        return;
+                    }
+
+                    JsonConvert.PopulateObject(p_Result.BodyString, p_BeatMap);
+                    p_BeatMap.Partial = false;
+                    p_Callback?.Invoke(true);
+                }
+                catch (Exception l_Exception)
+                {
+                    CP_SDK.ChatPlexSDK.Logger.Error("[SDK.Game][BeatMapsClient.PopulateOnlineByHash] Error :");
+                    CP_SDK.ChatPlexSDK.Logger.Error(l_Exception);
+                    p_Callback?.Invoke(false);
+                }
+            });
+        }
         public static void GetOnlineByHash(string p_Hash, Action<bool, BeatMaps.MapDetail> p_Callback)
         {
             m_WebClient.GetAsync("https://api.beatsaver.com/maps/hash/" + p_Hash, CancellationToken.None, (p_Result) =>
@@ -142,7 +168,7 @@ namespace BeatSaberPlus.SDK.Game
         }
         public static void GetOnlineBySearch(string p_Query, Action<bool, BeatMaps.MapDetail[]> p_Callback)
         {
-            m_WebClient.GetAsync("https://api.beatsaver.com/search/text/0?sortOrder=Relevance&q=" + HttpUtility.UrlEncode(p_Query), CancellationToken.None, (p_Result) =>
+            m_WebClient.GetAsync("https://api.beatsaver.com/search/text/0?sortOrder=Relevance&q=" + CP_SDK_WebSocketSharp.Net.HttpUtility.UrlEncode(p_Query), CancellationToken.None, (p_Result) =>
             {
                 try
                 {
@@ -387,7 +413,7 @@ namespace BeatSaberPlus.SDK.Game
                     else
                         CP_SDK.ChatPlexSDK.Logger.Error("[SDK.Game][BeatMapsClient] Failed to download Song!");
                 }
-            }, p_Progress);
+            }, true, p_Progress);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -432,13 +458,11 @@ namespace BeatSaberPlus.SDK.Game
             p_Token.ThrowIfCancellationRequested();
 
             Stream l_ZIPStream = new MemoryStream(p_ZIPBytes);
+            l_ZIPStream.Position = 0;
 
             try
             {
                 CP_SDK.ChatPlexSDK.Logger.Info("[SDK.Game][BeatMapsClient] Extracting...");
-
-                /// Create ZIP archive
-                ZipArchive l_ZIPArchive = new ZipArchive(l_ZIPStream, ZipArchiveMode.Read);
 
                 /// Prepare base path
                 string l_BasePath = p_Song.id + " (" + p_Song.metadata.songName + " - " + p_Song.metadata.levelAuthorName + ")";
@@ -465,34 +489,28 @@ namespace BeatSaberPlus.SDK.Game
 
                 CP_SDK.ChatPlexSDK.Logger.Info("[SDK.Game][BeatMapsClient] " + l_OutPath);
 
-                foreach (var l_Entry in l_ZIPArchive.Entries)
-                {
-                    /// Most likely a folder
-                    if (string.IsNullOrEmpty(l_Entry.Name.Trim()) || l_Entry.Name != l_Entry.FullName)
-                        continue;
+                new FastZip().ExtractZip(l_ZIPStream, l_OutPath, FastZip.Overwrite.Always, null, null, null, true, false, false);
 
-                    /// Name instead of FullName for better security and because song zips don't have nested directories anyway
-                    var l_EntryPath = Path.Combine(l_OutPath, l_Entry.Name);
-
-                    /// Either we're overwriting or there's no existing file
-                    if (p_Overwrite || !File.Exists(l_EntryPath))
-                        l_Entry.ExtractToFile(l_EntryPath, p_Overwrite);
-                }
-
-                l_ZIPArchive.Dispose();
                 l_ZIPStream.Close();
+                l_ZIPStream = null;
 
                 return (true, l_BasePath);
             }
             catch (Exception p_Exception)
             {
                 l_ZIPStream.Close();
+                l_ZIPStream = null;
 
                 if (p_Exception is TaskCanceledException)
                     throw p_Exception;
 
                 CP_SDK.ChatPlexSDK.Logger.Error("[SDK.Game][BeatMapsClient] Unable to extract ZIP! Exception");
                 CP_SDK.ChatPlexSDK.Logger.Error(p_Exception);
+            }
+            finally
+            {
+                if (l_ZIPStream != null)
+                    l_ZIPStream.Close();
             }
 
             return (false, "");

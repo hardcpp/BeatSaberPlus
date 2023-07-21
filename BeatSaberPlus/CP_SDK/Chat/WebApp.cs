@@ -7,7 +7,6 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
 
 namespace CP_SDK.Chat
 {
@@ -159,6 +158,7 @@ namespace CP_SDK.Chat
 
                 l_PageBuilder.Replace("{_HTML_FORM_}",      l_HTMLForm);
                 l_PageBuilder.Replace("{_HTML_}",           l_HTML);
+                l_PageBuilder.Replace("{_SERVICES_COUNT_}", Service.Multiplexer.Services.Count.ToString());
                 l_PageBuilder.Replace("{_JS_}",             l_JS);
                 l_PageBuilder.Replace("{_JS_VALIDATE_}",    l_JS_VALIDATE);
 

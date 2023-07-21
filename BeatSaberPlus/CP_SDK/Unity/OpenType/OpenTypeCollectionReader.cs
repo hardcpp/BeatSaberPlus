@@ -7,9 +7,15 @@ namespace CP_SDK.Unity.OpenType
     /// <summary>
     /// OpenType collection reader
     /// </summary>
-    internal class OpenTypeCollectionReader : OpenTypeFontReader
+    public class OpenTypeCollectionReader : OpenTypeFontReader
     {
-        internal OpenTypeCollectionReader(Stream p_Stream, Encoding p_Encoding, bool p_LeaveOpen)
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="p_Stream">Input stream</param>
+        /// <param name="p_Encoding">Stream encoding</param>
+        /// <param name="p_LeaveOpen">Should leave stream open?</param>
+        public OpenTypeCollectionReader(Stream p_Stream, Encoding p_Encoding, bool p_LeaveOpen)
             : base(p_Stream, p_Encoding, p_LeaveOpen)
         {
 
@@ -18,7 +24,11 @@ namespace CP_SDK.Unity.OpenType
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        internal CollectionHeader ReadCollectionHeader()
+        /// <summary>
+        /// Read collection header
+        /// </summary>
+        /// <returns></returns>
+        public CollectionHeader ReadCollectionHeader()
         {
             var l_Header = new CollectionHeader
             {
@@ -45,7 +55,13 @@ namespace CP_SDK.Unity.OpenType
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        internal OpenTypeFont[] ReadFonts(CollectionHeader p_Header, bool p_LazyLoad = true)
+        /// <summary>
+        /// Read fonts
+        /// </summary>
+        /// <param name="p_Header">Fonts header</param>
+        /// <param name="p_LazyLoad">Lazy loading</param>
+        /// <returns></returns>
+        public OpenTypeFont[] ReadFonts(CollectionHeader p_Header, bool p_LazyLoad = true)
         {
             var l_Fonts = new OpenTypeFont[p_Header.NumFonts];
             for (uint l_I = 0; l_I < p_Header.NumFonts; ++l_I)

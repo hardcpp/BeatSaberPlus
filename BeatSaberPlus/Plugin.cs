@@ -1,53 +1,41 @@
-﻿using BeatSaberMarkupLanguage.MenuButtons;
+﻿using BeatSaberMarkupLanguage;
+using BeatSaberMarkupLanguage.MenuButtons;
 using CP_SDK.Unity.Extensions;
 using HarmonyLib;
 using IPA;
+using IPA.Utilities;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using TMPro;
 using UnityEngine;
+using VRUIControls;
 
 namespace BeatSaberPlus
 {
-    /*[HarmonyPatch(typeof(BeatmapObjectsInstaller))]
-    [HarmonyPatch(nameof(BeatmapObjectsInstaller.InstallBindings))]
-    internal class PBeatmapObjectsInstaller
-    {
-        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
-        {
-            foreach (var l_Current in instructions)
-            {
-                if (l_Current.opcode == OpCodes.Ldc_I4_S && l_Current.operand is sbyte && (sbyte)l_Current.operand == (sbyte)25)
-                    yield return new CodeInstruction(OpCodes.Ldc_I4, 300);
-                else
-                    yield return l_Current;
-            }
-        }
-    }*/
-
     /// <summary>
     /// Main plugin class
     /// </summary>
     [Plugin(RuntimeOptions.DynamicInit)]
     public class Plugin
     {
-        /// <summary>
-        /// Plugin version
-        /// </summary>
-        internal static Hive.Versioning.Version Version => IPA.Loader.PluginManager.GetPluginFromId("BeatSaberPlusCORE").HVersion;
-        /// <summary>
-        /// Harmony ID for patches
-        /// </summary>
-        internal static string HarmonyID => "com.github.hardcpp.beatsaberplus";
+        internal static Hive.Versioning.Version Version     => IPA.Loader.PluginManager.GetPluginFromId("BeatSaberPlusCORE").HVersion;
+        internal static string                  HarmonyID   => "com.github.hardcpp.beatsaberplus";
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        /// <summary>
-        /// Harmony patch holder
-        /// </summary>
-        private static Harmony m_Harmony;
+        private static Harmony              m_Harmony;
+        private static BasicUIAudioManager  m_BasicUIAudioManager = null;
+        private static UnityEngine.Material m_UINoGlowMaterial;
+        private static VRGraphicRaycaster   m_VRGraphicRaycasterCache;
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        private HMUI.ScreenSystem   m_HMUIScreenSystem;
+        private List<GameObject>    m_HMUIDeactivatedScreens = new List<GameObject>();
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -69,25 +57,21 @@ namespace BeatSaberPlus
 
             CP_SDK.Chat.Service.Discrete_OnTextMessageReceived += Service_Discrete_OnTextMessageReceived;
 
-            CP_SDK.Unity.FontManager.Setup(p_FontClone: (p_Input) =>
+            CP_SDK.Unity.FontManager.Setup(p_TMPFontAssetSetup: (p_Input) =>
             {
-                var l_MainFont  = Resources.FindObjectsOfTypeAll<TMP_FontAsset>().FirstOrDefault(t => t.name == "Teko-Medium SDF");
-                var l_NewFont   = TMP_FontAsset.CreateFontAsset(p_Input.sourceFontFile);
-
-                l_NewFont.name                      = p_Input.name;
-                l_NewFont.hashCode                  = TMP_TextUtilities.GetSimpleHashCode(p_Input.name + "Clone" + CP_SDK.Misc.Time.UnixTimeNowMS());
-                l_NewFont.fallbackFontAssetTable    = p_Input.fallbackFontAssetTable;
-
-                if (l_MainFont)
+                var l_MainFont = Resources.FindObjectsOfTypeAll<TMP_FontAsset>().FirstOrDefault(t => t.name == "Teko-Medium SDF");
+                if (l_MainFont && p_Input)
                 {
-                    l_NewFont.material.shader = l_MainFont.material.shader;
-                    l_NewFont.material.color = l_NewFont.material.color.WithAlpha(0.5f);
-                    l_NewFont.material.EnableKeyword("CURVED");
-                    l_NewFont.material.EnableKeyword("UNITY_UI_CLIP_RECT");
+                    p_Input.material.shader = l_MainFont.material.shader;
+                    p_Input.material.SetColor("_FaceColor", p_Input.material.GetColor("_FaceColor"));
+                    p_Input.material.EnableKeyword("CURVED");
+                    p_Input.material.EnableKeyword("UNITY_UI_CLIP_RECT");
                 }
 
-                return l_NewFont;
+                return p_Input;
             });
+
+            PatchUI();
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -144,7 +128,7 @@ namespace BeatSaberPlus
         /// When the mod button is pressed
         /// </summary>
         private void OnModButtonPressed()
-            => UI.MainViewFlowCoordinator.Instance().Present(true);
+            => CP_SDK.UI.FlowCoordinators.MainFlowCoordinator.Instance().Present(true);
         /// <summary>
         /// On text message received
         /// </summary>
@@ -176,7 +160,130 @@ namespace BeatSaberPlus
 
                     p_Service.SendTextMessage(p_Message.Channel, l_Message);
                 }
+                /*else if (l_LMessage.StartsWith("!score") && CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.ChatPlexSDK.EGenericScene.Menu)
+                {
+                    var l_LevelCompletionData = SDK.Game.Logic.LevelCompletionData;
+                    if (l_LevelCompletionData != null)
+                    {
+                        var l_MaxMultiplied     = l_LevelCompletionData.MaxMultipliedScore;
+                        var l_MultipliedScore   = l_LevelCompletionData.Results.multipliedScore;
+                        var l_Percentage        = SDK.Game.Levels.GetScorePercentage(l_MaxMultiplied, l_MultipliedScore);
+
+                        p_Service.SendTextMessage(
+                            p_Message.Channel,
+                            $"! Acc: {(l_Percentage * 100):F2}"
+                        );
+                    }
+                }*/
             }
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Patch UI system
+        /// </summary>
+        private void PatchUI()
+        {
+            CP_SDK.UI.UISystem.FloatingPanelFactory = new SDK.UI.DefaultFactoriesOverrides.BS_FloatingPanelFactory();
+
+            CP_SDK.UI.UISystem.UILayer = LayerMask.NameToLayer("UI");
+
+            CP_SDK.UI.UISystem.Override_UnityComponent_Image            = typeof(HMUI.ImageView);
+            CP_SDK.UI.UISystem.Override_UnityComponent_TextMeshProUGUI  = typeof(HMUI.CurvedTextMeshPro);
+
+            CP_SDK.UI.UISystem.Override_GetUIMaterial = () =>
+            {
+                if (m_UINoGlowMaterial == null)
+                {
+                    m_UINoGlowMaterial = Resources.FindObjectsOfTypeAll<Material>().Where(x => x.name == "UINoGlow").FirstOrDefault();
+
+                    if (m_UINoGlowMaterial != null)
+                        m_UINoGlowMaterial = Material.Instantiate(m_UINoGlowMaterial);
+                }
+
+                return m_UINoGlowMaterial;
+            };
+            CP_SDK.UI.UISystem.Override_OnClick = (p_MonoBehavior) =>
+            {
+                if (!m_BasicUIAudioManager || CP_SDK.ChatPlexSDK.ActiveGenericScene != CP_SDK.ChatPlexSDK.EGenericScene.Menu)
+                    m_BasicUIAudioManager = Resources.FindObjectsOfTypeAll<BasicUIAudioManager>().FirstOrDefault();
+
+                m_BasicUIAudioManager?.HandleButtonClickEvent();
+            };
+
+            CP_SDK.UI.UISystem.OnScreenCreated = (x) =>
+            {
+                if (x.GetComponent<VRGraphicRaycaster>())
+                    return;
+
+                if (!m_VRGraphicRaycasterCache)
+                    m_VRGraphicRaycasterCache = Resources.FindObjectsOfTypeAll<VRGraphicRaycaster>().FirstOrDefault(y => y._physicsRaycaster != null);
+
+                if (m_VRGraphicRaycasterCache)
+                    x.gameObject.AddComponent<VRGraphicRaycaster>().SetField("_physicsRaycaster", m_VRGraphicRaycasterCache._physicsRaycaster);
+            };
+
+            ////////////////////////////////////////////////////////////////////////////
+            ////////////////////////////////////////////////////////////////////////////
+
+            CP_SDK.UI.ScreenSystem.OnCreated += () =>
+            {
+                var l_Instance = CP_SDK.UI.ScreenSystem.Instance;
+                l_Instance.LeftScreen.SetTransformDirect(new Vector3(-2.47f, 0.00f, -1.30f), new Vector3(0.0f, -55.0f, 0.0f));
+                l_Instance.LeftScreen.SetRadius(140.0f);
+
+                l_Instance.TopScreen.SetRadius(140.0f);
+                l_Instance.MainScreen.SetRadius(140.0f);
+
+                l_Instance.RightScreen.SetTransformDirect(new Vector3(2.47f, 0.00f, -1.30f), new Vector3(0.0f, 55.0f, 0.0f));
+                l_Instance.RightScreen.SetRadius(140.0f);
+            };
+            CP_SDK.UI.ScreenSystem.OnPresent += ScreenSystem_OnPresent;
+            CP_SDK.UI.ScreenSystem.OnDismiss += ScreenSystem_OnDismiss;
+        }
+        /// <summary>
+        /// Screen system on present
+        /// </summary>
+        private void ScreenSystem_OnPresent()
+        {
+            void DeactivateScreenSafe(HMUI.Screen p_HMUIScreen)
+            {
+                if (!p_HMUIScreen.gameObject.activeSelf)
+                    return;
+
+                m_HMUIDeactivatedScreens.Add(p_HMUIScreen.gameObject);
+                p_HMUIScreen.gameObject.SetActive(false);
+            }
+
+            if (m_HMUIScreenSystem == null || !m_HMUIScreenSystem)
+            {
+                m_HMUIDeactivatedScreens.Clear();
+                m_HMUIScreenSystem = Resources.FindObjectsOfTypeAll<HMUI.ScreenSystem>().FirstOrDefault();
+            }
+
+            if (!m_HMUIScreenSystem)
+                return;
+
+            m_HMUIDeactivatedScreens.Clear();
+            DeactivateScreenSafe(m_HMUIScreenSystem.leftScreen);
+            DeactivateScreenSafe(m_HMUIScreenSystem.mainScreen);
+            DeactivateScreenSafe(m_HMUIScreenSystem.rightScreen);
+            DeactivateScreenSafe(m_HMUIScreenSystem.bottomScreen);
+            DeactivateScreenSafe(m_HMUIScreenSystem.topScreen);
+
+            CP_SDK.UI.ScreenSystem.Instance.transform.localScale = m_HMUIScreenSystem.transform.localScale;
+        }
+        /// <summary>
+        /// Screen system on dismiss
+        /// </summary>
+        private void ScreenSystem_OnDismiss()
+        {
+            for (var l_I = 0; l_I < m_HMUIDeactivatedScreens.Count; ++l_I)
+                m_HMUIDeactivatedScreens[l_I].SetActive(true);
+
+            m_HMUIDeactivatedScreens.Clear();
         }
     }
 }

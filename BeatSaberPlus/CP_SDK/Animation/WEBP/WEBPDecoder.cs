@@ -101,7 +101,7 @@ namespace CP_SDK.Animation.WEBP
 
                         try
                         {
-                            p_StaticCallback?.Invoke(Unity.SpriteU.CreateFromTexture(l_Texture));
+                            p_StaticCallback?.Invoke(Unity.SpriteU.CreateFromTextureWithBorders(l_Texture));
                         }
                         catch (System.Exception l_Exception)
                         {

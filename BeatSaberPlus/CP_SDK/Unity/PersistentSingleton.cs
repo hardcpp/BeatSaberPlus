@@ -44,5 +44,16 @@ namespace CP_SDK.Unity
         {
             int placeholder = (Object)PersistentSingleton<T>.Instance == (Object)null ? 1 : 0;
         }
+        /// <summary>
+        /// Destroy instance
+        /// </summary>
+        public static void Destroy()
+        {
+            if (!m_Instance)
+                return;
+
+            GameObject.Destroy(m_Instance.gameObject);
+            m_Instance = null;
+        }
     }
 }

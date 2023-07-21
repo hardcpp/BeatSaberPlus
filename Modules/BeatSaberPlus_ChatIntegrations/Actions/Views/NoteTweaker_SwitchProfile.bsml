@@ -1,7 +1,0 @@
-﻿<vertical min-height='55' child-align='UpperCenter'>
-
-	<dropdown-list-setting id='Profile_DropDown' choices='Profile_DropDownOptions' apply-on-change='true' />
-
-	<horizontal min-height='50'></horizontal>
-
-</vertical>

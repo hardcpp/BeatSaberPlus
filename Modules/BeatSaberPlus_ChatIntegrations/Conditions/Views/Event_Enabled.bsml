@@ -1,7 +1,0 @@
-﻿<vertical min-height='55' child-align='UpperCenter'>
-
-  <dropdown-list-setting id='Event_DropDown' choices='Event_DropDownOptions' apply-on-change='true' />
-
-  <horizontal min-height='40'></horizontal>
-
-</vertical>

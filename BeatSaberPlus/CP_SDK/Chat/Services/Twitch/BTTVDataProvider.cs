@@ -30,24 +30,26 @@ namespace CP_SDK.Chat.Services.Twitch
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
-        /// Try request resources
+        /// Try request resources from the provider
         /// </summary>
-        /// <param name="p_Category">Category / Channel</param>
+        /// <param name="p_ChannelID">ID of the channel</param>
+        /// <param name="p_ChannelName">Name of the channel</param>
+        /// <param name="p_AccessToken">Access token for the API</param>
         /// <returns></returns>
-        public async Task TryRequestResources(string p_Category, string p_Token)
+        public async Task TryRequestResources(string p_ChannelID, string p_ChannelName, string p_AccessToken)
         {
-            bool l_IsGlobal = string.IsNullOrEmpty(p_Category);
+            bool l_IsGlobal = string.IsNullOrEmpty(p_ChannelID);
 
             try
             {
-                ChatPlexSDK.Logger.Debug($"Requesting BTTV {(l_IsGlobal ? "global " : "")}emotes{(l_IsGlobal ? "." : $" for channel {p_Category}")}.");
+                ChatPlexSDK.Logger.Debug($"Requesting BTTV {(l_IsGlobal ? "global " : "")}emotes{(l_IsGlobal ? "." : $" for channel {p_ChannelName}")}.");
 
-                using (var l_Message = new HttpRequestMessage(HttpMethod.Get, l_IsGlobal ? "https://api.betterttv.net/3/cached/emotes/global" : $"https://api.betterttv.net/3/cached/users/twitch/{p_Category}"))
+                using (var l_Message = new HttpRequestMessage(HttpMethod.Get, l_IsGlobal ? "https://api.betterttv.net/3/cached/emotes/global" : $"https://api.betterttv.net/3/cached/users/twitch/{p_ChannelID}"))
                 {
                     var l_Response = await m_HTTPClient.SendAsync(l_Message).ConfigureAwait(false);
                     if (!l_Response.IsSuccessStatusCode)
                     {
-                        ChatPlexSDK.Logger.Error($"Unsuccessful status code when requesting BTTV {(l_IsGlobal ? "global " : "")}emotes{(l_IsGlobal ? "." : " for channel " + p_Category)}. {l_Response.ReasonPhrase}");
+                        ChatPlexSDK.Logger.Error($"Unsuccessful status code when requesting BTTV {(l_IsGlobal ? "global " : "")}emotes{(l_IsGlobal ? "." : " for channel " + p_ChannelName)}. {l_Response.ReasonPhrase}");
                         return;
                     }
 
@@ -83,7 +85,7 @@ namespace CP_SDK.Chat.Services.Twitch
                         foreach (JSONObject l_Object in l_JSONEmotes)
                         {
                             string l_URI        = $"https://cdn.betterttv.net/emote/{l_Object["id"].Value}/2x";
-                            string l_Identifier = l_Object["code"].Value;
+                            string l_Identifier = $"{p_ChannelID}_{l_Object["code"].Value}";
 
                             Resources.TryAdd(l_Identifier, new ChatResourceData()
                             {
@@ -95,13 +97,13 @@ namespace CP_SDK.Chat.Services.Twitch
                         }
                     }
 
-                    ChatPlexSDK.Logger.Debug($"Success caching {l_Count} BTTV {(l_IsGlobal ? "global " : "")}emotes{(l_IsGlobal ? "." : " for channel " + p_Category)}.");
+                    ChatPlexSDK.Logger.Debug($"Success caching {l_Count} BTTV {(l_IsGlobal ? "global " : "")}emotes{(l_IsGlobal ? "." : " for channel " + p_ChannelName)}.");
                     return;
                 }
             }
             catch (Exception l_Exception)
             {
-                ChatPlexSDK.Logger.Error($"An error occurred while requesting BTTV {(l_IsGlobal ? "global " : "")}emotes{(l_IsGlobal ? "." : " for channel " + p_Category)}.");
+                ChatPlexSDK.Logger.Error($"An error occurred while requesting BTTV {(l_IsGlobal ? "global " : "")}emotes{(l_IsGlobal ? "." : " for channel " + p_ChannelName)}.");
                 ChatPlexSDK.Logger.Error(l_Exception);
             }
 

@@ -1,5 +1,4 @@
-﻿using BeatSaberMarkupLanguage;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,47 +9,22 @@ namespace BeatSaberPlus_GameTweaker
     /// <summary>
     /// Game Tweaker instance
     /// </summary>
-    internal class GameTweaker : BeatSaberPlus.SDK.BSPModuleBase<GameTweaker>
+    internal class GameTweaker : CP_SDK.ModuleBase<GameTweaker>
     {
-        /// <summary>
-        /// Module type
-        /// </summary>
-        public override CP_SDK.EIModuleBaseType Type => CP_SDK.EIModuleBaseType.Integrated;
-        /// <summary>
-        /// Name of the Module
-        /// </summary>
-        public override string Name => "Game Tweaker";
-        /// <summary>
-        /// Description of the Module
-        /// </summary>
-        public override string Description => "Customize your game play & menu experience!";
-        /// <summary>
-        /// Is the Module using chat features
-        /// </summary>
-        public override bool UseChatFeatures => false;
-        /// <summary>
-        /// Is enabled
-        /// </summary>
-        public override bool IsEnabled { get => GTConfig.Instance.Enabled; set { GTConfig.Instance.Enabled = value; GTConfig.Instance.Save(); } }
-        /// <summary>
-        /// Activation kind
-        /// </summary>
-        public override CP_SDK.EIModuleBaseActivationType ActivationType => CP_SDK.EIModuleBaseActivationType.OnMenuSceneLoaded;
+        public override CP_SDK.EIModuleBaseType             Type                => CP_SDK.EIModuleBaseType.Integrated;
+        public override string                              Name                => "Game Tweaker";
+        public override string                              Description         => "Customize your game play & menu experience!";
+        public override string                              DocumentationURL    => "https://github.com/hardcpp/BeatSaberPlus/wiki#game-tweaker";
+        public override bool                                UseChatFeatures     => false;
+        public override bool                                IsEnabled           { get => GTConfig.Instance.Enabled; set { GTConfig.Instance.Enabled = value; GTConfig.Instance.Save(); } }
+        public override CP_SDK.EIModuleBaseActivationType   ActivationType      => CP_SDK.EIModuleBaseActivationType.OnMenuSceneLoaded;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        /// <summary>
-        /// Settings view
-        /// </summary>
-        private UI.Settings m_SettingsView = null;
-        /// <summary>
-        /// Settings left view
-        /// </summary>
-        private UI.SettingsLeft m_SettingsLeftView = null;
-        /// <summary>
-        /// FPFC escape object
-        /// </summary>
+        private UI.SettingsMainView m_SettingsMainView = null;
+        private UI.SettingsLeftView m_SettingsLeftView = null;
+
         private Components.FPFCEscape m_FPFCEscape = null;
 
         ////////////////////////////////////////////////////////////////////////////
@@ -78,6 +52,9 @@ namespace BeatSaberPlus_GameTweaker
             /// Update patches
             UpdatePatches(true);
 
+            CP_SDK.UI.UISystem.DestroyUI(ref m_SettingsLeftView);
+            CP_SDK.UI.UISystem.DestroyUI(ref m_SettingsMainView);
+
             /// Unbind event
             BeatSaberPlus.SDK.Game.Logic.OnLevelStarted -= Game_OnLevelStarted;
             BeatSaberPlus.SDK.Game.Logic.OnSceneChange  -= Game_OnSceneChange;
@@ -89,17 +66,13 @@ namespace BeatSaberPlus_GameTweaker
         /// <summary>
         /// Get Module settings UI
         /// </summary>
-        protected override (HMUI.ViewController, HMUI.ViewController, HMUI.ViewController) GetSettingsUIImplementation()
+        protected override (CP_SDK.UI.IViewController, CP_SDK.UI.IViewController, CP_SDK.UI.IViewController) GetSettingsViewControllersImplementation()
         {
-            /// Create view if needed
-            if (m_SettingsView == null)
-                m_SettingsView = BeatSaberUI.CreateViewController<UI.Settings>();
-            /// Create view if needed
-            if (m_SettingsLeftView == null)
-                m_SettingsLeftView = BeatSaberUI.CreateViewController<UI.SettingsLeft>();
+            if (m_SettingsMainView == null) m_SettingsMainView = CP_SDK.UI.UISystem.CreateViewController<UI.SettingsMainView>();
+            if (m_SettingsLeftView == null) m_SettingsLeftView = CP_SDK.UI.UISystem.CreateViewController<UI.SettingsLeftView>();
 
             /// Change main view
-            return (m_SettingsView, m_SettingsLeftView, null);
+            return (m_SettingsMainView, m_SettingsLeftView, null);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -264,9 +237,9 @@ namespace BeatSaberPlus_GameTweaker
         /// On game scene change
         /// </summary>
         /// <param name="p_Scene">New scene</param>
-        private void Game_OnSceneChange(BeatSaberPlus.SDK.Game.Logic.SceneType p_Scene)
+        private void Game_OnSceneChange(BeatSaberPlus.SDK.Game.Logic.ESceneType p_Scene)
         {
-            Patches.Lights.PLightsPatches.SetIsValidScene(p_Scene == BeatSaberPlus.SDK.Game.Logic.SceneType.Playing);
+            Patches.Lights.PLightsPatches.SetIsValidScene(p_Scene == BeatSaberPlus.SDK.Game.Logic.ESceneType.Playing);
             UpdateWorldParticles();
         }
         /// <summary>

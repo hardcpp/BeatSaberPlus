@@ -26,6 +26,17 @@ namespace CP_SDK.Unity
 
             return m_ParticleSystem;
         }
+        /// <summary>
+        /// Destroy instance
+        /// </summary>
+        internal static void Destroy()
+        {
+            if (!m_ParticleSystem)
+                return;
+
+            GameObject.Destroy(m_ParticleSystem);
+            m_ParticleSystem = null;
+        }
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////

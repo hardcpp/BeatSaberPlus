@@ -74,7 +74,7 @@ namespace CP_SDK.Unity
         /// <summary>
         /// Stop
         /// </summary>
-        internal static void Stop()
+        internal static void Destroy()
         {
             if (m_UpdateThread == null)
                 return;
@@ -82,6 +82,13 @@ namespace CP_SDK.Unity
             m_RunCondition = false;
             m_UpdateThread.Join();
             m_UpdateThread = null;
+
+            /// Clear queues
+            m_Queues = new Queue[2]
+            {
+                new Queue(),
+                new Queue()
+            };
         }
 
         ////////////////////////////////////////////////////////////////////////////

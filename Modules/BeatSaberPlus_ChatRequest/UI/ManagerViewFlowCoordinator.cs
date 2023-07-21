@@ -1,4 +1,4 @@
-﻿using HMUI;
+﻿using CP_SDK.UI.Views;
 using UnityEngine;
 
 namespace BeatSaberPlus_ChatRequest.UI
@@ -6,28 +6,38 @@ namespace BeatSaberPlus_ChatRequest.UI
     /// <summary>
     /// Manager UI flow coordinator
     /// </summary>
-    internal class ManagerViewFlowCoordinator : BeatSaberPlus.SDK.UI.ViewFlowCoordinator<ManagerViewFlowCoordinator>
+    internal sealed class ManagerViewFlowCoordinator : CP_SDK.UI.FlowCoordinator<ManagerViewFlowCoordinator>
     {
-        /// <summary>
-        /// Title
-        /// </summary>
         public override string Title => "Chat Request";
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
+        private ManagerLeftView     m_ManagerLeftView;
+        private ManagerMainView     m_ManagerMainView;
+        private ManagerRightView    m_ManagerRightView;
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
         /// <summary>
-        /// Main view
+        /// Constructor
         /// </summary>
-        private ManagerMain m_MainView;
+        public override void Init()
+        {
+            m_ManagerLeftView   = CP_SDK.UI.UISystem.CreateViewController<ManagerLeftView>();
+            m_ManagerMainView   = CP_SDK.UI.UISystem.CreateViewController<ManagerMainView>();
+            m_ManagerRightView  = CP_SDK.UI.UISystem.CreateViewController<ManagerRightView>();
+        }
         /// <summary>
-        /// Left view
+        /// On destroy
         /// </summary>
-        private ManagerLeft m_LeftView;
-        /// <summary>
-        /// Details view
-        /// </summary>
-        private ManagerRight m_RightView;
+        internal void OnDestroy()
+        {
+            CP_SDK.UI.UISystem.DestroyUI(ref m_ManagerLeftView);
+            CP_SDK.UI.UISystem.DestroyUI(ref m_ManagerMainView);
+            CP_SDK.UI.UISystem.DestroyUI(ref m_ManagerRightView);
+        }
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -36,40 +46,7 @@ namespace BeatSaberPlus_ChatRequest.UI
         /// Get initial views controller
         /// </summary>
         /// <returns>(Middle, Left, Right)</returns>
-        protected override sealed (ViewController, ViewController, ViewController) GetInitialViewsController() => (m_MainView, m_LeftView, m_RightView);
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        internal ManagerViewFlowCoordinator()
-        {
-            m_MainView  = CreateViewController<ManagerMain>();
-            m_LeftView  = CreateViewController<ManagerLeft>();
-            m_RightView = CreateViewController<ManagerRight>();
-        }
-        /// <summary>
-        /// On destroy
-        /// </summary>
-        internal void OnDestroy()
-        {
-            if (m_MainView != null)
-            {
-                GameObject.Destroy(m_MainView.gameObject);
-                m_MainView = null;
-            }
-            if (m_LeftView != null)
-            {
-                GameObject.Destroy(m_LeftView.gameObject);
-                m_LeftView = null;
-            }
-            if (m_RightView != null)
-            {
-                GameObject.Destroy(m_RightView.gameObject);
-                m_RightView = null;
-            }
-        }
+        protected override sealed (CP_SDK.UI.IViewController, CP_SDK.UI.IViewController, CP_SDK.UI.IViewController) GetInitialViewsController()
+            => (m_ManagerMainView, m_ManagerLeftView, m_ManagerRightView);
     }
 }

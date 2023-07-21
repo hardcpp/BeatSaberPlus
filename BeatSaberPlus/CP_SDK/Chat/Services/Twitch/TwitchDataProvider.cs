@@ -14,39 +14,18 @@ namespace CP_SDK.Chat.Services.Twitch
     /// </summary>
     public class TwitchDataProvider
     {
-        /// <summary>
-        /// Global lock
-        /// </summary>
-        private SemaphoreSlim m_GlobalLock = new SemaphoreSlim(1, 1), m_ChannelLock = new SemaphoreSlim(1, 1);
-        /// <summary>
-        /// Cached data hash set
-        /// </summary>
+        private SemaphoreSlim   m_GlobalLock        = new SemaphoreSlim(1, 1), m_ChannelLock = new SemaphoreSlim(1, 1);
         private HashSet<string> m_ChannelDataCached = new HashSet<string>();
-        /// <summary>
-        /// Twitch badge provider
-        /// </summary>
-        private TwitchBadgeProvider m_TwitchBadgeProvider = new TwitchBadgeProvider();
-        /// <summary>
-        /// Twitch cheermote provider
-        /// </summary>
-        private TwitchCheermoteProvider m_TwitchCheermoteProvider = new TwitchCheermoteProvider();
-        /// <summary>
-        /// BTTV data provider
-        /// </summary>
-        private BTTVDataProvider m_BTTVDataProvider = new BTTVDataProvider();
-        /// <summary>
-        /// FFZ data provider
-        /// </summary>
-        private FFZDataProvider m_FFZDataProvider = new FFZDataProvider();
-        /// <summary>
-        /// 7TV data provider
-        /// </summary>
-        private _7TVDataProvider m_7TVDataProvider = new _7TVDataProvider();
+
+        private ChatPlexGradientNamesDataProvider   m_ChatPlexGradientNamesDataProvider = new ChatPlexGradientNamesDataProvider("https://data.chatplex.org/twitch_gradient_names.json");
+        private TwitchBadgeProvider                 m_TwitchBadgeProvider               = new TwitchBadgeProvider();
+        private TwitchCheermoteProvider             m_TwitchCheermoteProvider           = new TwitchCheermoteProvider();
+        private BTTVDataProvider                    m_BTTVDataProvider                  = new BTTVDataProvider();
+        private FFZDataProvider                     m_FFZDataProvider                   = new FFZDataProvider();
+        private _7TVDataProvider                    m_7TVDataProvider                   = new _7TVDataProvider();
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
-
-        public _7TVDataProvider _7TVDataProvider => m_7TVDataProvider;
 
         public bool IsReady { get; internal set; } = false;
 
@@ -64,10 +43,11 @@ namespace CP_SDK.Chat.Services.Twitch
 
                 try
                 {
-                    await m_TwitchBadgeProvider.TryRequestResources(null, p_Token).ConfigureAwait(false);
-                    await m_BTTVDataProvider.TryRequestResources(null, p_Token).ConfigureAwait(false);
-                    await m_FFZDataProvider.TryRequestResources(null, p_Token).ConfigureAwait(false);
-                    await m_7TVDataProvider.TryRequestResources(null, p_Token).ConfigureAwait(false);
+                    await m_ChatPlexGradientNamesDataProvider.TryRequestResources(null, null, p_Token).ConfigureAwait(false);
+                    await m_TwitchBadgeProvider.TryRequestResources(null, null, p_Token).ConfigureAwait(false);
+                    await m_BTTVDataProvider.TryRequestResources(null, null, p_Token).ConfigureAwait(false);
+                    await m_FFZDataProvider.TryRequestResources(null, null, p_Token).ConfigureAwait(false);
+                    await m_7TVDataProvider.TryRequestResources(null, null, p_Token).ConfigureAwait(false);
                     ///ChatPlexSDK.Logger.Information("Finished caching global emotes/badges.");
                 }
                 catch (Exception l_Exception)
@@ -100,13 +80,14 @@ namespace CP_SDK.Chat.Services.Twitch
                 {
                     if (!m_ChannelDataCached.Contains(p_Channel.Id))
                     {
-                        string l_RoomId = p_Channel.AsTwitchChannel().Roomstate.RoomId;
+                        var l_ChannelID     = p_Channel.AsTwitchChannel().Roomstate.RoomId;
+                        var l_ChannelName   = p_Channel.Id;
 
-                        await m_TwitchBadgeProvider.TryRequestResources(l_RoomId, p_Token).ConfigureAwait(false);
-                        await m_TwitchCheermoteProvider.TryRequestResources(l_RoomId, p_Token).ConfigureAwait(false);
-                        await m_BTTVDataProvider.TryRequestResources(l_RoomId, p_Token).ConfigureAwait(false);
-                        await m_FFZDataProvider.TryRequestResources(p_Channel.Id, p_Token).ConfigureAwait(false);
-                        await m_7TVDataProvider.TryRequestResources(p_Channel.Id, p_Token).ConfigureAwait(false);
+                        await m_TwitchBadgeProvider.TryRequestResources(l_ChannelID, l_ChannelName, p_Token).ConfigureAwait(false);
+                        await m_TwitchCheermoteProvider.TryRequestResources(l_ChannelID, l_ChannelName, p_Token).ConfigureAwait(false);
+                        await m_BTTVDataProvider.TryRequestResources(l_ChannelID, l_ChannelName, p_Token).ConfigureAwait(false);
+                        await m_FFZDataProvider.TryRequestResources(l_ChannelID, l_ChannelName, p_Token).ConfigureAwait(false);
+                        await m_7TVDataProvider.TryRequestResources(l_ChannelID, l_ChannelName, p_Token).ConfigureAwait(false);
 
                         var l_Result = new Dictionary<string, IChatResourceData>();
 
@@ -183,6 +164,22 @@ namespace CP_SDK.Chat.Services.Twitch
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
+        /// <summary>
+        /// Try get a custom user display name
+        /// </summary>
+        /// <param name="p_UserID">UserID</param>
+        /// <param name="p_Default">Default display name</param>
+        /// <param name="p_PaintedName">Output painted name</param>
+        /// <returns></returns>
+        internal bool TryGetUserDisplayName(string p_UserID, string p_Default, out string p_PaintedName)
+        {
+            if (m_ChatPlexGradientNamesDataProvider.TryGetUserDisplayName(p_UserID, p_Default, out p_PaintedName)
+                || m_7TVDataProvider.TryGetUserDisplayName(p_UserID, p_Default, out p_PaintedName))
+                return true;
+
+            p_PaintedName = p_Default;
+            return false;
+        }
         /// <summary>
         /// Get third party emote
         /// </summary>

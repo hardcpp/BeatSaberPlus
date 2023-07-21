@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
 
 namespace CP_SDK.Chat
 {
@@ -137,7 +136,7 @@ namespace CP_SDK.Chat
         /// <summary>
         /// Open web configurator
         /// </summary>
-        public static void OpenWebConfigurator()
+        public static void OpenWebConfiguration()
         {
             Process.Start($"http://localhost:{ChatModSettings.Instance.WebAppPort}");
         }
@@ -187,22 +186,31 @@ namespace CP_SDK.Chat
             if (m_Services != null)
                 return;
 
-            /// Init services
-            m_Services = new List<IChatService>();
-            m_Services.Add(new Services.Twitch.TwitchService());
-            m_Services.AddRange(m_ExternalServices);
+            try
+            {
+                /// Init services
+                m_Services = new List<IChatService>() {
+                    new Services.Twitch.TwitchService()
+                };
+                m_Services.AddRange(m_ExternalServices);
 
-            /// Run all services
-            m_ChatCoreMutiplixer = new Services.ChatServiceMultiplexer(m_Services);
-            m_ChatCoreMutiplixer.OnChannelResourceDataCached    += ChatCoreMutiplixer_OnChannelResourceDataCached;
-            m_ChatCoreMutiplixer.OnTextMessageReceived          += ChatCoreMutiplixer_OnTextMessageReceived;
-            m_ChatCoreMutiplixer.OnLiveStatusUpdated            += ChatCoreMutiplixer_OnLiveStatusUpdated;
+                /// Run all services
+                m_ChatCoreMutiplixer = new Services.ChatServiceMultiplexer(m_Services);
+                m_ChatCoreMutiplixer.OnChannelResourceDataCached    += ChatCoreMutiplixer_OnChannelResourceDataCached;
+                m_ChatCoreMutiplixer.OnTextMessageReceived          += ChatCoreMutiplixer_OnTextMessageReceived;
+                m_ChatCoreMutiplixer.OnLiveStatusUpdated            += ChatCoreMutiplixer_OnLiveStatusUpdated;
 
-            /// WebApp
-            WebApp.Start();
+                /// WebApp
+                WebApp.Start();
 
-            if (ChatModSettings.Instance.LaunchWebAppOnStartup)
-                OpenWebConfigurator();
+                if (ChatModSettings.Instance.LaunchWebAppOnStartup)
+                    OpenWebConfiguration();
+            }
+            catch (System.Exception l_Exception)
+            {
+                ChatPlexSDK.Logger.Error("[CP_SDK.Chat][Service.Create] Failed to create service:");
+                ChatPlexSDK.Logger.Error(l_Exception);
+            }
         }
         /// <summary>
         /// Destroy
@@ -228,7 +236,10 @@ namespace CP_SDK.Chat
             foreach (var l_Service in m_Services)
                 l_Service.Stop();
 
-            m_Services = null;
+            m_Services      = null;
+            m_Started       = false;
+            m_LoadingEmotes = 0;
+            m_LoadedEmotes  = 0;
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -327,14 +338,8 @@ namespace CP_SDK.Chat
         /// <param name="p_Message">Chat message</param>
         private static void ChatCoreMutiplixer_OnTextMessageReceived(IChatService p_Service, IChatMessage p_Message)
         {
-            try
-            {
-                Discrete_OnTextMessageReceived?.Invoke(p_Service, p_Message);
-            }
-            catch
-            {
-
-            }
+            try   { Discrete_OnTextMessageReceived?.Invoke(p_Service, p_Message); }
+            catch {                                                               }
         }
         /// <summary>
         /// On room video playback updated
@@ -345,14 +350,8 @@ namespace CP_SDK.Chat
         /// <param name="p_ViewerCount">Viewer count</param>
         private static void ChatCoreMutiplixer_OnLiveStatusUpdated(IChatService p_Service, IChatChannel p_Channel, bool p_StreamUP, int p_ViewerCount)
         {
-            try
-            {
-                Discrete_OnLiveStatusUpdated?.Invoke(p_Service, p_Channel, p_StreamUP, p_ViewerCount);
-            }
-            catch
-            {
-
-            }
+            try   { Discrete_OnLiveStatusUpdated?.Invoke(p_Service, p_Channel, p_StreamUP, p_ViewerCount); }
+            catch {                                                                                        }
         }
     }
 }

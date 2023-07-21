@@ -78,23 +78,23 @@ namespace BeatSaberPlus.SDK.Game
         {
             yield return new WaitUntil(() => !p_LevelSelectionNavigationController || !p_LevelSelectionNavigationController.isInTransition);
 
-            if (Logic.ActiveScene != Logic.SceneType.Menu)
+            if (Logic.ActiveScene != Logic.ESceneType.Menu)
                 yield break;
 
             if (!p_LevelSelectionNavigationController || !p_LevelSelectionNavigationController.isInViewControllerHierarchy || !p_LevelSelectionNavigationController.isActiveAndEnabled)
                 yield break;
 
-            var l_LevelFilteringNavigationController = p_LevelSelectionNavigationController.GetField<LevelFilteringNavigationController, LevelSelectionNavigationController>("_levelFilteringNavigationController");
+            var l_LevelFilteringNavigationController = p_LevelSelectionNavigationController._levelFilteringNavigationController;
             if (!l_LevelFilteringNavigationController)
                 yield break;
 
             if (l_LevelFilteringNavigationController.selectedLevelCategory != SelectLevelCategoryViewController.LevelCategory.All)
             {
-                var l_Selector = l_LevelFilteringNavigationController.GetField<SelectLevelCategoryViewController, LevelFilteringNavigationController>("_selectLevelCategoryViewController");
+                var l_Selector = l_LevelFilteringNavigationController._selectLevelCategoryViewController;
                 if (l_Selector != null && l_Selector)
                 {
-                    var l_SegmentControl    = l_Selector.GetField<HMUI.IconSegmentedControl, SelectLevelCategoryViewController>("_levelFilterCategoryIconSegmentedControl");
-                    var l_Tags              = l_Selector.GetField<SelectLevelCategoryViewController.LevelCategoryInfo[], SelectLevelCategoryViewController>("_levelCategoryInfos");
+                    var l_SegmentControl    = l_Selector._levelFilterCategoryIconSegmentedControl;
+                    var l_Tags              = l_Selector._levelCategoryInfos;
                     var l_IndexToSelect     = l_Tags.Select((x => x.levelCategory)).ToList().IndexOf(SelectLevelCategoryViewController.LevelCategory.All);
 
                     /// Multiplayer : missing extension
@@ -105,7 +105,7 @@ namespace BeatSaberPlus.SDK.Game
                     l_Selector.LevelFilterCategoryIconSegmentedControlDidSelectCell(l_SegmentControl, l_IndexToSelect);
 
                     CP_SDK.Unity.MTCoroutineStarter.Start(LevelSelection_FilterLevel(
-                        l_LevelFilteringNavigationController.GetField<LevelSearchViewController, LevelFilteringNavigationController>("_levelSearchViewController"),
+                        l_LevelFilteringNavigationController._levelSearchViewController,
                         true
                     ));
                 }
@@ -113,7 +113,7 @@ namespace BeatSaberPlus.SDK.Game
             else
             {
                 CP_SDK.Unity.MTCoroutineStarter.Start(LevelSelection_FilterLevel(
-                    l_LevelFilteringNavigationController.GetField<LevelSearchViewController, LevelFilteringNavigationController>("_levelSearchViewController"),
+                    l_LevelFilteringNavigationController._levelSearchViewController,
                     false
                 ));
             }
@@ -126,7 +126,7 @@ namespace BeatSaberPlus.SDK.Game
         /// <returns></returns>
         private static IEnumerator LevelSelection_FilterLevel(LevelSearchViewController p_LevelSearchViewController, bool p_Wait)
         {
-            if (Logic.ActiveScene != Logic.SceneType.Menu)
+            if (Logic.ActiveScene != Logic.ESceneType.Menu)
                 yield break;
 
             if (p_LevelSearchViewController == null || !p_LevelSearchViewController || m_PendingFilterSong == null)
@@ -139,7 +139,7 @@ namespace BeatSaberPlus.SDK.Game
                 if (!p_LevelSearchViewController || !p_LevelSearchViewController.isInViewControllerHierarchy || !p_LevelSearchViewController.isActiveAndEnabled)
                     yield break;
 
-                if (Logic.ActiveScene != Logic.SceneType.Menu)
+                if (Logic.ActiveScene != Logic.ESceneType.Menu)
                     yield break;
             }
 
@@ -147,7 +147,7 @@ namespace BeatSaberPlus.SDK.Game
             {
                 p_LevelSearchViewController.didStartLoadingEvent -= LevelSearchViewController_didStartLoadingEvent;
                 p_LevelSearchViewController.ResetCurrentFilterParams();
-                var l_InputFieldView = p_LevelSearchViewController.GetField<HMUI.InputFieldView, LevelSearchViewController>("_searchTextInputFieldView");
+                var l_InputFieldView = p_LevelSearchViewController._searchTextInputFieldView;
                 if (l_InputFieldView != null && l_InputFieldView)
                 {
                     //l_InputFieldView.SetText(m_PendingFilterSong.songName);
@@ -179,12 +179,12 @@ namespace BeatSaberPlus.SDK.Game
 
             try
             {
-                var l_Filter = p_LevelSearchViewController.GetField<LevelFilterParams, LevelSearchViewController>("_currentFilterParams");
+                var l_Filter = p_LevelSearchViewController._currentFilterParams;
                 if (l_Filter != null && l_Filter.filterByLevelIds)
                 {
                     p_LevelSearchViewController.ResetCurrentFilterParams();
 
-                    var l_InputFieldView = p_LevelSearchViewController.GetField<HMUI.InputFieldView, LevelSearchViewController>("_searchTextInputFieldView");
+                    var l_InputFieldView = p_LevelSearchViewController._searchTextInputFieldView;
                     if (l_InputFieldView != null && l_InputFieldView)
                     {
                         l_InputFieldView.UpdateClearButton();

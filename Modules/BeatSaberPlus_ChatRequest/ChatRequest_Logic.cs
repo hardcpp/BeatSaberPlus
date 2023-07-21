@@ -11,57 +11,8 @@ namespace BeatSaberPlus_ChatRequest
     /// </summary>
     public partial class ChatRequest
     {
-        /// <summary>
-        /// Song entry
-        /// </summary>
-        internal class SongEntry
-        {
-            internal BeatSaberPlus.SDK.Game.BeatMaps.MapDetail  BeatMap         = null;
-            internal DateTime?                                  RequestTime     = null;
-            internal string                                     RequesterName   = "";
-            internal string                                     NamePrefix      = "";
-            internal string                                     Message         = "";
-        }
-
-        /// <summary>
-        /// Queue
-        /// </summary>
-        internal List<SongEntry> SongQueue      = new List<SongEntry>();
-        /// <summary>
-        /// History
-        /// </summary>
-        internal List<SongEntry> SongHistory    = new List<SongEntry>();
-        /// <summary>
-        /// Blacklist
-        /// </summary>
-        internal List<SongEntry> SongBlackList  = new List<SongEntry>();
-        /// <summary>
-        /// Banned user list
-        /// </summary>
-        internal List<string> BannedUsers = new List<string>();
-        /// <summary>
-        /// Banned mapper list
-        /// </summary>
-        internal List<string> BannedMappers = new List<string>();
-        /// <summary>
-        /// BSR codes remap lookup dictionary
-        /// </summary>
-        internal Dictionary<string, string> Remaps = new Dictionary<string, string>();
-        /// <summary>
-        /// Map allow list
-        /// </summary>
-        internal List<string> AllowList = new List<string>();
-        /// <summary>
-        /// Is the queue open
-        /// </summary>
         public bool QueueOpen { get; private set; } = false;
-        /// <summary>
-        /// Total queue duration
-        /// </summary>
         public int QueueDuration { get; private set; } = 0;
-        /// <summary>
-        /// Song queue count
-        /// </summary>
         public int SongQueueCount { get
             {
                 lock (SongQueue)
@@ -72,22 +23,23 @@ namespace BeatSaberPlus_ChatRequest
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        /// <summary>
-        /// Requested this session songs
-        /// </summary>
-        private ConcurrentBag<string> m_RequestedThisSession = new ConcurrentBag<string>();
-        /// <summary>
-        /// Last queue command time
-        /// </summary>
-        private DateTime m_LastQueueCommandTime = DateTime.Now;
-        /// <summary>
-        /// Link command cache
-        /// </summary>
-        private IBeatmapLevel m_LastPlayingLevel = null;
-        /// <summary>
-        /// Link command cache
-        /// </summary>
-        private string m_LastPlayingLevelResponse = "";
+        internal List<Data.SongEntry> SongQueue      = new List<Data.SongEntry>();
+        internal List<Data.SongEntry> SongHistory    = new List<Data.SongEntry>();
+        internal List<Data.SongEntry> SongBlackList  = new List<Data.SongEntry>();
+
+        internal List<string> AllowList     = new List<string>();
+        internal List<string> BannedUsers   = new List<string>();
+        internal List<string> BannedMappers = new List<string>();
+
+        internal Dictionary<string, string> Remaps = new Dictionary<string, string>();
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        private ConcurrentBag<string>   m_RequestedThisSession      = new ConcurrentBag<string>();
+        private DateTime                m_LastQueueCommandTime      = DateTime.Now;
+        private IBeatmapLevel           m_LastPlayingLevel          = null;
+        private string                  m_LastPlayingLevelResponse  = "";
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -112,8 +64,8 @@ namespace BeatSaberPlus_ChatRequest
                     {
                         SongQueue.ForEach(x =>
                         {
-                            if (!x.BeatMap.Partial)
-                                QueueDuration += (int)x.BeatMap.metadata.duration;
+                            if (!x.BeatSaver_Map.Partial)
+                                QueueDuration += (int)x.BeatSaver_Map.metadata.duration;
                         });
                     }
                 }
@@ -124,14 +76,14 @@ namespace BeatSaberPlus_ChatRequest
             }
 
             /// Avoid saving during play
-            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene != BeatSaberPlus.SDK.Game.Logic.SceneType.Playing)
+            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene != BeatSaberPlus.SDK.Game.Logic.ESceneType.Playing)
             {
                 CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() =>
                 {
                     UpdateButton();
 
-                    if (p_UpdateSongList && UI.ManagerMain.CanBeUpdated)
-                        UI.ManagerMain.Instance.RebuildSongList();
+                    if (p_UpdateSongList && UI.ManagerMainView.CanBeUpdated)
+                        UI.ManagerMainView.Instance.RebuildSongList();
 
                     SaveDatabase();
                 });
@@ -141,7 +93,7 @@ namespace BeatSaberPlus_ChatRequest
         /// When a beatmap get fully loaded
         /// </summary>
         /// <param name="p_Task">Task instance</param>
-        private void OnBeatmapPopulated(bool p_Valid, SongEntry p_Entry)
+        private void OnBeatmapPopulated(bool p_Valid, Data.SongEntry p_Entry)
         {
             if (!p_Valid)
             {
@@ -151,14 +103,14 @@ namespace BeatSaberPlus_ChatRequest
                     SongBlackList.RemoveAll(z => z == p_Entry);
                 } } }
 
-                BeatSaberPlus.SDK.Game.BeatMapsClient.ClearCache(p_Entry.BeatMap.id);
+                BeatSaberPlus.SDK.Game.BeatMapsClient.ClearCache(p_Entry.BeatSaver_Map.id);
 
                 CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() =>
                 {
                     UpdateButton();
 
-                    if (UI.ManagerMain.CanBeUpdated)
-                        UI.ManagerMain.Instance.RebuildSongList();
+                    if (UI.ManagerMainView.CanBeUpdated)
+                        UI.ManagerMainView.Instance.RebuildSongList();
 
                     SaveDatabase();
                 });
@@ -167,7 +119,7 @@ namespace BeatSaberPlus_ChatRequest
             if (!p_Valid)
                 return;
 
-            BeatSaberPlus.SDK.Game.BeatMapsClient.Cache(p_Entry.BeatMap);
+            BeatSaberPlus.SDK.Game.BeatMapsClient.Cache(p_Entry.BeatSaver_Map);
 
             /// Update request manager
             OnQueueChanged();
@@ -244,15 +196,15 @@ namespace BeatSaberPlus_ChatRequest
 
                 UpdateSimpleQueueFile();
 
-                if (UI.ManagerLeft.CanBeUpdated)
-                    UI.ManagerLeft.Instance.UpdateQueueStatus();
+                if (UI.ManagerLeftView.CanBeUpdated)
+                    UI.ManagerLeftView.Instance.UpdateQueueStatus();
             });
         }
         /// <summary>
         /// Re-Enqueue a song by play or skip
         /// </summary>
         /// <param name="p_Entry">Song to dequeue</param>
-        internal void ReEnqueueSong(SongEntry p_Entry)
+        internal void ReEnqueueSong(Data.SongEntry p_Entry)
         {
             if (p_Entry == null)
                 return;
@@ -266,7 +218,7 @@ namespace BeatSaberPlus_ChatRequest
                         SongHistory.Remove(p_Entry);
 
                     /// Move at top of queue
-                    SongQueue.RemoveAll(x => x.BeatMap.id == p_Entry.BeatMap.id);
+                    SongQueue.RemoveAll(x => x.BeatSaver_Map.id == p_Entry.BeatSaver_Map.id);
                     SongQueue.Insert(0, p_Entry);
                 }
             }
@@ -278,7 +230,7 @@ namespace BeatSaberPlus_ChatRequest
         /// Dequeue a song by play or skip
         /// </summary>
         /// <param name="p_Entry">Song to dequeue</param>
-        internal void DequeueSong(SongEntry p_Entry, bool p_ChatNotify)
+        internal void DequeueSong(Data.SongEntry p_Entry, bool p_ChatNotify)
         {
             if (p_Entry == null)
                 return;
@@ -290,7 +242,7 @@ namespace BeatSaberPlus_ChatRequest
                     SongQueue.Remove(p_Entry);
 
                 /// Move at top of history
-                SongHistory.RemoveAll(x => x.BeatMap.id == p_Entry.BeatMap.id);
+                SongHistory.RemoveAll(x => x.BeatSaver_Map.id == p_Entry.BeatSaver_Map.id);
                 SongHistory.Insert(0, p_Entry);
 
                 /// Reduce history size
@@ -299,8 +251,8 @@ namespace BeatSaberPlus_ChatRequest
                     var l_ToRemove = SongHistory.ElementAt(SongHistory.Count - 1);
 
                     /// Clear cache
-                    if (SongBlackList.Count(x => x.BeatMap.id == l_ToRemove.BeatMap.id) == 0)
-                        BeatSaberPlus.SDK.Game.BeatMapsClient.ClearCache(l_ToRemove.BeatMap.id);
+                    if (SongBlackList.Count(x => x.BeatSaver_Map.id == l_ToRemove.BeatSaver_Map.id) == 0)
+                        BeatSaberPlus.SDK.Game.BeatMapsClient.ClearCache(l_ToRemove.BeatSaver_Map.id);
 
                     SongHistory.RemoveAt(SongHistory.Count - 1);
                 }
@@ -310,7 +262,7 @@ namespace BeatSaberPlus_ChatRequest
             OnQueueChanged();
 
             if (p_ChatNotify)
-                SendChatMessage($"$SongName / $LevelAuthorName $Vote% (bsr $BSRKey) requested by @{p_Entry.RequesterName} is next!", null, null, p_Entry.BeatMap);
+                SendChatMessage($"$SongName / $LevelAuthorName $Vote% (bsr $BSRKey) requested by @{p_Entry.RequesterName} is next!", null, null, p_Entry.BeatSaver_Map);
         }
         /// <summary>
         /// Clear queue
@@ -329,7 +281,7 @@ namespace BeatSaberPlus_ChatRequest
         /// Blacklist song
         /// </summary>
         /// <param name="p_Entry">Song to blacklist</param>
-        internal void BlacklistSong(SongEntry p_Entry)
+        internal void BlacklistSong(Data.SongEntry p_Entry)
         {
             if (p_Entry == null)
                 return;
@@ -341,10 +293,10 @@ namespace BeatSaberPlus_ChatRequest
                     SongQueue.Remove(p_Entry);
 
                 /// Remove from history
-                SongHistory.RemoveAll(x => x.BeatMap.id == p_Entry.BeatMap.id);
+                SongHistory.RemoveAll(x => x.BeatSaver_Map.id == p_Entry.BeatSaver_Map.id);
 
                 /// Add to blacklist
-                SongBlackList.RemoveAll(x => x.BeatMap.id == p_Entry.BeatMap.id);
+                SongBlackList.RemoveAll(x => x.BeatSaver_Map.id == p_Entry.BeatSaver_Map.id);
                 SongBlackList.Insert(0, p_Entry);
             } } }
 
@@ -355,7 +307,7 @@ namespace BeatSaberPlus_ChatRequest
         /// UnBlacklist song
         /// </summary>
         /// <param name="p_Entry">Song to blacklist</param>
-        internal void UnBlacklistSong(SongEntry p_Entry)
+        internal void UnBlacklistSong(Data.SongEntry p_Entry)
         {
             if (p_Entry == null)
                 return;
@@ -367,7 +319,7 @@ namespace BeatSaberPlus_ChatRequest
                     SongBlackList.Remove(p_Entry);
 
                 /// Move at top of history
-                SongHistory.RemoveAll(x => x.BeatMap.id == p_Entry.BeatMap.id);
+                SongHistory.RemoveAll(x => x.BeatSaver_Map.id == p_Entry.BeatSaver_Map.id);
                 SongHistory.Insert(0, p_Entry);
 
                 /// Reduce history size
@@ -389,7 +341,7 @@ namespace BeatSaberPlus_ChatRequest
                 SongBlackList.ForEach(l_BlacklistedSong =>
                 {
                     /// Move at top of history
-                    SongHistory.RemoveAll(x => x.BeatMap.id == l_BlacklistedSong.BeatMap.id);
+                    SongHistory.RemoveAll(x => x.BeatSaver_Map.id == l_BlacklistedSong.BeatSaver_Map.id);
                     SongHistory.Insert(0, l_BlacklistedSong);
                 });
 
@@ -492,15 +444,13 @@ namespace BeatSaberPlus_ChatRequest
             DateTime l_MinUploadDate = new DateTime(2018, 1, 1).AddMonths(CRConfig.Instance.Filters.DateMinV);
             if (CRConfig.Instance.Filters.DateMin && l_Date < l_MinUploadDate)
             {
-                string[] s_Months = new string[] { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
-                p_Reply = $"@{p_SenderName} this song is too old ({s_Months[l_MinUploadDate.Month - 1]} {l_MinUploadDate.Year} minimum)!";
+                p_Reply = $"@{p_SenderName} this song is too old ({CP_SDK.Misc.Time.MonthNames[l_MinUploadDate.Month - 1]} {l_MinUploadDate.Year} minimum)!";
                 return false;
             }
             DateTime l_MaxUploadDate = new DateTime(2018, 1, 1).AddMonths(CRConfig.Instance.Filters.DateMaxV + 1);
             if (CRConfig.Instance.Filters.DateMax && l_Date > l_MaxUploadDate)
             {
-                string[] s_Months = new string[] { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
-                p_Reply = $"@{p_SenderName} this song is too recent ({s_Months[l_MinUploadDate.Month - 1]} {l_MinUploadDate.Year} maximum)!";
+                p_Reply = $"@{p_SenderName} this song is too recent ({CP_SDK.Misc.Time.MonthNames[l_MinUploadDate.Month - 1]} {l_MinUploadDate.Year} maximum)!";
                 return false;
             }
 

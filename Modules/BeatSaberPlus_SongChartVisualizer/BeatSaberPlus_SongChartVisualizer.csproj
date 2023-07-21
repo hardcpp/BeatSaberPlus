@@ -24,15 +24,14 @@
     <DebugSymbols>true</DebugSymbols>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;BEATSABER</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants>BEATSABER</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -49,11 +48,6 @@
   <ItemGroup>
     <Reference Include="BeatmapCore">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatmapCore.dll</HintPath>
-      <Private>False</Private>
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="BSML">
-      <HintPath>$(BeatSaberDir)\Plugins\BSML.dll</HintPath>
       <Private>False</Private>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
@@ -74,20 +68,8 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
     <Reference Include="Main">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Main.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="HMLib">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\HMLib.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="HMUI">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\HMUI.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="IPA.Loader">
@@ -116,60 +98,39 @@
       <Private>False</Private>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
+      <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UI.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="UnityEngine.UIElementsModule">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UIElementsModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.UIModule">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UIModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="UnityEngine.VRModule">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.VRModule.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="VRUI">
-      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\VRUI.dll</HintPath>
-      <Private>False</Private>
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Components\SongChart.cs" />
-    <Compile Include="Logger.cs" />
-    <Compile Include="Plugin.cs" />
+    <Compile Include="ChatPlexMod_SongChartVisualizer\Data\DataPoint.cs" />
+    <Compile Include="ChatPlexMod_SongChartVisualizer\Data\Graph.cs" />
+    <Compile Include="ChatPlexMod_SongChartVisualizer\Data\GraphBuilder.cs" />
+    <Compile Include="ChatPlexMod_SongChartVisualizer\Logger.cs" />
+    <Compile Include="BSIPA.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SCVConfig.cs" />
-    <Compile Include="SongChartVisualizer.cs" />
-    <Compile Include="UI\FloatingWindow.cs" />
-    <Compile Include="UI\Settings.cs" />
-    <Compile Include="UI\SettingsLeft.cs" />
-    <Compile Include="UI\SettingsRight.cs" />
+    <Compile Include="ChatPlexMod_SongChartVisualizer\SCVConfig.cs" />
+    <Compile Include="ChatPlexMod_SongChartVisualizer\SongChartVisualizer.cs" />
+    <Compile Include="ChatPlexMod_SongChartVisualizer\UI\ChartFloatingPanelView.cs" />
+    <Compile Include="ChatPlexMod_SongChartVisualizer\UI\SettingsMainView.cs" />
+    <Compile Include="ChatPlexMod_SongChartVisualizer\UI\SettingsLeftView.cs" />
+    <Compile Include="ChatPlexMod_SongChartVisualizer\UI\SettingsRightView.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="manifest.json" />
   </ItemGroup>
   <ItemGroup>
     <None Include="BuildTargets.targets" />
-    <EmbeddedResource Include="UI\Settings.bsml">
-      <DependentUpon>Settings.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UI\FloatingWindow.bsml">
-      <DependentUpon>FloatingWindow.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UI\SettingsLeft.bsml">
-      <DependentUpon>SettingsLeft.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UI\SettingsRight.bsml">
-      <DependentUpon>SettingsRight.cs</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\Locked.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\BeatSaberPlus\BeatSaberPlus.csproj">

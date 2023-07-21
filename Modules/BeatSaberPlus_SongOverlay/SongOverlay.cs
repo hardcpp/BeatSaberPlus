@@ -1,47 +1,27 @@
-﻿using BeatSaberMarkupLanguage;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace BeatSaberPlus_SongOverlay
 {
     /// <summary>
-    /// Online instance
+    /// Song Overlay instance
     /// </summary>
-    internal class SongOverlay : BeatSaberPlus.SDK.BSPModuleBase<SongOverlay>
+    public class SongOverlay : CP_SDK.ModuleBase<SongOverlay>
     {
-        /// <summary>
-        /// Module type
-        /// </summary>
-        public override CP_SDK.EIModuleBaseType Type => CP_SDK.EIModuleBaseType.Integrated;
-        /// <summary>
-        /// Name of the Module
-        /// </summary>
-        public override string Name => "Song Overlay";
-        /// <summary>
-        /// Description of the Module
-        /// </summary>
-        public override string Description => "Song overlay server for your stream!";
-        /// <summary>
-        /// Is the Module using chat features
-        /// </summary>
-        public override bool UseChatFeatures => false;
-        /// <summary>
-        /// Is enabled
-        /// </summary>
-        public override bool IsEnabled { get => SOConfig.Instance.Enabled; set { SOConfig.Instance.Enabled = value; SOConfig.Instance.Save(); } }
-        /// <summary>
-        /// Activation kind
-        /// </summary>
-        public override CP_SDK.EIModuleBaseActivationType ActivationType => CP_SDK.EIModuleBaseActivationType.OnStart;
+        public override CP_SDK.EIModuleBaseType             Type                => CP_SDK.EIModuleBaseType.Integrated;
+        public override string                              Name                => "Song Overlay";
+        public override string                              Description         => "Song overlay server for your stream!";
+        public override string                              DocumentationURL    => "https://github.com/hardcpp/BeatSaberPlus/wiki#song-overlay";
+        public override bool                                UseChatFeatures     => false;
+        public override bool                                IsEnabled           { get => SOConfig.Instance.Enabled; set { SOConfig.Instance.Enabled = value; SOConfig.Instance.Save(); } }
+        public override CP_SDK.EIModuleBaseActivationType   ActivationType      => CP_SDK.EIModuleBaseActivationType.OnStart;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        /// <summary>
-        /// Settings view
-        /// </summary>
-        private UI.Settings m_SettingsView = null;
+        private UI.SettingsLeftView m_SettingsLeftView = null;
+        private UI.SettingsMainView m_SettingsMainView = null;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -60,6 +40,9 @@ namespace BeatSaberPlus_SongOverlay
         /// </summary>
         protected override void OnDisable()
         {
+            CP_SDK.UI.UISystem.DestroyUI(ref m_SettingsLeftView);
+            CP_SDK.UI.UISystem.DestroyUI(ref m_SettingsMainView);
+
             Network.OverlayServer.Stop();
         }
 
@@ -69,14 +52,12 @@ namespace BeatSaberPlus_SongOverlay
         /// <summary>
         /// Get Module settings UI
         /// </summary>
-        protected override (HMUI.ViewController, HMUI.ViewController, HMUI.ViewController) GetSettingsUIImplementation()
+        protected override (CP_SDK.UI.IViewController, CP_SDK.UI.IViewController, CP_SDK.UI.IViewController) GetSettingsViewControllersImplementation()
         {
-            /// Create view if needed
-            if (m_SettingsView == null)
-                m_SettingsView = BeatSaberUI.CreateViewController<UI.Settings>();
+            if (m_SettingsMainView == null) m_SettingsMainView = CP_SDK.UI.UISystem.CreateViewController<UI.SettingsMainView>();
+            if (m_SettingsLeftView == null) m_SettingsLeftView = CP_SDK.UI.UISystem.CreateViewController<UI.SettingsLeftView>();
 
-            /// Change main view
-            return (m_SettingsView, null, null);
+            return (m_SettingsMainView, m_SettingsLeftView, null);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -108,6 +89,5 @@ namespace BeatSaberPlus_SongOverlay
                     + "It's recommended to only use 1 of these mods for performance reasons");
             }
         }
-
     }
 }

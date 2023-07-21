@@ -352,13 +352,13 @@ namespace CP_SDK_LiteNetLib
                 if(!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
 #endif
                 try { socket.DontFragment = true; }
-                catch (SocketException e)
+                catch (SocketException)
                 {
                     //NetDebug.WriteError("[B]DontFragment error: {0}", e.SocketErrorCode);
                 }
 
                 try { socket.EnableBroadcast = true; }
-                catch (SocketException e)
+                catch (SocketException)
                 {
                     //NetDebug.WriteError("[B]Broadcast error: {0}", e.SocketErrorCode);
                 }
@@ -372,7 +372,7 @@ namespace CP_SDK_LiteNetLib
                         //Disable IPv6 only mode
                         socket.SetSocketOption(SocketOptionLevel.IPv6, (SocketOptionName)27, false);
                     }
-                    catch(Exception e)
+                    catch(Exception)
                     {
                         //NetDebug.WriteError("[B]Bind exception (dualmode setting): {0}", e.ToString());
                     }
@@ -418,7 +418,7 @@ namespace CP_SDK_LiteNetLib
                                 socket.Bind(ep);
                             }
 #if UNITY_2018_3_OR_NEWER
-                            catch (SocketException ex)
+                            catch (SocketException )
                             {
 
                                 //because its fixed in 2018_3
@@ -467,7 +467,7 @@ namespace CP_SDK_LiteNetLib
                                                 new IPEndPoint(MulticastAddressV6, port)) > 0;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //NetDebug.WriteError("[S][MCAST]" + ex);
                 return broadcastSuccess;
@@ -504,7 +504,7 @@ namespace CP_SDK_LiteNetLib
                 errorCode = ex.SocketErrorCode;
                 return -1;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //NetDebug.WriteError("[S]" + ex);
                 return -1;

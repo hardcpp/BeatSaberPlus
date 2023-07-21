@@ -1,8 +1,8 @@
-﻿using BeatSaberMarkupLanguage.Components.Settings;
+﻿using CP_SDK.Unity.Extensions;
 using HarmonyLib;
+using Polyglot;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -31,7 +31,9 @@ namespace BeatSaberPlus_GameTweaker.Patches
         private static FormattedFloatListSettingsController   m_NoteJumpFixedDurationSettingsController             = null;
         private static NoteJumpStartBeatOffsetDropdown        m_NoteJumpStartBeatOffsetDropdown                     = null;
 
-        private static IncrementSetting m_OverrideLightsIntensityToggle            = null;
+        private static GameObject                             m_OverrideLightsIntensitySetting                      = null;
+
+        private static CP_SDK.UI.Components.CSlider m_CustomReactionTime;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -76,29 +78,34 @@ namespace BeatSaberPlus_GameTweaker.Patches
 
             try
             {
-                /*
-                    [ERROR @ 06:07:26 | BeatSaberPlus_GameTweaker] 0,2
-                    [ERROR @ 06:07:26 | BeatSaberPlus_GameTweaker] 0,3
-                    [ERROR @ 06:07:26 | BeatSaberPlus_GameTweaker] 0,4
-                    [ERROR @ 06:07:26 | BeatSaberPlus_GameTweaker] 0,5
-                    [ERROR @ 06:07:26 | BeatSaberPlus_GameTweaker] 0,6
-                    [ERROR @ 06:07:26 | BeatSaberPlus_GameTweaker] 0,7
-                    [ERROR @ 06:07:26 | BeatSaberPlus_GameTweaker] 0,8
-                    [ERROR @ 06:07:26 | BeatSaberPlus_GameTweaker] 0,9
-                    [ERROR @ 06:07:26 | BeatSaberPlus_GameTweaker] 1
-                */
-
-                var l_NewReactionTimeList   = new List<float>();
-                var l_IncrementType         = GTConfig.Instance.PlayerOptions.JumpDurationIncrement;
-                var l_Increment             = l_IncrementType == 2 ? 0.100f : (l_IncrementType == 1 ? 0.010f : 0.005f);
-
-                for (float l_Value = (l_IncrementType == 2 ? 0.2f : 0.24f); l_Value < 1f; l_Value += l_Increment)
-                    l_NewReactionTimeList.Add(l_Value);
-
-                if (m_NoteJumpFixedDurationSettingsController)
+                if (!m_CustomReactionTime)
                 {
-                    m_NoteJumpFixedDurationSettingsController.values = l_NewReactionTimeList.ToArray();
-                    typeof(FormattedFloatListSettingsController).GetMethod("GetInitValues", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).Invoke(m_NoteJumpFixedDurationSettingsController, new object[] { (int)0, (int)0 });
+                    var l_NewReactionTimeList   = new List<float>();
+                    for (float l_Value = 0.200f; l_Value <= 1.000f; l_Value += 0.001f)
+                        l_NewReactionTimeList.Add(l_Value);
+
+                    if (m_NoteJumpFixedDurationSettingsController)
+                    {
+                        m_NoteJumpFixedDurationSettingsController.values = l_NewReactionTimeList.ToArray();
+                        m_NoteJumpFixedDurationSettingsController.GetInitValues(out var _, out var __);
+                        m_NoteJumpFixedDurationSettingsController.transform.GetChild(2).transform.localScale = Vector3.zero;
+
+                        m_CustomReactionTime = CP_SDK.UI.UISystem.SliderFactory.Create("", m_NoteJumpFixedDurationSettingsController.transform);
+                        m_CustomReactionTime.RTransform.anchorMin = new Vector2(0.5f, 0.5f);
+                        m_CustomReactionTime.RTransform.anchorMax = new Vector2(1.0f, 0.5f);
+                        m_CustomReactionTime.RTransform.sizeDelta = new Vector2(0.0f, 5.0f);
+                        m_CustomReactionTime.SetColor(ColorU.ToUnityColor("#404040"));
+                        m_CustomReactionTime.SetMinValue(200);
+                        m_CustomReactionTime.SetMaxValue(1000f);
+                        m_CustomReactionTime.SetIncrements(1f);
+                        m_CustomReactionTime.SetInteger(true);
+                        m_CustomReactionTime.SetFormatter((x) => ((int)x).ToString() + "ms");
+                        m_CustomReactionTime.OnValueChanged((x) =>
+                        {
+                            m_NoteJumpFixedDurationSettingsController.SetValue(m_NoteJumpFixedDurationSettingsController.values[((int)x) - 200], true);
+                        });
+                        m_CustomReactionTime.SetValue((int)(m_NoteJumpFixedDurationSettingsController.value * 1000f), false);
+                    }
                 }
             }
             catch (System.Exception)
@@ -135,17 +142,6 @@ namespace BeatSaberPlus_GameTweaker.Patches
                 }
             }
         }
-        /// <summary>
-        /// On NoteJumpFixedDurationSettingsController change
-        /// </summary>
-        [HarmonyPatch(typeof(FormattedFloatListSettingsController))]
-        [HarmonyPatch("TextForValue", new Type[] { typeof(int) })]
-        [HarmonyPostfix]
-        internal static void NoteJumpFixedDurationSettingsController_TextForValue_Postfix(FormattedFloatListSettingsController __instance, int idx, ref string __result)
-        {
-            if (__instance == m_NoteJumpFixedDurationSettingsController)
-                __result = string.Format("{0:0.000}", __instance.values[idx]).Replace(".", "").Replace(",", "").TrimStart('0') + "ms";
-        }
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -161,38 +157,38 @@ namespace BeatSaberPlus_GameTweaker.Patches
 
             m_EnvironmentEffectsFilterDefaultPresetDropdown.transform.parent.parent.GetComponent<VerticalLayoutGroup>().enabled = true;
 
-            if (p_AddOverrideLightsIntensityOption && (m_OverrideLightsIntensityToggle == null || !m_OverrideLightsIntensityToggle))
+            if (p_AddOverrideLightsIntensityOption && (m_OverrideLightsIntensitySetting == null || !m_OverrideLightsIntensitySetting))
             {
-                var l_Creator = new BeatSaberMarkupLanguage.Tags.Settings.IncrementSettingTag();
-                var l_Clone = l_Creator.CreateObject(m_EnvironmentEffectsFilterDefaultPresetDropdown.transform.parent.parent);
-                l_Clone.GetComponentInChildren<TextMeshProUGUI>().text = "Override lights intensity";
-                (l_Clone.transform as RectTransform).offsetMax = new Vector2(90, (l_Clone.transform as RectTransform).offsetMax.y);
+                m_OverrideLightsIntensitySetting = GameObject.Instantiate(
+                    m_EnvironmentEffectsFilterDefaultPresetDropdown.transform.parent.gameObject,
+                    m_EnvironmentEffectsFilterDefaultPresetDropdown.transform.parent.parent
+                );
 
-                if (m_EnvironmentEffectsFilterDefaultPresetDropdown.transform.parent.Find("Icon"))
+                GameObject.DestroyImmediate(m_OverrideLightsIntensitySetting.transform.Find("SimpleTextDropDown").gameObject);
+
+                m_OverrideLightsIntensitySetting.GetComponentInChildren<LocalizedTextMeshProUGUI>().enabled = false;
+                m_OverrideLightsIntensitySetting.GetComponentInChildren<TextMeshProUGUI>().text = "Override lights intensity";
+
+                var l_Slider = CP_SDK.UI.UISystem.SliderFactory.Create("", m_OverrideLightsIntensitySetting.transform);
+                l_Slider.RTransform.anchorMin = new Vector2(0.5f, 0.5f);
+                l_Slider.RTransform.anchorMax = new Vector2(1.0f, 0.5f);
+                l_Slider.RTransform.sizeDelta = new Vector2(0.0f, 5.0f);
+                l_Slider.SetColor(ColorU.ToUnityColor("#404040"));
+                l_Slider.SetMinValue(0.0f);
+                l_Slider.SetMaxValue(10.0f);
+                l_Slider.SetIncrements(0.01f);
+                l_Slider.SetFormatter(CP_SDK.UI.ValueFormatters.Percentage);
+                l_Slider.SetValue(GTConfig.Instance.PlayerOptions.OverrideLightIntensity);
+                l_Slider.OnValueChanged((x) =>
                 {
-                    var l_Icon = GameObject.Instantiate(m_EnvironmentEffectsFilterDefaultPresetDropdown.transform.parent.Find("Icon"), l_Clone.transform);
-                    l_Icon.transform.SetAsFirstSibling();
-                }
-
-                var l_LabelTemplateRectTransform = m_EnvironmentEffectsFilterDefaultPresetDropdown.transform.parent.GetChild(1).transform as RectTransform;
-                (l_Clone.transform.GetChild(1).transform as RectTransform).offsetMin = l_LabelTemplateRectTransform.offsetMin;
-                (l_Clone.transform.GetChild(1).transform as RectTransform).offsetMax = l_LabelTemplateRectTransform.offsetMax;
-
-                (l_Clone.transform.GetChild(2).transform as RectTransform).offsetMin = new Vector2(-36f, 0f);
-                (l_Clone.transform.GetChild(2).transform as RectTransform).offsetMax = Vector2.zero;
-
-                m_OverrideLightsIntensityToggle = l_Clone.GetComponent<IncrementSetting>();
-                m_OverrideLightsIntensityToggle.minValue    = 0;
-                m_OverrideLightsIntensityToggle.maxValue    = 20;
-                m_OverrideLightsIntensityToggle.increments  = 0.1f;
-
-                var l_Event = new BeatSaberMarkupLanguage.Parser.BSMLAction(null, typeof(PPlayerSettingsPanelController).GetMethod(nameof(OnOverrideLightIntensityChange), System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic));
-                BeatSaberPlus.SDK.UI.IncrementSetting.Setup(m_OverrideLightsIntensityToggle, l_Event, BeatSaberPlus.SDK.UI.BSMLSettingFormartter.Percentage, GTConfig.Instance.PlayerOptions.OverrideLightIntensity, false);
+                    GTConfig.Instance.PlayerOptions.OverrideLightIntensity = (float)x;
+                    GTConfig.Instance.Save();
+                });
             }
-            else if (!p_AddOverrideLightsIntensityOption && m_OverrideLightsIntensityToggle != null && m_OverrideLightsIntensityToggle)
+            else if (!p_AddOverrideLightsIntensityOption && m_OverrideLightsIntensitySetting != null && m_OverrideLightsIntensitySetting)
             {
-                GameObject.DestroyImmediate(m_OverrideLightsIntensityToggle.gameObject);
-                m_OverrideLightsIntensityToggle = null;
+                GameObject.DestroyImmediate(m_OverrideLightsIntensitySetting);
+                m_OverrideLightsIntensitySetting = null;
             }
 
             if (p_Enabled)
@@ -203,16 +199,16 @@ namespace BeatSaberPlus_GameTweaker.Patches
                 m_AdaptiveSfxToggle.transform.parent.SetAsFirstSibling();
                 m_SfxVolumeSettingsController.transform.parent.SetAsFirstSibling();
                 m_LeftHandedToggle.transform.parent.SetAsFirstSibling();
-                m_PlayerHeightSettingsController.transform.SetAsFirstSibling();
                 m_AutomaticPlayerHeightToggle.transform.parent.SetAsFirstSibling();
                 m_EnvironmentEffectsFilterExpertPlusPresetDropdown.transform.parent.SetAsFirstSibling();
                 m_EnvironmentEffectsFilterDefaultPresetDropdown.transform.parent.SetAsFirstSibling();
-                if (m_OverrideLightsIntensityToggle != null && m_OverrideLightsIntensityToggle) m_OverrideLightsIntensityToggle.transform.SetAsFirstSibling();
+                if (m_OverrideLightsIntensitySetting != null && m_OverrideLightsIntensitySetting) m_OverrideLightsIntensitySetting.transform.SetAsFirstSibling();
                 m_AdvanceHudToggle.transform.parent.SetAsFirstSibling();
                 m_NoTextsAndHudsToggle.transform.parent.SetAsFirstSibling();
                 m_NoteJumpFixedDurationSettingsController.transform.SetAsFirstSibling();
                 m_NoteJumpStartBeatOffsetDropdown.transform.parent.SetAsFirstSibling();
                 m_NoteJumpDurationTypeSettingsDropdown.transform.SetAsFirstSibling();
+                m_PlayerHeightSettingsController.transform.SetAsFirstSibling();
             }
             else
             {
@@ -221,7 +217,7 @@ namespace BeatSaberPlus_GameTweaker.Patches
                 m_AdvanceHudToggle.transform.parent.SetAsFirstSibling();
                 m_NoTextsAndHudsToggle.transform.parent.SetAsFirstSibling();
                 m_SaberTrailIntensitySettingsController.transform.parent.SetAsFirstSibling();
-                if (m_OverrideLightsIntensityToggle != null && m_OverrideLightsIntensityToggle) m_OverrideLightsIntensityToggle.transform.SetAsFirstSibling();
+                if (m_OverrideLightsIntensitySetting != null && m_OverrideLightsIntensitySetting) m_OverrideLightsIntensitySetting.transform.SetAsFirstSibling();
                 m_EnvironmentEffectsFilterExpertPlusPresetDropdown.transform.parent.SetAsFirstSibling();
                 m_EnvironmentEffectsFilterDefaultPresetDropdown.transform.parent.SetAsFirstSibling();
 
@@ -257,15 +253,6 @@ namespace BeatSaberPlus_GameTweaker.Patches
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        /// <summary>
-        /// On OverrideLightIntensity setting changes
-        /// </summary>
-        /// <param name="p_Value">New value</param>
-        private static void OnOverrideLightIntensityChange(object p_Value)
-        {
-            GTConfig.Instance.PlayerOptions.OverrideLightIntensity = (float)p_Value;
-            GTConfig.Instance.Save();
-        }
         /// <summary>
         /// On light preset change, replicate to the hidden one
         /// </summary>

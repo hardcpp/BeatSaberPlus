@@ -1,128 +1,49 @@
-﻿using BeatSaberMarkupLanguage;
-using BeatSaberMarkupLanguage.Attributes;
+﻿using CP_SDK.Unity.Extensions;
 using System;
-using System.Collections;
-using System.ComponentModel;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using TMPro;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace BeatSaberPlus.SDK.UI
 {
     /// <summary>
-    /// IViewController interface
-    /// </summary>
-    public abstract class IViewController : HMUI.ViewController
-    {
-        /// <summary>
-        /// Show view transition loading
-        /// </summary>
-        public abstract void ShowViewTransitionLoading();
-    }
-
-    /// <summary>
-    /// Resource view controller base class
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public abstract class ResourceViewController<T> : ViewController<T>
-        where T : ResourceViewController<T>
-    {
-        /// <summary>
-        /// Get view content description XML
-        /// </summary>
-        /// <returns></returns>
-        protected override sealed string GetViewContentDescription()
-        {
-#if DEBUG
-            CP_SDK.ChatPlexSDK.Logger.Debug("Loading " + string.Join(".", typeof(T).Namespace, typeof(T).Name));
-#endif
-            return CP_SDK.Misc.Resources.FromPathStr(Assembly.GetAssembly(typeof(T)), string.Join(".", typeof(T).Namespace, typeof(T).Name));
-        }
-    }
-
-    /// <summary>
     /// View controller base class
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public abstract class ViewController<T> : IViewController, INotifyPropertyChanged
-        where T : ViewController<T>
+    /// <typeparam name="t_Base"></typeparam>
+    public abstract class ViewController<t_Base> : IHMUIViewController
+        where t_Base : ViewController<t_Base>
     {
-        /// <summary>
-        /// Modal coroutine
-        /// </summary>
-        private Coroutine m_ModalCoroutine = null;
-        /// <summary>
-        /// Pending message
-        /// </summary>
-        private string m_PendingMessage = null;
-        /// <summary>
-        /// Confirmation modal callback
-        /// </summary>
-        private Action m_ConfirmationModalCallback = null;
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-#pragma warning disable CS0414
-        [UIObject("SDK_MessageModal")]
-        protected GameObject m_SDK_MessageModal = null;
-        [UIComponent("SDK_MessageModal_Text")]
-        protected TextMeshProUGUI m_SDK_MessageModal_Text = null;
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        [UIComponent("SDK_ConfirmModal")]
-        protected HMUI.ModalView m_SDK_ConfirmModal = null;
-        [UIComponent("SDK_ConfirmModal_Text")]
-        protected TextMeshProUGUI m_SDK_ConfirmModal_Text = null;
-        [UIComponent("SDK_ConfirmModal_Button")]
-        protected UnityEngine.UI.Button m_SDK_ConfirmModal_Button = null;
-        [UIComponent("SDK_ConfirmModal_DiscardButton")]
-        protected UnityEngine.UI.Button m_SDK_ConfirmModal_DiscardButton = null;
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        [UIComponent("SDK_LoadingModal")]
-        protected HMUI.ModalView m_SDK_LoadingModal = null;
-        [UIObject("SDK_LoadingModal_Text")]
-        protected GameObject m_SDK_LoadingModalText = null;
-        private LoadingControl m_SDK_LoadingModal_Spinner = null;
-#pragma warning restore CS0414
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        /// <summary>
-        /// BSML parser params
-        /// </summary>
-        private BeatSaberMarkupLanguage.Parser.BSMLParserParams m_ParserParams = null;
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
         /// <summary>
         /// Singleton
         /// </summary>
-        public static T Instance = null;
+        public static t_Base Instance = null;
         /// <summary>
         /// Can UI be updated
         /// </summary>
         public static bool CanBeUpdated => Instance != null && Instance && Instance.isInViewControllerHierarchy && Instance.isActiveAndEnabled && Instance.UICreated;
-        /// <summary>
-        /// Was UI created
-        /// </summary>
-        public bool UICreated { get; private set; } = false;
-        /// <summary>
-        /// Has pending message
-        /// </summary>
-        public bool HasPendingMessage => m_PendingMessage != null;
-        /// <summary>
-        /// Property changed event
-        /// </summary>
-        public event PropertyChangedEventHandler PropertyChanged;
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        private RectTransform                   m_RTransform;
+        private CanvasGroup                     m_CGroup;
+        private int                             m_ModalShowCount;
+        private CP_SDK.UI.Components.CHLayout   m_ModalContainer;
+        private CP_SDK.UI.Modals.ColorPicker    m_ColorPickerModal;
+        private CP_SDK.UI.Modals.Confirmation   m_ConfirmationModal;
+        private CP_SDK.UI.Modals.Dropdown       m_DropdownModal;
+        private CP_SDK.UI.Modals.Keyboard       m_KeyboardModal;
+        private CP_SDK.UI.Modals.Loading        m_LoadingModal;
+        private CP_SDK.UI.Modals.Message        m_MessageModal;
+        private CP_SDK.UI.Tooltip               m_Tooltip;
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        public override RectTransform   RTransform                  => m_RTransform;
+        public override RectTransform   ModalContainerRTransform    => m_ModalContainer.RTransform;
+        public override CanvasGroup     CGroup                      => m_CGroup;
+        public bool                     UICreated                   { get; private set; } = false;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -133,68 +54,39 @@ namespace BeatSaberPlus.SDK.UI
         /// <param name="p_FirstActivation">Is the first activation ?</param>
         /// <param name="p_AddedToHierarchy">Activation type</param>
         /// <param name="p_ScreenSystemEnabling">Is screen system enabled</param>
-        protected override sealed void DidActivate(bool p_FirstActivation, bool p_AddedToHierarchy, bool p_ScreenSystemEnabling)
+        public override sealed void DidActivate(bool p_FirstActivation, bool p_AddedToHierarchy, bool p_ScreenSystemEnabling)
         {
             /// Bind singleton
-            Instance = this as T;
+            Instance = this as t_Base;
 
             if (p_FirstActivation)
             {
-                var l_UICode = GetViewContentDescription();
+                if (!GetComponent<CP_SDK_UI_IViewControllerBridge>())
+                    gameObject.AddComponent<CP_SDK_UI_IViewControllerBridge>();
 
-                /// Add loading modal & message modal code
-                if (true)
-                {
-                    var l_Closure = l_UICode.LastIndexOf('<');
-                    var l_NewCode = l_UICode.Substring(0, l_Closure);
+                /// Get components
+                m_RTransform    = GetComponent<RectTransform>();
+                m_CGroup        = GetComponent<CanvasGroup>();
 
-                    l_NewCode += "<modal id='SDK_MessageModal' show-event='SDK_ShowMessageModal' hide-event='SDK_CloseMessageModal,CloseAllModals' move-to-center='true' size-delta-y='30' size-delta-x='85'>";
-                    l_NewCode += "  <vertical pad='0'>";
-                    l_NewCode += "    <text text='' id='SDK_MessageModal_Text' font-size='4' align='Center'/>";
-                    l_NewCode += "    <primary-button text='Ok' click-event='SDK_CloseMessageModal'></primary-button>";
-                    l_NewCode += "  </vertical>";
-                    l_NewCode += "</modal>";
+                /// Create modal container
+                m_ModalContainer = CP_SDK.UI.UISystem.HLayoutFactory.Create("ModalContainer", transform);
+                m_ModalContainer.HOrVLayoutGroup.enabled    = false;
+                m_ModalContainer.CSizeFitter.enabled        = false;
+                m_ModalContainer.RTransform.sizeDelta       = new Vector2(-10.0f, 0.0f);
+                m_ModalContainer.gameObject.SetActive(false);
 
-                    l_NewCode += "<modal id='SDK_ConfirmModal' show-event='SDK_ShowConfirmModal' hide-event='SDK_CloseConfirmModal,CloseAllModals' move-to-center='true' size-delta-y='30' size-delta-x='85'>";
-                    l_NewCode += "  <vertical pad='0'>";
-                    l_NewCode += "    <text id='SDK_ConfirmModal_Text' text=' ' font-size='4' align='Center'/>";
-                    l_NewCode += "    <horizontal>";
-                    l_NewCode += "      <primary-button text='Yes' id='SDK_ConfirmModal_Button'></primary-button>";
-                    l_NewCode += "      <button text='No' id='SDK_ConfirmModal_DiscardButton' click-event='SDK_CloseConfirmModal'></button>";
-                    l_NewCode += "    </horizontal>";
-                    l_NewCode += "  </vertical>";
-                    l_NewCode += "</modal>";
+                var l_ModalContainerCanvasGroup = m_ModalContainer.gameObject.AddComponent<CanvasGroup>();
+                l_ModalContainerCanvasGroup.ignoreParentGroups = true;
 
-                    l_NewCode += "<modal id='SDK_LoadingModal' show-event='SDK_ShowLoadingModal' hide-event='SDK_CloseLoadingModal,CloseAllModals' move-to-center='true' size-delta-y='30' size-delta-x='48'>";
-                    l_NewCode += "    <text id='SDK_LoadingModal_Text' font-size='5.5' align='Center'/>";
-                    l_NewCode += "</modal>";
-                    l_NewCode += l_UICode.Substring(l_Closure);
+                m_Tooltip = CP_SDK.UI.Tooltip.Create(transform as RectTransform);
 
-                    l_UICode = l_NewCode;
-                }
-
-                /// Construct UI
-                m_ParserParams = BSMLParser.instance.Parse(l_UICode, gameObject, this as T);
-
-                /// Change state
-                UICreated = true;
-
-                /// Setup loading modal
-                m_SDK_LoadingModal_Spinner = SDK.UI.ModalView.SetupLoadingControl(m_SDK_LoadingModal);
-                SDK.UI.ModalView.SetOpacity(m_SDK_MessageModal, 0.75f);
-                SDK.UI.ModalView.SetOpacity(m_SDK_ConfirmModal, 0.75f);
-                SDK.UI.ModalView.SetOpacity(m_SDK_LoadingModal, 0.75f);
-
-                /// Bind events
-                m_SDK_ConfirmModal_Button.onClick.RemoveAllListeners();
-                m_SDK_ConfirmModal_Button.onClick.AddListener(OnSDKConfirmModal);
-
-                /// Make sure buttons are active
-                m_SDK_ConfirmModal_Button.gameObject.SetActive(true);
-                m_SDK_ConfirmModal_DiscardButton.gameObject.SetActive(true);
+                ////////////////////////////////////////////////////////////////////////////
 
                 /// Call implementation
                 OnViewCreation();
+
+                /// Change state
+                UICreated = true;
             }
 
             /// Call implementation
@@ -205,7 +97,7 @@ namespace BeatSaberPlus.SDK.UI
         /// </summary>
         /// <param name="p_RemovedFromHierarchy">Desactivation type</param>
         /// <param name="p_ScreenSystemDisabling">Is screen system disabling</param>
-        protected override sealed void DidDeactivate(bool p_RemovedFromHierarchy, bool p_ScreenSystemDisabling)
+        public override sealed void DidDeactivate(bool p_RemovedFromHierarchy, bool p_ScreenSystemDisabling)
         {
             /// Close all remaining modals
             CloseAllModals();
@@ -216,7 +108,7 @@ namespace BeatSaberPlus.SDK.UI
         /// <summary>
         /// On destruction
         /// </summary>
-        protected override sealed void OnDestroy()
+        public override sealed void OnDestroy()
         {
             /// Call implementation
             OnViewDestruction();
@@ -227,15 +119,6 @@ namespace BeatSaberPlus.SDK.UI
             /// Unbind singleton
             Instance = null;
         }
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        /// <summary>
-        /// Get view content description XML
-        /// </summary>
-        /// <returns></returns>
-        protected abstract string GetViewContentDescription();
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -261,274 +144,281 @@ namespace BeatSaberPlus.SDK.UI
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
-        /// Set a message to display when this view is activated
+        /// Create a modal of type t_ModalType
         /// </summary>
-        /// <param name="p_PendingMessage">Message to display</param>
-        public void SetMessageModal_PendingMessage(string p_PendingMessage)
+        /// <typeparam name="t_ModalType">Modal type</typeparam>
+        /// <returns></returns>
+        public t_ModalType CreateModal<t_ModalType>()
+            where t_ModalType : CP_SDK.UI.IModal
         {
-            /// Set message
-            m_PendingMessage = p_PendingMessage;
+            var l_GameObject = new GameObject(typeof(t_ModalType).FullName, typeof(RectTransform), typeof(t_ModalType), CP_SDK.UI.UISystem.Override_UnityComponent_Image);
+            var l_Modal      = l_GameObject.GetComponent<t_ModalType>();
+
+            l_Modal.RTransform.SetParent(m_ModalContainer.RTransform, false);
+            l_Modal.RTransform.anchorMin        = new Vector2(0.0f, 0.0f);
+            l_Modal.RTransform.anchorMax        = new Vector2(1.0f, 1.0f);
+            l_Modal.RTransform.pivot            = new Vector2(0.5f, 0.5f);
+            l_Modal.RTransform.anchoredPosition = new Vector2(0.0f, 0.0f);
+            l_Modal.RTransform.sizeDelta        = new Vector2(0.0f, 0.0f);
+
+            var l_Background = l_GameObject.GetComponent(CP_SDK.UI.UISystem.Override_UnityComponent_Image) as Image;
+            l_Background.material                   = CP_SDK.UI.UISystem.Override_GetUIMaterial();
+            l_Background.raycastTarget              = true;
+            l_Background.pixelsPerUnitMultiplier    = 1;
+            l_Background.type                       = Image.Type.Sliced;
+            l_Background.sprite                     = CP_SDK.UI.UISystem.GetUIRoundBGSprite();
+            l_Background.color                      = ColorU.WithAlpha(Color.black, 0.80f);
+
+            l_Modal.gameObject.SetActive(false);
+
+            return l_Modal;
         }
         /// <summary>
-        /// Set loading modal download progress
+        /// Show a modal
         /// </summary>
-        /// <param name="p_Text"></param>
-        /// <param name="p_Progress">Download progress</param>
-        protected void SetLoadingModal_DownloadProgress(string p_Text, float p_Progress)
+        /// <param name="p_Modal">Modal to show</param>
+        public override void ShowModal(CP_SDK.UI.IModal p_Modal)
         {
-            if (!UICreated)
+            if (!p_Modal || p_Modal.RTransform.parent != m_ModalContainer.RTransform)
             {
-                CP_SDK.ChatPlexSDK.Logger.Error("[SDK.UI][ViewController] Set loading modal download progress \"" + p_Text + "\" called before View UI's creation");
+                CP_SDK.ChatPlexSDK.Logger.Error($"[BeatSaberPlus.SDK.UI][ViewController<{typeof(t_Base).FullName}>.ShowModal] Null or invalid parented modal, not showing!");
                 return;
             }
 
-            try
+            if (!p_Modal.gameObject.activeSelf)
             {
-                if (m_SDK_LoadingModal_Spinner.gameObject.activeSelf)
-                    m_SDK_LoadingModal_Spinner.ShowDownloadingProgress(p_Text, p_Progress);
-            }
-            catch (Exception)
-            {
+                m_ModalShowCount++;
 
-            }
-        }
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        /// <summary>
-        /// Show the loading modal
-        /// </summary>
-        protected void ShowLoadingModal(string p_Message = "", bool p_Download = false)
-        {
-            if (!UICreated)
-            {
-                CP_SDK.ChatPlexSDK.Logger.Error("[SDK.UI][ViewController.ShowLoadingModal] Show loading modal \"" + p_Message + "\" called before View UI's creation");
-                return;
-            }
-
-            /// Change modal text
-            m_SDK_LoadingModalText.GetComponent<TextMeshProUGUI>().text = p_Download ? "" : p_Message;
-
-            /// Show the modal
-            ShowModal("SDK_ShowLoadingModal", () => {
-                try
+                if (m_ModalShowCount == 1)
                 {
-                    /// Show animator
-                    if (!p_Download)
-                        m_SDK_LoadingModal_Spinner.ShowLoading();
-                    else
-                        m_SDK_LoadingModal_Spinner.ShowDownloadingProgress(p_Message, 0);
+                    m_ModalContainer.RTransform.SetAsLastSibling();
+                    m_ModalContainer.gameObject.SetActive(true);
+
+                    m_CGroup.enabled        = true;
+                    m_CGroup.blocksRaycasts = false;
                 }
-                catch (Exception)
+
+                p_Modal.transform.SetAsLastSibling();
+                p_Modal.VController = GetComponent<CP_SDK_UI_IViewControllerBridge>();
+                p_Modal.gameObject.SetActive(true);
+
+                try { p_Modal.OnShow(); }
+                catch (Exception l_Exception)
                 {
-
+                    CP_SDK.ChatPlexSDK.Logger.Error($"[BeatSaberPlus.SDK.UI][ViewController<{typeof(t_Base).FullName}>.ShowModal] Error:");
+                    CP_SDK.ChatPlexSDK.Logger.Error(l_Exception);
                 }
-            });
+            }
         }
         /// <summary>
-        /// Set the loading modal text
+        /// Close a modal
         /// </summary>
-        protected void SetLoadingModalText(string p_Message = "", bool p_Download = false)
+        /// <param name="p_Modal">Modal to close</param>
+        public override void CloseModal(CP_SDK.UI.IModal p_Modal)
         {
-            if (!UICreated)
+            if (!p_Modal || p_Modal.RTransform.parent != m_ModalContainer.RTransform)
             {
-                CP_SDK.ChatPlexSDK.Logger.Error("[SDK.UI][ViewController.ShowLoadingModal] Show loading modal \"" + p_Message + "\" called before View UI's creation");
+                CP_SDK.ChatPlexSDK.Logger.Error($"[BeatSaberPlus.SDK.UI][ViewController<{typeof(t_Base).FullName}>.CloseModal] Null or invalid parented modal, not closing!");
                 return;
             }
 
-            /// Change modal text
-            m_SDK_LoadingModalText.GetComponent<TextMeshProUGUI>().text = p_Download ? "" : p_Message;
-        }
-        /// <summary>
-        /// Show view transition loading
-        /// </summary>
-        public override sealed void ShowViewTransitionLoading()
-        {
-            ShowLoadingModal();
-        }
-        /// <summary>
-        /// Show confirmation modal
-        /// </summary>
-        /// <param name="p_Message">Message</param>
-        /// <param name="p_OnConfirm">Callback</param>
-        protected void ShowConfirmationModal(string p_Message, Action p_OnConfirm)
-        {
-            if (!UICreated)
+            if (p_Modal.gameObject.activeSelf)
             {
-                CP_SDK.ChatPlexSDK.Logger.Error("[SDK.UI][ViewController.ShowConfirmationModal] Show confirmation modal \"" + p_Message + "\" called before View UI's creation");
-                return;
+                try { p_Modal.OnClose(); }
+                catch (System.Exception l_Exception)
+                {
+                    CP_SDK.ChatPlexSDK.Logger.Error($"[BeatSaberPlus.SDK.UI][ViewController<{typeof(t_Base).FullName}>.CloseModal] Error:");
+                    CP_SDK.ChatPlexSDK.Logger.Error(l_Exception);
+                }
+
+                p_Modal.gameObject.SetActive(false);
+
+                m_ModalShowCount--;
+
+                if (m_ModalShowCount <= 0)
+                    CloseAllModals();
             }
-
-            /// Store callback
-            m_ConfirmationModalCallback = p_OnConfirm;
-
-            /// Change modal text
-            m_SDK_ConfirmModal_Text.GetComponent<TextMeshProUGUI>().text = p_Message;
-
-            ShowModal("SDK_ShowConfirmModal");
-        }
-        /// <summary>
-        /// Show no message modal
-        /// </summary>
-        protected void ShowMessageModal()
-        {
-            if (m_PendingMessage != null)
-            {
-                m_SDK_MessageModal_Text.text  = m_PendingMessage;
-                m_PendingMessage = null;
-            }
-
-            HideLoadingModal();
-
-            ShowModal("SDK_ShowMessageModal");
-        }
-        /// <summary>
-        /// Show no message modal
-        /// </summary>
-        /// <param name="p_Message">Message to display</param>
-        protected void ShowMessageModal(string p_Message)
-        {
-            SetMessageModal_PendingMessage(p_Message);
-            ShowMessageModal();
-        }
-        /// <summary>
-        /// Hide the loading modal
-        /// </summary>
-        protected void HideLoadingModal()
-        {
-            CloseModal("SDK_CloseLoadingModal");
-            m_SDK_LoadingModal_Spinner.Hide();
-
-            /// Should display a pending message
-            if (m_PendingMessage != null)
-            {
-                /// Show the modal
-                ShowMessageModal();
-
-                /// Reset back to default
-                m_PendingMessage = null;
-            }
-        }
-        /// <summary>
-        /// Hide the confirmation modal
-        /// </summary>
-        protected void HideConfirmationModal() => CloseModal("SDK_CloseConfirmModal");
-        /// <summary>
-        /// Hide the message modal
-        /// </summary>
-        protected void HideMessageModal() => CloseModal("SDK_CloseMessageModal");
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        /// <summary>
-        /// Show modal
-        /// </summary>
-        /// <param name="p_Event">Modal event</param>
-        /// <param name="p_Callback">On emite callback</param>
-        protected void ShowModal(string p_Event, Action p_Callback = null)
-        {
-            if (!UICreated)
-            {
-                CP_SDK.ChatPlexSDK.Logger.Error("[SDK.UI][ViewController.ShowModal] Show modal \"" + p_Event + "\" called before View UI's creation");
-                return;
-            }
-
-            if (m_ModalCoroutine != null)
-            {
-                StopCoroutine(m_ModalCoroutine);
-                m_ModalCoroutine = null;
-            }
-
-            if (CanBeUpdated)
-                m_ModalCoroutine = StartCoroutine(ShowModalCoroutine(p_Event, p_Callback));
-        }
-        /// <summary>
-        /// Hide modal
-        /// </summary>
-        /// <param name="p_Event"></param>
-        protected void CloseModal(string p_Event)
-        {
-            if (!UICreated)
-            {
-                CP_SDK.ChatPlexSDK.Logger.Error("[SDK.UI][ViewController.CloseModal] Close modal \"" + p_Event + "\" called before View UI's creation");
-                return;
-            }
-
-            if (m_ModalCoroutine != null)
-            {
-                StopCoroutine(m_ModalCoroutine);
-                m_ModalCoroutine = null;
-            }
-
-            m_ParserParams.EmitEvent(p_Event);
         }
         /// <summary>
         /// Close all modals
         /// </summary>
-        protected void CloseAllModals()
+        public override void CloseAllModals()
         {
-            if (m_ModalCoroutine != null)
+            foreach (Transform l_Child in m_ModalContainer.RTransform)
             {
-                StopCoroutine(m_ModalCoroutine);
-                m_ModalCoroutine = null;
+                var l_Modal = l_Child.GetComponent<CP_SDK.UI.IModal>();
+
+                if (!l_Modal || !l_Modal.gameObject.activeSelf)
+                    continue;
+
+                l_Modal.OnClose();
+                l_Modal.gameObject.SetActive(false);
             }
 
-            /// Close all remaining modals
-            m_ParserParams.EmitEvent("CloseAllModals");
+            m_ModalShowCount = 0;
+
+            m_ModalContainer.gameObject.SetActive(false);
+
+            m_CGroup.blocksRaycasts = true;
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Show the color picker modal
+        /// </summary>
+        /// <param name="p_Value">Base value</param>
+        /// <param name="p_Opacity">Support opacity?</param>
+        /// <param name="p_Callback">On changed callback</param>
+        /// <param name="p_CancelCallback">On cancel callback</param>
+        public override void ShowColorPickerModal(Color p_Value, bool p_Opacity, Action<Color> p_Callback, Action p_CancelCallback)
+        {
+            if (!m_ColorPickerModal)
+                m_ColorPickerModal = CreateModal<CP_SDK.UI.Modals.ColorPicker>();
+
+            ShowModal(m_ColorPickerModal);
+            m_ColorPickerModal.Init(p_Value, p_Opacity, p_Callback, p_CancelCallback);
         }
         /// <summary>
-        /// Show modal coroutine
+        /// Show the confirmation modal
         /// </summary>
-        /// <param name="p_Event">Modal event</param>
-        /// <param name="p_Callback">On emite callback</param>
+        /// <param name="p_Message">Message to display</param>
+        /// <param name="p_Callback">Callback</param>
+        public override void ShowConfirmationModal(string p_Message, Action<bool> p_Callback)
+        {
+            if (!m_ConfirmationModal)
+                m_ConfirmationModal = CreateModal<CP_SDK.UI.Modals.Confirmation>();
+
+            ShowModal(m_ConfirmationModal);
+            m_ConfirmationModal.Init(p_Message, p_Callback);
+        }
+        /// <summary>
+        /// Show the dropdown modal
+        /// </summary>
+        /// <param name="p_Options">Available options</param>
+        /// <param name="p_Selected">Selected option</param>
+        /// <param name="p_Callback">Callback</param>
+        public override void ShowDropdownModal(List<string> p_Options, string p_Selected, Action<string> p_Callback)
+        {
+            if (!m_DropdownModal)
+                m_DropdownModal = CreateModal<CP_SDK.UI.Modals.Dropdown>();
+
+            ShowModal(m_DropdownModal);
+            m_DropdownModal.Init(p_Options, p_Selected, p_Callback);
+        }
+        /// <summary>
+        /// Show the keyboard modal
+        /// </summary>
+        /// <param name="p_Value">Value</param>
+        /// <param name="p_Callback">Callback</param>
+        /// <param name="p_CancelCallback">On cancel callback</param>
+        /// <param name="p_CustomKeys">Custom keys</param>
+        public override void ShowKeyboardModal(string p_Value, Action<string> p_Callback, Action p_CancelCallback = null, List<(string, Action, string)> p_CustomKeys = null)
+        {
+            if (!m_KeyboardModal)
+                m_KeyboardModal = CreateModal<CP_SDK.UI.Modals.Keyboard>();
+
+            ShowModal(m_KeyboardModal);
+            m_KeyboardModal.Init(p_Value, p_Callback, p_CancelCallback, p_CustomKeys);
+        }
+        /// <summary>
+        /// Show the loading modal
+        /// </summary>
+        /// <param name="p_Message">Message to show</param>
+        /// <param name="p_CancelButton">Show cancel button</param>
+        /// <param name="p_CancelCallback">On cancel callback</param>
+        public override void ShowLoadingModal(string p_Message = "", bool p_CancelButton = false, Action p_CancelCallback = null)
+        {
+            if (!m_LoadingModal)
+                m_LoadingModal = CreateModal<CP_SDK.UI.Modals.Loading>();
+
+            ShowModal(m_LoadingModal);
+            m_LoadingModal.Init(p_Message, p_CancelButton, p_CancelCallback);
+        }
+        /// <summary>
+        /// Show the message modal
+        /// </summary>
+        /// <param name="p_Message">Message to display</param>
+        /// <param name="p_Callback">Callback</param>
+        public override void ShowMessageModal(string p_Message, Action p_Callback = null)
+        {
+            if (!m_MessageModal)
+                m_MessageModal = CreateModal<CP_SDK.UI.Modals.Message>();
+
+            ShowModal(m_MessageModal);
+            m_MessageModal.Init(p_Message, p_Callback);
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Get current value
+        /// </summary>
         /// <returns></returns>
-        private IEnumerator ShowModalCoroutine(string p_Event, Action p_Callback = null)
-        {
-            yield return new WaitForEndOfFrame();
-            yield return new WaitUntil(() => !isInTransition);
-
-            if (!isInViewControllerHierarchy)
-                yield break;
-
-            m_ParserParams.EmitEvent(p_Event);
-            p_Callback?.Invoke();
-            m_ModalCoroutine = null;
-
-            yield return null;
-        }
+        public override string KeyboardModal_GetValue() => m_KeyboardModal.GetValue();
+        /// <summary>
+        /// Set value
+        /// </summary>
+        /// <param name="p_Value">New value</param>
+        public override void KeyboardModal_SetValue(string p_Value) => m_KeyboardModal.SetValue(p_Value);
+        /// <summary>
+        /// Append
+        /// </summary>
+        /// <param name="p_ToAppend">Value to append</param>
+        public override void KeyboardModal_Append(string p_ToAppend) => m_KeyboardModal.Append(p_ToAppend);
+        /// <summary>
+        /// Set message
+        /// </summary>
+        /// <param name="p_Message">New message</param>
+        public override void LoadingModal_SetMessage(string p_Message) => m_LoadingModal.SetMessage(p_Message);
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
-        /// Cleat queue button
+        /// Close the color picker modal
         /// </summary>
-        private void OnSDKConfirmModal()
-        {
-            HideConfirmationModal();
-            m_ConfirmationModalCallback?.Invoke();
-        }
+        public override void CloseColorPickerModal() => CloseModal(m_ColorPickerModal);
+        /// <summary>
+        /// Close the confirmation modal
+        /// </summary>
+        public override void CloseConfirmationModal() => CloseModal(m_ConfirmationModal);
+        /// <summary>
+        /// Close the dropdown modal
+        /// </summary>
+        public override void CloseDropdownModal() => CloseModal(m_DropdownModal);
+        /// <summary>
+        /// Close the keyboard modal
+        /// </summary>
+        public override void CloseKeyboardModal() => CloseModal(m_KeyboardModal);
+        /// <summary>
+        /// Close the loading modal
+        /// </summary>
+        public override void CloseLoadingModal() => CloseModal(m_LoadingModal);
+        /// <summary>
+        /// Close the message modal
+        /// </summary>
+        public override void CloseMessageModal() => CloseModal(m_MessageModal);
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
-        /// Notify property changed
+        /// Show the tooltip
         /// </summary>
-        /// <param name="p_PropertyName">Property name</param>
-        protected void NotifyPropertyChanged([CallerMemberName] string p_PropertyName = "")
+        /// <param name="p_Position">World position</param>
+        /// <param name="p_Text">Tooltip text</param>
+        public override void ShowTooltip(Vector3 p_Position, string p_Text)
         {
-            try
-            {
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(p_PropertyName));
-            }
-            catch (Exception l_Exception)
-            {
-                CP_SDK.ChatPlexSDK.Logger.Error($"[SDK][ViewController.NotifyPropertyChanged] Error Invoking PropertyChanged: {l_Exception.Message}");
-                CP_SDK.ChatPlexSDK.Logger.Error(l_Exception);
-            }
+            m_Tooltip.transform.SetAsLastSibling();
+            m_Tooltip.Show(p_Position, p_Text);
         }
+        /// <summary>
+        /// Hide the tooltip
+        /// </summary>
+        public override void HideTooltip()
+            => m_Tooltip.Hide();
     }
 }

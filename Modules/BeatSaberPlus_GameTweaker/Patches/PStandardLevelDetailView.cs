@@ -1,7 +1,7 @@
-﻿#define WITH_SONG_CORE
+﻿//#define WITH_SONG_CORE
 
-using BeatSaberMarkupLanguage;
-using BeatSaberMarkupLanguage.Attributes;
+//using BeatSaberMarkupLanguage;
+//using BeatSaberMarkupLanguage.Attributes;
 using HarmonyLib;
 using HMUI;
 using IPA.Utilities;
@@ -23,11 +23,11 @@ namespace BeatSaberPlus_GameTweaker.Patches
     /// <summary>
     /// StandardLevelDetailView patcher
     /// </summary>
-    [HarmonyPatch(typeof(StandardLevelDetailView))]
-    [HarmonyPatch(nameof(StandardLevelDetailView.SetContent))]
+    //[HarmonyPatch(typeof(StandardLevelDetailView))]
+    //[HarmonyPatch(nameof(StandardLevelDetailView.SetContent))]
     internal class PStandardLevelDetailView : StandardLevelDetailView
     {
-        /// <summary>
+        /*/// <summary>
         /// StandardLevelDetailView instance
         /// </summary>
         private static StandardLevelDetailView m_StandardLevelDetailView = null;
@@ -82,7 +82,7 @@ namespace BeatSaberPlus_GameTweaker.Patches
                     l_SongBrowserButton.transform.SetAsFirstSibling();
                 }
             }
-        }
+        }*/
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -93,7 +93,7 @@ namespace BeatSaberPlus_GameTweaker.Patches
         /// <param name="p_Enabled">New state</param>
         internal static void SetDeleteSongButtonEnabled(bool p_Enabled)
         {
-            /// Wait until it's ready
+            /*/// Wait until it's ready
             if (m_StandardLevelDetailView == null)
                 return;
 
@@ -110,12 +110,12 @@ namespace BeatSaberPlus_GameTweaker.Patches
             {
                 GameObject.DestroyImmediate(m_Patch);
                 m_Patch = null;
-            }
+            }*/
         }
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
-
+        /*
         /// <summary>
         /// UI Patch
         /// </summary>
@@ -262,6 +262,6 @@ namespace BeatSaberPlus_GameTweaker.Patches
 
                 m_ParserParams.EmitEvent("hide-delete-confirmation-modal");
             }
-        }
+        }*/
     }
 }

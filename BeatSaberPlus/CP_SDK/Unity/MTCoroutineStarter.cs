@@ -66,6 +66,24 @@ namespace CP_SDK.Unity
                 DontDestroyOnLoad(m_Instance.gameObject);
             }
         }
+        /// <summary>
+        /// Stop
+        /// </summary>
+        internal static void Destroy()
+        {
+            if (!m_Instance)
+                return;
+
+            GameObject.Destroy(m_Instance.gameObject);
+            m_Instance = null;
+
+            /// Clear queues
+            m_Queues = new Queue[2]
+            {
+                new Queue(),
+                new Queue()
+            };
+        }
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////

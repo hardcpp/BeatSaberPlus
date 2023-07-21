@@ -1,8 +1,0 @@
-﻿<vertical min-height='55' child-align='UpperCenter'>
-
-  <increment-setting id='IntervalIncrement' text='Interval between walls in seconds' min='1' max='20' increment='0.1'/>
-  <increment-setting id='CountIncrement' text='Number of walls' min='1' max='1000' increment='1' integer-only='true'/>
-
-  <horizontal min-height='50'></horizontal>
-
-</vertical>

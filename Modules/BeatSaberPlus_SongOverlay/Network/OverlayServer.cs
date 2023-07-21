@@ -212,7 +212,7 @@ namespace BeatSaberPlus_SongOverlay.Network
             {
                 p_Client.SendData(m_Handshake);
 
-                if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.SceneType.Playing)
+                if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.ESceneType.Playing)
                 {
                     p_Client.SendData(JsonConvert.SerializeObject(m_MapInfoEvent));
                     p_Client.SendData(JsonConvert.SerializeObject(m_ScoreEvent));
@@ -260,9 +260,9 @@ namespace BeatSaberPlus_SongOverlay.Network
         /// On Game State changed
         /// </summary>
         /// <param name="p_Scene">New scene</param>
-        private static void Logic_OnSceneChange(BeatSaberPlus.SDK.Game.Logic.SceneType p_Scene)
+        private static void Logic_OnSceneChange(BeatSaberPlus.SDK.Game.Logic.ESceneType p_Scene)
         {
-            if (p_Scene == BeatSaberPlus.SDK.Game.Logic.SceneType.Playing)
+            if (p_Scene == BeatSaberPlus.SDK.Game.Logic.ESceneType.Playing)
             {
                 m_IsPaused = false;
 
@@ -293,7 +293,7 @@ namespace BeatSaberPlus_SongOverlay.Network
 
                 CP_SDK.Unity.MTCoroutineStarter.Start(Coroutine_WaitForGameplayReady(l_Map.Type, l_CoverTask));
             }
-            else if (p_Scene == BeatSaberPlus.SDK.Game.Logic.SceneType.Menu)
+            else if (p_Scene == BeatSaberPlus.SDK.Game.Logic.ESceneType.Menu)
             {
                 m_IsPaused                  = false;
                 m_ScoreController           = null;
@@ -386,7 +386,7 @@ namespace BeatSaberPlus_SongOverlay.Network
             m_ScoreController.scoreDidChangeEvent           += ScoreController_scoreDidChangeEvent;
             m_GameEnergyCounter.gameEnergyDidChangeEvent    += GameEnergyCounter_gameEnergyDidChangeEvent;
 
-            var l_BeatmapObjectManager = m_ScoreController.GetField<BeatmapObjectManager, ScoreController>("_beatmapObjectManager");
+            var l_BeatmapObjectManager = m_ScoreController._beatmapObjectManager;
             if (l_BeatmapObjectManager != null)
             {
                 l_BeatmapObjectManager.noteWasCutEvent += ScoreController_noteWasCutEvent;
@@ -410,7 +410,7 @@ namespace BeatSaberPlus_SongOverlay.Network
                     m_ResumeEventQueued         = true;
                 };
 
-                m_IsPaused = m_PauseController.GetField<bool, PauseController>("_paused");
+                m_IsPaused = m_PauseController._paused;
             }
             else
                 m_IsPaused = false;

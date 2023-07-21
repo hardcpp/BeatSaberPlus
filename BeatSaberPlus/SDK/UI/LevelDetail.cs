@@ -6,6 +6,9 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
+using CP_SDK.UI.Components;
+using CP_SDK.UI;
+using System.Reflection;
 
 namespace BeatSaberPlus.SDK.UI
 {
@@ -39,41 +42,48 @@ namespace BeatSaberPlus.SDK.UI
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        private GameObject m_GameObject;
-        private TextMeshProUGUI m_SongNameText;
-        private TextMeshProUGUI m_AuthorNameText;
-        private HMUI.ImageView m_SongCoverImage;
-        private TextMeshProUGUI m_SongTimeText;
-        private TextMeshProUGUI m_SongBPMText;
-        private TextMeshProUGUI m_SongNPSText;
-        private TextMeshProUGUI m_SongNJSText;
-        private TextMeshProUGUI m_SongOffsetText;
-        private TextMeshProUGUI m_SongNotesText;
-        private TextMeshProUGUI m_SongObstaclesText;
-        private TextMeshProUGUI m_SongBombsText;
-        private BeatmapDifficultySegmentedControlController m_DifficultiesSegmentedControllerClone;
+        private GameObject                                      m_GameObject;
+        private TextMeshProUGUI                                 m_SongNameText;
+        private TextMeshProUGUI                                 m_AuthorNameText;
+        private HMUI.ImageView                                  m_SongCoverImage;
+        private TextMeshProUGUI                                 m_SongTimeText;
+        private TextMeshProUGUI                                 m_SongBPMText;
+        private TextMeshProUGUI                                 m_SongNPSText;
+        private TextMeshProUGUI                                 m_SongNJSText;
+        private TextMeshProUGUI                                 m_SongOffsetText;
+        private TextMeshProUGUI                                 m_SongNotesText;
+        private TextMeshProUGUI                                 m_SongObstaclesText;
+        private TextMeshProUGUI                                 m_SongBombsText;
+        private BeatmapDifficultySegmentedControlController     m_DifficultiesSegmentedControllerClone;
         private BeatmapCharacteristicSegmentedControlController m_CharacteristicSegmentedControllerClone;
-        private HMUI.TextSegmentedControl m_SongDiffSegmentedControl;
-        private HMUI.IconSegmentedControl m_SongCharacteristicSegmentedControl;
-        private UnityEngine.UI.Button m_PracticeButton = null;
-        private UnityEngine.UI.Button m_PlayButton = null;
-        private UnityEngine.GameObject m_FavoriteToggle = null;
-        private CustomPreviewBeatmapLevel m_LocalBeatMap = null;
-        private Game.BeatMaps.MapDetail m_BeatMap = null;
+        private HMUI.TextSegmentedControl                       m_SongDiffSegmentedControl;
+        private HMUI.IconSegmentedControl                       m_SongCharacteristicSegmentedControl;
+        private CSecondaryButton                                m_SecondaryButton                           = null;
+        private CPrimaryButton                                  m_PrimaryButton                             = null;
+        private GameObject                                      m_FavoriteToggle                            = null;
+        private CustomPreviewBeatmapLevel                       m_LocalBeatMap                              = null;
+        private Game.BeatMaps.MapDetail                         m_BeatMap                                   = null;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        private double m_Time = 0;
-        private float m_BPM = 0;
-        private float m_NPS = 0;
-        private int m_NJS = 0;
-        private float m_Offset = 0;
-        private int m_Notes = 0;
-        private int m_Obstacles = 0;
-        private int m_Bombs = 0;
+        private double  m_Time = 0;
+        private float   m_BPM = 0;
+        private float   m_NPS = 0;
+        private int     m_NJS = 0;
+        private float   m_Offset = 0;
+        private int     m_Notes = 0;
+        private int     m_Obstacles = 0;
+        private int     m_Bombs = 0;
+        private string  m_Difficulty = "";
+
         private HMUI.IconSegmentedControl.DataItem m_Characteristic = null;
-        private string m_Difficulty = "";
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        public Action OnSecondaryButton;
+        public Action OnPrimaryButton;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -165,7 +175,7 @@ namespace BeatSaberPlus.SDK.UI
             get => m_Characteristic;
             set {
                 m_Characteristic = value;
-                m_SongCharacteristicSegmentedControl.SetData(new List<HMUI.IconSegmentedControl.DataItem>() {
+                m_SongCharacteristicSegmentedControl.SetDataNoHoverHint(new List<HMUI.IconSegmentedControl.DataItem>() {
                     value
                 }.ToArray());
             }
@@ -184,8 +194,8 @@ namespace BeatSaberPlus.SDK.UI
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        public BeatmapCharacteristicSO SelectedBeatmapCharacteristicSO = null;
-        public BeatmapDifficulty SelecteBeatmapDifficulty = BeatmapDifficulty.Easy;
+        public BeatmapCharacteristicSO          SelectedBeatmapCharacteristicSO = null;
+        public BeatmapDifficulty                SelecteBeatmapDifficulty        = BeatmapDifficulty.Easy;
         public event Action<IDifficultyBeatmap> OnActiveDifficultyChanged;
 
         ////////////////////////////////////////////////////////////////////////////
@@ -201,8 +211,8 @@ namespace BeatSaberPlus.SDK.UI
             m_GameObject = UnityEngine.GameObject.Instantiate(m_SongDetailViewTemplate, p_Parent);
 
             var l_BSMLObjects     = m_GameObject.GetComponentsInChildren<RectTransform>().Where(x => x.gameObject.name.StartsWith("BSML"));
-            var l_HoverHints      = m_GameObject.GetComponentsInChildren<HMUI.HoverHint>();
-            var l_LocalHoverHints = m_GameObject.GetComponentsInChildren<LocalizedHoverHint>();
+            var l_HoverHints      = m_GameObject.GetComponentsInChildren<HMUI.HoverHint>(true);
+            var l_LocalHoverHints = m_GameObject.GetComponentsInChildren<LocalizedHoverHint>(true);
 
             foreach (var l_Current in l_BSMLObjects)        GameObject.Destroy(l_Current.gameObject);
             foreach (var l_Current in l_HoverHints)         GameObject.Destroy(l_Current);
@@ -213,39 +223,51 @@ namespace BeatSaberPlus.SDK.UI
             m_FavoriteToggle.SetActive(false);
 
             /// Find play buttons
-            var l_PracticeButton = m_GameObject.transform.Find("ActionButtons").Find("PracticeButton");
-            var l_PlayButton     = m_GameObject.transform.Find("ActionButtons").Find("ActionButton");
+            var l_ActionButtons     = m_GameObject.transform.Find("ActionButtons");
+            var l_PracticeButton    = l_ActionButtons.Find("PracticeButton");
+            var l_PlayButton        = l_ActionButtons.Find("ActionButton");
 
             /// Re-bind play button
             if (l_PlayButton.GetComponent<UnityEngine.UI.Button>())
             {
-                m_PracticeButton = l_PracticeButton.GetComponent<UnityEngine.UI.Button>();
-                m_PracticeButton.onClick.RemoveAllListeners();
+                var l_ActionButtonsRTransform = l_ActionButtons.transform as RectTransform;
+                l_ActionButtonsRTransform.anchoredPosition = new Vector2(-0.5f, l_ActionButtonsRTransform.anchoredPosition.y);
 
-                m_PlayButton = l_PlayButton.GetComponent<UnityEngine.UI.Button>();
-                m_PlayButton.onClick.RemoveAllListeners();
+                var l_ButtonsParent = l_PlayButton.transform.parent;
+                GameObject.Destroy(l_PracticeButton.gameObject);
+                GameObject.Destroy(l_PlayButton.gameObject);
 
-                GameObject.Destroy(m_PracticeButton.GetComponentInChildren<LocalizedTextMeshProUGUI>());
-                GameObject.Destroy(m_PlayButton.GetComponentInChildren<LocalizedTextMeshProUGUI>());
+                m_SecondaryButton = UISystem.SecondaryButtonFactory.Create("Secondary", l_ButtonsParent);
+                m_SecondaryButton.SetText("Secondary");
+                m_SecondaryButton.SetHeight(8f).SetWidth(30f);
+                m_SecondaryButton.OnClick(OnSecondaryButtonClicked);
 
-                SetPracticeButtonEnabled(false);
-                SetPracticeButtonText("?");
-                SetPlayButtonEnabled(true);
-                SetPlayButtonText("?");
+                m_PrimaryButton = UISystem.PrimaryButtonFactory.Create("Primary", l_ButtonsParent);
+                m_PrimaryButton.SetText("Primary");
+                m_PrimaryButton.SetHeight(8f).SetWidth(30f);
+                m_PrimaryButton.OnClick(OnPrimaryButtonClicked);
+
+                SetSecondaryButtonEnabled(false);
+                SetSecondaryButtonText("?");
+                SetPrimaryButtonEnabled(true);
+                SetPrimaryButtonText("?");
             }
 
             m_CharacteristicSegmentedControllerClone    = m_GameObject.transform.Find("BeatmapCharacteristic").Find("BeatmapCharacteristicSegmentedControl").GetComponent<BeatmapCharacteristicSegmentedControlController>();
-            m_SongCharacteristicSegmentedControl        = HorizontalIconSegmentedControl.Create(m_CharacteristicSegmentedControllerClone.transform as RectTransform, true);
+            m_SongCharacteristicSegmentedControl        = HMUIIconSegmentedControl.Create(m_CharacteristicSegmentedControllerClone.transform as RectTransform, true);
 
             m_DifficultiesSegmentedControllerClone  = m_GameObject.transform.Find("BeatmapDifficulty").GetComponentInChildren<BeatmapDifficultySegmentedControlController>();
-            m_SongDiffSegmentedControl              = TextSegmentedControl.Create(m_DifficultiesSegmentedControllerClone.transform as RectTransform, true);
+            m_SongDiffSegmentedControl              = HMUITextSegmentedControl.Create(m_DifficultiesSegmentedControllerClone.transform as RectTransform, true);
 
             var l_LevelBarBig = m_GameObject.transform.Find("LevelBarBig");
 
             m_SongNameText      = l_LevelBarBig.GetComponentsInChildren<TextMeshProUGUI>().First(x => x.gameObject.name == "SongNameText");
             m_AuthorNameText    = l_LevelBarBig.GetComponentsInChildren<TextMeshProUGUI>().First(x => x.gameObject.name == "AuthorNameText");
-            m_AuthorNameText.richText = true;
             m_SongCoverImage    = l_LevelBarBig.Find("SongArtwork").GetComponent<HMUI.ImageView>();
+
+            m_SongCoverImage.rectTransform.anchoredPosition = new Vector2( 2.000f, m_SongCoverImage.rectTransform.anchoredPosition.y);
+            m_SongNameText.rectTransform.anchoredPosition   = new Vector2(-0.195f, m_SongNameText.rectTransform.anchoredPosition.y);
+            m_AuthorNameText.richText = true;
 
             /// Disable multiline
             l_LevelBarBig.Find("MultipleLineTextContainer").gameObject.SetActive(false);
@@ -281,14 +303,14 @@ namespace BeatSaberPlus.SDK.UI
             (m_SongBombsText.transform.parent.transform as UnityEngine.RectTransform).sizeDelta = l_SizeDelta;
 
             /// Patch
-            var l_OffsetTexture = BeatSaberMarkupLanguage.Utilities.FindTextureInAssembly("BeatSaberPlus.SDK.UI.Resources.Offset.png");
-            var l_OffsetSprite = CP_SDK.Unity.SpriteU.CreateFromTexture(l_OffsetTexture, 100f, Vector2.one * 16f);
+            var l_OffsetTexture = CP_SDK.Unity.Texture2DU.CreateFromRaw(CP_SDK.Misc.Resources.FromPath(Assembly.GetExecutingAssembly(), "BeatSaberPlus.SDK.UI.Resources.Offset.png"));
+            var l_OffsetSprite = CP_SDK.Unity.SpriteU.CreateFromTextureWithBorders(l_OffsetTexture, 100f, Vector2.one * 16f);
             m_SongOffsetText = GameObject.Instantiate(m_SongNPSText.transform.parent.gameObject, m_SongNPSText.transform.parent.parent).GetComponentInChildren<TextMeshProUGUI>();
             m_SongOffsetText.transform.parent.SetAsFirstSibling();
             m_SongOffsetText.transform.parent.GetComponentInChildren<HMUI.ImageView>().sprite = l_OffsetSprite;
 
-            var l_NJSTexture = BeatSaberMarkupLanguage.Utilities.FindTextureInAssembly("BeatSaberPlus.SDK.UI.Resources.NJS.png");
-            var l_NJSSprite = CP_SDK.Unity.SpriteU.CreateFromTexture(l_NJSTexture, 100f, Vector2.one * 16f);
+            var l_NJSTexture = CP_SDK.Unity.Texture2DU.CreateFromRaw(CP_SDK.Misc.Resources.FromPath(Assembly.GetExecutingAssembly(), "BeatSaberPlus.SDK.UI.Resources.NJS.png"));
+            var l_NJSSprite = CP_SDK.Unity.SpriteU.CreateFromTextureWithBorders(l_NJSTexture, 100f, Vector2.one * 16f);
             m_SongNJSText = GameObject.Instantiate(m_SongNPSText.transform.parent.gameObject, m_SongNPSText.transform.parent.parent).GetComponentInChildren<TextMeshProUGUI>();
             m_SongNJSText.transform.parent.SetAsFirstSibling();
             m_SongNJSText.transform.parent.GetComponentInChildren<HMUI.ImageView>().sprite = l_NJSSprite;
@@ -306,6 +328,22 @@ namespace BeatSaberPlus.SDK.UI
             /// Bind events
             m_SongCharacteristicSegmentedControl.didSelectCellEvent += OnCharacteristicChanged;
             m_SongDiffSegmentedControl.didSelectCellEvent           += OnDifficultyChanged;
+
+            try
+            {
+                foreach (var l_Text in m_GameObject.GetComponentsInChildren<TextMeshProUGUI>(true))
+                    l_Text.fontStyle &= ~FontStyles.Italic;
+
+                foreach (var l_Image in m_GameObject.GetComponentsInChildren<HMUI.ImageView>(true))
+                {
+                    m_SongCoverImage._skew = 0f;
+                    m_SongCoverImage.SetAllDirty();
+                }
+            }
+            catch (System.Exception)
+            {
+
+            }
 
             m_GameObject.SetActive(true);
         }
@@ -536,7 +574,7 @@ namespace BeatSaberPlus.SDK.UI
             /// Store beatmap
             m_LocalBeatMap = p_BeatMap;
 
-            m_SongCharacteristicSegmentedControl.SetData(l_Characteristics.ToArray());
+            m_SongCharacteristicSegmentedControl.SetDataNoHoverHint(l_Characteristics.ToArray());
             m_SongCharacteristicSegmentedControl.SelectCellWithNumber(0);
             OnCharacteristicChanged(null, 0);
 
@@ -676,7 +714,7 @@ namespace BeatSaberPlus.SDK.UI
             /// Store beatmap
             m_BeatMap = p_BeatMap;
 
-            m_SongCharacteristicSegmentedControl.SetData(l_Characteristics.ToArray());
+            m_SongCharacteristicSegmentedControl.SetDataNoHoverHint(l_Characteristics.ToArray());
             m_SongCharacteristicSegmentedControl.SelectCellWithNumber(0);
             OnCharacteristicChanged(null, 0);
 
@@ -705,23 +743,13 @@ namespace BeatSaberPlus.SDK.UI
         /// </summary>
         /// <param name="p_Default">Default image</param>
         /// <param name="p_Enabled">Enable image</param>
-        public void SetFavoriteToggleImage(string p_Default, string p_Enabled)
+        public void SetFavoriteToggleImage(Sprite p_Default, Sprite p_Enabled)
         {
             var l_IVDefault = m_FavoriteToggle.transform.GetChild(0).GetComponent<HMUI.ImageView>();
             var l_IVMarked  = m_FavoriteToggle.transform.GetChild(1).GetComponent<HMUI.ImageView>();
 
-            BeatSaberMarkupLanguage.Utilities.GetData(p_Default, (p_Bytes) =>
-            {
-                var l_Texture = new Texture2D(2, 2);
-                if (l_Texture.LoadImage(p_Bytes))
-                    l_IVDefault.sprite = Sprite.Create(l_Texture, new Rect(0, 0, l_Texture.width, l_Texture.height), UnityEngine.Vector2.one * 0.5f, 100);
-            });
-            BeatSaberMarkupLanguage.Utilities.GetData(p_Enabled, (p_Bytes) =>
-            {
-                var l_Texture = new Texture2D(2, 2);
-                if (l_Texture.LoadImage(p_Bytes))
-                    l_IVMarked.sprite = Sprite.Create(l_Texture, new Rect(0, 0, l_Texture.width, l_Texture.height), UnityEngine.Vector2.one * 0.5f, 100);
-            });
+            l_IVDefault.sprite  = p_Default;
+            l_IVMarked.sprite   = p_Enabled;
         }
         /// <summary>
         /// Set favorite toggle hover hint
@@ -763,7 +791,7 @@ namespace BeatSaberPlus.SDK.UI
         /// </summary>
         public void ReverseButtonsOrder()
         {
-            m_PracticeButton.transform.SetAsLastSibling();
+            m_SecondaryButton.transform.SetAsLastSibling();
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -773,17 +801,17 @@ namespace BeatSaberPlus.SDK.UI
         /// Set button enabled state
         /// </summary>
         /// <param name="p_Value">New value</param>
-        public void SetPracticeButtonEnabled(bool p_Value)
+        public void SetSecondaryButtonEnabled(bool p_Value)
         {
-            m_PracticeButton.gameObject.SetActive(p_Value);
+            m_SecondaryButton.gameObject.SetActive(p_Value);
         }
         /// <summary>
         /// Set button enabled state
         /// </summary>
         /// <param name="p_Value">New value</param>
-        public void SetPlayButtonEnabled(bool p_Value)
+        public void SetPrimaryButtonEnabled(bool p_Value)
         {
-            m_PlayButton.gameObject.SetActive(p_Value);
+            m_PrimaryButton.gameObject.SetActive(p_Value);
         }
         /// <summary>
         /// Set button enabled interactable
@@ -791,49 +819,31 @@ namespace BeatSaberPlus.SDK.UI
         /// <param name="p_Value">New value</param>
         public void SetPracticeButtonInteractable(bool p_Value)
         {
-            m_PracticeButton.interactable = p_Value;
+            m_SecondaryButton.SetInteractable(p_Value);
         }
         /// <summary>
         /// Set button enabled interactable
         /// </summary>
         /// <param name="p_Value">New value</param>
-        public void SetPlayButtonInteractable(bool p_Value)
+        public void SetPrimaryButtonInteractable(bool p_Value)
         {
-            m_PlayButton.interactable = p_Value;
+            m_PrimaryButton.SetInteractable(p_Value);
         }
         /// <summary>
         /// Set button text
         /// </summary>
         /// <param name="p_Value">New value</param>
-        public void SetPracticeButtonText(string p_Value)
+        public void SetSecondaryButtonText(string p_Value)
         {
-            m_PracticeButton.transform.Find("Content").GetComponentInChildren<HMUI.CurvedTextMeshPro>().text = p_Value;
+            m_SecondaryButton.SetText(p_Value);
         }
         /// <summary>
         /// Set button text
         /// </summary>
         /// <param name="p_Value">New value</param>
-        public void SetPlayButtonText(string p_Value)
+        public void SetPrimaryButtonText(string p_Value)
         {
-            m_PlayButton.transform.Find("Content").GetComponentInChildren<HMUI.CurvedTextMeshPro>().text = p_Value;
-        }
-        /// <summary>
-        /// Set left button action
-        /// </summary>
-        /// <param name="p_Value">New value</param>
-        public void SetPracticeButtonAction(UnityEngine.Events.UnityAction p_Value)
-        {
-            m_PracticeButton.onClick.RemoveAllListeners();
-            m_PracticeButton.onClick.AddListener(p_Value);
-        }
-        /// <summary>
-        /// Set right button action
-        /// </summary>
-        /// <param name="p_Value">New value</param>
-        public void SetPlayButtonAction(UnityEngine.Events.UnityAction p_Value)
-        {
-            m_PlayButton.onClick.RemoveAllListeners();
-            m_PlayButton.onClick.AddListener(p_Value);
+            m_PrimaryButton.SetText(p_Value);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -987,6 +997,16 @@ namespace BeatSaberPlus.SDK.UI
                     OnActiveDifficultyChanged.Invoke(GetIDifficultyBeatMap());
             }
         }
+        /// <summary>
+        /// Secondary button on click
+        /// </summary>
+        private void OnSecondaryButtonClicked()
+            => OnSecondaryButton?.Invoke();
+        /// <summary>
+        /// Primary button on click
+        /// </summary>
+        private void OnPrimaryButtonClicked()
+            => OnPrimaryButton?.Invoke();
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////

@@ -123,7 +123,7 @@ namespace CP_SDK.Unity.Components
 
             m_PreviewMaterial = p_PreviewMaterial;
 
-            m_Material.mainTexture = p_Texture;
+            EnhancedImageParticleMaterialProvider.SetMaterialTexture(m_Material, p_Texture);
 
             for (var l_I = 0; l_I < m_Emitters.Length; ++l_I)
             {
@@ -239,7 +239,7 @@ namespace CP_SDK.Unity.Components
                 }
             }
 
-            m_Material.mainTexture = p_TargetImage.Sprite.texture;
+            EnhancedImageParticleMaterialProvider.SetMaterialTexture(m_Material, p_TargetImage.Sprite.texture);
         }
 
         ////////////////////////////////////////////////////////////////////////////

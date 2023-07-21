@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using CP_SDK.Unity.Extensions;
+using HarmonyLib;
 using UnityEngine;
 
 namespace BeatSaberPlus_NoteTweaker.Patches
@@ -23,7 +24,7 @@ namespace BeatSaberPlus_NoteTweaker.Patches
         internal static void Postfix(ref Color ____initColor)
         {
             if (m_Enabled)
-                ____initColor = ____initColor.ColorWithAlpha(m_Opacity);
+                ____initColor = ColorU.WithAlpha(____initColor, m_Opacity);
         }
 
         ////////////////////////////////////////////////////////////////////////////

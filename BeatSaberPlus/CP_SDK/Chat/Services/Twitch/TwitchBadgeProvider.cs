@@ -5,7 +5,9 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
+using static System.Net.WebRequestMethods;
 
 namespace CP_SDK.Chat.Services.Twitch
 {
@@ -31,61 +33,89 @@ namespace CP_SDK.Chat.Services.Twitch
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
-        /// Try request resources
+        /// Try request resources from the provider
         /// </summary>
-        /// <param name="p_Category">Category / Channel</param>
+        /// <param name="p_ChannelID">ID of the channel</param>
+        /// <param name="p_ChannelName">Name of the channel</param>
+        /// <param name="p_AccessToken">Access token for the API</param>
         /// <returns></returns>
-        public async Task TryRequestResources(string p_Category, string p_Token)
+        public async Task TryRequestResources(string p_ChannelID, string p_ChannelName, string p_AccessToken)
         {
-            bool l_IsGlobal = string.IsNullOrEmpty(p_Category);
+            var l_WebClient = new Network.WebClient("https://api.twitch.tv/helix/", TimeSpan.FromSeconds(10), true);
+            if (!l_WebClient.Headers.ContainsKey("Client-Id"))
+                l_WebClient.Headers.Remove("Authorization");
+
+            if (l_WebClient.Headers.ContainsKey("Client-Id"))
+                l_WebClient.Headers.Remove("Authorization");
+
+            l_WebClient.Headers.Add("client-id",     TwitchService.TWITCH_CLIENT_ID);
+            l_WebClient.Headers.Add("Authorization", "Bearer " + p_AccessToken.Replace("oauth:", ""));
+
+            bool l_IsGlobal = string.IsNullOrEmpty(p_ChannelID);
             try
             {
-                ChatPlexSDK.Logger.Debug($"Requesting Twitch {(l_IsGlobal ? "global " : "")}badges{(l_IsGlobal ? "." : $" for channel {p_Category}")}.");
-                using (HttpRequestMessage l_Query = new HttpRequestMessage(HttpMethod.Get, l_IsGlobal ? $"https://badges.twitch.tv/v1/badges/global/display" : $"https://badges.twitch.tv/v1/badges/channels/{p_Category}/display")) //channel.AsTwitchChannel().Roomstate.RoomId
+                ChatPlexSDK.Logger.Debug($"Requesting Twitch {(l_IsGlobal ? "global " : "")}badges{(l_IsGlobal ? "." : $" for channel {p_ChannelName}")}.");
+
+                var l_URL = "chat/badges/global";
+                if (!l_IsGlobal)
+                    l_URL = $"chat/badges?broadcaster_id={p_ChannelID}";
+
+                var l_Completion = new TaskCompletionSource<Network.WebResponse>();
+                l_WebClient.GetAsync(l_URL, CancellationToken.None, (p_Response) =>
                 {
-                    var l_Response = await m_HTTPClient.SendAsync(l_Query).ConfigureAwait(false);
-                    if (!l_Response.IsSuccessStatusCode)
-                    {
-                        ChatPlexSDK.Logger.Error($"Unsuccessful status code when requesting Twitch {(l_IsGlobal ? "global " : "")}badges{(l_IsGlobal ? "." : " for channel " + p_Category)}. {l_Response.ReasonPhrase}");
-                        return;
-                    }
+                    l_Completion.SetResult(p_Response);
+                });
+                await l_Completion.Task;
+                var l_Response = l_Completion.Task?.Result;
 
-                    JSONNode l_JSON = JSON.Parse(await l_Response.Content.ReadAsStringAsync().ConfigureAwait(false));
-                    if (!l_JSON["badge_sets"].IsObject)
-                    {
-                        ChatPlexSDK.Logger.Error("badge_sets was not an object.");
-                        return;
-                    }
-
-                    int l_Count = 0;
-                    foreach (KeyValuePair<string, JSONNode> l_KVP in l_JSON["badge_sets"])
-                    {
-                        string l_BadgeName = l_KVP.Key;
-                        foreach (KeyValuePair<string, JSONNode> version in l_KVP.Value.AsObject["versions"].AsObject)
-                        {
-                            string l_BadgeVersion   = version.Key;
-                            string l_FinalName      = $"{l_BadgeName}{l_BadgeVersion}";
-                            string l_URI            = version.Value.AsObject["image_url_2x"].Value;
-
-                            string l_ID = l_IsGlobal ? l_FinalName : $"{p_Category}_{l_FinalName}";
-                            Resources[l_ID] = new ChatResourceData()
-                            {
-                                Uri         = l_URI,
-                                Animation   = Animation.EAnimationType.NONE,
-                                Category    = EChatResourceCategory.Badge,
-                                Type        = l_IsGlobal ? "TwitchGlobalBadge" : "TwitchChannelBadge"
-                            };
-
-                            l_Count++;
-                        }
-                    }
-                    ChatPlexSDK.Logger.Debug($"Success caching {l_Count} Twitch {(l_IsGlobal ? "global " : "")}badges{(l_IsGlobal ? "." : " for channel " + p_Category)}.");
+                if (l_Response == null || !l_Response.IsSuccessStatusCode)
+                {
+                    ChatPlexSDK.Logger.Error($"Unsuccessful status code when requesting Twitch {(l_IsGlobal ? "global " : "")}badges{(l_IsGlobal ? "." : " for channel " + p_ChannelName)}. {l_Response.ReasonPhrase}");
                     return;
                 }
+
+                JSONNode l_JSON = JSON.Parse(l_Response.BodyString);
+                if (!l_JSON["data"].IsArray)
+                {
+                    ChatPlexSDK.Logger.Error("data was not an object.");
+                    return;
+                }
+
+                var l_Data = l_JSON["data"].AsArray;
+
+                int l_Count = 0;
+                foreach (KeyValuePair<string, JSONNode> l_SetKVP in l_Data)
+                {
+                    var l_Set       = l_SetKVP.Value;
+                    var l_SetID     = l_Set["set_id"].Value;
+                    var l_Versions  = l_Set["versions"].AsArray;
+
+                    foreach (KeyValuePair<string, JSONNode> l_VersionKVP in l_Versions)
+                    {
+                        var l_Version   = l_VersionKVP.Value;
+                        var l_ID        = l_Version["id"].Value;
+                        var l_Picture   = l_Version["image_url_2x"].Value;
+                        var l_FinalName = $"{l_SetID}{l_ID}";
+
+                        var l_InternalID = l_IsGlobal ? l_FinalName : $"{p_ChannelID}_{l_FinalName}";
+
+                        Resources[l_InternalID] = new ChatResourceData()
+                        {
+                            Uri         = l_Picture,
+                            Animation   = Animation.EAnimationType.NONE,
+                            Category    = EChatResourceCategory.Badge,
+                            Type        = l_IsGlobal ? "TwitchGlobalBadge" : "TwitchChannelBadge"
+                        };
+
+                        l_Count++;
+                    }
+                }
+
+                ChatPlexSDK.Logger.Debug($"Success caching {l_Count} Twitch {(l_IsGlobal ? "global " : "")}badges{(l_IsGlobal ? "." : " for channel " + p_ChannelName)}.");
             }
             catch (Exception l_Exception)
             {
-                ChatPlexSDK.Logger.Error($"An error occurred while requesting Twitch {(l_IsGlobal ? "global " : "")}badges{(l_IsGlobal ? "." : " for channel " + p_Category)}.");
+                ChatPlexSDK.Logger.Error($"An error occurred while requesting Twitch {(l_IsGlobal ? "global " : "")}badges{(l_IsGlobal ? "." : " for channel " + p_ChannelName)}.");
                 ChatPlexSDK.Logger.Error(l_Exception);
             }
 

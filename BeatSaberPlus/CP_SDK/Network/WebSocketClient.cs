@@ -46,6 +46,10 @@ namespace CP_SDK.Network
         /// Reconnect lock semaphore
         /// </summary>
         private SemaphoreSlim m_ReconnectLock = new SemaphoreSlim(1, 1);
+        /// <summary>
+        /// Is disconnecting?
+        /// </summary>
+        private bool m_Disconnecting = false;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -93,6 +97,7 @@ namespace CP_SDK.Network
         {
             if (m_Client != null)
             {
+                m_Disconnecting = true;
                 if (IsConnected)
                 {
                     m_CancellationToken?.Cancel();
@@ -116,6 +121,8 @@ namespace CP_SDK.Network
             lock (m_LockObject)
             {
                 Dispose();
+
+                m_Disconnecting = false;
 
                 if (m_Client is null)
                 {
@@ -164,15 +171,21 @@ namespace CP_SDK.Network
                                         }
                                     }
                                 }
-                                catch (System.Exception)
+                                catch (System.Exception l_Exception)
                                 {
-
+                                    if (!m_Disconnecting)
+                                    {
+                                        ChatPlexSDK.Logger.Error($"[CP_SDK.Network][WebSocketClient.Connect] An exception occurred in WebSocket while reading {m_URI}");
+                                        ChatPlexSDK.Logger.Error(l_Exception);
+                                    }
                                 }
 
                                 Client_OnClose(this);
                             }
-                            else
+                            else if (!m_Disconnecting)
                                 Client_OnError(this);
+                            else
+                                Client_OnClose(this);
                         }
                         catch (TaskCanceledException)
                         {
@@ -185,7 +198,8 @@ namespace CP_SDK.Network
 
                             OnError?.Invoke();
 
-                            TryHandleReconnect();
+                            if (!m_Disconnecting)
+                                TryHandleReconnect();
                         }
                     }, m_CancellationToken.Token).ConfigureAwait(false);
                 }
@@ -198,6 +212,7 @@ namespace CP_SDK.Network
         {
             lock (m_LockObject)
             {
+                m_Disconnecting = true;
                 ChatPlexSDK.Logger.Info("[CP_SDK.Network][WebSocketClient.Disconnect] Disconnecting");
                 Dispose();
             }
@@ -260,13 +275,15 @@ namespace CP_SDK.Network
             m_Client.Dispose();
             m_Client = null;
 
-            if (AutoReconnect && !m_CancellationToken.IsCancellationRequested)
+            if (AutoReconnect && !m_CancellationToken.IsCancellationRequested && !m_Disconnecting)
             {
                 ChatPlexSDK.Logger.Info($"[CP_SDK.Network][WebSocketClient.TryHandleReconnect] Trying to reconnect to {m_URI} in {(int)TimeSpan.FromMilliseconds(ReconnectDelay).TotalSeconds} sec");
 
                 try
                 {
                     await Task.Delay(ReconnectDelay, m_CancellationToken.Token).ConfigureAwait(false);
+                    if (m_Disconnecting)
+                        return;
                     Connect(m_URI);
 
                     ReconnectDelay *= 2;
@@ -304,7 +321,8 @@ namespace CP_SDK.Network
             ChatPlexSDK.Logger.Debug($"[CP_SDK.Network][WebSocketClient.Client_OnClose] WebSocket connection to {m_URI} was closed");
             OnClose?.Invoke();
 
-            TryHandleReconnect();
+            if (!m_Disconnecting)
+                TryHandleReconnect();
         }
         /// <summary>
         /// On error
@@ -316,7 +334,8 @@ namespace CP_SDK.Network
 
             OnError?.Invoke();
 
-            TryHandleReconnect();
+            if (!m_Disconnecting)
+                TryHandleReconnect();
         }
         /// <summary>
         /// On message received

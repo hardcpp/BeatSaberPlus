@@ -43,9 +43,10 @@ namespace CP_SDK.Chat.Services.Twitch
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
-        /// API Client
+        /// Web Client
         /// </summary>
-        private Network.APIClient m_APIClient = new Network.APIClient("https://api.twitch.tv/helix/", TimeSpan.FromSeconds(10), true);
+        private Network.WebClient   m_WebClient     = new Network.WebClient  ("https://api.twitch.tv/helix/", TimeSpan.FromSeconds(10), true);
+        private Network.WebClientEx m_WebClientEx   = new Network.WebClientEx("https://api.twitch.tv/helix/", TimeSpan.FromSeconds(10), true);
         /// <summary>
         /// Broadcaster ID
         /// </summary>
@@ -93,7 +94,8 @@ namespace CP_SDK.Chat.Services.Twitch
         /// <summary>
         /// Client
         /// </summary>
-        public Network.APIClient APIClient => m_APIClient;
+        public Network.WebClient WebClient      => m_WebClient;
+        public Network.WebClientEx WebClientEx  => m_WebClientEx;
         /// <summary>
         /// Broadcaster ID
         /// </summary>
@@ -131,18 +133,29 @@ namespace CP_SDK.Chat.Services.Twitch
         {
             try
             {
-                if (!m_APIClient.InternalClient.DefaultRequestHeaders.Contains("client-id"))
-                    m_APIClient.InternalClient.DefaultRequestHeaders.Add("client-id", TwitchService.TWITCH_CLIENT_ID);
+                if (m_WebClient.Headers.ContainsKey("Client-Id"))
+                    m_WebClient.Headers.Remove("Client-Id");
 
-                if (m_APIClient.InternalClient.DefaultRequestHeaders.Contains("Authorization"))
-                    m_APIClient.InternalClient.DefaultRequestHeaders.Remove("Authorization");
+                if (m_WebClient.Headers.ContainsKey("Authorization"))
+                    m_WebClient.Headers.Remove("Authorization");
 
-                m_APIClient.InternalClient.DefaultRequestHeaders.Add("Authorization",   "Bearer " + p_Token.Replace("oauth:", ""));
+                m_WebClient.Headers.Add("Client-Id",       TwitchService.TWITCH_CLIENT_ID);
+                m_WebClient.Headers.Add("Authorization",   "Bearer " + p_Token.Replace("oauth:", ""));
             }
-            catch
+            catch (System.Exception) { }
+
+            try
             {
+                if (!m_WebClientEx.InternalClient.DefaultRequestHeaders.Contains("Client-Id"))
+                    m_WebClientEx.InternalClient.DefaultRequestHeaders.Remove("Client-Id");
 
+                if (m_WebClientEx.InternalClient.DefaultRequestHeaders.Contains("Authorization"))
+                    m_WebClientEx.InternalClient.DefaultRequestHeaders.Remove("Authorization");
+
+                m_WebClientEx.InternalClient.DefaultRequestHeaders.Add("Client-Id",     TwitchService.TWITCH_CLIENT_ID);
+                m_WebClientEx.InternalClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + p_Token.Replace("oauth:", ""));
             }
+            catch (System.Exception) { }
 
             m_APITokenScopes    = new List<string>();
             m_APIToken          = p_Token;
@@ -255,40 +268,39 @@ namespace CP_SDK.Chat.Services.Twitch
         /// </summary>
         private void ValidateToken()
         {
-            var l_APIClient = new Network.APIClient("", TimeSpan.FromSeconds(10), false);
+            var l_WebClient = new Network.WebClient("", TimeSpan.FromSeconds(10), true);
             try
             {
-                l_APIClient.InternalClient.DefaultRequestHeaders.Add("Authorization", "OAuth " + m_APIToken.Replace("oauth:", ""));
+                l_WebClient.Headers.Add("Authorization", "OAuth " + m_APIToken.Replace("oauth:", ""));
             }
             catch
             {
 
             }
 
-            l_APIClient.GetAsync("https://id.twitch.tv/oauth2/validate", CancellationToken.None, true).ContinueWith((p_Result) =>
+            l_WebClient.GetAsync("https://id.twitch.tv/oauth2/validate", CancellationToken.None, (p_Result) =>
             {
 #if DEBUG
-                if (p_Result.Result != null)
+                if (p_Result != null)
                 {
                     ChatPlexSDK.Logger.Debug("[CP_SDK.Chat.Service.Twitch][TwitchHelix.ValidateToken] Receiving:");
-                    ChatPlexSDK.Logger.Debug(p_Result.Result.BodyString);
+                    ChatPlexSDK.Logger.Debug(p_Result.BodyString);
                 }
 #endif
 
-                if (p_Result.Result != null && !p_Result.Result.IsSuccessStatusCode)
+                if (p_Result != null && !p_Result.IsSuccessStatusCode)
                 {
                     ChatPlexSDK.Logger.Error("[CP_SDK.Chat.Service.Twitch][TwitchHelix.ValidateToken] Failed with message:");
-                    ChatPlexSDK.Logger.Error(p_Result.Result.BodyString);
+                    ChatPlexSDK.Logger.Error(p_Result.BodyString);
                 }
 
-                if (p_Result.Result != null && p_Result.Result.IsSuccessStatusCode)
+                if (p_Result != null && p_Result.IsSuccessStatusCode)
                 {
-                    if (GetObjectFromJsonString<Helix_TokenValidate>(p_Result.Result.BodyString, out var l_Validate))
+                    if (GetObjectFromJsonString<Helix_TokenValidate>(p_Result.BodyString, out var l_Validate))
                     {
                         m_APITokenScopes    = new List<string>(l_Validate.scopes);
                         m_BroadcasterID     = l_Validate.user_id;
                         m_BroadcasterLogin  = l_Validate.login;
-
 
                         OnTokenValidate?.Invoke(true, l_Validate, l_Validate.user_id);
                     }
@@ -303,7 +315,7 @@ namespace CP_SDK.Chat.Services.Twitch
 
                     OnTokenValidate?.Invoke(false, null, string.Empty);
                 }
-            }).ConfigureAwait(false);
+            }, true);
         }
         /// <summary>
         /// Has API Token scope
@@ -342,38 +354,38 @@ namespace CP_SDK.Chat.Services.Twitch
             }
 
             p_Poll.broadcaster_id = m_BroadcasterID;
-            var l_ContentStr = new StringContent(JsonConvert.SerializeObject(p_Poll), Encoding.UTF8, "application/json");
+            var l_ContentStr = new StringContent(JsonConvert.SerializeObject(p_Poll), Encoding.UTF8);
 
 #if DEBUG
             ChatPlexSDK.Logger.Debug("[CP_SDK.Chat.Service.Twitch][TwitchHelix.CreatePoll] Sending:");
             ChatPlexSDK.Logger.Debug(JsonConvert.SerializeObject(p_Poll, Formatting.Indented));
 #endif
 
-            m_APIClient.PostAsync("polls", l_ContentStr, CancellationToken.None, true).ContinueWith((p_Result) =>
+            m_WebClient.PostAsync("polls", l_ContentStr, "application/json", CancellationToken.None, (p_Result) =>
             {
 #if DEBUG
-                if (p_Result.Result != null)
+                if (p_Result != null)
                 {
                     ChatPlexSDK.Logger.Debug("[CP_SDK.Chat.Service.Twitch][TwitchHelix.CreatePoll] Receiving:");
-                    ChatPlexSDK.Logger.Debug(p_Result.Result.BodyString);
+                    ChatPlexSDK.Logger.Debug(p_Result.BodyString);
                 }
 #endif
 
-                if (p_Result.Result != null && !p_Result.Result.IsSuccessStatusCode)
+                if (p_Result != null && !p_Result.IsSuccessStatusCode)
                 {
                     ChatPlexSDK.Logger.Error("[CP_SDK.Chat.Service.Twitch][TwitchHelix.CreatePoll] Failed with message:");
-                    ChatPlexSDK.Logger.Error(p_Result.Result.BodyString);
+                    ChatPlexSDK.Logger.Error(p_Result.BodyString);
                 }
 
-                if (p_Result.Result == null)
+                if (p_Result == null)
                     p_Callback?.Invoke(TwitchHelixResult.NetworkError, null);
-                else if (p_Result.Result.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                else if (p_Result.StatusCode == System.Net.HttpStatusCode.BadRequest)
                     p_Callback?.Invoke(TwitchHelixResult.InvalidRequest, null);
-                else if (p_Result.Result.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                else if (p_Result.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                     p_Callback?.Invoke(TwitchHelixResult.AuthorizationFailed, null);
-                else if (p_Result.Result.IsSuccessStatusCode)
+                else if (p_Result.IsSuccessStatusCode)
                 {
-                    JObject l_Reply = JObject.Parse(p_Result.Result.BodyString);
+                    JObject l_Reply = JObject.Parse(p_Result.BodyString);
                     Helix_Poll l_HelixResult = null;
 
                     if (l_Reply.ContainsKey("data") && l_Reply["data"].Type == JTokenType.Array && (l_Reply["data"] as JArray).Count > 0)
@@ -386,7 +398,7 @@ namespace CP_SDK.Chat.Services.Twitch
                 }
                 else
                     p_Callback?.Invoke(TwitchHelixResult.NetworkError, null);
-            }).ConfigureAwait(false);
+            }, true);
         }
         /// <summary>
         /// Get active poll
@@ -400,31 +412,31 @@ namespace CP_SDK.Chat.Services.Twitch
                 return;
             }
 
-            m_APIClient.GetAsync("polls?broadcaster_id=" + m_BroadcasterID + "&first=1", CancellationToken.None, true).ContinueWith((p_Result) =>
+            m_WebClient.GetAsync("polls?broadcaster_id=" + m_BroadcasterID + "&first=1", CancellationToken.None, (p_Result) =>
             {
 #if DEBUG
-                if (p_Result.Result != null)
+                if (p_Result != null)
                 {
                     ChatPlexSDK.Logger.Debug("[CP_SDK.Chat.Service.Twitch][TwitchHelix.GetLastPoll] Receiving:");
-                    ChatPlexSDK.Logger.Debug(p_Result.Result.BodyString);
+                    ChatPlexSDK.Logger.Debug(p_Result.BodyString);
                 }
 #endif
 
-                if (p_Result.Result != null && !p_Result.Result.IsSuccessStatusCode)
+                if (p_Result != null && !p_Result.IsSuccessStatusCode)
                 {
                     ChatPlexSDK.Logger.Error("[CP_SDK.Chat.Service.Twitch][TwitchHelix.GetLastPoll] Failed with message:");
-                    ChatPlexSDK.Logger.Error(p_Result.Result.BodyString);
+                    ChatPlexSDK.Logger.Error(p_Result.BodyString);
                 }
 
-                if (p_Result.Result == null)
+                if (p_Result == null)
                     p_Callback?.Invoke(TwitchHelixResult.NetworkError, null);
-                else if (p_Result.Result.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                else if (p_Result.StatusCode == System.Net.HttpStatusCode.BadRequest)
                     p_Callback?.Invoke(TwitchHelixResult.InvalidRequest, null);
-                else if (p_Result.Result.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                else if (p_Result.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                     p_Callback?.Invoke(TwitchHelixResult.AuthorizationFailed, null);
-                else if (p_Result.Result.IsSuccessStatusCode)
+                else if (p_Result.IsSuccessStatusCode)
                 {
-                    JObject l_Reply = JObject.Parse(p_Result.Result.BodyString);
+                    JObject l_Reply = JObject.Parse(p_Result.BodyString);
                     Helix_Poll l_HelixResult = null;
 
                     if (l_Reply.ContainsKey("data") && l_Reply["data"].Type == JTokenType.Array && (l_Reply["data"] as JArray).Count > 0)
@@ -434,7 +446,7 @@ namespace CP_SDK.Chat.Services.Twitch
                 }
                 else
                     p_Callback?.Invoke(TwitchHelixResult.NetworkError, null);
-            }).ConfigureAwait(false);
+            }, true);
         }
         /// <summary>
         /// End a poll
@@ -457,38 +469,38 @@ namespace CP_SDK.Chat.Services.Twitch
                 ["status"]          = (p_EndStatus == Helix_Poll.Status.ARCHIVED ? p_EndStatus : Helix_Poll.Status.TERMINATED).ToString()
             };
 
-            var l_ContentStr = new StringContent(JsonConvert.SerializeObject(l_Content), Encoding.UTF8, "application/json");
+            var l_ContentStr = new StringContent(JsonConvert.SerializeObject(l_Content), Encoding.UTF8);
 
 #if DEBUG
             ChatPlexSDK.Logger.Debug("[CP_SDK.Chat.Service.Twitch][TwitchHelix.EndPoll] Sending:");
             ChatPlexSDK.Logger.Debug(JsonConvert.SerializeObject(l_Content, Formatting.Indented));
 #endif
 
-            m_APIClient.PatchAsync("polls", l_ContentStr, CancellationToken.None, true).ContinueWith((p_Result) =>
+            m_WebClient.PatchAsync("polls", l_ContentStr, "application/json", CancellationToken.None, (p_Result) =>
             {
 #if DEBUG
-                if (p_Result.Result != null)
+                if (p_Result != null)
                 {
                     ChatPlexSDK.Logger.Debug("[CP_SDK.Chat.Service.Twitch][TwitchHelix.EndPoll] Receiving:");
-                    ChatPlexSDK.Logger.Debug(p_Result.Result.BodyString);
+                    ChatPlexSDK.Logger.Debug(p_Result.BodyString);
                 }
 #endif
 
-                if (p_Result.Result != null && !p_Result.Result.IsSuccessStatusCode)
+                if (p_Result != null && !p_Result.IsSuccessStatusCode)
                 {
                     ChatPlexSDK.Logger.Error("[CP_SDK.Chat.Service.Twitch][TwitchHelix.EndPoll] Failed with message:");
-                    ChatPlexSDK.Logger.Error(p_Result.Result.BodyString);
+                    ChatPlexSDK.Logger.Error(p_Result.BodyString);
                 }
 
-                if (p_Result.Result == null)
+                if (p_Result == null)
                     p_Callback?.Invoke(TwitchHelixResult.NetworkError, null);
-                else if (p_Result.Result.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                else if (p_Result.StatusCode == System.Net.HttpStatusCode.BadRequest)
                     p_Callback?.Invoke(TwitchHelixResult.InvalidRequest, null);
-                else if (p_Result.Result.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                else if (p_Result.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                     p_Callback?.Invoke(TwitchHelixResult.AuthorizationFailed, null);
-                else if (p_Result.Result.IsSuccessStatusCode)
+                else if (p_Result.IsSuccessStatusCode)
                 {
-                    JObject l_Reply = JObject.Parse(p_Result.Result.BodyString);
+                    JObject l_Reply = JObject.Parse(p_Result.BodyString);
                     Helix_Poll l_HelixResult = null;
 
                     if (l_Reply.ContainsKey("data") && l_Reply["data"].Type == JTokenType.Array && (l_Reply["data"] as JArray).Count > 0)
@@ -498,7 +510,7 @@ namespace CP_SDK.Chat.Services.Twitch
                 }
                 else
                     p_Callback?.Invoke(TwitchHelixResult.NetworkError, null);
-            }).ConfigureAwait(false);
+            }, true);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -516,31 +528,31 @@ namespace CP_SDK.Chat.Services.Twitch
                 return;
             }
 
-            m_APIClient.GetAsync("hypetrain/events?broadcaster_id=" + m_BroadcasterID + "&first=1", CancellationToken.None, true).ContinueWith((p_Result) =>
+            m_WebClient.GetAsync("hypetrain/events?broadcaster_id=" + m_BroadcasterID + "&first=1", CancellationToken.None, (p_Result) =>
             {
 #if DEBUG
-                if (p_Result.Result != null)
+                if (p_Result != null)
                 {
                     ChatPlexSDK.Logger.Debug("[CP_SDK.Chat.Service.Twitch][TwitchHelix.GetLastHypeTrain] Receiving:");
-                    ChatPlexSDK.Logger.Debug(p_Result.Result.BodyString);
+                    ChatPlexSDK.Logger.Debug(p_Result.BodyString);
                 }
 #endif
 
-                if (p_Result.Result != null && !p_Result.Result.IsSuccessStatusCode)
+                if (p_Result != null && !p_Result.IsSuccessStatusCode)
                 {
                     ChatPlexSDK.Logger.Error("[CP_SDK.Chat.Service.Twitch][TwitchHelix.GetLastHypeTrain] Failed with message:");
-                    ChatPlexSDK.Logger.Error(p_Result.Result.BodyString);
+                    ChatPlexSDK.Logger.Error(p_Result.BodyString);
                 }
 
-                if (p_Result.Result == null)
+                if (p_Result == null)
                     p_Callback?.Invoke(TwitchHelixResult.NetworkError, null);
-                else if (p_Result.Result.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                else if (p_Result.StatusCode == System.Net.HttpStatusCode.BadRequest)
                     p_Callback?.Invoke(TwitchHelixResult.InvalidRequest, null);
-                else if (p_Result.Result.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                else if (p_Result.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                     p_Callback?.Invoke(TwitchHelixResult.AuthorizationFailed, null);
-                else if (p_Result.Result.IsSuccessStatusCode)
+                else if (p_Result.IsSuccessStatusCode)
                 {
-                    JObject l_Reply = JObject.Parse(p_Result.Result.BodyString);
+                    JObject l_Reply = JObject.Parse(p_Result.BodyString);
                     Helix_HypeTrain l_HelixResult = null;
 
                     if (l_Reply.ContainsKey("data") && l_Reply["data"].Type == JTokenType.Array && (l_Reply["data"] as JArray).Count > 0)
@@ -550,7 +562,7 @@ namespace CP_SDK.Chat.Services.Twitch
                 }
                 else
                     p_Callback?.Invoke(TwitchHelixResult.NetworkError, null);
-            }).ConfigureAwait(false);
+            }, true);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -568,31 +580,31 @@ namespace CP_SDK.Chat.Services.Twitch
                 return;
             }
 
-            m_APIClient.GetAsync("predictions?broadcaster_id=" + m_BroadcasterID + "&first=1", CancellationToken.None, true).ContinueWith((p_Result) =>
+            m_WebClient.GetAsync("predictions?broadcaster_id=" + m_BroadcasterID + "&first=1", CancellationToken.None, (p_Result) =>
             {
 #if DEBUG
-                if (p_Result.Result != null)
+                if (p_Result != null)
                 {
                     ChatPlexSDK.Logger.Debug("[CP_SDK.Chat.Service.Twitch][TwitchHelix.GetLastPrediction] Receiving:");
-                    ChatPlexSDK.Logger.Debug(p_Result.Result.BodyString);
+                    ChatPlexSDK.Logger.Debug(p_Result.BodyString);
                 }
 #endif
 
-                if (p_Result.Result != null && !p_Result.Result.IsSuccessStatusCode)
+                if (p_Result != null && !p_Result.IsSuccessStatusCode)
                 {
                     ChatPlexSDK.Logger.Error("[CP_SDK.Chat.Service.Twitch][TwitchHelix.GetLastPrediction] Failed with message:");
-                    ChatPlexSDK.Logger.Error(p_Result.Result.BodyString);
+                    ChatPlexSDK.Logger.Error(p_Result.BodyString);
                 }
 
-                if (p_Result.Result == null)
+                if (p_Result == null)
                     p_Callback?.Invoke(TwitchHelixResult.NetworkError, null);
-                else if (p_Result.Result.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                else if (p_Result.StatusCode == System.Net.HttpStatusCode.BadRequest)
                     p_Callback?.Invoke(TwitchHelixResult.InvalidRequest, null);
-                else if (p_Result.Result.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                else if (p_Result.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                     p_Callback?.Invoke(TwitchHelixResult.AuthorizationFailed, null);
-                else if (p_Result.Result.IsSuccessStatusCode)
+                else if (p_Result.IsSuccessStatusCode)
                 {
-                    JObject l_Reply = JObject.Parse(p_Result.Result.BodyString);
+                    JObject l_Reply = JObject.Parse(p_Result.BodyString);
                     Helix_Prediction l_HelixResult = null;
 
                     if (l_Reply.ContainsKey("data") && l_Reply["data"].Type == JTokenType.Array && (l_Reply["data"] as JArray).Count > 0)
@@ -602,7 +614,7 @@ namespace CP_SDK.Chat.Services.Twitch
                 }
                 else
                     p_Callback?.Invoke(TwitchHelixResult.NetworkError, null);
-            }).ConfigureAwait(false);
+            }, true);
         }
         /// <summary>
         /// End a prediction
@@ -627,33 +639,33 @@ namespace CP_SDK.Chat.Services.Twitch
             if (p_Status == Helix_Prediction.Status.RESOLVED)
                 l_Body["winning_outcome_id"] = p_WinningOutcomeID;
 
-            var l_ContentStr = new StringContent(l_Body.ToString(Formatting.None), Encoding.UTF8, "application/json");
+            var l_ContentStr = new StringContent(l_Body.ToString(Formatting.None), Encoding.UTF8);
 
-            m_APIClient.PatchAsync("predictions", l_ContentStr, CancellationToken.None, true).ContinueWith((p_Result) =>
+            m_WebClient.PatchAsync("predictions", l_ContentStr, "application/json", CancellationToken.None, (p_Result) =>
             {
 #if DEBUG
-                if (p_Result.Result != null)
+                if (p_Result != null)
                 {
                     ChatPlexSDK.Logger.Debug("[CP_SDK.Chat.Service.Twitch][TwitchHelix.EndPrediction] Receiving:");
-                    ChatPlexSDK.Logger.Debug(p_Result.Result.BodyString);
+                    ChatPlexSDK.Logger.Debug(p_Result.BodyString);
                 }
 #endif
 
-                if (p_Result.Result != null && !p_Result.Result.IsSuccessStatusCode)
+                if (p_Result != null && !p_Result.IsSuccessStatusCode)
                 {
                     ChatPlexSDK.Logger.Error("[CP_SDK.Chat.Service.Twitch][TwitchHelix.EndPrediction] Failed with message:");
-                    ChatPlexSDK.Logger.Error(p_Result.Result.BodyString);
+                    ChatPlexSDK.Logger.Error(p_Result.BodyString);
                 }
 
-                if (p_Result.Result == null)
+                if (p_Result == null)
                     p_Callback?.Invoke(TwitchHelixResult.NetworkError, null);
-                else if (p_Result.Result.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                else if (p_Result.StatusCode == System.Net.HttpStatusCode.BadRequest)
                     p_Callback?.Invoke(TwitchHelixResult.InvalidRequest, null);
-                else if (p_Result.Result.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                else if (p_Result.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                     p_Callback?.Invoke(TwitchHelixResult.AuthorizationFailed, null);
-                else if (p_Result.Result.IsSuccessStatusCode)
+                else if (p_Result.IsSuccessStatusCode)
                 {
-                    JObject l_Reply = JObject.Parse(p_Result.Result.BodyString);
+                    JObject l_Reply = JObject.Parse(p_Result.BodyString);
                     Helix_Prediction l_HelixResult = null;
 
                     if (l_Reply.ContainsKey("data") && l_Reply["data"].Type == JTokenType.Array && (l_Reply["data"] as JArray).Count > 0)
@@ -663,7 +675,113 @@ namespace CP_SDK.Chat.Services.Twitch
                 }
                 else
                     p_Callback?.Invoke(TwitchHelixResult.NetworkError, null);
-            }).ConfigureAwait(false);
+            }, true);
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Create clip
+        /// </summary>
+        /// <param name="p_Callback">End callback</param>
+        public void CreateClip(Action<TwitchHelixResult, Helix_CreateClip> p_Callback)
+        {
+            if (!HasTokenPermission("clips:edit"))
+            {
+                p_Callback?.Invoke(TwitchHelixResult.TokenMissingPermission, null);
+                return;
+            }
+
+            var l_ContentStr = new StringContent("{}", Encoding.UTF8);
+            m_WebClient.PostAsync("clips?broadcaster_id="+ m_BroadcasterID, l_ContentStr, "application/json", CancellationToken.None, (p_Result) =>
+            {
+#if DEBUG
+                if (p_Result != null)
+                {
+                    ChatPlexSDK.Logger.Debug("[CP_SDK.Chat.Service.Twitch][TwitchHelix.CreateClip] Receiving:");
+                    ChatPlexSDK.Logger.Debug(p_Result.BodyString);
+                }
+#endif
+
+                if (p_Result != null && !p_Result.IsSuccessStatusCode)
+                {
+                    ChatPlexSDK.Logger.Error("[CP_SDK.Chat.Service.Twitch][TwitchHelix.CreateClip] Failed with message:");
+                    ChatPlexSDK.Logger.Error(p_Result.BodyString);
+                }
+
+                if (p_Result == null)
+                    p_Callback?.Invoke(TwitchHelixResult.NetworkError, null);
+                else if (p_Result.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                    p_Callback?.Invoke(TwitchHelixResult.InvalidRequest, null);
+                else if (p_Result.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                    p_Callback?.Invoke(TwitchHelixResult.AuthorizationFailed, null);
+                else if (p_Result.IsSuccessStatusCode)
+                {
+                    JObject             l_Reply         = JObject.Parse(p_Result.BodyString);
+                    Helix_CreateClip    l_HelixResult   = null;
+
+                    if (l_Reply.ContainsKey("data") && l_Reply["data"].Type == JTokenType.Array && (l_Reply["data"] as JArray).Count > 0)
+                        GetObjectFromJsonString<Helix_CreateClip>((l_Reply["data"] as JArray)[0].ToString(), out l_HelixResult);
+
+                    p_Callback?.Invoke(TwitchHelixResult.OK, l_HelixResult);
+                }
+                else
+                    p_Callback?.Invoke(TwitchHelixResult.NetworkError, null);
+            }, true);
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Create marker
+        /// </summary>
+        /// <param name="p_MarkerName">Marker description</param>
+        /// <param name="p_Callback">End callback</param>
+        public void CreateMarker(string p_MarkerName, Action<TwitchHelixResult> p_Callback)
+        {
+            if (!HasTokenPermission("channel:manage:broadcast"))
+            {
+                p_Callback?.Invoke(TwitchHelixResult.TokenMissingPermission);
+                return;
+            }
+
+            var l_Content = new JObject()
+            {
+                ["user_id"]     = m_BroadcasterID,
+                ["description"] = p_MarkerName.Length > 140 ? p_MarkerName.Substring(0, 140) : p_MarkerName
+            };
+
+            var l_ContentStr = new StringContent(JsonConvert.SerializeObject(l_Content), Encoding.UTF8);
+
+            m_WebClient.PostAsync("streams/markers", l_ContentStr, "application/json", CancellationToken.None, (p_Result) =>
+            {
+#if DEBUG
+                if (p_Result != null)
+                {
+                    ChatPlexSDK.Logger.Debug("[CP_SDK.Chat.Service.Twitch][TwitchHelix.CreateMarker] Receiving:");
+                    ChatPlexSDK.Logger.Debug(p_Result.BodyString);
+                }
+#endif
+
+                if (p_Result != null && !p_Result.IsSuccessStatusCode)
+                {
+                    ChatPlexSDK.Logger.Error("[CP_SDK.Chat.Service.Twitch][TwitchHelix.CreateMarker] Failed with message:");
+                    ChatPlexSDK.Logger.Error(p_Result.BodyString);
+                }
+
+                if (p_Result == null)
+                    p_Callback?.Invoke(TwitchHelixResult.NetworkError);
+                else if (p_Result.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                    p_Callback?.Invoke(TwitchHelixResult.InvalidRequest);
+                else if (p_Result.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                    p_Callback?.Invoke(TwitchHelixResult.AuthorizationFailed);
+                else if (p_Result.IsSuccessStatusCode)
+                    p_Callback?.Invoke(TwitchHelixResult.OK);
+                else
+                    p_Callback?.Invoke(TwitchHelixResult.NetworkError);
+            }, true);
         }
 
         ////////////////////////////////////////////////////////////////////////////

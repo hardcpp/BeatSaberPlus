@@ -9,7 +9,6 @@ namespace CP_SDK.Unity
     /// </summary>
     public class EnhancedImage
     {
-
         /// <summary>
         /// Animated gif byte pattern for fast lookup
         /// </summary>
@@ -47,15 +46,43 @@ namespace CP_SDK.Unity
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
+        /// Ensure image valid
+        /// </summary>
+        /// <param name="p_ForcedHeight">Forced height</param>
+        public void EnsureValidForHeight(int p_ForcedHeight)
+        {
+            if (Height < 0 || Width < 0)
+            {
+                ChatPlexSDK.Logger.Error($"[CP_SDK.Unity][EnhancedImageInfo.EnsureValidForHeight] Invalid emote ImageID {ImageID} Width {Width} height {Height}");
+                Width   = p_ForcedHeight;
+                Height  = p_ForcedHeight;
+                return;
+            }
+
+            if (Height > p_ForcedHeight)
+                Height = p_ForcedHeight;
+
+            if (Width > (6 * p_ForcedHeight))
+            {
+                Width = p_ForcedHeight;
+                ChatPlexSDK.Logger.Error($"[CP_SDK.Unity][EnhancedImageInfo.EnsureValidForHeight] Too wide emote ImageID {ImageID} Width {Width} height {Height}");
+            }
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
         /// From raw
         /// </summary>
         /// <param name="p_ID">ID of the image</param>
         /// <param name="p_Bytes">Result bytes</param>
+        /// <param name="p_Callback">Callback</param>
         /// <param name="p_ForcedHeight">Forced height</param>
         /// <returns></returns>
         public static void FromRawStatic(string p_ID, byte[] p_Bytes, Action<EnhancedImage> p_Callback, int p_ForcedHeight = -1)
         {
-            SpriteU.CreateFromRawEx(p_Bytes, (p_Sprite) => OnRawStaticCallback(p_ID, p_Sprite, p_Callback, p_ForcedHeight));
+            SpriteU.CreateFromRawWithBordersThreaded(p_Bytes, (p_Sprite) => OnRawStaticCallback(p_ID, p_Sprite, p_Callback, p_ForcedHeight));
         }
         /// <summary>
         /// From raw animated
@@ -238,32 +265,6 @@ namespace CP_SDK.Unity
 
                 p_SpriteWidth   = (int)(l_Scale * ((double)p_SpriteWidth));
                 p_SpriteHeight  = (int)(l_Scale * ((double)p_SpriteHeight));
-            }
-        }
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        /// <summary>
-        /// Ensure image valid
-        /// </summary>
-        public void EnsureValidForHeight(int p_ForcedHeight)
-        {
-            if (Height < 0 || Width < 0)
-            {
-                ChatPlexSDK.Logger.Error($"[CP_SDK.Unity][EnhancedImageInfo.EnsureValidForHeight] Invalid emote ImageID {ImageID} Width {Width} height {Height}");
-                Width   = p_ForcedHeight;
-                Height  = p_ForcedHeight;
-                return;
-            }
-
-            if (Height > p_ForcedHeight)
-                Height = p_ForcedHeight;
-
-            if (Width > (6 * p_ForcedHeight))
-            {
-                Width = p_ForcedHeight;
-                ChatPlexSDK.Logger.Error($"[CP_SDK.Unity][EnhancedImageInfo.EnsureValidForHeight] Too wide emote ImageID {ImageID} Width {Width} height {Height}");
             }
         }
 

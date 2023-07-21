@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Linq;
+using System.Security.Policy;
 
 namespace BeatSaberPlus.SDK.Game.BeatMaps
 {
@@ -23,6 +24,8 @@ namespace BeatSaberPlus.SDK.Game.BeatMaps
 
         [JsonIgnore]
         public bool Partial = true;
+        [JsonIgnore]
+        public string PartialHash = null;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -33,16 +36,24 @@ namespace BeatSaberPlus.SDK.Game.BeatMaps
         /// <param name="p_Key">ID of the BeatMap</param>
         /// <returns></returns>
         public static MapDetail PartialFromKey(string p_Key)
-        {
-            return new MapDetail() { id = p_Key };
-        }
+            => new MapDetail() { id = p_Key };
+        /// <summary>
+        /// Partial BeatMap from ID
+        /// </summary>
+        /// <param name="p_Hash">Hash of the BeatMap</param>
+        /// <returns></returns>
+        public static MapDetail PartialFromHash(string p_Hash)
+            => new MapDetail() { PartialHash = p_Hash };
         /// <summary>
         /// Populate partial BeatMap
         /// </summary>
         /// <param name="p_Callback">Completion/failure callback</param>
         public void Populate(Action<bool> p_Callback)
         {
-            BeatMapsClient.PopulateOnlineByKey(this, p_Callback);
+            if (string.IsNullOrEmpty(PartialHash) && Partial)
+                BeatMapsClient.PopulateOnlineByKey(this, p_Callback);
+            else if (!string.IsNullOrEmpty(PartialHash) && Partial)
+                BeatMapsClient.PopulateOnlineByHash(this, p_Callback);
         }
 
         ////////////////////////////////////////////////////////////////////////////

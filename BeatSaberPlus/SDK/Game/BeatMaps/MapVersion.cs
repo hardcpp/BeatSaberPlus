@@ -108,7 +108,7 @@ namespace BeatSaberPlus.SDK.Game.BeatMaps
         /// <param name="p_Callback">Callback(p_Valid, p_Bytes)</param>
         public void CoverImageBytes(Action<bool, byte[]> p_Callback)
         {
-            BeatMapsClient.WebClient.DownloadAsync(coverURL, CancellationToken.None, (p_Result) =>
+            BeatMapsClient.WebClient.GetAsync(coverURL, CancellationToken.None, (p_Result) =>
             {
                 try
                 {
@@ -118,7 +118,7 @@ namespace BeatSaberPlus.SDK.Game.BeatMaps
                         return;
                     }
 
-                    p_Callback?.Invoke(true, p_Result);
+                    p_Callback?.Invoke(true, p_Result.BodyBytes);
                 }
                 catch (Exception l_Exception)
                 {
@@ -133,10 +133,10 @@ namespace BeatSaberPlus.SDK.Game.BeatMaps
         /// </summary>
         /// <param name="p_Token">Cancellation token</param>
         /// <param name="p_Callback">Callback on result</param>
-        /// <param name="p_Progress">Progress reporter</param>
         /// <param name="p_DontRetry">Should not retry in case of failure?</param>
+        /// <param name="p_Progress">Progress reporter</param>
         /// <returns></returns>
-        public void ZipBytes(CancellationToken p_Token, Action<byte[]> p_Callback, IProgress<float> p_Progress, bool p_DontRetry = true)
-            => BeatMapsClient.WebClient.DownloadAsync(downloadURL, p_Token, p_Callback, p_Progress, p_DontRetry);
+        public void ZipBytes(CancellationToken p_Token, Action<byte[]> p_Callback, bool p_DontRetry = true, IProgress<float> p_Progress = null)
+            => BeatMapsClient.WebClient.DownloadAsync(downloadURL, p_Token, (x) => p_Callback?.Invoke(x?.BodyBytes ?? null), p_DontRetry, p_Progress);
     }
 }

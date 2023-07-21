@@ -1,6 +1,0 @@
-﻿<vertical min-height='55' child-align='UpperCenter'>
-	<list-setting id='LevelTypeList' value='LevelTypeList_Value' choices='LevelTypeList_Choices' apply-on-change='true' text='Level type' />
-	<list-setting id='BeatmapList'   value='BeatmapList_Value'   choices='BeatmapList_Choices'   apply-on-change='true' text='Beatmap Mod type' />
-
-	<horizontal min-height='50'></horizontal>
-</vertical>

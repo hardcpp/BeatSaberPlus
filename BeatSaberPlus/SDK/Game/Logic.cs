@@ -11,21 +11,9 @@ namespace BeatSaberPlus.SDK.Game
     public class Logic
     {
         /// <summary>
-        /// Last main scene was not menu ?
-        /// </summary>
-        private static bool m_LastMainSceneWasNotMenu = false;
-        /// <summary>
-        /// Was in replay ?
-        /// </summary>
-        private static bool m_WasInReplay = false;
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        /// <summary>
         /// Scenes
         /// </summary>
-        public enum SceneType
+        public enum ESceneType
         {
             None,
             Menu,
@@ -35,37 +23,23 @@ namespace BeatSaberPlus.SDK.Game
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        /// <summary>
-        /// Active scene type
-        /// </summary>
-        public static SceneType ActiveScene { get; private set; } = SceneType.None;
-        /// <summary>
-        /// Current level data
-        /// </summary>
-        public static LevelData LevelData { get; private set; } = null;
-        /// <summary>
-        /// Level completion data
-        /// </summary>
-        public static LevelCompletionData LevelCompletionData { get; private set; } = null;
+        private static bool m_LastMainSceneWasNotMenu   = false;
+        private static bool m_WasInReplay               = false;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        /// <summary>
-        /// On scene change
-        /// </summary>
-        public static event Action<SceneType> OnSceneChange;
-        /// <summary>
-        /// On menu scene loaded
-        /// </summary>
-        public static event Action OnMenuSceneLoaded;
-        /// <summary>
-        /// On level started
-        /// </summary>
-        public static event Action<LevelData> OnLevelStarted;
-        /// <summary>
-        /// On level ended
-        /// </summary>
+        public static ESceneType            ActiveScene         { get; private set; } = ESceneType.None;
+        public static LevelData             LevelData           { get; private set; } = null;
+        public static LevelCompletionData   LevelCompletionData { get; private set; } = null;
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        public static event Action<ESceneType>  OnSceneChange;
+        public static event Action              OnMenuSceneLoaded;
+
+        public static event Action<LevelData>           OnLevelStarted;
         public static event Action<LevelCompletionData> OnLevelEnded;
 
         ////////////////////////////////////////////////////////////////////////////
@@ -99,7 +73,7 @@ namespace BeatSaberPlus.SDK.Game
                     OnGameSceneActive();
                 else if (p_Next.name == "MainMenu")
                 {
-                    if (ActiveScene != SceneType.Menu)
+                    if (ActiveScene != ESceneType.Menu)
                         OnMenuSceneActive();
 
                     var l_GameScenesManager = UnityEngine.Resources.FindObjectsOfTypeAll<GameScenesManager>().FirstOrDefault();
@@ -138,7 +112,7 @@ namespace BeatSaberPlus.SDK.Game
 #endif
             try
             {
-                ActiveScene = SceneType.Menu;
+                ActiveScene = ESceneType.Menu;
                 LevelData   = null;
 
                 CP_SDK.ChatPlexSDK.Fire_OnGenericMenuScene();
@@ -159,6 +133,7 @@ namespace BeatSaberPlus.SDK.Game
         /// On menu scene loaded
         /// </summary>
         /// <param name="p_Object">Transition object</param>
+        /// <param name="p_DiContainer">Container</param>
         private static void OnMenuSceneLoadedFresh(ScenesTransitionSetupDataSO p_Object, DiContainer p_DiContainer)
         {
 #if DEBUG_SCENES || DEBUG
@@ -172,7 +147,7 @@ namespace BeatSaberPlus.SDK.Game
 
                 UI.LevelDetail.Init();
 
-                ActiveScene             = SceneType.Menu;
+                ActiveScene             = ESceneType.Menu;
                 LevelData               = null;
                 LevelCompletionData     = null;
                 m_WasInReplay           = false;
@@ -201,7 +176,7 @@ namespace BeatSaberPlus.SDK.Game
             try
             {
                 /// Catch new map restart mechanic
-                if (ActiveScene == SceneType.Playing && LevelCompletionData != null)
+                if (ActiveScene == ESceneType.Playing && LevelCompletionData != null)
                 {
                     OnLevelEnded?.Invoke(LevelCompletionData);
 
@@ -221,7 +196,7 @@ namespace BeatSaberPlus.SDK.Game
                     }
                 }
 
-                ActiveScene             = SceneType.Playing;
+                ActiveScene             = ESceneType.Playing;
                 m_WasInReplay           = Scoring.IsInReplay;
 
                 CP_SDK.ChatPlexSDK.Fire_OnGenericPlayingScene();

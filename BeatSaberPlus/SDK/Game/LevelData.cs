@@ -21,6 +21,17 @@ namespace BeatSaberPlus.SDK.Game
         public int MaxMultipliedScore { get; internal set; }
 
         /// <summary>
+        /// Level has rotations events
+        /// </summary>
+        public bool HasRotations
+        {
+            get
+            {
+                return Data?.transformedBeatmapData?.spawnRotationEventsCount > 0;
+            }
+        }
+
+        /// <summary>
         /// Is a noodle extension map?
         /// </summary>
         public bool IsNoodle
