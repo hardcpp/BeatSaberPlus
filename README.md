@@ -6,6 +6,7 @@
 **[READ THE PATCH NOTES ! 🥖](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-Patchnotes)**
 
 Current version : 6.0.8
+
 BeatSaber compatibility : 1.25.0 to 1.29.1 AND 1.31.0
 
 **Important:** Most modules are disabled by default. Enable them in BeatSaberPlus -> Settings.  
@@ -13,86 +14,65 @@ BeatSaber compatibility : 1.25.0 to 1.29.1 AND 1.31.0
 *   To use the Multiplayer+ module, go to BeatSaberPlus -> Multiplayer+ and set it up. Use the **Multiplayer+** button on the left panel instead of the **Online** button.  
 
 ## Main features
-
-- **Chat:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki#chat))
-	- Display in game your Twitch & YouTube (Patreons only) chat (7TV & FFZ & BTTV support).
-	- **Emotes cache system to save bandwidth on game start!** 
-	- See subscriptions, follows, raids, bits events and channel redeems (channel points).
-	- Twitch-specific features include Polls, Predictions (bets) and HypeTrains.
+- **Chat:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-Chat))
+	- Kick/Twitch/Youtube chat support.
+	- 7TV/FFZ/BTTV Emotes support
+	- See subs, follows, raids, bits and channel redeems
+	- Polls, Predictions and HypeTrains.
 	- Viewer count.
-	- Hide messages started with "!"
-	- Lots of customization options (colors, sizes, filter TTS messages, hide specific events and more).
-- **ChatEmoteRain:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki#chat-emote-rain))
-    - See emotes used in chat raining in-game.
-    - Support for **GIF / APNG / PNG / WEBP** files.
-    - Custom emote rain when someone subscribes to your Twitch channel.
-    - Advanced configuration options.
-- **ChatIntegrations:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki#chat-integrations))
-    - Perform various actions with events.
-    - Events can use -> **Chat events / Level status / VoiceAttackCommands (plugin installation required)**
-    - Conditions -> **Chat Request / Event enabled? / Playing map? / Cooldown / OBS Status**
-    - Actions -> **Camera2 / Chat / EmoteRain / Event / GamePlay / Misc (waiting events) / NoteTweaker (profile changing) / OBS interact /   SongChartVisualizer / Twitch**
-- **ChatRequest:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki#chat-request))
-    - Chat request system that allows viewers to make requests using the [https://beatsaver.com/](https://beatsaver.com/) website.
-    - Displays information about all difficulties for a song including NPS/Offset.
-    - Displays song description, votes, upload date when you select a song.
-    - Displays score on songs when you hover over one.
-    - User, Mapper, Song ban system
-    - Safe mode that hides any sensitive information (song name, artist, uploader, etc.)
-    - History & blacklist tab that lets you see your request history and manage your blacklist.
-    - **An intelligent "!link" command that shows the current played song or last one and provides a link to beatsaver.com if the map is public. The command also works outside of request and in multiplayer!**
-    - **You can find other useful commands in [the wiki](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-Chat-Request#4---chat-commands).**
-- **GameTweaker:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki#game-tweaker))  
-    - Can remove note debris, cut particles, obstacle particles, floor burn particles, floor burn effects, saber clash particles and world particles even with Liv capture.
-    - Offers precise reaction time (AKA offset) selection.
-    - Provides an option to override light intensity and boost/dim lights from 0% to 2000% (also works in static lights).
-    - Can remove BTS/LinkinPark assets in a play environment, FullCombo loss animation, Editor button on the main menu, and promotional content from the menu.
-    - Allows re-ordering player options menu for better accessibility.
-    - Automatically cleans all old logs entry from your game folder to keep it clean.
-    - Adds keyboard bindings to pause/continue/restart/exit a song in FPFC mode.
-- **MenuMusic:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki#menu-music))
-    - Replaces menu ambient sounds with music!
-    - Plays any songs from your custom levels or your own selection of music!
-    - Shows player interface in the menu on the left with Prev/Random/Play/Pause/Next buttons and with a volume selector.
-    - Provides a play button to play the current song level.
-- **Multiplayer+:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki#multiplayer-plus))  
-	- Basic features included like Quick Play, Server creation, Joining code and room finding with basic search
-	- In the rooms, you can change the room code, hide and show the code, play up to 20 people (40 with one Patreon present)
-	- With your Multiplayer+ setup, you can manage the permission for Mods, Vips or users to be able to get the code in chat with ‘!room’ or not
-	- Custom Songs with BeatSaver support
-	- ScoreSaber and BeatLeader support
-	- Can disable your score submission
-	- Noodle/Chroma & 360/90 maps support
-	- In-game avatars & movement sync
-	- An option inside the room to see/not see other players while playing included
-- **NoteTweaker:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki#note-tweaker))
-    - Create profiles and switch them using [ChatIntegrations](https://github.com/hardcpp/BeatSaberPlus/wiki#chat-integrations)
-    - Modify different parts of notes, such as dots (with or without sliders), arrows, arcs, notes and bombs scale
-    - Preview changes in a right panel
-    - Supports hiding/showing dots on directional notes
-- **SongChartVisualizer:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki#song-chart-visualizer))
-    - Preview map difficulty with a graph that shows NPS (Notes Per Second) in-game
-    - Supports 90 & 360 levels
-    - Offers various customization options (Colors, Legend, Dash lines...)
- - **SongOverlay:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki#song-overlay))
-	 - Send game information to some overlays that are compatible with BS+
-	 	- Game version
-		- Game status (menu, playing)
-		- Map info before playing a map
-		- Pause or resume events
-		- Score events (JSON format)
+	- Lots of customization options
+- **ChatEmoteRain:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-Chat-Emote-Rain))
+	- See emotes used in chat raining in-game
+	- Support for GIF / APNG / PNG / WEBP files
+	- Custom emote rain when someone subs
+	- Advanced configuration options
+- **ChatIntegrations:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-Chat-Integrations))
+	- Script and automatize your game with powerfull integrations
+	- Control your game and mods
+	- Control your OBS instance
+	- Interact and control your games
+	- Voice commands with VoiceAttack
+- **ChatRequest:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-Chat-Request))
+	- Let the viewers request their favorite map!
+	- A powerfull !link command that let your viewers known what map you are playing
+	- History and Blacklist support
+	- Commands for moderation
+	- OBS overlay
+- **GameTweaker:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-Game-Tweaker))  
+	- Customize game visuals and effects!
+	- Precise reaction time and player height
+	- Change the light intensity of any map
+	- Improve base game UI
+- **MenuMusic:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-Menu-Music))
+	- Replaces menu ambient sounds with music!
+	- Plays any songs from your custom levels or your own selection of music
+	- Controllable player interface with songs covers
+	- A command for viewers to get info about the current song
+- **Multiplayer+:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-Multiplayer-Plus))  
+	- A better multiplayer with custom songs support!
+	- BeatLeader and ScoreSaber support!
+	- Chroma, Noodle, 360, 90 maps support
+	- See players avatar
+	- Democracy and FFA mode
+- **NoteTweaker:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-Note-Tweaker))
+	- Complete customisation of the game notes and bombs with multi profile system!
+	- Precision dots feature
+	- Haptics and Arcs customisation
+- **SongChartVisualizer:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-Song-Chart-Visualizer))
+	- Preview map difficulty with a graph that shows NPS (Notes Per Second) in-game!
+	- Supports 90 and 360 levels
+	- Lots of customization options
+ - **SongOverlay:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-Song-Overlay))
+	- Let your viewers known in real time your progress and score during a map
+	- Multiple free OBS overlays made by the community
 
-
-## **Dependencies**
+## **Dependencies & Licenses**
+### **[Licenses](https://github.com/hardcpp/BeatSaberPlus/wiki#licenses)**
 
 - SongCore [https://github.com/Kylemc1413/SongCore](https://github.com/Kylemc1413/SongCore)
-- BeatSaberMarkupLanguage [https://github.com/monkeymanboy/BeatSaberMarkupLanguage](https://github.com/monkeymanboy/BeatSaberMarkupLanguage)
-
 
 ### **[How to install](https://github.com/hardcpp/BeatSaberPlus/wiki#2---How-to-Install)**
-
 ### **[See the FAQ](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-FAQ)**
-
 ### **[READ THE PATCH NOTES ! 🥖](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-Patchnotes)**
 
 ## **Special Thanks**:
@@ -101,17 +81,6 @@ BeatSaber compatibility : 1.25.0 to 1.29.1 AND 1.31.0
 - **Crafang#8040** For documentation & translation
 - **Lucy#9197** For documentation
 - **redegg89#9290** For Documentation syntax/grammar
-
-## **Discord & Download/Update**
-https://discord.gg/63ebPMC 
-
-## **Credits / Copyright**
-* [EnhancedStreamChat-v3](https://github.com/brian91292/EnhancedStreamChat-v3)
-* [TournamentAssistant](https://github.com/MatrikMoon/TournamentAssistant)
-* [Beat-Saber-Utils](https://github.com/Kylemc1413/Beat-Saber-Utils)
-* [BeatSaverDownloader](https://github.com/Kylemc1413/BeatSaverDownloader)
-* [BeatSaberMarkupLanguage](https://github.com/monkeymanboy/BeatSaberMarkupLanguage)
-* [websocket-sharp](https://github.com/sta/websocket-sharp)
 
 ## **Screenshots**
 ![](https://puu.sh/GO6tf/81ff167aab.png)
