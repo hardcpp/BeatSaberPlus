@@ -56,6 +56,7 @@ namespace CP_SDK.UI
             m_Canvas = gameObject.AddComponent<Canvas>();
             m_Canvas.renderMode = RenderMode.WorldSpace;
             m_Canvas.enabled = false;
+
             var l_RectTransform = m_Canvas.transform as RectTransform;
             l_RectTransform.sizeDelta = CANVAS_SIZE;
 
@@ -63,7 +64,6 @@ namespace CP_SDK.UI
             if (m_HeaderText)
             {
                 l_RectTransform = m_HeaderText.transform as RectTransform;
-                l_RectTransform.SetParent(m_Canvas.transform, false);
                 l_RectTransform.anchoredPosition    = HEADER_POSITION;
                 l_RectTransform.sizeDelta           = HEADER_SIZE;
                 m_HeaderText.SetFontSize(HEADER_FONT_SIZE);
@@ -84,8 +84,6 @@ namespace CP_SDK.UI
             m_LoadingBar.type           = Image.Type.Filled;
             m_LoadingBar.fillMethod     = Image.FillMethod.Horizontal;
             m_LoadingBar.color          = new Color(0.1f, 1, 0.1f, 0.5f);
-
-            DontDestroyOnLoad(gameObject);
 
             ChatPlexSDK.OnGenericSceneChange += ChatPlexSDK_OnGenericSceneChange;
         }

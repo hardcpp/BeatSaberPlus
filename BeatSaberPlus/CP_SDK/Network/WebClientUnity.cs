@@ -3,7 +3,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
-using System.Net.Http;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -13,28 +12,23 @@ namespace CP_SDK.Network
     /// <summary>
     /// WebClient using unity web requests
     /// </summary>
-    public sealed class WebClient : IWebClient
+    public sealed class WebClientUnity : IWebClient
     {
         /// <summary>
         /// Global client instance
         /// </summary>
-        public static readonly WebClient GlobalClient = new WebClient("", TimeSpan.FromSeconds(10));
+        public static readonly WebClientUnity GlobalClient = new WebClientUnity("", TimeSpan.FromSeconds(10));
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        /// <summary>
-        /// Base URL
-        /// </summary>
-        private string m_BaseAddress = string.Empty;
+        private string                      m_BaseAddress   = string.Empty;
+        private int                         m_Timeout       = 10;
+        private Dictionary<string, string>  m_Headers       = new Dictionary<string, string>();
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        /// <summary>
-        /// Timeout seconds
-        /// </summary>
-        public int Timeout = 10;
         /// <summary>
         /// Timeout seconds
         /// </summary>
@@ -47,10 +41,6 @@ namespace CP_SDK.Network
         /// Delay between each retry
         /// </summary>
         public int RetryInterval = 5;
-        /// <summary>
-        /// Headers
-        /// </summary>
-        public Dictionary<string, string> Headers = new Dictionary<string, string>();
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -58,17 +48,63 @@ namespace CP_SDK.Network
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="p_BaseAddress"></param>
-        /// <param name="p_TimeOut"></param>
-        /// <param name="p_ForceCacheDiscard"></param>
-        public WebClient(string p_BaseAddress, TimeSpan p_TimeOut, bool p_ForceCacheDiscard = false)
+        /// <param name="p_BaseAddress">Base address</param>
+        /// <param name="p_TimeOut">Requests timeout</param>
+        /// <param name="p_ForceCacheDiscard">Should force server cache discard</param>
+        public WebClientUnity(string p_BaseAddress, TimeSpan p_TimeOut, bool p_ForceCacheDiscard = false)
         {
             m_BaseAddress = p_BaseAddress;
 
-            Timeout = (int)p_TimeOut.TotalSeconds;
+            m_Timeout = (int)p_TimeOut.TotalSeconds;
 
             if (p_ForceCacheDiscard)
-                Headers.Add("Cache-Control", "no-cache, must-revalidate, proxy-revalidate, max-age=0, s-maxage=0, max-stale=0");
+                m_Headers.Add("Cache-Control", "no-cache, must-revalidate, proxy-revalidate, max-age=0, s-maxage=0, max-stale=0");
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Get header
+        /// </summary>
+        /// <param name="p_Name">Headername</param>
+        /// <returns></returns>
+        public string GetHeader(string p_Name)
+        {
+            lock (m_Headers)
+            {
+                if (m_Headers.TryGetValue(p_Name, out var l_Value))
+                    return l_Value;
+            }
+
+            return "";
+        }
+        /// <summary>
+        /// Set header
+        /// </summary>
+        /// <param name="p_Name">Header name</param>
+        /// <param name="p_Value">Header value</param>
+        public void SetHeader(string p_Name, string p_Value)
+        {
+            lock (m_Headers)
+            {
+                if (m_Headers.ContainsKey(p_Name))
+                    m_Headers.Remove(p_Name);
+
+                m_Headers.Add(p_Name, p_Value);
+            }
+        }
+        /// <summary>
+        /// Remove header
+        /// </summary>
+        /// <param name="p_Name">Header name</param>
+        public void RemoveHeader(string p_Name)
+        {
+            lock (m_Headers)
+            {
+                if (m_Headers.ContainsKey(p_Name))
+                    m_Headers.Remove(p_Name);
+            }
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -83,31 +119,37 @@ namespace CP_SDK.Network
         /// <param name="p_DontRetry">Should not retry</param>
         /// <param name="p_Progress">Progress reporter</param>
         public void GetAsync(string p_URL, CancellationToken p_Token, Action<WebResponse> p_Callback, bool p_DontRetry = false, IProgress<float> p_Progress = null)
-            => Unity.MTCoroutineStarter.EnqueueFromThread(Coroutine_DoRequest("GetAsync", "GET", GetURL(p_URL), null, null, p_Token, p_Callback, p_DontRetry, p_Progress));
+            => Unity.MTCoroutineStarter.EnqueueFromThread(Coroutine_DoRequest("GetAsync", "GET", GetURL(p_URL), null, p_Token, p_Callback, p_DontRetry, p_Progress));
+        /// <summary>
+        /// Do Async GET query
+        /// </summary>
+        /// <param name="p_URL">Target URL</param>
+        /// <param name="p_Token">Cancellation token</param>
+        /// <param name="p_Callback">Callback</param>
+        /// <param name="p_DontRetry">Should not retry</param>
+        /// <param name="p_Progress">Progress reporter</param>
         public void DownloadAsync(string p_URL, CancellationToken p_Token, Action<WebResponse> p_Callback, bool p_DontRetry = false, IProgress<float> p_Progress = null)
-            => Unity.MTCoroutineStarter.EnqueueFromThread(Coroutine_DoRequest("DownloadAsync", "DOWNLOAD", GetURL(p_URL), null, null, p_Token, p_Callback, p_DontRetry, p_Progress));
+            => Unity.MTCoroutineStarter.EnqueueFromThread(Coroutine_DoRequest("DownloadAsync", "DOWNLOAD", GetURL(p_URL), null, p_Token, p_Callback, p_DontRetry, p_Progress));
         /// <summary>
         /// Do Async POST query
         /// </summary>
         /// <param name="p_URL">Target URL</param>
-        /// <param name="p_Content">Optional content to post</param>
-        /// <param name="p_ContentType">Content type</param>
+        /// <param name="p_Content">Content to post</param>
         /// <param name="p_Token">Cancellation token</param>
         /// <param name="p_Callback">Callback</param>
         /// <param name="p_DontRetry">Should not retry</param>
-        public void PostAsync(string p_URL, HttpContent p_Content, string p_ContentType, CancellationToken p_Token, Action<WebResponse> p_Callback, bool p_DontRetry = false)
-            => Unity.MTCoroutineStarter.EnqueueFromThread(Coroutine_DoRequest("PostAsync", "POST", GetURL(p_URL), p_Content, p_ContentType, p_Token, p_Callback, p_DontRetry, null));
+        public void PostAsync(string p_URL, WebContent p_Content, CancellationToken p_Token, Action<WebResponse> p_Callback, bool p_DontRetry = false)
+            => Unity.MTCoroutineStarter.EnqueueFromThread(Coroutine_DoRequest("PostAsync", "POST", GetURL(p_URL), p_Content, p_Token, p_Callback, p_DontRetry, null));
         /// <summary>
         /// Do Async PATCH query
         /// </summary>
         /// <param name="p_URL">Target URL</param>
-        /// <param name="p_Content">Optional content to post</param>
-        /// <param name="p_ContentType">Content type</param>
+        /// <param name="p_Content">Content to post</param>
         /// <param name="p_Token">Cancellation token</param>
         /// <param name="p_Callback">Callback</param>
         /// <param name="p_DontRetry">Should not retry</param>
-        public void PatchAsync(string p_URL, HttpContent p_Content, string p_ContentType, CancellationToken p_Token, Action<WebResponse> p_Callback, bool p_DontRetry = false)
-            => Unity.MTCoroutineStarter.EnqueueFromThread(Coroutine_DoRequest("PatchAsync", "PATCH", GetURL(p_URL), p_Content, p_ContentType, p_Token, p_Callback, p_DontRetry, null));
+        public void PatchAsync(string p_URL, WebContent p_Content, CancellationToken p_Token, Action<WebResponse> p_Callback, bool p_DontRetry = false)
+            => Unity.MTCoroutineStarter.EnqueueFromThread(Coroutine_DoRequest("PatchAsync", "PATCH", GetURL(p_URL), p_Content, p_Token, p_Callback, p_DontRetry, null));
         /// <summary>
         /// Do Async DELETE query
         /// </summary>
@@ -116,7 +158,7 @@ namespace CP_SDK.Network
         /// <param name="p_Callback">Callback</param>
         /// <param name="p_DontRetry">Should not retry</param>
         public void DeleteAsync(string p_URL, CancellationToken p_Token, Action<WebResponse> p_Callback, bool p_DontRetry = false)
-            => Unity.MTCoroutineStarter.EnqueueFromThread(Coroutine_DoRequest("DeleteAsync", "DELETE", GetURL(p_URL), null, null, p_Token, p_Callback, p_DontRetry, null));
+            => Unity.MTCoroutineStarter.EnqueueFromThread(Coroutine_DoRequest("DeleteAsync", "DELETE", GetURL(p_URL), null, p_Token, p_Callback, p_DontRetry, null));
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -147,18 +189,23 @@ namespace CP_SDK.Network
 
             return l_Result;
         }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
         /// <summary>
         /// Prepare request
         /// </summary>
         /// <param name="p_Request">Request to prepare</param>
+        /// <param name="p_IsDownload">Is a download request?</param>
         private void PrepareRequest(UnityWebRequest p_Request, bool p_IsDownload)
         {
             if (p_Request.downloadHandler == null)
                 p_Request.downloadHandler = new DownloadHandlerBuffer();
 
-            p_Request.timeout = p_IsDownload ? DownloadTimeout : Timeout;
+            p_Request.timeout = p_IsDownload ? DownloadTimeout : m_Timeout;
 
-            foreach (var l_KVP in Headers)
+            foreach (var l_KVP in m_Headers)
                 p_Request.SetRequestHeader(l_KVP.Key, l_KVP.Value);
         }
         /// <summary>
@@ -167,8 +214,7 @@ namespace CP_SDK.Network
         /// <param name="p_DebugName">Method name for logs</param>
         /// <param name="p_HttpMethod">Http method</param>
         /// <param name="p_URL">Target URL</param>
-        /// <param name="p_Content">Optional content to post</param>
-        /// <param name="p_ContentType">Content type</param>
+        /// <param name="p_Content">Content to post</param>
         /// <param name="p_Token">Cancellation token</param>
         /// <param name="p_Callback">Callback</param>
         /// <param name="p_DontRetry">Should not retry</param>
@@ -177,8 +223,7 @@ namespace CP_SDK.Network
         private IEnumerator Coroutine_DoRequest(string              p_DebugName,
                                                 string              p_HttpMethod,
                                                 string              p_URL,
-                                                HttpContent         p_Content,
-                                                string              p_ContentType,
+                                                WebContent          p_Content,
                                                 CancellationToken   p_Token,
                                                 Action<WebResponse> p_Callback,
                                                 bool                p_DontRetry,
@@ -194,6 +239,8 @@ namespace CP_SDK.Network
                 if (p_Token.IsCancellationRequested)
                     break;
 
+                try { p_Progress?.Report(0f); } catch { }
+
                 var l_Request = null as UnityWebRequest;
                 switch (p_HttpMethod)
                 {
@@ -206,9 +253,9 @@ namespace CP_SDK.Network
                     case "PATCH":
                         l_Request = new UnityWebRequest(p_URL, p_HttpMethod)
                         {
-                            uploadHandler = new UploadHandlerRaw(p_Content.ReadAsByteArrayAsync().Result)
+                            uploadHandler = new UploadHandlerRaw(p_Content.Bytes)
                             {
-                                contentType = p_ContentType
+                                contentType = p_Content.Type
                             },
                             downloadHandler = new DownloadHandlerBuffer()
                         };
@@ -225,7 +272,6 @@ namespace CP_SDK.Network
                     yield return l_Request.SendWebRequest();
                 else
                 {
-                    try { p_Progress?.Report(0f); } catch { }
                     l_Request.SendWebRequest();
 
                     var l_Waiter = new WaitForSecondsRealtime(0.05f);
@@ -273,13 +319,10 @@ namespace CP_SDK.Network
                     yield return new WaitForSecondsRealtime(RetryInterval);
                     continue;
                 }
-                else
-                {
-                    if (p_Progress != null)
-                        try { p_Progress?.Report(1f); } catch { }
 
-                    break;
-                }
+                try { p_Progress?.Report(1f); } catch { }
+
+                break;
             }
 
             if (!p_Token.IsCancellationRequested)

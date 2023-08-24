@@ -112,6 +112,8 @@
     <Compile Include="Logger.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UI\Data\CommandListCell.cs" />
+    <Compile Include="UI\Data\CommandListItem.cs" />
     <Compile Include="UI\ManagerLeftView.cs" />
     <Compile Include="UI\ManagerMainView.cs" />
     <Compile Include="UI\ManagerRightView.cs" />

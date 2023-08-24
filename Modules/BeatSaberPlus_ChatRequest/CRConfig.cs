@@ -1,4 +1,6 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using System;
 
 namespace BeatSaberPlus_ChatRequest
 {
@@ -43,87 +45,138 @@ namespace BeatSaberPlus_ChatRequest
 
         internal class _Commands
         {
-            [JsonProperty] internal bool   BSRCommandEnabled        = true;
-            [JsonProperty] internal string BSRCommand               = "bsr";
-            [JsonProperty] internal string BSRCommand_UserBanned    = "@$UserName you are not allowed to make requests!";
-            [JsonProperty] internal string BSRCommand_QueueClosed   = "@$UserName the queue is closed!";
-            [JsonProperty] internal string BSRCommand_Search0Result = "@$UserName your search $Search produced 0 results!";
-            [JsonProperty] internal string BSRCommand_SearchResults = "@$UserName your search $Search produced $Count results: $Results";
-            [JsonProperty] internal string BSRCommand_Blacklisted   = "@$UserName (bsr $BSRKey) $SongName / $LevelAuthorName is blacklisted!";
-            [JsonProperty] internal string BSRCommand_AlreadyQueued = "@$UserName (bsr $BSRKey) $SongName / $LevelAuthorName is already in queue!";
-            [JsonProperty] internal string BSRCommand_RequestLimit  = "@$UserName you already have $UserRequestCount on the queue. $UserType are limited to $UserTypeLimit request(s).";
-            [JsonProperty] internal string BSRCommand_AlreadyPlayed = "@$UserName this song was already requested this session!";
-            [JsonProperty] internal string BSRCommand_NotFound      = "@$UserName map $BSRKey not found.";
-            [JsonProperty] internal string BSRCommand_MapperBanned  = "@$UserName $UploaderName's maps are not allowed!";
-            [JsonProperty] internal string BSRCommand_RequestOK     = "(bsr $BSRKey) $SongName / $LevelAuthorName $Vote% requested by @$UserName added to queue.";
+            [Flags]
+            internal enum EPermission
+            {
+                Viewers         = 1 << 1,
+                Subscribers     = 1 << 2,
+                VIPs            = 1 << 3,
+                Moderators      = 1 << 4
+            }
 
-            [JsonProperty] internal bool   BSRHelpCommandEnabled    = true;
-            [JsonProperty] internal string BSRHelpCommand           = "bsrhelp";
-            [JsonProperty] internal string BSRHelpCommand_Reply     = "@$UserName To request a song, go to https://beatsaver.com/search and find a song, Click on \"Copy !bsr\" button and paste this on the stream and I'll play it soon!.";
+            [JsonProperty, JsonConverter(typeof(StringEnumConverter))]
+                           internal EPermission BSRCommandPermissions       = EPermission.Viewers;
+            [JsonProperty] internal bool        BSRCommandEnabled           = true;
+            [JsonProperty] internal string      BSRCommand                  = "bsr";
+            [JsonProperty] internal string      BSRCommand_UserBanned       = "@$UserName you are not allowed to make requests!";
+            [JsonProperty] internal string      BSRCommand_QueueClosed      = "@$UserName the queue is closed!";
+            [JsonProperty] internal string      BSRCommand_Search0Result    = "@$UserName your search $Search produced 0 results!";
+            [JsonProperty] internal string      BSRCommand_SearchResults    = "@$UserName your search $Search produced $Count results: $Results";
+            [JsonProperty] internal string      BSRCommand_Blacklisted      = "@$UserName (bsr $BSRKey) $SongName / $LevelAuthorName is blacklisted!";
+            [JsonProperty] internal string      BSRCommand_AlreadyQueued    = "@$UserName (bsr $BSRKey) $SongName / $LevelAuthorName is already in queue!";
+            [JsonProperty] internal string      BSRCommand_RequestLimit     = "@$UserName you already have $UserRequestCount on the queue. $UserType are limited to $UserTypeLimit request(s).";
+            [JsonProperty] internal string      BSRCommand_AlreadyPlayed    = "@$UserName this song was already requested this session!";
+            [JsonProperty] internal string      BSRCommand_NotFound         = "@$UserName map $BSRKey not found.";
+            [JsonProperty] internal string      BSRCommand_MapperBanned     = "@$UserName $UploaderName's maps are not allowed!";
+            [JsonProperty] internal string      BSRCommand_RequestOK        = "(bsr $BSRKey) $SongName / $LevelAuthorName $Vote% requested by @$UserName added to queue.";
 
-            [JsonProperty] internal bool   LinkCommandEnabled       = true;
-            [JsonProperty] internal string LinkCommand              = "link";
-            [JsonProperty] internal string LinkCommand_NoSong       = "@$UserName no song is being played right now!";
-            [JsonProperty] internal string LinkCommand_LastSong     = "@$UserName last song : $SongInfo";
-            [JsonProperty] internal string LinkCommand_CurrentSong  = "@$UserName current song : $SongInfo";
+            [JsonProperty, JsonConverter(typeof(StringEnumConverter))]
+                           internal EPermission BSRHelpCommandPermissions   = EPermission.Viewers;
+            [JsonProperty] internal bool        BSRHelpCommandEnabled       = true;
+            [JsonProperty] internal string      BSRHelpCommand              = "bsrhelp";
+            [JsonProperty] internal string      BSRHelpCommand_Reply        = "@$UserName To request a song, go to https://beatsaver.com/search and find a song, Click on \"Copy !bsr\" button and paste this on the stream and I'll play it soon!.";
 
-            [JsonProperty] internal bool   QueueCommandEnabled      = true;
-            [JsonProperty] internal string QueueCommand             = "queue";
-            [JsonProperty] internal string QueueCommand_Cooldown    = "@$UserName queue command is on cooldown!";
-            [JsonProperty] internal string QueueCommand_Empty       = "Song queue is empty!";
+            [JsonProperty, JsonConverter(typeof(StringEnumConverter))]
+                           internal EPermission LinkCommandPermissions  = EPermission.Viewers;
+            [JsonProperty] internal bool        LinkCommandEnabled      = true;
+            [JsonProperty] internal string      LinkCommand             = "link";
+            [JsonProperty] internal string      LinkCommand_NoSong      = "@$UserName no song is being played right now!";
+            [JsonProperty] internal string      LinkCommand_LastSong    = "@$UserName last song : $SongInfo";
+            [JsonProperty] internal string      LinkCommand_CurrentSong = "@$UserName current song : $SongInfo";
 
-            [JsonProperty] internal bool   QueueStatusCommandEnabled = true;
-            [JsonProperty] internal string QueueStatusCommand        = "queuestatus";
+            [JsonProperty, JsonConverter(typeof(StringEnumConverter))]
+                           internal EPermission QueueCommandPermissions  = EPermission.Viewers;
+            [JsonProperty] internal bool        QueueCommandEnabled      = true;
+            [JsonProperty] internal string      QueueCommand             = "queue";
+            [JsonProperty] internal string      QueueCommand_Cooldown    = "@$UserName queue command is on cooldown!";
+            [JsonProperty] internal string      QueueCommand_Empty       = "Song queue is empty!";
 
-            [JsonProperty] internal bool   WrongCommandEnabled      = true;
-            [JsonProperty] internal string WrongCommand             = "wrong,oops,wrongsong";
-            [JsonProperty] internal string WrongCommand_NoSong      = "@$UserName you have no song in queue!";
-            [JsonProperty] internal string WrongCommand_NoSongFound = "@$UserName you have no song in queue with the specified code!!";
+            [JsonProperty, JsonConverter(typeof(StringEnumConverter))]
+                           internal EPermission QueueStatusCommandPermissions   = EPermission.Viewers;
+            [JsonProperty] internal bool        QueueStatusCommandEnabled       = true;
+            [JsonProperty] internal string      QueueStatusCommand              = "queuestatus";
 
-            [JsonProperty] internal bool   Moderator_ModAddCommandEnabled   = true;
-            [JsonProperty] internal string Moderator_ModAddCommand          = "modadd";
+            [JsonProperty, JsonConverter(typeof(StringEnumConverter))]
+                           internal EPermission WrongCommandCommandPermissions  = EPermission.Viewers;
+            [JsonProperty] internal bool        WrongCommandEnabled             = true;
+            [JsonProperty] internal string      WrongCommand                    = "wrong,oops,wrongsong";
+            [JsonProperty] internal string      WrongCommand_NoSong             = "@$UserName you have no song in queue!";
+            [JsonProperty] internal string      WrongCommand_NoSongFound        = "@$UserName you have no song in queue with the specified code!!";
 
-            [JsonProperty] internal bool   Moderator_OpenCommandEnabled = true;
-            [JsonProperty] internal string Moderator_OpenCommand        = "open";
+            [JsonProperty, JsonConverter(typeof(StringEnumConverter))]
+                           internal EPermission ModAddPermissions     = EPermission.Moderators;
+            [JsonProperty] internal bool        ModAddCommandEnabled  = true;
+            [JsonProperty] internal string      ModAddCommand         = "modadd";
 
-            [JsonProperty] internal bool   Moderator_CloseCommandEnabled    = true;
-            [JsonProperty] internal string Moderator_CloseCommand           = "close";
+            [JsonProperty, JsonConverter(typeof(StringEnumConverter))]
+                           internal EPermission OpenCommandPermissions    = EPermission.Moderators;
+            [JsonProperty] internal bool        OpenCommandEnabled        = true;
+            [JsonProperty] internal string      OpenCommand               = "open";
 
-            [JsonProperty] internal bool   Moderator_SabotageCommandEnabled = true;
-            [JsonProperty] internal string Moderator_SabotageCommand        = "sabotage";
+            [JsonProperty, JsonConverter(typeof(StringEnumConverter))]
+                           internal EPermission CloseCommandPermissions   = EPermission.Moderators;
+            [JsonProperty] internal bool        CloseCommandEnabled       = true;
+            [JsonProperty] internal string      CloseCommand              = "close";
 
-            [JsonProperty] internal bool   Moderator_SongMessageCommandEnabled  = true;
-            [JsonProperty] internal string Moderator_SongMessageCommand         = "songmsg";
+            [JsonProperty, JsonConverter(typeof(StringEnumConverter))]
+                           internal EPermission SabotageCloseCommandPermissions = EPermission.Moderators;
+            [JsonProperty] internal bool        SabotageCommandEnabled          = true;
+            [JsonProperty] internal string      SabotageCommand                 = "sabotage";
 
-            [JsonProperty] internal bool   Moderator_MoveToTopCommandEnabled    = true;
-            [JsonProperty] internal string Moderator_MoveToTopCommand           = "mtt";
+            [JsonProperty, JsonConverter(typeof(StringEnumConverter))]
+                           internal EPermission SongMessageCommandPermissions   = EPermission.Moderators;
+            [JsonProperty] internal bool        SongMessageCommandEnabled       = true;
+            [JsonProperty] internal string      SongMessageCommand              = "songmsg";
 
-            [JsonProperty] internal bool   Moderator_AddToTopCommandEnabled = true;
-            [JsonProperty] internal string Moderator_AddToTopCommand        = "att";
+            [JsonProperty, JsonConverter(typeof(StringEnumConverter))]
+                           internal EPermission MoveToTopCommandPermissions = EPermission.Moderators;
+            [JsonProperty] internal bool        MoveToTopCommandEnabled     = true;
+            [JsonProperty] internal string      MoveToTopCommand            = "mtt";
 
-            [JsonProperty] internal bool   Moderator_RemoveCommandEnabled   = true;
-            [JsonProperty] internal string Moderator_RemoveCommand          = "remove";
+            [JsonProperty, JsonConverter(typeof(StringEnumConverter))]
+                           internal EPermission AddToTopCommandPermissions  = EPermission.Moderators;
+            [JsonProperty] internal bool        AddToTopCommandEnabled      = true;
+            [JsonProperty] internal string      AddToTopCommand             = "att";
 
-            [JsonProperty] internal bool   Moderator_BsrBanCommandEnabled   = true;
-            [JsonProperty] internal string Moderator_BsrBanCommand          = "bsrban";
+            [JsonProperty, JsonConverter(typeof(StringEnumConverter))]
+                           internal EPermission RemoveCommandPermissions    = EPermission.Moderators;
+            [JsonProperty] internal bool        RemoveCommandEnabled        = true;
+            [JsonProperty] internal string      RemoveCommand               = "remove";
 
-            [JsonProperty] internal bool   Moderator_BsrUnbanCommandEnabled = true;
-            [JsonProperty] internal string Moderator_BsrUnbanCommand        = "bsrunban";
+            [JsonProperty, JsonConverter(typeof(StringEnumConverter))]
+                           internal EPermission BsrBanCommandPermissions    = EPermission.Moderators;
+            [JsonProperty] internal bool        BsrBanCommandEnabled        = true;
+            [JsonProperty] internal string      BsrBanCommand               = "bsrban";
 
-            [JsonProperty] internal bool   Moderator_BsrBanMapperCommandEnabled = true;
-            [JsonProperty] internal string Moderator_BsrBanMapperCommand        = "bsrbanmapper";
+            [JsonProperty, JsonConverter(typeof(StringEnumConverter))]
+                           internal EPermission BsrUnbanCommandPermissions  = EPermission.Moderators;
+            [JsonProperty] internal bool        BsrUnbanCommandEnabled      = true;
+            [JsonProperty] internal string      BsrUnbanCommand             = "bsrunban";
 
-            [JsonProperty] internal bool   Moderator_BsrUnbanMapperCommandEnabled   = true;
-            [JsonProperty] internal string Moderator_BsrUnbanMapperCommand          = "bsrunbanmapper";
+            [JsonProperty, JsonConverter(typeof(StringEnumConverter))]
+                           internal EPermission BsrBanMapperCommandPermissions  = EPermission.Moderators;
+            [JsonProperty] internal bool        BsrBanMapperCommandEnabled      = true;
+            [JsonProperty] internal string      BsrBanMapperCommand             = "bsrbanmapper";
 
-            [JsonProperty] internal bool   Moderator_RemapCommandEnabled    = true;
-            [JsonProperty] internal string Moderator_RemapCommand           = "remap";
+            [JsonProperty, JsonConverter(typeof(StringEnumConverter))]
+                           internal EPermission BsrUnbanMapperCommandPermissions    = EPermission.Moderators;
+            [JsonProperty] internal bool        BsrUnbanMapperCommandEnabled        = true;
+            [JsonProperty] internal string      BsrUnbanMapperCommand               = "bsrunbanmapper";
 
-            [JsonProperty] internal bool   Moderator_AllowCommandEnabled    = true;
-            [JsonProperty] internal string Moderator_AllowCommand           = "allow";
+            [JsonProperty, JsonConverter(typeof(StringEnumConverter))]
+                           internal EPermission RemapCommandPermissions = EPermission.Moderators;
+            [JsonProperty] internal bool        RemapCommandEnabled    = true;
+            [JsonProperty] internal string      RemapCommand           = "remap";
 
-            [JsonProperty] internal bool   Moderator_BlockCommandEnabled    = true;
-            [JsonProperty] internal string Moderator_BlockCommand           = "block";
+            [JsonProperty, JsonConverter(typeof(StringEnumConverter))]
+                           internal EPermission AllowCommandPermissions = EPermission.Moderators;
+            [JsonProperty] internal bool        AllowCommandEnabled     = true;
+            [JsonProperty] internal string      AllowCommand            = "allow";
+
+            [JsonProperty, JsonConverter(typeof(StringEnumConverter))]
+                           internal EPermission BlockCommandPermissions = EPermission.Moderators;
+            [JsonProperty] internal bool        BlockCommandEnabled     = true;
+            [JsonProperty] internal string      BlockCommand            = "block";
         }
 
         [JsonProperty] internal bool Enabled = true;
@@ -138,9 +191,8 @@ namespace BeatSaberPlus_ChatRequest
 
         [JsonProperty] internal int HistorySize = 50;
 
-        [JsonProperty] internal bool PlayPreviewMusic = true;
-
-        [JsonProperty] internal bool ModeratorPower = true;
+        [JsonProperty] internal bool PlayPreviewMusic   = true;
+        [JsonProperty] internal bool BigCoverArt        = true;
 
         [JsonProperty] internal int QueueCommandShowSize = 4;
         [JsonProperty] internal int QueueCommandCooldown = 10;
@@ -153,6 +205,7 @@ namespace BeatSaberPlus_ChatRequest
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         internal _Commands Commands = new _Commands();
+
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////

@@ -113,7 +113,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ChatPlexMod_SongChartVisualizer\Data\DataPoint.cs" />
+    <Compile Include="ChatPlexMod_SongChartVisualizer\Data\GraphPoint.cs" />
     <Compile Include="ChatPlexMod_SongChartVisualizer\Data\Graph.cs" />
     <Compile Include="ChatPlexMod_SongChartVisualizer\Data\GraphBuilder.cs" />
     <Compile Include="ChatPlexMod_SongChartVisualizer\Logger.cs" />

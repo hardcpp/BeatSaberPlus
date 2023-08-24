@@ -4,8 +4,6 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using TMPro;
@@ -58,11 +56,11 @@ namespace ChatPlexMod_ChatIntegrations.Events
         private XUITextInput m_PromptInput;
         private XUITextInput m_CostInput;
 
-        private XUIToggle m_RequireInput         = XUIToggle.Make();
-        private XUISlider m_Cooldown             = XUISlider.Make().SetInteger(true).SetMinValue(0f).SetMaxValue(1200f).SetIncrements(1.0f);
-        private XUIToggle m_AutoFullfillRefund   = XUIToggle.Make();
-        private XUISlider m_MaxPerStream         = XUISlider.Make().SetInteger(true).SetMinValue(0f).SetMaxValue(100f).SetIncrements(1.0f);
-        private XUISlider m_MaxPerUserPerStream  = XUISlider.Make().SetInteger(true).SetMinValue(0f).SetMaxValue(100f).SetIncrements(1.0f);
+        private XUIToggle m_RequireInput;
+        private XUISlider m_Cooldown;
+        private XUIToggle m_AutoFullfillRefund;
+        private XUISlider m_MaxPerStream;
+        private XUISlider m_MaxPerUserPerStream;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -102,15 +100,15 @@ namespace ChatPlexMod_ChatIntegrations.Events
                 XUIHLayout.Make(
                     XUIVLayout.Make(
                         XUIText.Make("Require input").OnReady(l_ControlsTextStyleC),
-                        m_RequireInput
+                        XUIToggle.Make().Bind(ref m_RequireInput)
                     ),
                     XUIVLayout.Make(
                         XUIText.Make("Redeem Cooldown").OnReady(l_ControlsTextStyleC),
-                        m_Cooldown
+                        XUISlider.Make().SetInteger(true).SetMinValue(0f).SetMaxValue(1200f).SetIncrements(1.0f).Bind(ref m_Cooldown)
                     ),
                     XUIVLayout.Make(
                         XUIText.Make("Auto fullfill/refund").OnReady(l_ControlsTextStyleC),
-                        m_AutoFullfillRefund
+                        XUIToggle.Make().Bind(ref m_AutoFullfillRefund)
                     )
                 )
                 .SetMinWidth(130f).SetWidth(130f)
@@ -120,7 +118,7 @@ namespace ChatPlexMod_ChatIntegrations.Events
                 XUIHLayout.Make(
                     XUIVLayout.Make(
                         XUIText.Make("Max per stream").OnReady(l_ControlsTextStyleC),
-                        m_MaxPerStream
+                        XUISlider.Make().SetInteger(true).SetMinValue(0f).SetMaxValue(100f).SetIncrements(1.0f).Bind(ref m_MaxPerStream)
                     ),
                     XUIVLayout.Make(
                         XUIVSpacer.Make(4f),
@@ -128,7 +126,7 @@ namespace ChatPlexMod_ChatIntegrations.Events
                     ),
                     XUIVLayout.Make(
                         XUIText.Make("Max per user per stream").OnReady(l_ControlsTextStyleC),
-                        m_MaxPerUserPerStream
+                        XUISlider.Make().SetInteger(true).SetMinValue(0f).SetMaxValue(100f).SetIncrements(1.0f).Bind(ref m_MaxPerUserPerStream)
                     )
                 )
                 .SetMinWidth(130f).SetWidth(130f)
@@ -165,8 +163,8 @@ namespace ChatPlexMod_ChatIntegrations.Events
             m_MaxPerStream.         SetValue(Model.MaxPerStream);
             m_MaxPerUserPerStream.  SetValue(Model.MaxPerUserPerStream);
 
-            m_TitleInput.           OnValueChanged((x) => Model.Title  = x.Length > 45 ? x.Substring(0, 45) : x);
-            m_PromptInput.          OnValueChanged((x) => Model.Prompt = x.Length > 45 ? x.Substring(0, 45) : x);
+            m_TitleInput.           OnValueChanged((x) => Model.Title  = x);
+            m_PromptInput.          OnValueChanged((x) => Model.Prompt = x);
             m_CostInput.            OnValueChanged((x) =>
             {
                 int l_NewValue = 0;
@@ -224,9 +222,8 @@ namespace ChatPlexMod_ChatIntegrations.Events
                 {
                     ["status"] = "FULFILLED",
                 };
-                var l_ContentStr    = new StringContent(l_Content.ToString(), Encoding.UTF8);
 
-                l_TwitchHelix.WebClient.PatchAsync(l_URL, l_ContentStr, "application/json", CancellationToken.None, null, true);
+                l_TwitchHelix.WebClient.PatchAsync(l_URL, CP_SDK.Network.WebContent.FromJson(l_Content), CancellationToken.None, null, true);
             }
         }
         /// <summary>
@@ -248,9 +245,8 @@ namespace ChatPlexMod_ChatIntegrations.Events
                 {
                     ["status"] = "CANCELED",
                 };
-                var l_ContentStr = new StringContent(l_Content.ToString(), Encoding.UTF8);
 
-                l_TwitchHelix.WebClient.PatchAsync(l_URL, l_ContentStr, "application/json", CancellationToken.None, (x) =>
+                l_TwitchHelix.WebClient.PatchAsync(l_URL, CP_SDK.Network.WebContent.FromJson(l_Content), CancellationToken.None, (x) =>
                 {
                     if (p_Context.ChatService != null && p_Context.Channel != null)
                         p_Context.ChatService.SendTextMessage(p_Context.Channel, $"! @{p_Context.User.UserName} Event failed, your points were refunded!");
@@ -277,9 +273,8 @@ namespace ChatPlexMod_ChatIntegrations.Events
                     {
                         ["is_enabled"] = false
                     };
-                    var l_ContentStr = new StringContent(l_Content.ToString(), Encoding.UTF8);
 
-                    l_TwitchHelix.WebClientEx.PatchAsync(l_URL, l_ContentStr, "application/json", CancellationToken.None, null, true);
+                    l_TwitchHelix.WebClientEx.PatchAsync(l_URL, CP_SDK.Network.WebContent.FromJson(l_Content), CancellationToken.None, null, true);
                 }
             }
         }
@@ -362,9 +357,9 @@ namespace ChatPlexMod_ChatIntegrations.Events
 
             var l_Content = new JObject()
             {
-                ["title"]                               = Model.Title,
+                ["title"]                               = Model.Title.Length > 45 ? Model.Title.Substring(0, 45) : Model.Title,
                 ["is_user_input_required"]              = Model.RequireInput,
-                ["prompt"]                              = Model.Prompt,
+                ["prompt"]                              = Model.Prompt.Length > 200 ? Model.Prompt.Substring(0, 200) : Model.Prompt,
                 ["cost"]                                = Mathf.Max(1, Model.Cost),
                 ["is_enabled"]                          = Model.Enabled,
                 ["is_max_per_stream_enabled"]           = Model.MaxPerStream > 0,
@@ -375,7 +370,6 @@ namespace ChatPlexMod_ChatIntegrations.Events
                 ["global_cooldown_seconds"]             = Mathf.Max(1, Model.Cooldown)
             };
 
-            var l_ContentStr = new StringContent(l_Content.ToString(), Encoding.UTF8);
             Action<CP_SDK.Network.WebResponse> l_Callback = (CP_SDK.Network.WebResponse p_SecondReply) =>
             {
                 if (p_SecondReply != null)
@@ -445,9 +439,9 @@ namespace ChatPlexMod_ChatIntegrations.Events
             };
 
             if (l_ShouldCreate)
-                l_TwitchHelix.WebClient.PostAsync(l_URL, l_ContentStr, "application/json", CancellationToken.None, l_Callback, true);
+                l_TwitchHelix.WebClient.PostAsync(l_URL, CP_SDK.Network.WebContent.FromJson(l_Content), CancellationToken.None, l_Callback, true);
             else
-                l_TwitchHelix.WebClient.PatchAsync(l_URL, l_ContentStr, "application/json", CancellationToken.None, l_Callback, true);
+                l_TwitchHelix.WebClient.PatchAsync(l_URL, CP_SDK.Network.WebContent.FromJson(l_Content), CancellationToken.None, l_Callback, true);
         }
         /// <summary>
         /// Delete the reward on twitch

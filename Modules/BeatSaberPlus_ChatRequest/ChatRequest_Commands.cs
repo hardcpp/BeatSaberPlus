@@ -30,7 +30,7 @@ namespace BeatSaberPlus_ChatRequest
             var l_Config = CRConfig.Instance.Commands;
 
             /// User
-            if (l_Config.BSRCommandEnabled)         RegisterCommand(l_Config.BSRCommand,            (x, y, z) => Command_BSR(x, y, z, false, false));
+            if (l_Config.BSRCommandEnabled)         RegisterCommand(l_Config.BSRCommand,            (x, y, z) => Command_BSR(x, y, z, false, false, CRConfig.Instance.Commands.BSRCommandPermissions));
             if (l_Config.BSRHelpCommandEnabled)     RegisterCommand(l_Config.BSRHelpCommand,        Command_BSRHelp);
             if (l_Config.LinkCommandEnabled)        RegisterCommand(l_Config.LinkCommand,           Command_Link);
             if (l_Config.QueueCommandEnabled)       RegisterCommand(l_Config.QueueCommand,          Command_Queue);
@@ -38,21 +38,21 @@ namespace BeatSaberPlus_ChatRequest
             if (l_Config.WrongCommandEnabled)       RegisterCommand(l_Config.WrongCommand,          Command_Wrong);
 
             /// Moderator+
-            if (l_Config.Moderator_AddToTopCommandEnabled)      RegisterCommand(l_Config.Moderator_AddToTopCommand,         (x, y, z) => Command_BSR(x, y, z, true, true));
-            if (l_Config.Moderator_AllowCommandEnabled)         RegisterCommand(l_Config.Moderator_AllowCommand,            Command_Allow);
-            if (l_Config.Moderator_BlockCommandEnabled)         RegisterCommand(l_Config.Moderator_BlockCommand,            Command_Block);
-            if (l_Config.Moderator_BsrBanCommandEnabled)        RegisterCommand(l_Config.Moderator_BsrBanCommand,           Command_BanUser);
-            if (l_Config.Moderator_BsrBanMapperCommandEnabled)  RegisterCommand(l_Config.Moderator_BsrBanMapperCommand,     Command_BanMapper);
-            if (l_Config.Moderator_BsrUnbanCommandEnabled)      RegisterCommand(l_Config.Moderator_BsrUnbanCommand,         Command_UnBanUser);
-            if (l_Config.Moderator_BsrUnbanMapperCommandEnabled)RegisterCommand(l_Config.Moderator_BsrUnbanMapperCommand,   Command_UnBanMapper);
-            if (l_Config.Moderator_CloseCommandEnabled)         RegisterCommand(l_Config.Moderator_CloseCommand,            Command_Close);
-            if (l_Config.Moderator_ModAddCommandEnabled)        RegisterCommand(l_Config.Moderator_ModAddCommand,           (x, y, z) => Command_BSR(x, y, z, true, false));
-            if (l_Config.Moderator_MoveToTopCommandEnabled)     RegisterCommand(l_Config.Moderator_MoveToTopCommand,        Command_MoveToTop);
-            if (l_Config.Moderator_OpenCommandEnabled)          RegisterCommand(l_Config.Moderator_OpenCommand,             Command_Open);
-            if (l_Config.Moderator_RemapCommandEnabled)         RegisterCommand(l_Config.Moderator_RemapCommand,            Command_Remap);
-            if (l_Config.Moderator_RemoveCommandEnabled)        RegisterCommand(l_Config.Moderator_RemoveCommand,           Command_Remove);
-            if (l_Config.Moderator_SabotageCommandEnabled)      RegisterCommand(l_Config.Moderator_SabotageCommand,         Command_Sabotage);
-            if (l_Config.Moderator_SongMessageCommandEnabled)   RegisterCommand(l_Config.Moderator_SongMessageCommand,      Command_SongMessage);
+            if (l_Config.AddToTopCommandEnabled)      RegisterCommand(l_Config.AddToTopCommand,         (x, y, z) => Command_BSR(x, y, z, true, true, CRConfig.Instance.Commands.AddToTopCommandPermissions));
+            if (l_Config.AllowCommandEnabled)         RegisterCommand(l_Config.AllowCommand,            Command_Allow);
+            if (l_Config.BlockCommandEnabled)         RegisterCommand(l_Config.BlockCommand,            Command_Block);
+            if (l_Config.BsrBanCommandEnabled)        RegisterCommand(l_Config.BsrBanCommand,           Command_BanUser);
+            if (l_Config.BsrBanMapperCommandEnabled)  RegisterCommand(l_Config.BsrBanMapperCommand,     Command_BanMapper);
+            if (l_Config.BsrUnbanCommandEnabled)      RegisterCommand(l_Config.BsrUnbanCommand,         Command_UnBanUser);
+            if (l_Config.BsrUnbanMapperCommandEnabled)RegisterCommand(l_Config.BsrUnbanMapperCommand,   Command_UnBanMapper);
+            if (l_Config.CloseCommandEnabled)         RegisterCommand(l_Config.CloseCommand,            Command_Close);
+            if (l_Config.ModAddCommandEnabled)        RegisterCommand(l_Config.ModAddCommand,           (x, y, z) => Command_BSR(x, y, z, true, false, CRConfig.Instance.Commands.ModAddPermissions));
+            if (l_Config.MoveToTopCommandEnabled)     RegisterCommand(l_Config.MoveToTopCommand,        Command_MoveToTop);
+            if (l_Config.OpenCommandEnabled)          RegisterCommand(l_Config.OpenCommand,             Command_Open);
+            if (l_Config.RemapCommandEnabled)         RegisterCommand(l_Config.RemapCommand,            Command_Remap);
+            if (l_Config.RemoveCommandEnabled)        RegisterCommand(l_Config.RemoveCommand,           Command_Remove);
+            if (l_Config.SabotageCommandEnabled)      RegisterCommand(l_Config.SabotageCommand,         Command_Sabotage);
+            if (l_Config.SongMessageCommandEnabled)   RegisterCommand(l_Config.SongMessageCommand,      Command_SongMessage);
         }
         /// <summary>
         /// Register a command
@@ -96,7 +96,7 @@ namespace BeatSaberPlus_ChatRequest
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        private void Command_BSR(IChatService p_Service, IChatMessage p_Message, string[] p_Params, bool p_ModeratorAddCommand, bool p_ModeratorAddToTop)
+        private void Command_BSR(IChatService p_Service, IChatMessage p_Message, string[] p_Params, bool p_ModAddCommand, bool p_AddToTopCommand, CRConfig._Commands.EPermission p_Permissions = CRConfig._Commands.EPermission.Viewers)
         {
             if (IsUserBanned(p_Message.Sender.UserName))
             {
@@ -104,15 +104,13 @@ namespace BeatSaberPlus_ChatRequest
                 return;
             }
 
-            bool l_IsModerator = HasPower(p_Message.Sender);
-
-            if (p_ModeratorAddCommand && !l_IsModerator)
+            if (!HasPower(p_Message.Sender, p_Permissions))
             {
                 SendChatMessage("@$UserName You have no power here!", p_Service, p_Message);
                 return;
             }
 
-            if (!QueueOpen && !(l_IsModerator && p_ModeratorAddCommand))
+            if (!QueueOpen && !p_ModAddCommand)
             {
                 SendChatMessage(CRConfig.Instance.Commands.BSRCommand_QueueClosed, p_Service, p_Message);
                 return;
@@ -173,7 +171,7 @@ namespace BeatSaberPlus_ChatRequest
             var l_UserRequestCount  = 0;
 
             /// Check if allow list or blacklisted
-            if (!(l_IsModerator && p_ModeratorAddCommand))
+            if (!p_ModAddCommand)
             {
                 lock (SongBlackList)
                 {
@@ -230,7 +228,7 @@ namespace BeatSaberPlus_ChatRequest
             }
 
             /// Check if already requested
-            if (!(l_IsModerator && p_ModeratorAddCommand) && m_RequestedThisSession.Contains(l_Key))
+            if (!p_ModAddCommand && m_RequestedThisSession.Contains(l_Key))
             {
                 SendChatMessage(CRConfig.Instance.Commands.BSRCommand_AlreadyPlayed, p_Service, p_Message);
                 return;
@@ -252,7 +250,7 @@ namespace BeatSaberPlus_ChatRequest
 
                     if (p_Valid
                         &&  (
-                                    (l_IsModerator && p_ModeratorAddCommand)
+                                    p_ModAddCommand
                                 ||  (l_ForceAllow  || FilterBeatMap(p_BeatMap, p_Message.Sender.UserName, out l_Reply))
                             )
                        )
@@ -262,12 +260,12 @@ namespace BeatSaberPlus_ChatRequest
                         lock (BannedMappers)
                             l_IsMapperBanned = BannedMappers.Contains(p_BeatMap.uploader.name.ToLower());
 
-                        if ((l_IsModerator && p_ModeratorAddCommand) || (!l_IsMapperBanned && !m_RequestedThisSession.Contains(l_Key)))
+                        if (p_ModAddCommand || (!l_IsMapperBanned && !m_RequestedThisSession.Contains(l_Key)))
                         {
                             m_RequestedThisSession.Add(l_Key.ToLower());
 
                             var l_RequesterName = p_Message.Sender.UserName;
-                            if (p_ModeratorAddCommand && p_Params.Length == 2 && p_Params[1].Length > 3 && p_Params[1][0] == '@')
+                            if (p_ModAddCommand && p_Params.Length == 2 && p_Params[1].Length > 3 && p_Params[1][0] == '@')
                             {
                                 l_RequesterName = p_Params[1].Substring(1) + "\n(Added by " + l_NamePrefix + " " + p_Message.Sender.UserName + ")";
                                 l_NamePrefix    = string.Empty;
@@ -283,7 +281,7 @@ namespace BeatSaberPlus_ChatRequest
 
                             lock (SongQueue)
                             {
-                                if (l_IsModerator && p_ModeratorAddToTop)
+                                if (p_AddToTopCommand)
                                     SongQueue.Insert(0, l_Entry);
                                 else
                                     SongQueue.Add(l_Entry);
@@ -316,6 +314,12 @@ namespace BeatSaberPlus_ChatRequest
         }
         private void Command_BSRHelp(IChatService p_Service, IChatMessage p_Message, string[] p_Params)
         {
+            if (!HasPower(p_Message.Sender, CRConfig.Instance.Commands.LinkCommandPermissions))
+            {
+                SendChatMessage("@$UserName You have no power here!", p_Service, p_Message);
+                return;
+            }
+
             if (p_Params?.Length > 0)
                 SendChatMessage(CRConfig.Instance.Commands.BSRHelpCommand_Reply.Replace("$UserName", p_Params[0].Replace("@", "")), p_Service, p_Message);
             else
@@ -323,6 +327,12 @@ namespace BeatSaberPlus_ChatRequest
         }
         private void Command_Link(IChatService p_Service, IChatMessage p_Message, string[] p_Params)
         {
+            if (!HasPower(p_Message.Sender, CRConfig.Instance.Commands.LinkCommandPermissions))
+            {
+                SendChatMessage("@$UserName You have no power here!", p_Service, p_Message);
+                return;
+            }
+
             string l_Response = "";
             if (BeatSaberPlus.SDK.Game.Logic.LevelData == null
                 || BeatSaberPlus.SDK.Game.Logic.LevelData?.Data == null
@@ -341,6 +351,12 @@ namespace BeatSaberPlus_ChatRequest
         }
         private void Command_Queue(IChatService p_Service, IChatMessage p_Message, string[] p_Param)
         {
+            if (!HasPower(p_Message.Sender, CRConfig.Instance.Commands.QueueCommandPermissions))
+            {
+                SendChatMessage("@$UserName You have no power here!", p_Service, p_Message);
+                return;
+            }
+
             var l_DiffTime = (DateTime.Now - m_LastQueueCommandTime).TotalSeconds;
             if (l_DiffTime < CRConfig.Instance.QueueCommandCooldown)
             {
@@ -380,6 +396,12 @@ namespace BeatSaberPlus_ChatRequest
         }
         private void Command_QueueStatus(IChatService p_Service, IChatMessage p_Message, string[] p_Param)
         {
+            if (!HasPower(p_Message.Sender, CRConfig.Instance.Commands.QueueStatusCommandPermissions))
+            {
+                SendChatMessage("@$UserName You have no power here!", p_Service, p_Message);
+                return;
+            }
+
             string l_Reply = "";
             lock (SongQueue)
             {
@@ -397,6 +419,12 @@ namespace BeatSaberPlus_ChatRequest
         }
         private void Command_Wrong(IChatService p_Service, IChatMessage p_Message, string[] p_Params)
         {
+            if (!HasPower(p_Message.Sender, CRConfig.Instance.Commands.WrongCommandCommandPermissions))
+            {
+                SendChatMessage("@$UserName You have no power here!", p_Service, p_Message);
+                return;
+            }
+
             var l_SongEntry = null as Data.SongEntry;
 
             if (p_Params.Length == 0)
@@ -449,7 +477,7 @@ namespace BeatSaberPlus_ChatRequest
 
         private void Command_Open(IChatService p_Service, IChatMessage p_Message, string[] p_Params)
         {
-            if (!HasPower(p_Message.Sender))
+            if (!HasPower(p_Message.Sender, CRConfig.Instance.Commands.OpenCommandPermissions))
             {
                 SendChatMessage("@$UserName You have no power here!", p_Service, p_Message);
                 return;
@@ -465,7 +493,7 @@ namespace BeatSaberPlus_ChatRequest
         }
         private void Command_Close(IChatService p_Service, IChatMessage p_Message, string[] p_Params)
         {
-            if (!HasPower(p_Message.Sender))
+            if (!HasPower(p_Message.Sender, CRConfig.Instance.Commands.CloseCommandPermissions))
             {
                 SendChatMessage("@$UserName You have no power here!", p_Service, p_Message);
                 return;
@@ -484,7 +512,7 @@ namespace BeatSaberPlus_ChatRequest
             /// Original implementation :
             /// https://github.com/angturil/SongRequestManager/blob/dev/EnhancedTwitchIntegration/Bot/ChatCommands.cs#L589
 
-            if (!HasPower(p_Message.Sender))
+            if (!HasPower(p_Message.Sender, CRConfig.Instance.Commands.SabotageCloseCommandPermissions))
             {
                 SendChatMessage("@$UserName You have no power here!", p_Service, p_Message);
                 return;
@@ -508,7 +536,7 @@ namespace BeatSaberPlus_ChatRequest
         }
         private void Command_SongMessage(IChatService p_Service, IChatMessage p_Message, string[] p_Params)
         {
-            if (!HasPower(p_Message.Sender))
+            if (!HasPower(p_Message.Sender, CRConfig.Instance.Commands.SongMessageCommandPermissions))
             {
                 SendChatMessage("@$UserName You have no power here!", p_Service, p_Message);
                 return;
@@ -541,16 +569,19 @@ namespace BeatSaberPlus_ChatRequest
         }
         private void Command_MoveToTop(IChatService p_Service, IChatMessage p_Message, string[] p_Params)
         {
-            if (!HasPower(p_Message.Sender))
+            if (!HasPower(p_Message.Sender, CRConfig.Instance.Commands.MoveToTopCommandPermissions))
             {
                 SendChatMessage("@$UserName You have no power here!", p_Service, p_Message);
                 return;
             }
 
-            string l_Key = p_Params.Length > 0 ? p_Params[0].ToLower().Trim() : "";
+            var l_Param = p_Params.Length > 0 ? p_Params[0].ToLower().Trim().TrimStart('@') : "";
+            var l_IsKey = OnlyHexInString(l_Param.Trim());
+            var l_Key   = l_Param.TrimStart('0');
+
             lock (SongQueue)
             {
-                var l_SongEntry = SongQueue.Where(x => (l_Key.StartsWith("@") ? (l_Key.ToLower() == ("@" + x.RequesterName.ToLower())) : x.BeatSaver_Map.id.ToLower() == l_Key)).FirstOrDefault();
+                var l_SongEntry = SongQueue.Where(x => l_IsKey ? (l_Key == x.BeatSaver_Map.id.ToLower()) : (l_Param == x.RequesterName.ToLower())).FirstOrDefault();
                 if (l_SongEntry != null)
                 {
                     SongQueue.Remove(l_SongEntry);
@@ -569,7 +600,7 @@ namespace BeatSaberPlus_ChatRequest
         }
         private void Command_Remove(IChatService p_Service, IChatMessage p_Message, string[] p_Params)
         {
-            if (!HasPower(p_Message.Sender))
+            if (!HasPower(p_Message.Sender, CRConfig.Instance.Commands.RemoveCommandPermissions))
             {
                 SendChatMessage("@$UserName You have no power here!", p_Service, p_Message);
                 return;
@@ -607,7 +638,7 @@ namespace BeatSaberPlus_ChatRequest
 
         private void Command_BanUser(IChatService p_Service, IChatMessage p_Message, string[] p_Params)
         {
-            if (!HasPower(p_Message.Sender))
+            if (!HasPower(p_Message.Sender, CRConfig.Instance.Commands.BsrBanCommandPermissions))
             {
                 SendChatMessage("@$UserName You have no power here!", p_Service, p_Message);
                 return;
@@ -630,7 +661,7 @@ namespace BeatSaberPlus_ChatRequest
         }
         private void Command_UnBanUser(IChatService p_Service, IChatMessage p_Message, string[] p_Params)
         {
-            if (!HasPower(p_Message.Sender))
+            if (!HasPower(p_Message.Sender, CRConfig.Instance.Commands.BsrUnbanCommandPermissions))
             {
                 SendChatMessage("@$UserName You have no power here!", p_Service, p_Message);
                 return;
@@ -659,7 +690,7 @@ namespace BeatSaberPlus_ChatRequest
 
         private void Command_BanMapper(IChatService p_Service, IChatMessage p_Message, string[] p_Params)
         {
-            if (!HasPower(p_Message.Sender))
+            if (!HasPower(p_Message.Sender, CRConfig.Instance.Commands.BsrBanMapperCommandPermissions))
             {
                 SendChatMessage("@$UserName You have no power here!", p_Service, p_Message);
                 return;
@@ -682,7 +713,7 @@ namespace BeatSaberPlus_ChatRequest
         }
         private void Command_UnBanMapper(IChatService p_Service, IChatMessage p_Message, string[] p_Params)
         {
-            if (!HasPower(p_Message.Sender))
+            if (!HasPower(p_Message.Sender, CRConfig.Instance.Commands.BsrUnbanMapperCommandPermissions))
             {
                 SendChatMessage("@$UserName You have no power here!", p_Service, p_Message);
                 return;
@@ -711,7 +742,7 @@ namespace BeatSaberPlus_ChatRequest
 
         private void Command_Remap(IChatService p_Service, IChatMessage p_Message, string[] p_Params)
         {
-            if (!HasPower(p_Message.Sender))
+            if (!HasPower(p_Message.Sender, CRConfig.Instance.Commands.RemapCommandPermissions))
             {
                 SendChatMessage("@$UserName You have no power here!", p_Service, p_Message);
                 return;
@@ -749,7 +780,7 @@ namespace BeatSaberPlus_ChatRequest
         }
         private void Command_Allow(IChatService p_Service, IChatMessage p_Message, string[] p_Params)
         {
-            if (!HasPower(p_Message.Sender))
+            if (!HasPower(p_Message.Sender, CRConfig.Instance.Commands.AllowCommandPermissions))
             {
                 SendChatMessage("@$UserName You have no power here!", p_Service, p_Message);
                 return;
@@ -774,7 +805,7 @@ namespace BeatSaberPlus_ChatRequest
         }
         private void Command_Block(IChatService p_Service, IChatMessage p_Message, string[] p_Params)
         {
-            if (!HasPower(p_Message.Sender))
+            if (!HasPower(p_Message.Sender, CRConfig.Instance.Commands.BlockCommandPermissions))
             {
                 SendChatMessage("@$UserName You have no power here!", p_Service, p_Message);
                 return;

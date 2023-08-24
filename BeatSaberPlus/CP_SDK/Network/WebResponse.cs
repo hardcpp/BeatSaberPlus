@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Linq;
 using System.Net;
@@ -13,13 +14,7 @@ namespace CP_SDK.Network
     /// </summary>
     public sealed class WebResponse
     {
-        /// <summary>
-        /// Response bytes
-        /// </summary>
         private byte[] m_BodyBytes;
-        /// <summary>
-        /// Body string
-        /// </summary>
         private string m_BodyString = null;
 
         ////////////////////////////////////////////////////////////////////////////
@@ -76,6 +71,17 @@ namespace CP_SDK.Network
         /// <summary>
         /// Constructor
         /// </summary>
+        /// <param name="p_Response">Reply status</param>
+        public WebResponse(HttpResponseMessage p_Response)
+        {
+            StatusCode          = p_Response.StatusCode;
+            ReasonPhrase        = p_Response.ReasonPhrase;
+            IsSuccessStatusCode = p_Response.IsSuccessStatusCode;
+            ShouldRetry         = IsSuccessStatusCode ? false : ((int)p_Response.StatusCode < 400 || (int)p_Response.StatusCode >= 500);
+        }
+        /// <summary>
+        /// Constructor
+        /// </summary>
         /// <param name="p_Request">Reply status</param>
         public WebResponse(UnityWebRequest p_Request)
         {
@@ -85,17 +91,6 @@ namespace CP_SDK.Network
             ShouldRetry         = IsSuccessStatusCode ? false : (p_Request.responseCode < 400 || p_Request.responseCode >= 500);
 
             m_BodyBytes         = p_Request.downloadHandler.data;
-        }
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="p_Response">Reply status</param>
-        public WebResponse(HttpResponseMessage p_Response)
-        {
-            StatusCode          = p_Response.StatusCode;
-            ReasonPhrase        = p_Response.ReasonPhrase;
-            IsSuccessStatusCode = p_Response.IsSuccessStatusCode;
-            ShouldRetry         = IsSuccessStatusCode ? false : ((int)p_Response.StatusCode < 400 || (int)p_Response.StatusCode >= 500);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -114,6 +109,22 @@ namespace CP_SDK.Network
         /// <summary>
         /// Get JObject from serialized JSON
         /// </summary>
+        /// <param name="p_JObject">Result object</param>
+        /// <returns></returns>
+        public bool TryAsJObject(out JObject p_JObject)
+        {
+            p_JObject = null;
+            try
+            {
+                p_JObject = JObject.Parse(BodyString);
+            }
+            catch (Exception) { return false; }
+
+            return p_JObject != null;
+        }
+        /// <summary>
+        /// Get JObject from serialized JSON
+        /// </summary>
         /// <param name="p_Deserialized">Input</param>
         /// <param name="p_JObject">Result object</param>
         /// <returns></returns>
@@ -123,12 +134,9 @@ namespace CP_SDK.Network
             p_JObject = null;
             try
             {
-                p_JObject = JObject.Parse(BodyString).ToObject<T>();
+                p_JObject = JsonConvert.DeserializeObject<T>(BodyString);
             }
-            catch (Exception)
-            {
-                return false;
-            }
+            catch (Exception) { return false; }
 
             return p_JObject != null;
         }

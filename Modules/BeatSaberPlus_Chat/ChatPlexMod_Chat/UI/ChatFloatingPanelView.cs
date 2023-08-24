@@ -13,6 +13,11 @@ namespace ChatPlexMod_Chat.UI
     /// </summary>
     internal sealed class ChatFloatingPanelView : CP_SDK.UI.ViewController<ChatFloatingPanelView>
     {
+        private static Extensions.EnhancedFontInfo m_ChatFont = null;
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
         private GameObject  m_EnvironmentRotationRef;
         private Vector2     m_ChatSize;
         private float       m_FontSize;
@@ -24,7 +29,6 @@ namespace ChatPlexMod_Chat.UI
         private bool        m_FilterViewersCommands;
         private bool        m_FilterBroadcasterCommands;
 
-        private Extensions.EnhancedFontInfo                             m_ChatFont                  = null;
         private CP_SDK.Pool.ObjectPool<Components.ChatMessageWidget>    m_MessagePool               = null;
         private List<Components.ChatMessageWidget>                      m_MessagePool_Allocated     = new List<Components.ChatMessageWidget>();
         private List<Components.ChatMessageWidget>                      m_Messages                  = new List<Components.ChatMessageWidget>();
@@ -133,11 +137,8 @@ namespace ChatPlexMod_Chat.UI
         /// </summary>
         private void InitLogic()
         {
-            m_ChatFont = new Extensions.EnhancedFontInfo(CP_SDK.Unity.FontManager.GetChatFont());
-
-            /// Clean reserved characters
-            m_ChatFont.Font.characterTable.RemoveAll(x => x.glyphIndex > 0xE000 && x.glyphIndex <= 0xF8FF);
-            m_ChatFont.Font.characterTable.RemoveAll(x => x.glyphIndex > 0xF0000);
+            if (m_ChatFont == null)
+                m_ChatFont = new Extensions.EnhancedFontInfo(CP_SDK.Unity.FontManager.GetChatFont());
 
             /// Setup message pool
             m_MessagePool = new CP_SDK.Pool.ObjectPool<Components.ChatMessageWidget>(
@@ -221,12 +222,6 @@ namespace ChatPlexMod_Chat.UI
             {
                 m_MessagePool.Dispose();
                 m_MessagePool = null;
-            }
-
-            if (m_ChatFont != null)
-            {
-                Destroy(m_ChatFont.Font);
-                m_ChatFont = null;
             }
         }
 

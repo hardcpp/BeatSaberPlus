@@ -149,6 +149,12 @@ namespace CP_SDK.XUI
         /// <returns></returns>
         public XUIImage SetEnhancedImage(Unity.EnhancedImage p_EnhancedImage) => OnReady(x => x.SetEnhancedImage(p_EnhancedImage));
         /// <summary>
+        /// Set pixels per unit multiplier
+        /// </summary>
+        /// <param name="p_Multiplier">New multiplier</param>
+        /// <returns></returns>
+        public XUIImage SetPixelsPerUnitMultiplier(float p_Multiplier) => OnReady(x => x.SetPixelsPerUnitMultiplier(p_Multiplier));
+        /// <summary>
         /// Set sprite
         /// </summary>
         /// <param name="p_Sprite">New sprite</param>

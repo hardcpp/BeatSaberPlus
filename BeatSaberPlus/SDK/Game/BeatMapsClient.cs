@@ -17,18 +17,9 @@ namespace BeatSaberPlus.SDK.Game
     /// </summary>
     public class BeatMapsClient
     {
-        /// <summary>
-        /// Cache folder
-        /// </summary>
-        private static string m_CacheFolder;
-        /// <summary>
-        /// Is caching enabled
-        /// </summary>
-        private static bool m_CacheEnabled = true;
-        /// <summary>
-        /// BeatMaps client
-        /// </summary>
-        private static CP_SDK.Network.WebClient m_WebClient;
+        private static string                   m_CacheFolder;
+        private static bool                     m_CacheEnabled = true;
+        private static CP_SDK.Network.WebClientUnity m_WebClient;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -36,7 +27,7 @@ namespace BeatSaberPlus.SDK.Game
         /// <summary>
         /// BeatMaps client
         /// </summary>
-        public static CP_SDK.Network.WebClient WebClient => m_WebClient;
+        public static CP_SDK.Network.WebClientUnity WebClient => m_WebClient;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -47,8 +38,7 @@ namespace BeatSaberPlus.SDK.Game
         internal static void Init()
         {
             m_CacheFolder               = $"UserData/{CP_SDK.ChatPlexSDK.ProductName}/Cache/BeatMaps/";
-            m_WebClient                 = new CP_SDK.Network.WebClient("", TimeSpan.FromSeconds(10));
-            m_WebClient.Timeout         = 10;
+            m_WebClient                 = new CP_SDK.Network.WebClientUnity("", TimeSpan.FromSeconds(10));
             m_WebClient.DownloadTimeout = 2 * 60;
 
             try

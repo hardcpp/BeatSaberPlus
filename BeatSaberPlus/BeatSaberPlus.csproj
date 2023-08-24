@@ -342,8 +342,9 @@
     <Compile Include="CP_SDK\Network\LiteNetLib\Utils\NtpPacket.cs" />
     <Compile Include="CP_SDK\Network\LiteNetLib\Utils\NtpRequest.cs" />
     <Compile Include="CP_SDK\Network\RateLimitInfo.cs" />
-    <Compile Include="CP_SDK\Network\WebClient.cs" />
-    <Compile Include="CP_SDK\Network\WebClientEx.cs" />
+    <Compile Include="CP_SDK\Network\WebClientUnity.cs" />
+    <Compile Include="CP_SDK\Network\WebClientCore.cs" />
+    <Compile Include="CP_SDK\Network\WebContent.cs" />
     <Compile Include="CP_SDK\Network\WebResponse.cs" />
     <Compile Include="CP_SDK\Network\websocket-sharp\ByteOrder.cs" />
     <Compile Include="CP_SDK\Network\websocket-sharp\CloseEventArgs.cs" />

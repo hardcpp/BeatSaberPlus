@@ -350,7 +350,7 @@ namespace BeatSaberPlus.SDK.UI.Data
             catch (Exception l_Exception)
             {
                 CP_SDK.ChatPlexSDK.Logger.Error("[SDK.UI.Data][SongListItem.CoverLoaded] Error:");
-                CP_SDK.ChatPlexSDK.Logger.Error(l_Exception.ToString());
+                CP_SDK.ChatPlexSDK.Logger.Error(l_Exception);
             }
         }
 

@@ -3,12 +3,12 @@
   "id": "BeatSaberPlus_Chat",
   "name": "BeatSaberPlus_Chat",
   "author": "HardCPP#1985",
-  "version": "6.0.8",
+  "version": "6.0.9",
   "description": "",
   "gameVersion": "1.31.0",
   "dependsOn": {
     "BSIPA": "^4.3.0",
-    "BeatSaberPlusCORE": "^6.0.8"
+    "BeatSaberPlusCORE": "^6.0.9"
   },
   "links": {
     "project-home": "https://discord.chatplex.org",

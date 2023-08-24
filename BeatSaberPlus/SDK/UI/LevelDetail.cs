@@ -453,7 +453,7 @@ namespace BeatSaberPlus.SDK.UI
             Difficulty = Game.Levels.SerializedToDifficultyName(p_DifficultyRaw);
 
             Name            = p_BeatMap.songName;
-            AuthorNameText  = "Mapped by <b><u><i>" + p_BeatMap.levelAuthorName + "</b></u></i>";
+            AuthorNameText  = "Mapped by <b><u>" + p_BeatMap.levelAuthorName + "</b></u>";
             Cover           = p_Cover ?? SongCore.Loader.defaultCoverImage;
             Time            = p_BeatMap.songDuration;
             BPM             = p_BeatMap.standardLevelInfoSaveData.beatsPerMinute;
@@ -494,7 +494,7 @@ namespace BeatSaberPlus.SDK.UI
             Difficulty = Game.Levels.SerializedToDifficultyName(p_Difficulty.ToString());
 
             Name            = p_BeatMap.songName;
-            AuthorNameText  = "Mapped by <b><u><i>" + p_BeatMap.levelAuthorName + "</b></u></i>";
+            AuthorNameText  = "Mapped by <b><u>" + p_BeatMap.levelAuthorName + "</b></u>";
             Cover           = p_Cover ?? SongCore.Loader.defaultCoverImage;
             Time            = p_BeatMap.songDuration;
             BPM             = p_BeatMap.beatsPerMinute;
@@ -580,7 +580,7 @@ namespace BeatSaberPlus.SDK.UI
 
             /// Display informations
             Name            = p_BeatMap.songName;
-            AuthorNameText  = "Mapped by <b><u><i>" + p_BeatMap.levelAuthorName + "</b></u></i>";
+            AuthorNameText  = "Mapped by <b><u>" + p_BeatMap.levelAuthorName + "</b></u>";
             Cover           = p_Cover ?? SongCore.Loader.defaultCoverImage;
             BPM             = p_BeatMap.standardLevelInfoSaveData.beatsPerMinute;
 
@@ -650,7 +650,7 @@ namespace BeatSaberPlus.SDK.UI
 
             /// Display informations
             Name            = p_BeatMap.metadata.songName;
-            AuthorNameText  = "Mapped by <b><u><i>" + p_BeatMap.metadata.levelAuthorName + "</b></u></i>";
+            AuthorNameText  = "Mapped by <b><u>" + p_BeatMap.metadata.levelAuthorName + "</b></u>";
             Cover           = p_Cover ?? SongCore.Loader.defaultCoverImage;
             Time            = (double)p_BeatMap.metadata.duration;
             BPM             = p_BeatMap.metadata.bpm;
@@ -720,7 +720,7 @@ namespace BeatSaberPlus.SDK.UI
 
             /// Display informations
             Name            = p_BeatMap.metadata.songName;
-            AuthorNameText  = "Mapped by <b><u><i>" + p_BeatMap.metadata.levelAuthorName + "</b></u></i>";
+            AuthorNameText  = "Mapped by <b><u>" + p_BeatMap.metadata.levelAuthorName + "</b></u>";
             Cover           = p_Cover ?? SongCore.Loader.defaultCoverImage;
             BPM             = p_BeatMap.metadata.bpm;
 

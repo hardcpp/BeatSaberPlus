@@ -169,9 +169,24 @@ namespace BeatSaberPlus_ChatRequest
         /// </summary>
         /// <param name="p_User">Source user</param>
         /// <returns></returns>
-        private bool HasPower(IChatUser p_User)
+        private bool HasPower(IChatUser p_User, CRConfig._Commands.EPermission p_Permissions)
         {
-            return p_User.IsBroadcaster || (CRConfig.Instance.ModeratorPower && p_User.IsModerator);
+            if (p_User.IsBroadcaster)
+                return true;
+
+            if ((p_Permissions & CRConfig._Commands.EPermission.Viewers) != 0)
+                return true;
+
+            if ((p_Permissions & CRConfig._Commands.EPermission.Subscribers) != 0 && p_User.IsSubscriber)
+                return true;
+
+            if ((p_Permissions & CRConfig._Commands.EPermission.VIPs) != 0 && p_User.IsVip)
+                return true;
+
+            if ((p_Permissions & CRConfig._Commands.EPermission.Moderators) != 0 && p_User.IsModerator)
+                return true;
+
+            return false;
         }
 
         ////////////////////////////////////////////////////////////////////////////

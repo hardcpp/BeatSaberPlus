@@ -52,7 +52,7 @@ namespace BeatSaberPlus.SDK.Game
         /// <param name="p_OnFailCallback">On error callback</param>
         private static void GetScoreSaberAvatarPicture(string p_PlayerID, CancellationToken p_CancellationToken, Action<Sprite> p_Callback, Action p_OnFailCallback)
         {
-            WebClient.GlobalClient.GetAsync($"https://cdn.scoresaber.com/avatars/{p_PlayerID}.jpg", p_CancellationToken, (p_AvatarResult) =>
+            WebClientUnity.GlobalClient.GetAsync($"https://cdn.scoresaber.com/avatars/{p_PlayerID}.jpg", p_CancellationToken, (p_AvatarResult) =>
             {
                 try
                 {
@@ -81,7 +81,7 @@ namespace BeatSaberPlus.SDK.Game
         /// <param name="p_OnFailCallback">On error callback</param>
         private static void GetBeatLeaderAvatarPicture(string p_PlayerID, CancellationToken p_CancellationToken, Action<Sprite> p_Callback, Action p_OnFailCallback)
         {
-            WebClient.GlobalClient.GetAsync($"https://api.beatleader.xyz/player/{p_PlayerID}", p_CancellationToken, (p_PlayerResult) =>
+            WebClientUnity.GlobalClient.GetAsync($"https://api.beatleader.xyz/player/{p_PlayerID}", p_CancellationToken, (p_PlayerResult) =>
             {
                 try
                 {
@@ -98,7 +98,7 @@ namespace BeatSaberPlus.SDK.Game
                         return;
                     }
 
-                    WebClient.GlobalClient.GetAsync(l_JSON["avatar"].Value<string>(), p_CancellationToken, (p_AvatarResult) =>
+                    WebClientUnity.GlobalClient.GetAsync(l_JSON["avatar"].Value<string>(), p_CancellationToken, (p_AvatarResult) =>
                     {
                         try
                         {

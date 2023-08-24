@@ -26,7 +26,7 @@ namespace CP_SDK.Chat
         /// <summary>
         /// Network client
         /// </summary>
-        private static Network.WebClient m_WebClient;
+        private static Network.WebClientUnity m_WebClient;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -83,8 +83,7 @@ namespace CP_SDK.Chat
         internal static void Init()
         {
             m_CacheFolder   = Path.Combine(ChatPlexSDK.BasePath, $"UserData/{ChatPlexSDK.ProductName}/Cache/Chat/");
-            m_WebClient     = new Network.WebClient("", TimeSpan.FromSeconds(10));
-            m_WebClient.Timeout = 10;
+            m_WebClient     = new Network.WebClientUnity("", TimeSpan.FromSeconds(10));
 
             try
             {

@@ -144,6 +144,11 @@ namespace CP_SDK.Unity
             }
 
             TryGetTMPFontAssetByFamily(ChatFontName, out m_ChatFont);
+
+            /// Clean reserved characters
+            m_ChatFont.characterTable.RemoveAll(x => x.glyphIndex > 0xE000 && x.glyphIndex <= 0xF8FF);
+            m_ChatFont.characterTable.RemoveAll(x => x.glyphIndex > 0xF0000);
+
             return m_ChatFont;
         }
 

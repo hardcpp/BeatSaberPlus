@@ -97,10 +97,14 @@ namespace CP_SDK.UI
         internal static void Init()
         {
             var l_Bytes = Misc.Resources.FromRelPath(Assembly.GetExecutingAssembly(), "CP_SDK._Resources.ChatPlexLogoLoading.webp");
-            Unity.EnhancedImage.FromRawAnimated("CP_SDK._Resources.ChatPlexLogoLoading.webp", Animation.EAnimationType.WEBP, l_Bytes, (x) =>
-            {
-                m_LoadingAnimation = x;
-            });
+            Unity.EnhancedImage.FromRawAnimated(
+                "CP_SDK._Resources.ChatPlexLogoLoading.webp",
+                Animation.EAnimationType.WEBP,
+                l_Bytes,
+                (x) => {
+                    m_LoadingAnimation = x;
+                }
+            );
 
             ScreenSystem.Create();
             ModMenu.Create();

@@ -146,7 +146,7 @@ namespace ChatPlexMod_ChatIntegrations.Actions
                 Templates.SettingsHGroup("Volume",
                     XUISlider.Make()
                         .SetMinValue(0.0f).SetMaxValue(1.0f).SetIncrements(0.01f).SetFormatter(CP_SDK.UI.ValueFormatters.Percentage)
-                        .SetValue(Model.PitchMin).OnValueChanged((_) => OnSettingChanged())
+                        .SetValue(Model.Volume).OnValueChanged((_) => OnSettingChanged())
                         .Bind(ref  m_Volume)
                 ),
 

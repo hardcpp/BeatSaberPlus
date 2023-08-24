@@ -1,4 +1,5 @@
 ﻿using CP_SDK.UI.Data;
+using CP_SDK.Unity.Extensions;
 using CP_SDK.XUI;
 using HMUI;
 using System;
@@ -31,6 +32,8 @@ namespace BeatSaberPlus_ChatRequest.UI
         private XUIVVList               m_SongList              = null;
         private XUIVLayout              m_SongInfoPanelOwner    = null;
         private XUIVLayout              m_SongInfoPanelNoSong   = null;
+        private XUIImage                m_CoverMask             = null;
+        private XUIImage                m_Cover                 = null;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -40,13 +43,14 @@ namespace BeatSaberPlus_ChatRequest.UI
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        private Data.SongEntry          m_SelectedSong              = null;
-        private List<Data.SongEntry>    m_SongsProvider             = null;
-        private string                  m_SongReloadingExpectedPath = "";
-        private int m_LastTab = 0;
-        private float m_Tab0Scroll = 0.0f;
-        private float m_Tab1Scroll = 0.0f;
-        private float m_Tab2Scroll = 0.0f;
+        private BeatSaberPlus_ChatRequest.Data.SongEntry            m_SelectedSong              = null;
+        private List<BeatSaberPlus_ChatRequest.Data.SongEntry>      m_SongsProvider             = null;
+        private string                                              m_SongReloadingExpectedPath = "";
+        private int                                                 m_LastTab                   = 0;
+        private float                                               m_Tab0Scroll                = 0.0f;
+        private float                                               m_Tab1Scroll                = 0.0f;
+        private float                                               m_Tab2Scroll                = 0.0f;
+
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -56,6 +60,7 @@ namespace BeatSaberPlus_ChatRequest.UI
         /// </summary>
         protected override sealed void OnViewCreation()
         {
+
             Templates.FullRectLayoutMainView(
                 Templates.TitleBar("Title")
                     .ForEachDirect<XUIText>(x => x.Bind(ref m_Title)),
@@ -80,8 +85,22 @@ namespace BeatSaberPlus_ChatRequest.UI
                     .OnReady(x => x.HOrVLayoutGroup.childForceExpandWidth = true)
                     .OnReady(x => x.HOrVLayoutGroup.childForceExpandHeight = true),
 
-                    XUIVLayout.Make(
 
+                    XUIVLayout.Make(
+                        XUIImage.Make(CP_SDK.UI.UISystem.GetUIRoundBGSprite())
+                            .SetType(Image.Type.Sliced)
+                            .SetPixelsPerUnitMultiplier(4.0f)
+                            .OnReady((x) =>
+                            {
+                                x.LElement.ignoreLayout = true;
+                                x.gameObject.AddComponent<UnityEngine.UI.Mask>().showMaskGraphic = false;
+                                x.RTransform.anchorMin          = new Vector2( 0.0f,  0.0f);
+                                x.RTransform.anchorMax          = new Vector2( 1.0f,  1.0f);
+                                x.RTransform.pivot              = new Vector2( 0.5f,  0.5f);
+                                x.RTransform.sizeDelta          = new Vector2(-3.0f, -5.0f);
+                                x.RTransform.anchoredPosition   = new Vector2( 1.0f,  0.0f);
+                            })
+                            .Bind(ref m_CoverMask)
                     )
                     .SetWidth(77)
                     .SetHeight(65)
@@ -111,6 +130,20 @@ namespace BeatSaberPlus_ChatRequest.UI
             )
             .SetBackground(true, null, true)
             .BuildUI(transform);
+
+            XUIImage.Make(null)
+                .SetColor(ColorU.WithAlpha(Color.white, 0.2f))
+                .OnReady((x) =>
+                {
+                    x.RTransform.localScale         = 1.25f * Vector3.one;
+                    x.RTransform.anchorMin          = new Vector2(0.0f, 0.0f);
+                    x.RTransform.anchorMax          = new Vector2(1.0f, 1.0f);
+                    x.RTransform.pivot              = new Vector2(0.5f, 0.5f);
+                    x.RTransform.sizeDelta          = new Vector2(0.0f, 0.0f);
+                    x.RTransform.anchoredPosition   = new Vector2(0.0f, 0.0f);
+                })
+                .Bind(ref m_Cover)
+                .BuildUI(m_CoverMask.RTransform);
 
             /// Show song info panel
             m_SongInfo_Detail = new BeatSaberPlus.SDK.UI.LevelDetail(m_SongInfoPanelOwner.RTransform);
@@ -241,7 +274,7 @@ namespace BeatSaberPlus_ChatRequest.UI
         /// <param name="p_SelectedItem">Selected item</param>
         private void OnSongSelected(IListItem p_SelectedItem)
         {
-            if (p_SelectedItem == null || !(p_SelectedItem is Data.SongEntry l_SongEntry))
+            if (p_SelectedItem == null || !(p_SelectedItem is BeatSaberPlus_ChatRequest.Data.SongEntry l_SongEntry))
             {
                 UnselectSong();
                 return;
@@ -282,6 +315,9 @@ namespace BeatSaberPlus_ChatRequest.UI
                 m_SongInfo_Detail.SetPrimaryButtonText("Play");
             else
                 m_SongInfo_Detail.SetPrimaryButtonText("Download");
+
+            m_Cover.SetActive(CRConfig.Instance.BigCoverArt);
+            m_Cover.SetSprite(l_SongEntry.Cover);
         }
         /// <summary>
         /// Select random song
@@ -290,7 +326,7 @@ namespace BeatSaberPlus_ChatRequest.UI
         {
             m_TypeSegmentControl.SetActiveText(0/* Request */);
 
-            var l_ToSelect = null as Data.SongEntry;
+            var l_ToSelect = null as BeatSaberPlus_ChatRequest.Data.SongEntry;
             lock (ChatRequest.Instance.SongQueue)
             {
                 var l_SongCount = ChatRequest.Instance.SongQueue.Count;
@@ -531,6 +567,9 @@ namespace BeatSaberPlus_ChatRequest.UI
                 return;
 
             m_SongInfo_Detail.Cover = p_Item.Cover;
+
+            m_SongInfoPanelOwner.SetBackground(true);
+            m_SongInfoPanelOwner.SetBackgroundSprite(p_Item.Cover);
         }
 
         ////////////////////////////////////////////////////////////////////////////

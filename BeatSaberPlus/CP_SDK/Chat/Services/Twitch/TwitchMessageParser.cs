@@ -288,7 +288,7 @@ namespace CP_SDK.Chat.Services.Twitch
                                             {
                                                 Id              = l_EmoteId,
                                                 Name            = $"[{l_EmoteId}]",
-                                                Uri             = l_ProfileImage,
+                                                Uri             = l_ProfileImage.Replace("%s", "70x70"),
                                                 StartIndex      = 0,
                                                 EndIndex        = l_EmoteId.Length + 1,
                                                 Animation       = Animation.EAnimationType.NONE,

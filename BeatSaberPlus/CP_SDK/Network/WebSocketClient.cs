@@ -10,46 +10,16 @@ namespace CP_SDK.Network
     /// </summary>
     public class WebSocketClient
     {
-        /// <summary>
-        /// Lock object
-        /// </summary>
-        private object m_LockObject = new object();
-        /// <summary>
-        /// Web socket client
-        /// </summary>
-        private System.Net.WebSockets.ClientWebSocket m_Client;
-        /// <summary>
-        /// Start time
-        /// </summary>
-        private DateTime m_StartTime;
-        /// <summary>
-        /// Endpoint
-        /// </summary>
-        private string m_URI = "";
-        /// <summary>
-        /// Cancel token
-        /// </summary>
-        private CancellationTokenSource m_CancellationToken;
-        /// <summary>
-        /// Receive buffer
-        /// </summary>
-        private byte[] m_ReceiveBuffer = new byte[1024 * 10];
-        /// <summary>
-        /// Send buffer
-        /// </summary>
-        private byte[] m_SendBuffer = new byte[1024 * 10];
-        /// <summary>
-        /// Send buffer lock
-        /// </summary>
-        private SemaphoreSlim m_SendSemaphoreSlim = new SemaphoreSlim(1, 1);
-        /// <summary>
-        /// Reconnect lock semaphore
-        /// </summary>
-        private SemaphoreSlim m_ReconnectLock = new SemaphoreSlim(1, 1);
-        /// <summary>
-        /// Is disconnecting?
-        /// </summary>
-        private bool m_Disconnecting = false;
+        private object                                  m_LockObject            = new object();
+        private System.Net.WebSockets.ClientWebSocket   m_Client;
+        private DateTime                                m_StartTime;
+        private string                                  m_URI                   = "";
+        private CancellationTokenSource                 m_CancellationToken;
+        private byte[]                                  m_ReceiveBuffer         = new byte[1024 * 10];
+        private byte[]                                  m_SendBuffer            = new byte[1024 * 10];
+        private SemaphoreSlim                           m_SendSemaphoreSlim     = new SemaphoreSlim(1, 1);
+        private SemaphoreSlim                           m_ReconnectLock         = new SemaphoreSlim(1, 1);
+        private bool                                    m_Disconnecting         = false;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////

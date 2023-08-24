@@ -38,7 +38,8 @@
                     var l_Object = l_Iterator.Current;
                     if (l_Object.type != BeatmapDataItem.BeatmapDataItemType.BeatmapObject
                         || !(l_Object is NoteData l_NoteData)
-                        || l_NoteData.colorType == ColorType.None)
+                        || l_NoteData.colorType == ColorType.None
+                        || (int)l_NoteData.time >= (int)(p_SongDuration + 1f))
                         continue;
 
                     l_NPSSRaw[(int)l_NoteData.time]++;

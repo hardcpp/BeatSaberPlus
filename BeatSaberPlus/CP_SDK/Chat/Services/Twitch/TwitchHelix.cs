@@ -45,8 +45,8 @@ namespace CP_SDK.Chat.Services.Twitch
         /// <summary>
         /// Web Client
         /// </summary>
-        private Network.WebClient   m_WebClient     = new Network.WebClient  ("https://api.twitch.tv/helix/", TimeSpan.FromSeconds(10), true);
-        private Network.WebClientEx m_WebClientEx   = new Network.WebClientEx("https://api.twitch.tv/helix/", TimeSpan.FromSeconds(10), true);
+        private Network.WebClientUnity   m_WebClient     = new Network.WebClientUnity  ("https://api.twitch.tv/helix/", TimeSpan.FromSeconds(10), true);
+        private Network.WebClientCore m_WebClientEx   = new Network.WebClientCore("https://api.twitch.tv/helix/", TimeSpan.FromSeconds(10), true);
         /// <summary>
         /// Broadcaster ID
         /// </summary>
@@ -94,8 +94,8 @@ namespace CP_SDK.Chat.Services.Twitch
         /// <summary>
         /// Client
         /// </summary>
-        public Network.WebClient WebClient      => m_WebClient;
-        public Network.WebClientEx WebClientEx  => m_WebClientEx;
+        public Network.WebClientUnity WebClient      => m_WebClient;
+        public Network.WebClientCore WebClientEx  => m_WebClientEx;
         /// <summary>
         /// Broadcaster ID
         /// </summary>
@@ -133,27 +133,15 @@ namespace CP_SDK.Chat.Services.Twitch
         {
             try
             {
-                if (m_WebClient.Headers.ContainsKey("Client-Id"))
-                    m_WebClient.Headers.Remove("Client-Id");
-
-                if (m_WebClient.Headers.ContainsKey("Authorization"))
-                    m_WebClient.Headers.Remove("Authorization");
-
-                m_WebClient.Headers.Add("Client-Id",       TwitchService.TWITCH_CLIENT_ID);
-                m_WebClient.Headers.Add("Authorization",   "Bearer " + p_Token.Replace("oauth:", ""));
+                m_WebClient.SetHeader("Client-Id",       TwitchService.TWITCH_CLIENT_ID);
+                m_WebClient.SetHeader("Authorization",   "Bearer " + p_Token.Replace("oauth:", ""));
             }
             catch (System.Exception) { }
 
             try
             {
-                if (!m_WebClientEx.InternalClient.DefaultRequestHeaders.Contains("Client-Id"))
-                    m_WebClientEx.InternalClient.DefaultRequestHeaders.Remove("Client-Id");
-
-                if (m_WebClientEx.InternalClient.DefaultRequestHeaders.Contains("Authorization"))
-                    m_WebClientEx.InternalClient.DefaultRequestHeaders.Remove("Authorization");
-
-                m_WebClientEx.InternalClient.DefaultRequestHeaders.Add("Client-Id",     TwitchService.TWITCH_CLIENT_ID);
-                m_WebClientEx.InternalClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + p_Token.Replace("oauth:", ""));
+                m_WebClientEx.SetHeader("Client-Id",     TwitchService.TWITCH_CLIENT_ID);
+                m_WebClientEx.SetHeader("Authorization", "Bearer " + p_Token.Replace("oauth:", ""));
             }
             catch (System.Exception) { }
 
@@ -268,15 +256,12 @@ namespace CP_SDK.Chat.Services.Twitch
         /// </summary>
         private void ValidateToken()
         {
-            var l_WebClient = new Network.WebClient("", TimeSpan.FromSeconds(10), true);
+            var l_WebClient = new Network.WebClientUnity("", TimeSpan.FromSeconds(10), true);
             try
             {
-                l_WebClient.Headers.Add("Authorization", "OAuth " + m_APIToken.Replace("oauth:", ""));
+                l_WebClient.SetHeader("Authorization", "OAuth " + m_APIToken.Replace("oauth:", ""));
             }
-            catch
-            {
-
-            }
+            catch { }
 
             l_WebClient.GetAsync("https://id.twitch.tv/oauth2/validate", CancellationToken.None, (p_Result) =>
             {
@@ -354,14 +339,8 @@ namespace CP_SDK.Chat.Services.Twitch
             }
 
             p_Poll.broadcaster_id = m_BroadcasterID;
-            var l_ContentStr = new StringContent(JsonConvert.SerializeObject(p_Poll), Encoding.UTF8);
 
-#if DEBUG
-            ChatPlexSDK.Logger.Debug("[CP_SDK.Chat.Service.Twitch][TwitchHelix.CreatePoll] Sending:");
-            ChatPlexSDK.Logger.Debug(JsonConvert.SerializeObject(p_Poll, Formatting.Indented));
-#endif
-
-            m_WebClient.PostAsync("polls", l_ContentStr, "application/json", CancellationToken.None, (p_Result) =>
+            m_WebClient.PostAsync("polls", Network.WebContent.FromJson(p_Poll), CancellationToken.None, (p_Result) =>
             {
 #if DEBUG
                 if (p_Result != null)
@@ -469,14 +448,7 @@ namespace CP_SDK.Chat.Services.Twitch
                 ["status"]          = (p_EndStatus == Helix_Poll.Status.ARCHIVED ? p_EndStatus : Helix_Poll.Status.TERMINATED).ToString()
             };
 
-            var l_ContentStr = new StringContent(JsonConvert.SerializeObject(l_Content), Encoding.UTF8);
-
-#if DEBUG
-            ChatPlexSDK.Logger.Debug("[CP_SDK.Chat.Service.Twitch][TwitchHelix.EndPoll] Sending:");
-            ChatPlexSDK.Logger.Debug(JsonConvert.SerializeObject(l_Content, Formatting.Indented));
-#endif
-
-            m_WebClient.PatchAsync("polls", l_ContentStr, "application/json", CancellationToken.None, (p_Result) =>
+            m_WebClient.PatchAsync("polls", Network.WebContent.FromJson(l_Content), CancellationToken.None, (p_Result) =>
             {
 #if DEBUG
                 if (p_Result != null)
@@ -639,9 +611,7 @@ namespace CP_SDK.Chat.Services.Twitch
             if (p_Status == Helix_Prediction.Status.RESOLVED)
                 l_Body["winning_outcome_id"] = p_WinningOutcomeID;
 
-            var l_ContentStr = new StringContent(l_Body.ToString(Formatting.None), Encoding.UTF8);
-
-            m_WebClient.PatchAsync("predictions", l_ContentStr, "application/json", CancellationToken.None, (p_Result) =>
+            m_WebClient.PatchAsync("predictions", Network.WebContent.FromJson(l_Body), CancellationToken.None, (p_Result) =>
             {
 #if DEBUG
                 if (p_Result != null)
@@ -693,8 +663,7 @@ namespace CP_SDK.Chat.Services.Twitch
                 return;
             }
 
-            var l_ContentStr = new StringContent("{}", Encoding.UTF8);
-            m_WebClient.PostAsync("clips?broadcaster_id="+ m_BroadcasterID, l_ContentStr, "application/json", CancellationToken.None, (p_Result) =>
+            m_WebClient.PostAsync("clips?broadcaster_id="+ m_BroadcasterID, Network.WebContent.FromJson(new JObject()), CancellationToken.None, (p_Result) =>
             {
 #if DEBUG
                 if (p_Result != null)
@@ -753,9 +722,7 @@ namespace CP_SDK.Chat.Services.Twitch
                 ["description"] = p_MarkerName.Length > 140 ? p_MarkerName.Substring(0, 140) : p_MarkerName
             };
 
-            var l_ContentStr = new StringContent(JsonConvert.SerializeObject(l_Content), Encoding.UTF8);
-
-            m_WebClient.PostAsync("streams/markers", l_ContentStr, "application/json", CancellationToken.None, (p_Result) =>
+            m_WebClient.PostAsync("streams/markers", Network.WebContent.FromJson(l_Content), CancellationToken.None, (p_Result) =>
             {
 #if DEBUG
                 if (p_Result != null)
