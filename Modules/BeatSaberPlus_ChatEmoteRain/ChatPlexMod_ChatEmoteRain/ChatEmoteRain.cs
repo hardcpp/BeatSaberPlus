@@ -278,7 +278,7 @@ namespace ChatPlexMod_ChatEmoteRain
         /// <param name="p_Message">ID of the message</param>
         private void ChatCoreMutiplixer_OnTextMessageReceived(IChatService p_Service, IChatMessage p_Message)
         {
-            if (p_Message.Channel.IsTemp || p_Message.Message.Length < 2 || p_Message.Message[0] != '!')
+            if (p_Message.Channel.IsTemp)
                 return;
 
             if (!string.IsNullOrEmpty(p_Message.Message) && p_Message.Message.Length > 2 && p_Message.Message[0] == '!')

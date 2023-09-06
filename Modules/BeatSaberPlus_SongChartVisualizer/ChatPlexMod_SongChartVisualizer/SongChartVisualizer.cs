@@ -270,6 +270,9 @@ namespace ChatPlexMod_SongChartVisualizer
                 if (m_AudioTimeSyncController != null)
                     break;
 
+                if (CP_SDK.ChatPlexSDK.ActiveGenericScene != CP_SDK.ChatPlexSDK.EGenericScene.Playing)
+                    yield break;
+
                 yield return l_Waiter;
             }
 
@@ -278,6 +281,7 @@ namespace ChatPlexMod_SongChartVisualizer
             var l_RotationFollow = null as Transform;
             if (l_HasRotation)
             {
+                var l_Atempt = 0;
                 while (l_RotationFollow == null)
                 {
                     var l_FlyingGameHUDRotation = Resources.FindObjectsOfTypeAll<FlyingGameHUDRotation>().FirstOrDefault();
@@ -286,6 +290,13 @@ namespace ChatPlexMod_SongChartVisualizer
                         l_RotationFollow = l_FlyingGameHUDRotation.transform;
                         break;
                     }
+
+                    if (CP_SDK.ChatPlexSDK.ActiveGenericScene != CP_SDK.ChatPlexSDK.EGenericScene.Playing)
+                        yield break;
+
+                    l_Atempt++;
+                    if (l_Atempt > 3)
+                        break;
 
                     yield return l_Waiter;
                 }

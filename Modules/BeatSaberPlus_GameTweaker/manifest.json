@@ -3,12 +3,12 @@
   "id": "BeatSaberPlus_GameTweaker",
   "name": "BeatSaberPlus_GameTweaker",
   "author": "HardCPP#1985",
-  "version": "6.0.9",
+  "version": "6.1.0",
   "description": "",
   "gameVersion": "1.31.0",
   "dependsOn": {
     "BSIPA": "^4.3.0",
-    "BeatSaberPlusCORE": "^6.0.9"
+    "BeatSaberPlusCORE": "^6.1.0"
   },
   "links": {
     "project-home": "https://discord.chatplex.org",

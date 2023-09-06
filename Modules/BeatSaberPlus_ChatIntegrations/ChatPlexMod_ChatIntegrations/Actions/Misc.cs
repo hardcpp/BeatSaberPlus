@@ -283,16 +283,55 @@ namespace ChatPlexMod_ChatIntegrations.Actions
     ////////////////////////////////////////////////////////////////////////////
 
     public class Misc_WaitMenuScene
-        : Interfaces.IAction<Misc_WaitMenuScene, Models.Action>
+        : Interfaces.IAction<Misc_WaitMenuScene, Models.Actions.WaitMenuScene>
     {
+        private XUIToggle m_PreventNextActionsFailure = null;
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
         public override string Description      => "Wait for menu scene";
-        public override string UIPlaceHolder    => "Wait for menu scene";
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        public override void BuildUI(Transform p_Parent)
+        {
+            XUIElements = new IXUIElement[]
+            {
+                Templates.SettingsHGroup("Prevent next actions failure",
+                    XUIToggle.Make()
+                        .SetValue(Model.PreventNextActionFailure)
+                        .OnValueChanged((_) => OnSettingChanged())
+                        .Bind(ref m_PreventNextActionsFailure)
+                ),
+
+                XUIVLayout.Make(
+                    XUIText.Make("This actions will delay next actions execution"),
+                    XUIText.Make("until we reach the menu scene")
+                )
+                .SetBackground(true),
+            };
+
+            BuildUIAuto(p_Parent);
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        private void OnSettingChanged()
+        {
+            Model.PreventNextActionFailure = m_PreventNextActionsFailure.Element.GetValue();
+        }
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
         public override IEnumerator Eval(EventContext p_Context)
         {
+            if (Model.PreventNextActionFailure)
+                p_Context.PreventNextActionFailure = true;
+
             yield return new WaitUntil(() => CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.ChatPlexSDK.EGenericScene.Menu);
         }
     }
@@ -301,16 +340,56 @@ namespace ChatPlexMod_ChatIntegrations.Actions
     ////////////////////////////////////////////////////////////////////////////
 
     public class Misc_WaitPlayingScene
-        : Interfaces.IAction<Misc_WaitPlayingScene, Models.Action>
+        : Interfaces.IAction<Misc_WaitPlayingScene, Models.Actions.WaitPlayingScene>
     {
+        private XUIToggle m_PreventNextActionsFailure = null;
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
         public override string Description      => "Wait for playing scene";
         public override string UIPlaceHolder    => "Wait for playing scene";
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
+        public override void BuildUI(Transform p_Parent)
+        {
+            XUIElements = new IXUIElement[]
+            {
+                Templates.SettingsHGroup("Prevent next actions failure",
+                    XUIToggle.Make()
+                        .SetValue(Model.PreventNextActionFailure)
+                        .OnValueChanged((_) => OnSettingChanged())
+                        .Bind(ref m_PreventNextActionsFailure)
+                ),
+
+                XUIVLayout.Make(
+                    XUIText.Make("This actions will delay next actions execution"),
+                    XUIText.Make("until we reach the playing scene")
+                )
+                .SetBackground(true),
+            };
+
+            BuildUIAuto(p_Parent);
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        private void OnSettingChanged()
+        {
+            Model.PreventNextActionFailure = m_PreventNextActionsFailure.Element.GetValue();
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
         public override IEnumerator Eval(EventContext p_Context)
         {
+            if (Model.PreventNextActionFailure)
+                p_Context.PreventNextActionFailure = true;
+
             yield return new WaitUntil(() => CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.ChatPlexSDK.EGenericScene.Playing);
         }
     }

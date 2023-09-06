@@ -26,4 +26,22 @@ namespace ChatPlexMod_ChatIntegrations.Models.Actions
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         public bool KillOnSceneSwitch = false;
     }
+
+    ////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
+
+    public class WaitMenuScene : Action
+    {
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
+        public bool PreventNextActionFailure = true;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
+
+    public class WaitPlayingScene : Action
+    {
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
+        public bool PreventNextActionFailure = true;
+    }
 }
