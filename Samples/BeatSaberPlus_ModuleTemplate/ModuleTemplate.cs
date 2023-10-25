@@ -26,7 +26,7 @@
         protected override void OnEnable()
         {
             /// Bind event
-            BeatSaberPlus.SDK.Game.Logic.OnLevelStarted += Game_OnLevelStarted;
+            CP_SDK_BS.Game.Logic.OnLevelStarted += Game_OnLevelStarted;
         }
         /// <summary>
         /// Enable the Module
@@ -34,7 +34,7 @@
         protected override void OnDisable()
         {
             /// Unbind event
-            BeatSaberPlus.SDK.Game.Logic.OnLevelStarted -= Game_OnLevelStarted;
+            CP_SDK_BS.Game.Logic.OnLevelStarted -= Game_OnLevelStarted;
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -57,7 +57,7 @@
         /// On level started
         /// </summary>
         /// <param name="p_LevelData">Level data</param>
-        private void Game_OnLevelStarted(BeatSaberPlus.SDK.Game.LevelData p_LevelData)
+        private void Game_OnLevelStarted(CP_SDK_BS.Game.LevelData p_LevelData)
         {
             var l_MapName = p_LevelData?.Data?.previewBeatmapLevel?.songName ?? "?";
             var l_PlatformName = p_LevelData?.Data?.environmentInfo?.serializedName ?? "?";

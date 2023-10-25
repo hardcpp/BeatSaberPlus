@@ -2,13 +2,13 @@
   "$schema": "https://raw.githubusercontent.com/beat-saber-modding-group/BSIPA-MetadataFileSchema/master/Schema.json",
   "id": "BeatSaberPlus_ModuleTemplate",
   "name": "BeatSaberPlus_ModuleTemplate",
-  "author": "HardCPP#1985",
-  "version": "6.1.0",
+  "author": "HardCPP",
+  "version": "6.2.0",
   "description": "",
   "gameVersion": "1.31.0",
   "dependsOn": {
     "BSIPA": "^4.3.0",
-    "BeatSaberPlusCORE": "^6.1.0"
+    "ChatPlexSDK_BS": "^6.2.0"
   },
   "links": {
     "project-home": "https://discord.chatplex.org",

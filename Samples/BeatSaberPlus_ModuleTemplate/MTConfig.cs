@@ -18,7 +18,7 @@ namespace BeatSaberPlus_ModuleTemplate
         /// </summary>
         /// <returns></returns>
         public override string GetRelativePath()
-            => $"{CP_SDK.ChatPlexSDK.ProductName}/ModuleTemplate/Config";
+            => $"{CP_SDK.ChatPlexSDK.ProductName}Plus/ModuleTemplate/Config";
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -29,12 +29,7 @@ namespace BeatSaberPlus_ModuleTemplate
         /// <param name="p_OnCreation">On creation</param>
         protected override void OnInit(bool p_OnCreation)
         {
-            if (p_OnCreation)
-            {
 
-            }
-
-            Save();
         }
     }
 }
