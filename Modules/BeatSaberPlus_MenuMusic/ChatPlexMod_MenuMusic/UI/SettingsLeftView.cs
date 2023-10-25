@@ -10,7 +10,7 @@ namespace ChatPlexMod_MenuMusic.UI
     {
         private static readonly string s_InformationStr =
                       "<b>Thanks to <b>Lunikc</b> for original idea</b>" + "\n" +
-                     $"Custom music folder is: UserData/{CP_SDK.ChatPlexSDK.ProductName}/MenuMusic/CustomMusic";
+                     $"Custom music folder is: UserData/{CP_SDK.ChatPlexSDK.ProductName}Plus/MenuMusic/CustomMusic";
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////

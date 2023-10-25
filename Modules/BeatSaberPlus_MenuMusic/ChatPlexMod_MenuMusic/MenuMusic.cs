@@ -29,7 +29,6 @@ namespace ChatPlexMod_MenuMusic
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-
         private CP_SDK.UI.Components.CFloatingPanel m_PlayerFloatingPanel       = null;
         private UI.PlayerFloatingPanel              m_PlayerFloatingPanelView   = null;
 
@@ -54,12 +53,6 @@ namespace ChatPlexMod_MenuMusic
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        internal float CurrentDuration => m_CurrentMusicAudioClip?.length ?? 0;
-        internal float CurrentPosition => (m_CurrentMusicAudioClip == m_BackupTimeClip) ? m_BackupTime : 0;
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
         /// <summary>
         /// Enable the Module
         /// </summary>
@@ -69,17 +62,6 @@ namespace ChatPlexMod_MenuMusic
             CP_SDK.ChatPlexSDK.OnGenericSceneChange             += ChatPlexSDK_OnGenericSceneChange;
             CP_SDK.Chat.Service.Discrete_OnTextMessageReceived  += ChatService_Discrete_OnTextMessageReceived;
             Application.wantsToQuit                             += Application_wantsToQuit;
-
-            /// Create CustomMenuSongs directory if not existing
-            try
-            {
-                if (!Directory.Exists("CustomMenuSongs"))
-                    Directory.CreateDirectory("CustomMenuSongs");
-            }
-            catch
-            {
-
-            }
 
             /// Try to find existing preview player
             m_PreviewPlayer = Resources.FindObjectsOfTypeAll<SongPreviewPlayer>().FirstOrDefault();
@@ -94,8 +76,8 @@ namespace ChatPlexMod_MenuMusic
             UpdateMusicProvider();
 
             /// Enable at start if in menu
-            if (CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.ChatPlexSDK.EGenericScene.Menu)
-                ChatPlexSDK_OnGenericSceneChange(CP_SDK.ChatPlexSDK.EGenericScene.Menu);
+            if (CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.EGenericScene.Menu)
+                ChatPlexSDK_OnGenericSceneChange(CP_SDK.EGenericScene.Menu);
         }
         /// <summary>
         /// Disable the Module
@@ -153,10 +135,10 @@ namespace ChatPlexMod_MenuMusic
         /// When the active scene change
         /// </summary>
         /// <param name="p_Scene">Scene type</param>
-        private void ChatPlexSDK_OnGenericSceneChange(CP_SDK.ChatPlexSDK.EGenericScene p_Scene)
+        private void ChatPlexSDK_OnGenericSceneChange(CP_SDK.EGenericScene p_Scene)
         {
             /// Skip if it's not the menu
-            if (p_Scene != CP_SDK.ChatPlexSDK.EGenericScene.Menu)
+            if (p_Scene != CP_SDK.EGenericScene.Menu)
             {
                 if (m_PreviewPlayer != null && m_PreviewPlayer && m_OriginalMenuMusic != null && m_OriginalMenuMusic)
                     m_PreviewPlayer._defaultAudioClip = m_OriginalMenuMusic;
@@ -274,9 +256,6 @@ namespace ChatPlexMod_MenuMusic
                 CreateFloatingPlayer();
             else if (!MMConfig.Instance.ShowPlayer && m_PlayerFloatingPanel != null && m_PlayerFloatingPanel)
                 DestroyFloatingPlayer();
-
-            if (m_PlayerFloatingPanel != null && m_PlayerFloatingPanel)
-                m_PlayerFloatingPanelView.UpdateText();
         }
         /// <summary>
         /// Toggle pause status
@@ -349,8 +328,8 @@ namespace ChatPlexMod_MenuMusic
                     CP_SDK.UI.FlowCoordinators.MainFlowCoordinator.Instance().ChangeViewControllers(l_Items.Item1, l_Items.Item2, l_Items.Item3);
                 });
 
-                m_PlayerFloatingPanelView.SetIsPaused(m_IsPaused);
                 m_PlayerFloatingPanelView.OnMusicChanged(m_CurrentMusic);
+                m_PlayerFloatingPanelView.SetIsPaused(m_IsPaused);
             }
             catch (System.Exception l_Exception)
             {
@@ -473,11 +452,11 @@ namespace ChatPlexMod_MenuMusic
             if (m_CurrentSongIndex < 0)                             m_CurrentSongIndex = m_MusicProvider.Musics.Count - 1;
             if (m_CurrentSongIndex >= m_MusicProvider.Musics.Count) m_CurrentSongIndex = 0;
 
-            var l_MusictoLoad = m_MusicProvider.Musics[m_CurrentSongIndex];
+            var l_MusicToLoad = m_MusicProvider.Musics[m_CurrentSongIndex];
 
             m_FastCancellationToken.Cancel();
-            l_MusictoLoad.GetAudioAsync(m_FastCancellationToken, (p_AudioClip) => {
-                CP_SDK.Unity.MTCoroutineStarter.EnqueueFromThread(Coroutine_LoadAudioClip(p_OnSceneTransition, l_MusictoLoad, p_AudioClip));
+            l_MusicToLoad.GetAudioAsync(m_FastCancellationToken, (p_AudioClip) => {
+                CP_SDK.Unity.MTCoroutineStarter.EnqueueFromThread(Coroutine_LoadAudioClip(p_OnSceneTransition, l_MusicToLoad, p_AudioClip));
             }, () => StartNextMusic());
         }
 
@@ -508,7 +487,7 @@ namespace ChatPlexMod_MenuMusic
             }
 
             /// Skip if it's not the menu
-            if (CP_SDK.ChatPlexSDK.ActiveGenericScene != CP_SDK.ChatPlexSDK.EGenericScene.Menu)
+            if (CP_SDK.ChatPlexSDK.ActiveGenericScene != CP_SDK.EGenericScene.Menu)
                 yield break;
 
             yield return new WaitUntil(() => m_PreviewPlayer = Resources.FindObjectsOfTypeAll<SongPreviewPlayer>().First());
@@ -522,7 +501,7 @@ namespace ChatPlexMod_MenuMusic
             }
 
             /// Skip if it's not the menu
-            if (CP_SDK.ChatPlexSDK.ActiveGenericScene != CP_SDK.ChatPlexSDK.EGenericScene.Menu)
+            if (CP_SDK.ChatPlexSDK.ActiveGenericScene != CP_SDK.EGenericScene.Menu)
                 yield break;
 
             m_CurrentMusic          = p_Music;
@@ -538,7 +517,7 @@ namespace ChatPlexMod_MenuMusic
                 }
 
                 /// Check if we changed scene during loading
-                if (!m_PreviewPlayer || CP_SDK.ChatPlexSDK.ActiveGenericScene != CP_SDK.ChatPlexSDK.EGenericScene.Menu)
+                if (!m_PreviewPlayer || CP_SDK.ChatPlexSDK.ActiveGenericScene != CP_SDK.EGenericScene.Menu)
                     yield break;
 
                 if (m_CurrentMusicAudioClip.loadState == AudioDataLoadState.Loaded)
@@ -572,7 +551,7 @@ namespace ChatPlexMod_MenuMusic
                         if (m_PlayerFloatingPanelView != null)
                             m_PlayerFloatingPanelView.OnMusicChanged(p_Music);
 
-                        m_WaitAndPlayNextSongCoroutine = CP_SDK.Unity.MTCoroutineStarter.Start(WaitAndPlayNextMusic(m_CurrentMusicAudioClip.length));
+                        m_WaitAndPlayNextSongCoroutine = CP_SDK.Unity.MTCoroutineStarter.Start(Coroutine_WaitAndPlayNextMusic(m_CurrentMusicAudioClip.length));
                     }
                     catch (Exception p_Exception)
                     {
@@ -588,7 +567,7 @@ namespace ChatPlexMod_MenuMusic
                         yield return new WaitForSeconds(2f);
 
                         /// Try next music if loading failed
-                        if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.ESceneType.Menu)
+                        if (CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.EGenericScene.Menu)
                             StartNextMusic();
 
                         yield break;
@@ -604,7 +583,7 @@ namespace ChatPlexMod_MenuMusic
         /// </summary>
         /// <param name="p_WaitTime">Time to wait</param>
         /// <returns></returns>
-        private IEnumerator WaitAndPlayNextMusic(float p_EndTime)
+        private IEnumerator Coroutine_WaitAndPlayNextMusic(float p_EndTime)
         {
             var l_Interval          = 1f / 16f;
             var l_Waiter            = new WaitForSeconds(l_Interval);
@@ -612,7 +591,7 @@ namespace ChatPlexMod_MenuMusic
             do
             {
                 /// Skip if it's not the menu
-                if (CP_SDK.ChatPlexSDK.ActiveGenericScene != CP_SDK.ChatPlexSDK.EGenericScene.Menu || !m_PreviewPlayer)
+                if (CP_SDK.ChatPlexSDK.ActiveGenericScene != CP_SDK.EGenericScene.Menu || !m_PreviewPlayer)
                 {
                     m_WaitAndPlayNextSongCoroutine = null;
                     yield break;
@@ -626,8 +605,13 @@ namespace ChatPlexMod_MenuMusic
                         var l_ChannelController = l_ChannelsController[l_I];
                         var l_Channel           = l_ChannelController.audioSource;
 
-                        if (!m_IsPaused && !l_Channel.isPlaying && l_Channel.clip == m_CurrentMusicAudioClip && l_ChannelsController.IndexOf(l_ChannelController) == m_PreviewPlayer._activeChannel)
+                        if (!m_IsPaused
+                            && !l_Channel.isPlaying
+                            && l_Channel.clip == m_CurrentMusicAudioClip
+                            && l_ChannelsController.IndexOf(l_ChannelController) == m_PreviewPlayer._activeChannel)
+                        {
                             l_Channel.UnPause();
+                        }
 
                         if (l_Channel.isPlaying && l_Channel.clip == m_CurrentMusicAudioClip)
                         {

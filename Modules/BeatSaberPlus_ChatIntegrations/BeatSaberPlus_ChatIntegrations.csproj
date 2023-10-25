@@ -255,9 +255,9 @@
     <None Include="BuildTargets.targets" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\BeatSaberPlus\BeatSaberPlus.csproj">
+    <ProjectReference Include="..\..\ChatPlexSDK_BS\ChatPlexSDK_BS.csproj">
       <Project>{84972bac-4faf-4da8-92ed-e3a735af0e92}</Project>
-      <Name>BeatSaberPlus</Name>
+      <Name>ChatPlexSDK_BS</Name>
     </ProjectReference>
     <ProjectReference Include="..\BeatSaberPlus_ChatEmoteRain\BeatSaberPlus_ChatEmoteRain.csproj">
       <Project>{d529edcc-39f3-47b7-8cd9-b740f8bc6495}</Project>

@@ -68,8 +68,8 @@ namespace ChatPlexMod_ChatEmoteRain
             GameObject.DontDestroyOnLoad(m_MenuManager.gameObject);
             GameObject.DontDestroyOnLoad(m_PlayingManager.gameObject);
 
-            UpdateTemplateFor(CP_SDK.ChatPlexSDK.EGenericScene.Menu);
-            UpdateTemplateFor(CP_SDK.ChatPlexSDK.EGenericScene.Playing);
+            UpdateTemplateFor(CP_SDK.EGenericScene.Menu);
+            UpdateTemplateFor(CP_SDK.EGenericScene.Playing);
 
             /// Load SubRain files
             LoadSubRainFiles();
@@ -139,7 +139,7 @@ namespace ChatPlexMod_ChatEmoteRain
         /// On game scene change
         /// </summary>
         /// <param name="p_Scene">New scene</param>
-        private void ChatPlexSDK_OnGenericSceneChange(CP_SDK.ChatPlexSDK.EGenericScene p_Scene)
+        private void ChatPlexSDK_OnGenericSceneChange(CP_SDK.EGenericScene p_Scene)
         {
             if (m_TempDisable)
             {
@@ -147,11 +147,20 @@ namespace ChatPlexMod_ChatEmoteRain
                 m_TempDisable = false;
             }
 
-            if (p_Scene != CP_SDK.ChatPlexSDK.EGenericScene.Menu)
+            if (p_Scene != CP_SDK.EGenericScene.Menu)
                 m_MenuManager.Clear();
 
-            if (p_Scene != CP_SDK.ChatPlexSDK.EGenericScene.Playing)
+            if (p_Scene != CP_SDK.EGenericScene.Playing)
                 m_PlayingManager.Clear();
+
+#if DANCEDASH
+            var l_Player = Component.FindObjectsOfType<GameObject>().FirstOrDefault(x => x.activeSelf && x.transform.parent == null && x.name == "Player");
+            if (l_Player)
+            {
+                m_MenuManager.transform.position = l_Player.transform.position;
+                m_PlayingManager.transform.position = l_Player.transform.position;
+            }
+#endif
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -180,17 +189,17 @@ namespace ChatPlexMod_ChatEmoteRain
         /// Update templates from config
         /// </summary>
         /// <param name="p_Scene"></param>
-        internal void UpdateTemplateFor(CP_SDK.ChatPlexSDK.EGenericScene p_Scene)
+        internal void UpdateTemplateFor(CP_SDK.EGenericScene p_Scene)
         {
-            if (p_Scene == CP_SDK.ChatPlexSDK.EGenericScene.Menu)
+            if (p_Scene == CP_SDK.EGenericScene.Menu)
                 m_MenuManager.Configure(POOL_SIZE_PER_SCENE, CERConfig.Instance.MenuEmitters, m_PreviewMaterial, CERConfig.Instance.MenuSize, CERConfig.Instance.MenuSpeed, CERConfig.Instance.EmoteDelay);
-            else if (p_Scene == CP_SDK.ChatPlexSDK.EGenericScene.Playing)
+            else if (p_Scene == CP_SDK.EGenericScene.Playing)
                 m_PlayingManager.Configure(POOL_SIZE_PER_SCENE, CERConfig.Instance.SongEmitters, m_PreviewMaterial, CERConfig.Instance.SongSize, CERConfig.Instance.SongSpeed, CERConfig.Instance.EmoteDelay);
         }
-        internal void SetTemplatesPreview(CP_SDK.ChatPlexSDK.EGenericScene p_Scene, bool p_Enabled, EmitterConfig p_Focus)
+        internal void SetTemplatesPreview(CP_SDK.EGenericScene p_Scene, bool p_Enabled, EmitterConfig p_Focus)
         {
-                 if (p_Scene == CP_SDK.ChatPlexSDK.EGenericScene.Menu)      m_MenuManager.SetPreview(p_Enabled, p_Focus);
-            else if (p_Scene == CP_SDK.ChatPlexSDK.EGenericScene.Playing)   m_PlayingManager.SetPreview(p_Enabled, p_Focus);
+                 if (p_Scene == CP_SDK.EGenericScene.Menu)      m_MenuManager.SetPreview(p_Enabled, p_Focus);
+            else if (p_Scene == CP_SDK.EGenericScene.Playing)   m_PlayingManager.SetPreview(p_Enabled, p_Focus);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -253,8 +262,8 @@ namespace ChatPlexMod_ChatEmoteRain
             if (!CERConfig.Instance.SubRain)
                 return;
 
-            if (   (CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.ChatPlexSDK.EGenericScene.Menu    && CERConfig.Instance.EnableMenu)
-                || (CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.ChatPlexSDK.EGenericScene.Playing && CERConfig.Instance.EnableSong))
+            if (   (CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.EGenericScene.Menu    && CERConfig.Instance.EnableMenu)
+                || (CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.EGenericScene.Playing && CERConfig.Instance.EnableSong))
             {
                 var l_EmitCount = (uint)CERConfig.Instance.SubRainEmoteCount;
                 lock (m_SubRainTextures)
@@ -325,9 +334,9 @@ namespace ChatPlexMod_ChatEmoteRain
                     {
                         CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() =>
                         {
-                            if (CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.ChatPlexSDK.EGenericScene.Menu)
+                            if (CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.EGenericScene.Menu)
                                 m_MenuManager.Clear();
-                            else if (CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.ChatPlexSDK.EGenericScene.Playing)
+                            else if (CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.EGenericScene.Playing)
                                 m_PlayingManager.Clear();
                         });
                     }
@@ -367,8 +376,8 @@ namespace ChatPlexMod_ChatEmoteRain
         /// <returns></returns>
         private void EnqueueEmote(IChatEmote p_Emote, uint p_Count)
         {
-            if (   (CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.ChatPlexSDK.EGenericScene.Menu    && CERConfig.Instance.EnableMenu)
-                || (CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.ChatPlexSDK.EGenericScene.Playing && CERConfig.Instance.EnableSong))
+            if (   (CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.EGenericScene.Menu    && CERConfig.Instance.EnableMenu)
+                || (CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.EGenericScene.Playing && CERConfig.Instance.EnableSong))
             {
                 if (!CP_SDK.Chat.ChatImageProvider.CachedImageInfo.TryGetValue(p_Emote.Id, out var l_EnhancedImageInfo))
                 {
@@ -392,9 +401,9 @@ namespace ChatPlexMod_ChatEmoteRain
             if (p_EnhancedImage == null)
                 return;
 
-            if (CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.ChatPlexSDK.EGenericScene.Menu)
+            if (CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.EGenericScene.Menu)
                 m_MenuManager.Emit(p_EnhancedImage, p_Count);
-            else if (CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.ChatPlexSDK.EGenericScene.Playing)
+            else if (CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.EGenericScene.Playing)
                 m_PlayingManager.Emit(p_EnhancedImage, p_Count);
         }
 

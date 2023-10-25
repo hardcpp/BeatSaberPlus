@@ -18,7 +18,7 @@ namespace ChatPlexMod_MenuMusic.Utils
         /// <summary>
         /// Prepare
         /// </summary>
-        /// <param name="p_RawByte">Input raw byte</param>
+        /// <param name="p_RawByte">Input raw bytes</param>
         /// <param name="p_CancellationToken">Cancellation token</param>
         /// <param name="p_Callback">Result callback</param>
         public static void Prepare(byte[] p_RawByte, CP_SDK.Misc.FastCancellationToken p_CancellationToken, Action<Sprite, Sprite> p_Callback)
@@ -97,8 +97,8 @@ namespace ChatPlexMod_MenuMusic.Utils
                         l_BackgroundTexture.Apply(true);
 
                         p_Callback?.Invoke(
-                            CP_SDK.Unity.SpriteU.CreateFromTextureWithBorders(l_CoverTexture),
-                            CP_SDK.Unity.SpriteU.CreateFromTextureWithBorders(l_BackgroundTexture)
+                            CP_SDK.Unity.SpriteU.CreateFromTexture(l_CoverTexture),
+                            CP_SDK.Unity.SpriteU.CreateFromTexture(l_BackgroundTexture)
                         );
                     }
                     catch (System.Exception l_Exception)

@@ -18,8 +18,8 @@ namespace BeatSaberPlus_ChatRequest.UI
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        private BeatSaberPlus.SDK.Game.BeatMaps.MapDetail m_PendingDetail   = null;
-        private BeatSaberPlus.SDK.Game.BeatMaps.MapDetail m_LastDetail      = null;
+        private CP_SDK_BS.Game.BeatMaps.MapDetail m_PendingDetail   = null;
+        private CP_SDK_BS.Game.BeatMaps.MapDetail m_LastDetail      = null;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -109,7 +109,7 @@ namespace BeatSaberPlus_ChatRequest.UI
         /// Set details
         /// </summary>
         /// <param name="p_Detail">p_Detail</param>
-        internal void SetDetail(BeatSaberPlus.SDK.Game.BeatMaps.MapDetail p_Detail)
+        internal void SetDetail(CP_SDK_BS.Game.BeatMaps.MapDetail p_Detail)
         {
             if (!CanBeUpdated)
             {

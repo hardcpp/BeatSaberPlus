@@ -101,8 +101,8 @@ namespace ChatPlexMod_ChatEmoteRain.UI
         {
             if (ChatEmoteRain.Instance != null)
             {
-                ChatEmoteRain.Instance.SetTemplatesPreview(CP_SDK.ChatPlexSDK.EGenericScene.Menu, false, null);
-                ChatEmoteRain.Instance.SetTemplatesPreview(CP_SDK.ChatPlexSDK.EGenericScene.Playing, false, null);
+                ChatEmoteRain.Instance.SetTemplatesPreview(CP_SDK.EGenericScene.Menu, false, null);
+                ChatEmoteRain.Instance.SetTemplatesPreview(CP_SDK.EGenericScene.Playing, false, null);
             }
 
             CERConfig.Instance.Save();
@@ -283,8 +283,8 @@ namespace ChatPlexMod_ChatEmoteRain.UI
         /// <param name="p_TabIndex">Tab index</param>
         private void OnTabSelected(int p_TabIndex)
         {
-            ChatEmoteRain.Instance.SetTemplatesPreview(CP_SDK.ChatPlexSDK.EGenericScene.Menu,    p_TabIndex == 1, null);
-            ChatEmoteRain.Instance.SetTemplatesPreview(CP_SDK.ChatPlexSDK.EGenericScene.Playing, p_TabIndex == 2, null);
+            ChatEmoteRain.Instance.SetTemplatesPreview(CP_SDK.EGenericScene.Menu,    p_TabIndex == 1, null);
+            ChatEmoteRain.Instance.SetTemplatesPreview(CP_SDK.EGenericScene.Playing, p_TabIndex == 2, null);
         }
         /// <summary>
         /// When settings are changed
@@ -375,7 +375,7 @@ namespace ChatPlexMod_ChatEmoteRain.UI
                 m_MenuEmittersTab_EmitterWidget.SetCurrent(m_SelectedItemMenu);
 
                 ChatEmoteRain.Instance.SetTemplatesPreview(
-                    CP_SDK.ChatPlexSDK.EGenericScene.Menu,
+                    CP_SDK.EGenericScene.Menu,
                     m_TabControl.Element.GetActiveTab() == 1,
                     m_SelectedItemMenu?.EConfig
                 );
@@ -386,7 +386,7 @@ namespace ChatPlexMod_ChatEmoteRain.UI
                 m_PlayingEmittersTab_EmitterWidget.SetCurrent(m_SelectedItemPlaying);
 
                 ChatEmoteRain.Instance.SetTemplatesPreview(
-                    CP_SDK.ChatPlexSDK.EGenericScene.Playing,
+                    CP_SDK.EGenericScene.Playing,
                     m_TabControl.Element.GetActiveTab() == 2,
                     m_SelectedItemPlaying?.EConfig
                 );
@@ -403,16 +403,16 @@ namespace ChatPlexMod_ChatEmoteRain.UI
                 CERConfig.Instance.MenuEmitters.Add(l_New.EConfig);
                 m_MenuEmittersTab_List.AddListItem(l_New);
                 m_MenuEmittersTab_List.SetSelectedListItem(l_New);
-                ChatEmoteRain.Instance.UpdateTemplateFor(CP_SDK.ChatPlexSDK.EGenericScene.Menu);
-                ChatEmoteRain.Instance.SetTemplatesPreview(CP_SDK.ChatPlexSDK.EGenericScene.Menu, true, l_New.EConfig);
+                ChatEmoteRain.Instance.UpdateTemplateFor(CP_SDK.EGenericScene.Menu);
+                ChatEmoteRain.Instance.SetTemplatesPreview(CP_SDK.EGenericScene.Menu, true, l_New.EConfig);
             }
             else
             {
                 CERConfig.Instance.SongEmitters.Add(l_New.EConfig);
                 m_PlayingEmittersTab_List.AddListItem(l_New);
                 m_PlayingEmittersTab_List.SetSelectedListItem(l_New);
-                ChatEmoteRain.Instance.UpdateTemplateFor(CP_SDK.ChatPlexSDK.EGenericScene.Playing);
-                ChatEmoteRain.Instance.SetTemplatesPreview(CP_SDK.ChatPlexSDK.EGenericScene.Playing, true, l_New.EConfig);
+                ChatEmoteRain.Instance.UpdateTemplateFor(CP_SDK.EGenericScene.Playing);
+                ChatEmoteRain.Instance.SetTemplatesPreview(CP_SDK.EGenericScene.Playing, true, l_New.EConfig);
             }
         }
         /// <summary>
@@ -442,13 +442,13 @@ namespace ChatPlexMod_ChatEmoteRain.UI
 
                     if (l_IsMenu)
                     {
-                        ChatEmoteRain.Instance.UpdateTemplateFor(CP_SDK.ChatPlexSDK.EGenericScene.Menu);
-                        ChatEmoteRain.Instance.SetTemplatesPreview(CP_SDK.ChatPlexSDK.EGenericScene.Menu, true, l_Selected?.EConfig);
+                        ChatEmoteRain.Instance.UpdateTemplateFor(CP_SDK.EGenericScene.Menu);
+                        ChatEmoteRain.Instance.SetTemplatesPreview(CP_SDK.EGenericScene.Menu, true, l_Selected?.EConfig);
                     }
                     else
                     {
-                        ChatEmoteRain.Instance.UpdateTemplateFor(CP_SDK.ChatPlexSDK.EGenericScene.Playing);
-                        ChatEmoteRain.Instance.SetTemplatesPreview(CP_SDK.ChatPlexSDK.EGenericScene.Playing, true, l_Selected?.EConfig);
+                        ChatEmoteRain.Instance.UpdateTemplateFor(CP_SDK.EGenericScene.Playing);
+                        ChatEmoteRain.Instance.SetTemplatesPreview(CP_SDK.EGenericScene.Playing, true, l_Selected?.EConfig);
                     }
                 });
             }
@@ -464,13 +464,13 @@ namespace ChatPlexMod_ChatEmoteRain.UI
 
                     if (l_IsMenu)
                     {
-                        ChatEmoteRain.Instance.UpdateTemplateFor(CP_SDK.ChatPlexSDK.EGenericScene.Menu);
-                        ChatEmoteRain.Instance.SetTemplatesPreview(CP_SDK.ChatPlexSDK.EGenericScene.Menu, true, l_Selected?.EConfig);
+                        ChatEmoteRain.Instance.UpdateTemplateFor(CP_SDK.EGenericScene.Menu);
+                        ChatEmoteRain.Instance.SetTemplatesPreview(CP_SDK.EGenericScene.Menu, true, l_Selected?.EConfig);
                     }
                     else
                     {
-                        ChatEmoteRain.Instance.UpdateTemplateFor(CP_SDK.ChatPlexSDK.EGenericScene.Playing);
-                        ChatEmoteRain.Instance.SetTemplatesPreview(CP_SDK.ChatPlexSDK.EGenericScene.Playing, true, l_Selected?.EConfig);
+                        ChatEmoteRain.Instance.UpdateTemplateFor(CP_SDK.EGenericScene.Playing);
+                        ChatEmoteRain.Instance.SetTemplatesPreview(CP_SDK.EGenericScene.Playing, true, l_Selected?.EConfig);
                     }
                 });
             }
@@ -499,15 +499,15 @@ namespace ChatPlexMod_ChatEmoteRain.UI
                 {
                     m_MenuEmittersTab_List.RemoveListItem(l_Selected);
                     CERConfig.Instance.MenuEmitters.Remove(l_Selected.EConfig);
-                    ChatEmoteRain.Instance.UpdateTemplateFor(CP_SDK.ChatPlexSDK.EGenericScene.Menu);
-                    ChatEmoteRain.Instance.SetTemplatesPreview(CP_SDK.ChatPlexSDK.EGenericScene.Menu, true, l_Selected?.EConfig);
+                    ChatEmoteRain.Instance.UpdateTemplateFor(CP_SDK.EGenericScene.Menu);
+                    ChatEmoteRain.Instance.SetTemplatesPreview(CP_SDK.EGenericScene.Menu, true, l_Selected?.EConfig);
                 }
                 else
                 {
                     m_PlayingEmittersTab_List.RemoveListItem(l_Selected);
                     CERConfig.Instance.SongEmitters.Remove(l_Selected.EConfig);
-                    ChatEmoteRain.Instance.UpdateTemplateFor(CP_SDK.ChatPlexSDK.EGenericScene.Playing);
-                    ChatEmoteRain.Instance.SetTemplatesPreview(CP_SDK.ChatPlexSDK.EGenericScene.Playing, true, l_Selected?.EConfig);
+                    ChatEmoteRain.Instance.UpdateTemplateFor(CP_SDK.EGenericScene.Playing);
+                    ChatEmoteRain.Instance.SetTemplatesPreview(CP_SDK.EGenericScene.Playing, true, l_Selected?.EConfig);
                 }
             });
         }

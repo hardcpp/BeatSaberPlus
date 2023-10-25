@@ -622,7 +622,7 @@ namespace ChatPlexMod_ChatIntegrations
                     l_Event.Model.Command   = "!discord";
 
                     var l_MessageAction = new Actions.Chat_SendMessage() { Event = l_Event, IsEnabled = true };
-                    l_MessageAction.Model.BaseValue = "@$UserName join my amazing discord at https://discord.gg/K4X94Ea";
+                    l_MessageAction.Model.BaseValue = "@$UserName join my amazing discord at https://discord.chatplex.org";
                     l_Event.AddOnSuccessAction(l_MessageAction);
 
                     return l_Event;

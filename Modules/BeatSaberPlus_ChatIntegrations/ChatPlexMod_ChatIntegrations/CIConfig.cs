@@ -6,7 +6,7 @@ namespace ChatPlexMod_ChatIntegrations
     internal class CIConfig : CP_SDK.Config.JsonConfig<CIConfig>
     {
         [JsonProperty] internal bool Enabled = false;
-        [JsonProperty] internal string DataLocation = Path.Combine(CP_SDK.ChatPlexSDK.BasePath, $"UserData/{CP_SDK.ChatPlexSDK.ProductName}/ChatIntegrations/");
+        [JsonProperty] internal string DataLocation = Path.Combine(CP_SDK.ChatPlexSDK.BasePath, $"UserData/{CP_SDK.ChatPlexSDK.ProductName}Plus/ChatIntegrations/");
         [JsonProperty] internal string LastBackup = "";
 
         ////////////////////////////////////////////////////////////////////////////
@@ -17,7 +17,7 @@ namespace ChatPlexMod_ChatIntegrations
         /// </summary>
         /// <returns></returns>
         public override string GetRelativePath()
-            => $"{CP_SDK.ChatPlexSDK.ProductName}/ChatIntegrations/Config";
+            => $"{CP_SDK.ChatPlexSDK.ProductName}Plus/ChatIntegrations/Config";
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////

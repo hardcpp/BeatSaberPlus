@@ -35,7 +35,7 @@ namespace BeatSaberPlus_GameTweaker.Components
             if (m_AudioTimeSyncController == null || !m_AudioTimeSyncController)
                 m_AudioTimeSyncController = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().FirstOrDefault();
 
-            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene != BeatSaberPlus.SDK.Game.Logic.ESceneType.Playing
+            if (CP_SDK_BS.Game.Logic.ActiveScene != CP_SDK_BS.Game.Logic.ESceneType.Playing
                 || m_AudioTimeSyncController == null
                 || !m_AudioTimeSyncController)
             {

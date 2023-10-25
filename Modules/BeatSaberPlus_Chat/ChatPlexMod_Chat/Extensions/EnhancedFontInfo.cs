@@ -143,7 +143,7 @@ namespace ChatPlexMod_Chat.Extensions
 
 #if BEATSABER && !BEATSABER_1_29_4_OR_NEWER
                     Font.characterLookupTable.Add(l_ReplaceCharacter, new TMP_Character(l_ReplaceCharacter, l_Glypth));
-#elif BEATSABER_1_29_4_OR_NEWER || UNITY_TESTING || SYNTHRIDERS || AUDIOTRIP || BOOMBOX
+#elif BEATSABER_1_29_4_OR_NEWER || UNITY_TESTING || SYNTHRIDERS || AUDIOTRIP || BOOMBOX || DANCEDASH
                     Font.characterLookupTable.Add(l_ReplaceCharacter, new TMP_Character(l_ReplaceCharacter, Font, l_Glypth));
 #else
 #error Missing game implementation

@@ -143,8 +143,8 @@ namespace ChatPlexMod_ChatIntegrations.Actions
     public class Twitch_CreateClip
         : Interfaces.IAction<Twitch_CreateClip, Models.Action>
     {
-        public override string Description   => $"Create clip, and put the edit URL in {CP_SDK.ChatPlexSDK.ProductName}_TwitchClips.txt";
-        public override string UIPlaceHolder => $"<b><i>Create clip, and put the edit URL in {CP_SDK.ChatPlexSDK.ProductName}_TwitchClips.txt</i></b>";
+        public override string Description   => $"Create clip, and put the edit URL in {CP_SDK.ChatPlexSDK.ProductName}Plus_TwitchClips.txt";
+        public override string UIPlaceHolder => $"<b><i>Create clip, and put the edit URL in {CP_SDK.ChatPlexSDK.ProductName}Plus_TwitchClips.txt</i></b>";
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -160,7 +160,7 @@ namespace ChatPlexMod_ChatIntegrations.Actions
                     if (p_Status != CP_SDK.Chat.Services.Twitch.TwitchHelixResult.OK)
                         return;
 
-                    try { System.IO.File.AppendAllLines($"{CP_SDK.ChatPlexSDK.ProductName}_TwitchClips.txt", new List<string>() { p_Result?.edit_url ?? "invalid" }); }
+                    try { System.IO.File.AppendAllLines($"{CP_SDK.ChatPlexSDK.ProductName}Plus_TwitchClips.txt", new List<string>() { p_Result?.edit_url ?? "invalid" }); }
                     catch { }
                 });
             }

@@ -88,12 +88,12 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Actions
             }
 
             bool l_Failed = true;
-            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.ESceneType.Playing
+            if (CP_SDK_BS.Game.Logic.ActiveScene == CP_SDK_BS.Game.Logic.ESceneType.Playing
                 || Model.ValueSource == Enums.ValueSource.E.Config)
             {
                 if (Model.ValueSource == Enums.ValueSource.E.Config)
                 {
-                    BeatSaberPlus_NoteTweaker.Patches.PBombController.SetBombColorOverride(false, Color.black);
+                    BeatSaberPlus_NoteTweaker.Patches.PBombNoteController.SetBombColorOverride(false, Color.black);
 
                     if (Model.SendChatMessage && p_Context.ChatService != null && p_Context.Channel != null && p_Context.User != null)
                         p_Context.ChatService.SendTextMessage(p_Context.Channel, $"! @{p_Context.User.DisplayName} bomb color is back to default!");
@@ -133,7 +133,7 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Actions
 
                     if (!l_Failed)
                     {
-                        BeatSaberPlus_NoteTweaker.Patches.PBombController.SetBombColorOverride(true, m_ColorCache.Value);
+                        BeatSaberPlus_NoteTweaker.Patches.PBombNoteController.SetBombColorOverride(true, m_ColorCache.Value);
 
                         if (Model.SendChatMessage && p_Context.ChatService != null && p_Context.Channel != null && p_Context.User != null)
                             p_Context.ChatService.SendTextMessage(p_Context.Channel, $"! @{p_Context.User.DisplayName} bomb color is changed to {l_Hex}");
@@ -252,12 +252,12 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Actions
             }
 
             bool l_Failed = true;
-            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.ESceneType.Playing
+            if (CP_SDK_BS.Game.Logic.ActiveScene == CP_SDK_BS.Game.Logic.ESceneType.Playing
                 || Model.ValueSource == Enums.ValueSource.E.Config)
             {
                 if (Model.ValueSource == Enums.ValueSource.E.Config)
                 {
-                    BeatSaberPlus_NoteTweaker.Patches.PBombController.SetTemp(false, 0f);
+                    BeatSaberPlus_NoteTweaker.Patches.PBombNoteController.SetTemp(false, 0f);
 
                     if (Model.SendChatMessage && p_Context.ChatService != null && p_Context.Channel != null && p_Context.User != null)
                         p_Context.ChatService.SendTextMessage(p_Context.Channel, $"! @{p_Context.User.DisplayName} note scale was set to default");
@@ -288,7 +288,7 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Actions
                         l_NewValue = l_EventInput;
                     }
 
-                    BeatSaberPlus_NoteTweaker.Patches.PBombController.SetTemp(true, l_NewValue);
+                    BeatSaberPlus_NoteTweaker.Patches.PBombNoteController.SetTemp(true, l_NewValue);
 
                     if (Model.SendChatMessage && p_Context.ChatService != null && p_Context.Channel != null && p_Context.User != null)
                         p_Context.ChatService.SendTextMessage(p_Context.Channel, $"! @{p_Context.User.DisplayName} bomb scale was set to {Mathf.RoundToInt(l_NewValue * 100f)}%");
@@ -360,7 +360,7 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Actions
                 yield break;
             }
 
-            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.ESceneType.Playing)
+            if (CP_SDK_BS.Game.Logic.ActiveScene == CP_SDK_BS.Game.Logic.ESceneType.Playing)
                 BeatSaberPlus_GameTweaker.Patches.PNoteDebrisSpawner.SetTemp(!Model.Debris);
             else
                 p_Context.HasActionFailed = true;
@@ -462,12 +462,12 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Actions
             }
 
             bool l_Failed = true;
-            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.ESceneType.Playing)
+            if (CP_SDK_BS.Game.Logic.ActiveScene == CP_SDK_BS.Game.Logic.ESceneType.Playing)
             {
-                var l_Level     = BeatSaberPlus.SDK.Game.Logic.LevelData?.Data?.difficultyBeatmap?.difficulty;
+                var l_Level     = CP_SDK_BS.Game.Logic.LevelData?.Data?.difficultyBeatmap?.difficulty;
                 var l_Effects   = l_Level == BeatmapDifficulty.ExpertPlus
-                    ? BeatSaberPlus.SDK.Game.Logic.LevelData?.Data?.playerSpecificSettings?.environmentEffectsFilterExpertPlusPreset
-                    : BeatSaberPlus.SDK.Game.Logic.LevelData?.Data?.playerSpecificSettings?.environmentEffectsFilterDefaultPreset;
+                    ? CP_SDK_BS.Game.Logic.LevelData?.Data?.playerSpecificSettings?.environmentEffectsFilterExpertPlusPreset
+                    : CP_SDK_BS.Game.Logic.LevelData?.Data?.playerSpecificSettings?.environmentEffectsFilterDefaultPreset;
 
                 if (l_Effects != EnvironmentEffectsFilterPreset.NoEffects)
                 {
@@ -608,7 +608,7 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Actions
 
         public override IEnumerator Eval(ChatPlexMod_ChatIntegrations.Models.EventContext p_Context)
         {
-            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.ESceneType.Playing)
+            if (CP_SDK_BS.Game.Logic.ActiveScene == CP_SDK_BS.Game.Logic.ESceneType.Playing)
             {
                 var l_NewValue                  = 1f;
                 var l_AudioTimeSyncController   = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().FirstOrDefault();
@@ -742,7 +742,7 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Actions
             }
 
             bool l_Failed = true;
-            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.ESceneType.Playing
+            if (CP_SDK_BS.Game.Logic.ActiveScene == CP_SDK_BS.Game.Logic.ESceneType.Playing
                 || Model.ValueSource == Enums.ValueSource.E.Config)
             {
                 if (Model.ValueSource == Enums.ValueSource.E.Config)
@@ -820,14 +820,14 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Actions
                 if (ColorU.TryToUnityColor(Model.Left, out var l_LeftColor))
                     m_LeftColorCache = l_LeftColor;
                 else
-                    m_LeftColorCache = BeatSaberPlus.SDK.Game.Logic.LevelData?.Data?.colorScheme?.saberAColor ?? Color.red;
+                    m_LeftColorCache = CP_SDK_BS.Game.Logic.LevelData?.Data?.colorScheme?.saberAColor ?? Color.red;
             }
             if (!m_RightColorCache.HasValue)
             {
                 if (ColorU.TryToUnityColor(Model.Right, out var l_RightColor))
                     m_RightColorCache = l_RightColor;
                 else
-                    m_RightColorCache = BeatSaberPlus.SDK.Game.Logic.LevelData?.Data?.colorScheme?.saberBColor ?? Color.blue;
+                    m_RightColorCache = CP_SDK_BS.Game.Logic.LevelData?.Data?.colorScheme?.saberBColor ?? Color.blue;
             }
         }
         private void PatchSabers(bool p_UseDefault)
@@ -983,7 +983,7 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Actions
             }
 
             bool l_Failed = true;
-            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.ESceneType.Playing
+            if (CP_SDK_BS.Game.Logic.ActiveScene == CP_SDK_BS.Game.Logic.ESceneType.Playing
                 || Model.ValueSource == Enums.ValueSource.E.Config)
             {
                 if (Model.ValueSource == Enums.ValueSource.E.Config)
@@ -1086,7 +1086,7 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Actions
 
         public override IEnumerator Eval(ChatPlexMod_ChatIntegrations.Models.EventContext p_Context)
         {
-            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.ESceneType.Playing)
+            if (CP_SDK_BS.Game.Logic.ActiveScene == CP_SDK_BS.Game.Logic.ESceneType.Playing)
             {
                 var l_BSP_MP_BigRank = GameObject.Find("BSP_MP_BigRank");
                 if (l_BSP_MP_BigRank && l_BSP_MP_BigRank.activeSelf)
@@ -1141,7 +1141,7 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Actions
 
         public override IEnumerator Eval(ChatPlexMod_ChatIntegrations.Models.EventContext p_Context)
         {
-            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.ESceneType.Playing)
+            if (CP_SDK_BS.Game.Logic.ActiveScene == CP_SDK_BS.Game.Logic.ESceneType.Playing)
             {
                 var l_BSP_MP_BigRank = GameObject.Find("BSP_MP_BigRank");
                 if (l_BSP_MP_BigRank && l_BSP_MP_BigRank.activeSelf)
@@ -1174,7 +1174,7 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Actions
 
         public override IEnumerator Eval(ChatPlexMod_ChatIntegrations.Models.EventContext p_Context)
         {
-            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.ESceneType.Playing)
+            if (CP_SDK_BS.Game.Logic.ActiveScene == CP_SDK_BS.Game.Logic.ESceneType.Playing)
             {
                 var l_BSP_MP_BigRank = GameObject.Find("BSP_MP_BigRank");
                 if (l_BSP_MP_BigRank && l_BSP_MP_BigRank.activeSelf)
@@ -1207,7 +1207,7 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Actions
 
         public override IEnumerator Eval(ChatPlexMod_ChatIntegrations.Models.EventContext p_Context)
         {
-            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.ESceneType.Playing)
+            if (CP_SDK_BS.Game.Logic.ActiveScene == CP_SDK_BS.Game.Logic.ESceneType.Playing)
             {
                 var l_BSP_MP_BigRank = GameObject.Find("BSP_MP_BigRank");
                 if (l_BSP_MP_BigRank && l_BSP_MP_BigRank.activeSelf)
@@ -1320,10 +1320,10 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Actions
 
         public override IEnumerator Eval(ChatPlexMod_ChatIntegrations.Models.EventContext p_Context)
         {
-            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.ESceneType.Playing
-                && BeatSaberPlus.SDK.Game.Logic.LevelData != null
-                && !BeatSaberPlus.SDK.Game.Logic.LevelData.IsNoodle
-                && !BeatSaberPlus.SDK.Game.Scoring.IsInReplay)
+            if (CP_SDK_BS.Game.Logic.ActiveScene == CP_SDK_BS.Game.Logic.ESceneType.Playing
+                && CP_SDK_BS.Game.Logic.LevelData != null
+                && !CP_SDK_BS.Game.Logic.LevelData.IsNoodle
+                && !CP_SDK_BS.Game.Scoring.IsInReplay)
             {
                 var l_AudioTimeSyncController       = UnityEngine.Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().FirstOrDefault();
                 var l_BeatmapObjectSpawnController  = UnityEngine.Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().FirstOrDefault();
@@ -1426,10 +1426,10 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Actions
 
         public override IEnumerator Eval(ChatPlexMod_ChatIntegrations.Models.EventContext p_Context)
         {
-            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.ESceneType.Playing
-                && BeatSaberPlus.SDK.Game.Logic.LevelData != null
-                && !BeatSaberPlus.SDK.Game.Logic.LevelData.IsNoodle
-                && !BeatSaberPlus.SDK.Game.Scoring.IsInReplay)
+            if (CP_SDK_BS.Game.Logic.ActiveScene == CP_SDK_BS.Game.Logic.ESceneType.Playing
+                && CP_SDK_BS.Game.Logic.LevelData != null
+                && !CP_SDK_BS.Game.Logic.LevelData.IsNoodle
+                && !CP_SDK_BS.Game.Scoring.IsInReplay)
             {
                 var l_AudioTimeSyncController       = UnityEngine.Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().FirstOrDefault();
                 var l_BeatmapObjectSpawnController  = UnityEngine.Resources.FindObjectsOfTypeAll<BeatmapObjectSpawnController>().FirstOrDefault();
@@ -1495,7 +1495,7 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Actions
 
         public override IEnumerator Eval(ChatPlexMod_ChatIntegrations.Models.EventContext p_Context)
         {
-            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.ESceneType.Playing)
+            if (CP_SDK_BS.Game.Logic.ActiveScene == CP_SDK_BS.Game.Logic.ESceneType.Playing)
             {
                 var l_CoreGameHUDController = Resources.FindObjectsOfTypeAll<CoreGameHUDController>().FirstOrDefault();
                 if (l_CoreGameHUDController != null && l_CoreGameHUDController)

@@ -19,7 +19,7 @@ namespace BeatSaberPlus_ChatRequest.UI
     /// </summary>
     internal class ManagerMainView
         : CP_SDK.UI.ViewController<ManagerMainView>,
-          BeatSaberPlus.SDK.UI.Data.SongListController,
+          CP_SDK_BS.UI.Data.SongListController,
           IProgress<float>
     {
         private static CustomPreviewBeatmapLevel m_SongToSelectAfterDismiss = null;
@@ -38,7 +38,7 @@ namespace BeatSaberPlus_ChatRequest.UI
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        private BeatSaberPlus.SDK.UI.LevelDetail m_SongInfo_Detail = null;
+        private CP_SDK_BS.UI.LevelDetail m_SongInfo_Detail = null;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -72,7 +72,7 @@ namespace BeatSaberPlus_ChatRequest.UI
                 XUIHLayout.Make(
                     XUIVLayout.Make(
                         XUIVVList.Make()
-                            .SetListCellPrefab(ListCellPrefabs<BeatSaberPlus.SDK.UI.Data.SongListCell>.Get())
+                            .SetListCellPrefab(ListCellPrefabs<CP_SDK_BS.UI.Data.SongListCell>.Get())
                             .OnListItemSelected(OnSongSelected)
                             .Bind(ref m_SongList)
                     )
@@ -146,13 +146,13 @@ namespace BeatSaberPlus_ChatRequest.UI
                 .BuildUI(m_CoverMask.RTransform);
 
             /// Show song info panel
-            m_SongInfo_Detail = new BeatSaberPlus.SDK.UI.LevelDetail(m_SongInfoPanelOwner.RTransform);
+            m_SongInfo_Detail = new CP_SDK_BS.UI.LevelDetail(m_SongInfoPanelOwner.RTransform);
             UnselectSong();
 
             m_SongInfo_Detail.SetFavoriteToggleEnabled(true);
             m_SongInfo_Detail.SetFavoriteToggleImage(
-                CP_SDK.Unity.SpriteU.CreateFromRawWithBorders(CP_SDK.Misc.Resources.FromPath(Assembly.GetExecutingAssembly(), "BeatSaberPlus_ChatRequest.Resources.Blacklist.png")),
-                CP_SDK.Unity.SpriteU.CreateFromRawWithBorders(CP_SDK.Misc.Resources.FromPath(Assembly.GetExecutingAssembly(), "BeatSaberPlus_ChatRequest.Resources.Unblacklist.png"))
+                CP_SDK.Unity.SpriteU.CreateFromRaw(CP_SDK.Misc.Resources.FromPath(Assembly.GetExecutingAssembly(), "BeatSaberPlus_ChatRequest.Resources.Blacklist.png")),
+                CP_SDK.Unity.SpriteU.CreateFromRaw(CP_SDK.Misc.Resources.FromPath(Assembly.GetExecutingAssembly(), "BeatSaberPlus_ChatRequest.Resources.Unblacklist.png"))
             );
             m_SongInfo_Detail.SetFavoriteToggleHoverHint("Add/Remove to blacklist");
             m_SongInfo_Detail.SetFavoriteToggleCallback(OnBlacklistButtonPressed);
@@ -411,7 +411,7 @@ namespace BeatSaberPlus_ChatRequest.UI
                     ShowLoadingModal("Downloading", true);
 
                     /// Start downloading
-                    BeatSaberPlus.SDK.Game.BeatMapsClient.DownloadSong(
+                    CP_SDK_BS.Game.BeatMapsClient.DownloadSong(
                         m_SelectedSong.BeatSaver_Map,
                         m_SelectedSong.BeatSaver_Map.SelectMapVersion(),
                         CancellationToken.None,
@@ -453,12 +453,8 @@ namespace BeatSaberPlus_ChatRequest.UI
         /// <summary>
         /// On black list button pressed
         /// </summary>
-        /// <param name="p_State">State</param>
-        private void OnBlacklistButtonPressed(ToggleWithCallbacks.SelectionState p_State)
+        private void OnBlacklistButtonPressed()
         {
-            if (p_State != ToggleWithCallbacks.SelectionState.Pressed)
-                return;
-
             if (m_TypeSegmentControl.Element.GetActiveText() == 2/* Blacklist */)
                 ChatRequest.Instance.UnBlacklistSong(m_SelectedSong);
             /// Show modal
@@ -550,7 +546,7 @@ namespace BeatSaberPlus_ChatRequest.UI
         {
             CP_SDK.UI.ScreenSystem.OnDismiss -= SelectSongAfterScreenSystemDismiss;
 
-            BeatSaberPlus.SDK.Game.LevelSelection.FilterToSpecificSong(m_SongToSelectAfterDismiss);
+            CP_SDK_BS.Game.LevelSelection.FilterToSpecificSong(m_SongToSelectAfterDismiss);
             m_SongToSelectAfterDismiss = null;
         }
 
@@ -561,7 +557,7 @@ namespace BeatSaberPlus_ChatRequest.UI
         /// On song list item cover fetched
         /// </summary>
         /// <param name="p_Item">Item</param>
-        public void OnSongListItemCoverFetched(BeatSaberPlus.SDK.UI.Data.SongListItem p_Item)
+        public void OnSongListItemCoverFetched(CP_SDK_BS.UI.Data.SongListItem p_Item)
         {
             if (m_SelectedSong != p_Item)
                 return;

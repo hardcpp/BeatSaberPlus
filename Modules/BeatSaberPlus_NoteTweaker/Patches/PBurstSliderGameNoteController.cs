@@ -85,9 +85,9 @@ namespace BeatSaberPlus_NoteTweaker.Patches
         /// <returns></returns>
         private static bool IsScaleAllowed()
         {
-            if ((BeatSaberPlus.SDK.Game.Logic.LevelData?.Data?.gameplayModifiers?.proMode ?? false)
-             || (BeatSaberPlus.SDK.Game.Logic.LevelData?.Data?.gameplayModifiers?.smallCubes ?? false)
-             || (BeatSaberPlus.SDK.Game.Logic.LevelData?.Data?.gameplayModifiers?.strictAngles ?? false))
+            if ((CP_SDK_BS.Game.Logic.LevelData?.Data?.gameplayModifiers?.proMode ?? false)
+             || (CP_SDK_BS.Game.Logic.LevelData?.Data?.gameplayModifiers?.smallCubes ?? false)
+             || (CP_SDK_BS.Game.Logic.LevelData?.Data?.gameplayModifiers?.strictAngles ?? false))
                 return false;
 
             return true;

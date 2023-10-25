@@ -293,7 +293,7 @@ namespace ChatPlexMod_ChatIntegrations.UI
             m_CurrentEvent = p_Event;
 
             /// Clean up trigger specific UI
-            m_TriggerTab_Content.Element.gameObject.DestroyChilds();
+            GameObjectU.DestroyChilds(m_TriggerTab_Content.Element.gameObject);
 
             /// Hide everything if no event selection
             if (p_Event == null)
@@ -340,7 +340,7 @@ namespace ChatPlexMod_ChatIntegrations.UI
         private void OnConditionSelected(CP_SDK.UI.Data.IListItem p_SelectedItem)
         {
             /// Clean up condition specific UI
-            m_ConditionsTab_Content.Element.gameObject.DestroyChilds();
+            GameObjectU.DestroyChilds(m_ConditionsTab_Content.Element.gameObject);
 
             m_SelectedConditionListItem = p_SelectedItem as Data.ConditionListItem;
             if (m_SelectedConditionListItem == null)
@@ -470,7 +470,7 @@ namespace ChatPlexMod_ChatIntegrations.UI
         private void OnOnSuccessActionSelected(CP_SDK.UI.Data.IListItem p_SelectedItem)
         {
             /// Clean up condition specific UI
-            m_OnSuccessActionsTab_Content.Element.gameObject.DestroyChilds();
+            GameObjectU.DestroyChilds(m_OnSuccessActionsTab_Content.Element.gameObject);
 
             m_SelectedOnSuccessActionListItem = p_SelectedItem as Data.ActionListItem;
             if (m_SelectedOnSuccessActionListItem == null)
@@ -600,7 +600,7 @@ namespace ChatPlexMod_ChatIntegrations.UI
         private void OnOnFailActionSelected(CP_SDK.UI.Data.IListItem p_SelectedItem)
         {
             /// Clean up condition specific UI
-            m_OnFailActionsTab_Content.Element.gameObject.DestroyChilds();
+            GameObjectU.DestroyChilds(m_OnFailActionsTab_Content.Element.gameObject);
 
             m_SelectedOnFailActionListItem = p_SelectedItem as Data.ActionListItem;
             if (m_SelectedOnFailActionListItem == null)

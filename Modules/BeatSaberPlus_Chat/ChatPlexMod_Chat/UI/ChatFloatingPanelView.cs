@@ -165,7 +165,7 @@ namespace ChatPlexMod_Chat.UI
                     l_Message.SetWidth(m_ChatSize.x);
 
                     l_Message.transform.localScale = Vector3.zero;
-                    l_Message.gameObject.ChangerLayerRecursive(CP_SDK.UI.UISystem.UILayer);
+                    GameObjectU.ChangerLayerRecursive(l_Message.gameObject, CP_SDK.UI.UISystem.UILayer);
 
                     UpdateMessageStyle(l_Message);
 
@@ -541,7 +541,7 @@ namespace ChatPlexMod_Chat.UI
                 return;
 
             var l_Prefix        = !string.IsNullOrEmpty(p_Channel.Prefix) ? $"<b><color=yellow>[{p_Channel.Prefix}]</color></b> " : string.Empty;
-            var l_MessageStr    = $"{l_Prefix}<#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] <color={p_User.Color}><b>@{p_User.PaintedName}</b>";
+            var l_MessageStr    = $"{l_Prefix}<#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] <color={p_User.Color}><b>@{p_User.PaintedName}</b> ";
             if (p_Event.IsGift)
                 l_MessageStr += $"gifted <color={p_User.Color}><b>{p_Event.PurchasedMonthCount}</b></color> month of <color={p_User.Color}><b>{p_Event.SubPlan}</b></color> to <color={p_User.Color}><b>@{p_Event.RecipientDisplayName}</b></color>!";
             else

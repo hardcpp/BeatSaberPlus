@@ -78,7 +78,7 @@ namespace ChatPlexMod_Chat
             CP_SDK.ChatPlexSDK.OnGenericSceneChange       += ChatPlexSDK_OnGenericSceneChange;
 
             /// If we are already in menu scene, activate
-            if (CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.ChatPlexSDK.EGenericScene.Menu)
+            if (CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.EGenericScene.Menu)
                 ChatPlexSDK_OnGenericSceneChange(CP_SDK.ChatPlexSDK.ActiveGenericScene);
 
             if (!m_ChatCoreAcquired)
@@ -227,16 +227,22 @@ namespace ChatPlexMod_Chat
         /// When the active scene is changed
         /// </summary>
         /// <param name="p_SceneType"></param>
-        private void ChatPlexSDK_OnGenericSceneChange(CP_SDK.ChatPlexSDK.EGenericScene p_SceneType)
+        private void ChatPlexSDK_OnGenericSceneChange(CP_SDK.EGenericScene p_SceneType)
         {
             if (m_RootTransform)
                 m_RootTransform.transform.localScale = Vector3.one;
 
-            if (p_SceneType == CP_SDK.ChatPlexSDK.EGenericScene.Menu)
+            if (p_SceneType == CP_SDK.EGenericScene.Menu)
                 UpdateButton();
 
             if (m_ChatFloatingPanel == null)    CreateFloatingPanels();
             else                                UpdateFloatingPanels();
+
+#if DANCEDASH
+            var l_Player = Component.FindObjectsOfType<GameObject>().FirstOrDefault(x => x.activeSelf && x.transform.parent == null && x.name == "Player");
+            if (l_Player)
+                m_RootTransform.position = l_Player.transform.position;
+#endif
         }
         /// <summary>
         /// When the floating window is moved
@@ -291,7 +297,7 @@ namespace ChatPlexMod_Chat
                 yield return l_Waiter;
             }
 
-            m_ModerationButton = BeatSaberPlus.SDK.UI.Button.Create(l_LevelSelectionNavigationController.transform, "Chat\nModeration", () => UI.ModerationViewFlowCoordinator.Instance().Present(), null);
+            m_ModerationButton = CP_SDK_BS.UI.Button.Create(l_LevelSelectionNavigationController.transform, "Chat\nModeration", () => UI.ModerationViewFlowCoordinator.Instance().Present(), null);
             m_ModerationButton.transform.localPosition      = new Vector3(72.50f, 27.00f, 2.60f);
             m_ModerationButton.transform.localScale         = new Vector3( 0.65f,  0.50f, 0.65f);
             m_ModerationButton.transform.SetAsFirstSibling();
@@ -309,7 +315,7 @@ namespace ChatPlexMod_Chat
             UpdateButton();
 
             m_CreateButtonCoroutine = null;
-#elif UNITY_TESTING || SYNTHRIDERS || AUDIOTRIP || BOOMBOX
+#elif UNITY_TESTING || SYNTHRIDERS || AUDIOTRIP || BOOMBOX || DANCEDASH
             yield return null;
 #else
 #error Missing game implementation
@@ -326,7 +332,7 @@ namespace ChatPlexMod_Chat
 #if BEATSABER
             m_ModerationButton.transform.localPosition  = new Vector3(72.50f, 27.00f, 2.60f);
             m_ModerationButton.transform.localScale     = new Vector3( 0.65f,  0.50f, 0.65f);
-#elif UNITY_TESTING || SYNTHRIDERS || AUDIOTRIP || BOOMBOX
+#elif UNITY_TESTING || SYNTHRIDERS || AUDIOTRIP || BOOMBOX || DANCEDASH
 #else
 #error Missing game implementation
 #endif
@@ -362,15 +368,15 @@ namespace ChatPlexMod_Chat
                 m_ChatFloatingPanel.SetRadius(0);
                 m_ChatFloatingPanel.SetViewController(m_ChatFloatingPanelView);
                 m_ChatFloatingPanel.OnRelease(OnFloatingWindowMoved);
-                m_ChatFloatingPanel.SetSceneTransform(CP_SDK.ChatPlexSDK.EGenericScene.Menu, CConfig.Instance.MenuChatPosition,     CConfig.Instance.MenuChatRotation);
-                m_ChatFloatingPanel.SetSceneTransform(CP_SDK.ChatPlexSDK.EGenericScene.Menu, CConfig.Instance.PlayingChatPosition,  CConfig.Instance.PlayingChatRotation);
-                m_ChatFloatingPanel.OnSceneRelease(CP_SDK.ChatPlexSDK.EGenericScene.Menu, (p_LocalPosition, p_LocalRotation) =>
+                m_ChatFloatingPanel.SetSceneTransform(CP_SDK.EGenericScene.Menu, CConfig.Instance.MenuChatPosition,     CConfig.Instance.MenuChatRotation);
+                m_ChatFloatingPanel.SetSceneTransform(CP_SDK.EGenericScene.Menu, CConfig.Instance.PlayingChatPosition,  CConfig.Instance.PlayingChatRotation);
+                m_ChatFloatingPanel.OnSceneRelease(CP_SDK.EGenericScene.Menu, (p_LocalPosition, p_LocalRotation) =>
                 {
                     CConfig.Instance.MenuChatPosition = p_LocalPosition;
                     CConfig.Instance.MenuChatRotation = p_LocalRotation;
                     CConfig.Instance.Save();
                 });
-                m_ChatFloatingPanel.OnSceneRelease(CP_SDK.ChatPlexSDK.EGenericScene.Playing, (p_LocalPosition, p_LocalRotation) =>
+                m_ChatFloatingPanel.OnSceneRelease(CP_SDK.EGenericScene.Playing, (p_LocalPosition, p_LocalRotation) =>
                 {
                     CConfig.Instance.PlayingChatPosition = p_LocalPosition;
                     CConfig.Instance.PlayingChatRotation = p_LocalRotation;
@@ -480,10 +486,10 @@ namespace ChatPlexMod_Chat
                 m_ChatFloatingPanel.SetSize(CConfig.Instance.ChatSize);
                 m_ChatFloatingPanel.SetAlignWithFloor(CConfig.Instance.AlignWithFloor);
                 m_ChatFloatingPanel.SetBackgroundColor(CConfig.Instance.BackgroundColor);
-                m_ChatFloatingPanel.SetSceneTransform(CP_SDK.ChatPlexSDK.EGenericScene.Menu,    CConfig.Instance.MenuChatPosition,      CConfig.Instance.MenuChatRotation);
-                m_ChatFloatingPanel.SetSceneTransform(CP_SDK.ChatPlexSDK.EGenericScene.Playing, CConfig.Instance.PlayingChatPosition,   CConfig.Instance.PlayingChatRotation);
+                m_ChatFloatingPanel.SetSceneTransform(CP_SDK.EGenericScene.Menu,    CConfig.Instance.MenuChatPosition,      CConfig.Instance.MenuChatRotation);
+                m_ChatFloatingPanel.SetSceneTransform(CP_SDK.EGenericScene.Playing, CConfig.Instance.PlayingChatPosition,   CConfig.Instance.PlayingChatRotation);
 
-                if (CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.ChatPlexSDK.EGenericScene.Menu)
+                if (CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.EGenericScene.Menu)
                     m_ChatFloatingPanel.SetGearIcon(CConfig.Instance.ReverseChatOrder ? CP_SDK.UI.Components.CFloatingPanel.ECorner.BottomLeft : CP_SDK.UI.Components.CFloatingPanel.ECorner.TopLeft);
                 else
                     m_ChatFloatingPanel.SetGearIcon(CP_SDK.UI.Components.CFloatingPanel.ECorner.None);
@@ -495,11 +501,11 @@ namespace ChatPlexMod_Chat
 
                 /// Prepare data for level with rotations
 #if BEATSABER
-                var l_Is360Level    = BeatSaberPlus.SDK.Game.Logic.LevelData?.Data?.transformedBeatmapData?.spawnRotationEventsCount > 0;
+                var l_Is360Level    = CP_SDK_BS.Game.Logic.LevelData?.Data?.transformedBeatmapData?.spawnRotationEventsCount > 0;
                 var l_RotationRef   = l_Is360Level ? Resources.FindObjectsOfTypeAll<FlyingGameHUDRotation>().FirstOrDefault()?.gameObject : null as GameObject;
 #elif SYNTHRIDERS
                 var l_RotationRef   = Resources.FindObjectsOfTypeAll<GameObject>().FirstOrDefault(x => x.name == "[Score & Misc]");
-#elif UNITY_TESTING || AUDIOTRIP || BOOMBOX
+#elif UNITY_TESTING || AUDIOTRIP || BOOMBOX || DANCEDASH
                 var l_RotationRef = null as GameObject;
 #else
 #error Missing game implementation

@@ -135,19 +135,19 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber
         /// </summary>
         private static void Register()
         {
-            BeatSaberPlus.SDK.Game.Logic.OnLevelStarted -= Game_OnLevelStarted;
-            BeatSaberPlus.SDK.Game.Logic.OnLevelStarted += Game_OnLevelStarted;
+            CP_SDK_BS.Game.Logic.OnLevelStarted -= Game_OnLevelStarted;
+            CP_SDK_BS.Game.Logic.OnLevelStarted += Game_OnLevelStarted;
 
-            BeatSaberPlus.SDK.Game.Logic.OnLevelEnded   -= Game_OnLevelEnded;
-            BeatSaberPlus.SDK.Game.Logic.OnLevelEnded   += Game_OnLevelEnded;
+            CP_SDK_BS.Game.Logic.OnLevelEnded   -= Game_OnLevelEnded;
+            CP_SDK_BS.Game.Logic.OnLevelEnded   += Game_OnLevelEnded;
         }
         /// <summary>
         /// On disable
         /// </summary>
         private static void UnRegister()
         {
-            BeatSaberPlus.SDK.Game.Logic.OnLevelEnded   -= Game_OnLevelEnded;
-            BeatSaberPlus.SDK.Game.Logic.OnLevelStarted -= Game_OnLevelStarted;
+            CP_SDK_BS.Game.Logic.OnLevelEnded   -= Game_OnLevelEnded;
+            CP_SDK_BS.Game.Logic.OnLevelStarted -= Game_OnLevelStarted;
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -157,7 +157,7 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber
         /// On level started
         /// </summary>
         /// <param name="p_Data">Level data</param>
-        private static void Game_OnLevelStarted(BeatSaberPlus.SDK.Game.LevelData p_Data)
+        private static void Game_OnLevelStarted(CP_SDK_BS.Game.LevelData p_Data)
         {
             var l_Instance = CI.Instance;
             if (l_Instance == null || !l_Instance.IsEnabled)
@@ -172,9 +172,9 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber
             });
             CP_SDK.Unity.MTCoroutineStarter.Start(Game_FindPauseManager(p_Data));
         }
-        private static IEnumerator Game_FindPauseManager(BeatSaberPlus.SDK.Game.LevelData p_Data)
+        private static IEnumerator Game_FindPauseManager(CP_SDK_BS.Game.LevelData p_Data)
         {
-            if (p_Data.Type == BeatSaberPlus.SDK.Game.LevelType.Multiplayer)
+            if (p_Data.Type == CP_SDK_BS.Game.LevelType.Multiplayer)
                 yield break;
 
             var l_PauseController   = null as PauseController;
@@ -212,7 +212,7 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber
         /// On level ended
         /// </summary>
         /// <param name="p_Data">Completion data</param>
-        private static void Game_OnLevelEnded(BeatSaberPlus.SDK.Game.LevelCompletionData p_Data)
+        private static void Game_OnLevelEnded(CP_SDK_BS.Game.LevelCompletionData p_Data)
         {
             var l_Instance = CI.Instance;
             if (l_Instance == null || !l_Instance.IsEnabled)

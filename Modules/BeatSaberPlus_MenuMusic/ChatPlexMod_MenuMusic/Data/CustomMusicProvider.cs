@@ -59,7 +59,7 @@ namespace ChatPlexMod_MenuMusic.Data
 
             try
             {
-                var l_BaseDirectory = $"UserData/{CP_SDK.ChatPlexSDK.ProductName}/MenuMusic/CustomMusic";
+                var l_BaseDirectory = $"UserData/{CP_SDK.ChatPlexSDK.ProductName}Plus/MenuMusic/CustomMusic";
                 var l_Files         = new List<String>();
 
                 if (!Directory.Exists(l_BaseDirectory))

@@ -239,7 +239,7 @@ namespace ChatPlexMod_SongChartVisualizer.UI
         /// </summary>
         private void FixedUpdate()
         {
-            if (m_Graph == null || m_GetSongTime == null || CP_SDK.ChatPlexSDK.ActiveGenericScene != CP_SDK.ChatPlexSDK.EGenericScene.Playing)
+            if (m_Graph == null || m_GetSongTime == null || CP_SDK.ChatPlexSDK.ActiveGenericScene != CP_SDK.EGenericScene.Playing)
                 return;
 
             if (m_RotationFollow)
@@ -311,7 +311,7 @@ namespace ChatPlexMod_SongChartVisualizer.UI
             l_RectTransform.anchoredPosition    = new Vector2(-4.0f, p_PositionY * m_GraphCanvas.sizeDelta.y);
 
             var l_Image = l_LegendLine.GetComponent<Image>();
-            l_Image.sprite          = CP_SDK.Unity.SpriteU.CreateFromTextureWithBorders(Texture2D.whiteTexture);
+            l_Image.sprite          = CP_SDK.Unity.SpriteU.CreateFromTexture(Texture2D.whiteTexture);
             l_Image.type            = Image.Type.Simple;
             l_Image.color           = SCVConfig.Instance.DashLineColor;
             l_Image.raycastTarget   = false;

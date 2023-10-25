@@ -11,7 +11,7 @@ namespace BeatSaberPlus_NoteTweaker.UI.Modals
     /// </summary>
     internal sealed class ProfileImportModal : CP_SDK.UI.IModal
     {
-        private XUIDropdown m_DropDown = null;
+        private XUIDropdown m_Dropdown = null;
 
         private Action m_Callback = null;
         private string m_Selected = null;
@@ -24,7 +24,7 @@ namespace BeatSaberPlus_NoteTweaker.UI.Modals
         /// </summary>
         public override void OnShow()
         {
-            if (m_DropDown != null)
+            if (m_Dropdown != null)
                 return;
 
             Templates.ModalRectLayout(
@@ -32,7 +32,7 @@ namespace BeatSaberPlus_NoteTweaker.UI.Modals
 
                 XUIDropdown.Make()
                     .OnValueChanged((_, p_Selected) => m_Selected = p_Selected)
-                    .Bind(ref m_DropDown),
+                    .Bind(ref m_Dropdown),
 
                 XUIHLayout.Make(
                     XUISecondaryButton.Make("Cancel", OnCancelButton).SetWidth(30f),
@@ -60,13 +60,14 @@ namespace BeatSaberPlus_NoteTweaker.UI.Modals
         /// <param name="p_Callback">Callback</param>
         public void Init(Action p_Callback)
         {
+            m_Callback = null;
             m_Selected = string.Empty;
 
             var l_Files = new List<string>();
             foreach (var l_File in System.IO.Directory.GetFiles(NoteTweaker.IMPORT_FOLDER, "*.bspnt"))
                 l_Files.Add(System.IO.Path.GetFileNameWithoutExtension(l_File));
 
-            m_DropDown.SetOptions(l_Files);
+            m_Dropdown.SetOptions(l_Files);
 
             m_Callback = p_Callback;
         }
@@ -110,8 +111,8 @@ namespace BeatSaberPlus_NoteTweaker.UI.Modals
                         try { m_Callback?.Invoke(); }
                         catch (System.Exception l_Exception)
                         {
-                            ChatPlexSDK.Logger.Error($"[BeatSaberPlus_NoteTweaker.UI][ProfileImportModal.OnImportButton] Error:");
-                            ChatPlexSDK.Logger.Error(l_Exception);
+                            Logger.Instance.Error($"[BeatSaberPlus_NoteTweaker.UI][ProfileImportModal.OnImportButton] Error:");
+                            Logger.Instance.Error(l_Exception);
                         }
                     }
                     else

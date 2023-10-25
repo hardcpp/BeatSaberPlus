@@ -46,7 +46,7 @@ namespace ChatPlexMod_ChatEmoteRain
         /// </summary>
         /// <returns></returns>
         public override string GetRelativePath()
-            => $"{CP_SDK.ChatPlexSDK.ProductName}/ChatEmoteRain/Config";
+            => $"{CP_SDK.ChatPlexSDK.ProductName}Plus/ChatEmoteRain/Config";
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -159,10 +159,6 @@ namespace ChatPlexMod_ChatEmoteRain
                 });
 #endif
             }
-
-            ////////////////////////////////////////////////////////////////////////////
-
-            Save();
         }
     }
 }

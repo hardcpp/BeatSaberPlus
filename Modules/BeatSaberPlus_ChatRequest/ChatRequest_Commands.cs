@@ -126,7 +126,7 @@ namespace BeatSaberPlus_ChatRequest
                     return;
                 }
 
-                BeatSaberPlus.SDK.Game.BeatMapsClient.GetOnlineBySearch(l_Key, (p_Valid, p_SearchTaskResult) =>
+                CP_SDK_BS.Game.BeatMapsClient.GetOnlineBySearch(l_Key, (p_Valid, p_SearchTaskResult) =>
                 {
                     if (!p_Valid || p_SearchTaskResult.Length == 0)
                     {
@@ -242,13 +242,13 @@ namespace BeatSaberPlus_ChatRequest
             }
 
             /// Fetch beatmap
-            BeatSaberPlus.SDK.Game.BeatMapsClient.GetOnlineByKey(l_Key, (p_Valid, p_BeatMap) =>
+            CP_SDK_BS.Game.BeatMapsClient.GetOnlineByKey(l_Key, (p_Valid, p_BeatMap) =>
             {
                 try
                 {
                     string l_Reply = CRConfig.Instance.Commands.BSRCommand_NotFound.Replace("$BSRKey", l_Key);
 
-                    if (p_Valid
+                    if (p_Valid && p_BeatMap != null
                         &&  (
                                     p_ModAddCommand
                                 ||  (l_ForceAllow  || FilterBeatMap(p_BeatMap, p_Message.Sender.UserName, out l_Reply))
@@ -334,9 +334,9 @@ namespace BeatSaberPlus_ChatRequest
             }
 
             string l_Response = "";
-            if (BeatSaberPlus.SDK.Game.Logic.LevelData == null
-                || BeatSaberPlus.SDK.Game.Logic.LevelData?.Data == null
-                || BeatSaberPlus.SDK.Game.Logic.LevelData?.Data.difficultyBeatmap == null)
+            if (CP_SDK_BS.Game.Logic.LevelData == null
+                || CP_SDK_BS.Game.Logic.LevelData?.Data == null
+                || CP_SDK_BS.Game.Logic.LevelData?.Data.difficultyBeatmap == null)
             {
                 if (m_LastPlayingLevelResponse == "")
                     l_Response = CRConfig.Instance.Commands.LinkCommand_NoSong;
@@ -829,12 +829,12 @@ namespace BeatSaberPlus_ChatRequest
             }
 
             /// Fetch beatmap
-            BeatSaberPlus.SDK.Game.BeatMapsClient.GetOnlineByKey(l_Key, (p_Valid, p_BeatMap) =>
+            CP_SDK_BS.Game.BeatMapsClient.GetOnlineByKey(l_Key, (p_Valid, p_BeatMap) =>
             {
                 try
                 {
                     string l_Reply = "@$UserName map " + l_Key + " not found.";
-                    if (p_Valid)
+                    if (p_Valid && p_BeatMap != null)
                     {
                         l_Reply = "@$UserName (bsr $BSRKey) $SongName / $LevelAuthorName is now blacklisted!";
 

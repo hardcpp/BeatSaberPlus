@@ -81,7 +81,7 @@ namespace BeatSaberPlus_SongOverlay.Network
         internal static void Start()
         {
             /// Bind events
-            BeatSaberPlus.SDK.Game.Logic.OnSceneChange += Logic_OnSceneChange;
+            CP_SDK_BS.Game.Logic.OnSceneChange += Logic_OnSceneChange;
             Application.quitting += Stop;
 
             /// Prepare events
@@ -97,7 +97,7 @@ namespace BeatSaberPlus_SongOverlay.Network
             new Thread(() =>
             {
                 var l_WaitCount = 0;
-                while (string.IsNullOrEmpty(BeatSaberPlus.SDK.Game.UserPlatform.GetUserID()) && l_WaitCount < 20)
+                while (string.IsNullOrEmpty(CP_SDK_BS.Game.UserPlatform.GetUserID()) && l_WaitCount < 20)
                 {
                     Thread.Sleep(1000);
                     l_WaitCount++;
@@ -108,8 +108,8 @@ namespace BeatSaberPlus_SongOverlay.Network
                     ["_type"]               = "handshake",
                     ["protocolVersion"]     = PROTOCOL_VERSION,
                     ["gameVersion"]         = Application.version,
-                    ["playerName"]          = BeatSaberPlus.SDK.Game.UserPlatform.GetUserName(),
-                    ["playerPlatformId"]    = BeatSaberPlus.SDK.Game.UserPlatform.GetUserID(),
+                    ["playerName"]          = CP_SDK_BS.Game.UserPlatform.GetUserName(),
+                    ["playerPlatformId"]    = CP_SDK_BS.Game.UserPlatform.GetUserID(),
                 };
 
 #if DEBUG
@@ -186,7 +186,7 @@ namespace BeatSaberPlus_SongOverlay.Network
         {
             /// Unbing events
             Application.quitting -= Stop;
-            BeatSaberPlus.SDK.Game.Logic.OnSceneChange -= Logic_OnSceneChange;
+            CP_SDK_BS.Game.Logic.OnSceneChange -= Logic_OnSceneChange;
 
             m_ThreadRunning = false;
         }
@@ -212,7 +212,7 @@ namespace BeatSaberPlus_SongOverlay.Network
             {
                 p_Client.SendData(m_Handshake);
 
-                if (BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.ESceneType.Playing)
+                if (CP_SDK_BS.Game.Logic.ActiveScene == CP_SDK_BS.Game.Logic.ESceneType.Playing)
                 {
                     p_Client.SendData(JsonConvert.SerializeObject(m_MapInfoEvent));
                     p_Client.SendData(JsonConvert.SerializeObject(m_ScoreEvent));
@@ -260,13 +260,13 @@ namespace BeatSaberPlus_SongOverlay.Network
         /// On Game State changed
         /// </summary>
         /// <param name="p_Scene">New scene</param>
-        private static void Logic_OnSceneChange(BeatSaberPlus.SDK.Game.Logic.ESceneType p_Scene)
+        private static void Logic_OnSceneChange(CP_SDK_BS.Game.Logic.ESceneType p_Scene)
         {
-            if (p_Scene == BeatSaberPlus.SDK.Game.Logic.ESceneType.Playing)
+            if (p_Scene == CP_SDK_BS.Game.Logic.ESceneType.Playing)
             {
                 m_IsPaused = false;
 
-                var l_Map = BeatSaberPlus.SDK.Game.Logic.LevelData;
+                var l_Map = CP_SDK_BS.Game.Logic.LevelData;
                 if (l_Map == null)
                     return;
 
@@ -293,7 +293,7 @@ namespace BeatSaberPlus_SongOverlay.Network
 
                 CP_SDK.Unity.MTCoroutineStarter.Start(Coroutine_WaitForGameplayReady(l_Map.Type, l_CoverTask));
             }
-            else if (p_Scene == BeatSaberPlus.SDK.Game.Logic.ESceneType.Menu)
+            else if (p_Scene == CP_SDK_BS.Game.Logic.ESceneType.Menu)
             {
                 m_IsPaused                  = false;
                 m_ScoreController           = null;
@@ -309,7 +309,7 @@ namespace BeatSaberPlus_SongOverlay.Network
         /// On gameplay start coroutine
         /// </summary>
         /// <returns></returns>
-        private static IEnumerator Coroutine_WaitForGameplayReady(BeatSaberPlus.SDK.Game.LevelType p_Type, Task<Sprite> p_CoverTask)
+        private static IEnumerator Coroutine_WaitForGameplayReady(CP_SDK_BS.Game.LevelType p_Type, Task<Sprite> p_CoverTask)
         {
             if (p_CoverTask != null)
             {
@@ -353,7 +353,7 @@ namespace BeatSaberPlus_SongOverlay.Network
             yield return new WaitUntil(() => Resources.FindObjectsOfTypeAll<ComboController>().LastOrDefault());
             yield return new WaitUntil(() => Resources.FindObjectsOfTypeAll<GameEnergyCounter>().LastOrDefault());
 
-            if (p_Type != BeatSaberPlus.SDK.Game.LevelType.Multiplayer)
+            if (p_Type != CP_SDK_BS.Game.LevelType.Multiplayer)
                 yield return new WaitUntil(() => Resources.FindObjectsOfTypeAll<PauseController>().LastOrDefault());
 
             m_AudioTimeSyncController   = Resources.FindObjectsOfTypeAll<AudioTimeSyncController>().LastOrDefault();
@@ -366,7 +366,7 @@ namespace BeatSaberPlus_SongOverlay.Network
 
             m_MapInfoEventQueued = true;
 
-            m_GameStateEvent.gameStateChanged = BeatSaberPlus.SDK.Game.Logic.ActiveScene.ToString();
+            m_GameStateEvent.gameStateChanged = CP_SDK_BS.Game.Logic.ActiveScene.ToString();
 
             m_GameStateEventQueued = true;
 
@@ -379,7 +379,7 @@ namespace BeatSaberPlus_SongOverlay.Network
 
             m_ScoreEventQueued = true;
 
-            if (p_Type != BeatSaberPlus.SDK.Game.LevelType.Multiplayer)
+            if (p_Type != CP_SDK_BS.Game.LevelType.Multiplayer)
                 m_PauseController = Resources.FindObjectsOfTypeAll<PauseController>().LastOrDefault();
 
             m_ComboController.comboDidChangeEvent           += ComboController_comboDidChangeEvent;

@@ -12,15 +12,12 @@ namespace BeatSaberPlus_GameTweaker.Patches
         /// <summary>
         /// DidActivate
         /// </summary>
-        /// <param name="____beatmapEditorButton">BeatMap editor button instance</param>
-        /// <param name="____musicPackPromoBanner">Promo banner instance</param>
         internal static void Postfix(IPreviewBeatmapLevel level, bool isFavorite,
                                      ref TextMeshProUGUI ____songNameText)
         {
-            if (GTConfig.Instance.LevelSelection.HighlightEnabled && level.levelID.StartsWith("custom_level_"))
+            if (GTConfig.Instance.LevelSelection.HighlightEnabled)
             {
-                var l_LevelHash = level.levelID.Substring("custom_level_".Length);
-                BeatSaberPlus.SDK.Game.Levels.GetScoresByHash(l_LevelHash, out var l_HaveAnyScore, out var l_HaveAllScores);
+                CP_SDK_BS.Game.Levels.GetScoresByLevelID(level.levelID, out var l_HaveAnyScore, out var l_HaveAllScores);
 
                 var l_ColorPrefix = "";
                 if (l_HaveAllScores)

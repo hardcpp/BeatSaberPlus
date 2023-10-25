@@ -15,8 +15,6 @@ namespace BeatSaberPlus_NoteTweaker
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        [JsonProperty] internal bool Enabled = false;
-
         internal class _Profile
         {
             [JsonProperty] internal string Name = "New profile";
@@ -60,12 +58,14 @@ namespace BeatSaberPlus_NoteTweaker
 
             internal bool IsDefault()
                 => Name == DEFAULT_PROFILE_NAME;
-
         }
+
+        [JsonProperty] internal bool Enabled = false;
+
+        [JsonProperty] internal int  ActiveProfile = 1;
+
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         internal List<_Profile> Profiles = new List<_Profile>();
-
-        [JsonProperty] internal int ActiveProfile = 1;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -101,7 +101,7 @@ namespace BeatSaberPlus_NoteTweaker
         /// </summary>
         /// <returns></returns>
         public override string GetRelativePath()
-            => $"{CP_SDK.ChatPlexSDK.ProductName}/NoteTweaker/Config";
+            => $"{CP_SDK.ChatPlexSDK.ProductName}Plus/NoteTweaker/Config";
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -166,15 +166,17 @@ namespace BeatSaberPlus_NoteTweaker
 
             if (Profiles == null || Profiles.Count == 0)
             {
-                Profiles = new List<_Profile>();
-                Profiles.Add(_Profile.AsDefault());
-                Profiles.Add(new _Profile());
+                Profiles = new List<_Profile>
+                {
+                    _Profile.AsDefault(),
+                    new _Profile()
+                };
             }
-
-            Profiles.RemoveAll(x => x.IsDefault());
-            Profiles.Insert(0, _Profile.AsDefault());
-
-            Save();
+            else
+            {
+                Profiles.RemoveAll(x => x.IsDefault());
+                Profiles.Insert(0, _Profile.AsDefault());
+            }
         }
     }
 }

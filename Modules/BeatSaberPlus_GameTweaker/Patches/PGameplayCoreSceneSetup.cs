@@ -56,7 +56,7 @@ namespace BeatSaberPlus_GameTweaker.Patches
                 m_BeatMapToRestoreValue = l_IDifficultyBeatmap.beatmapData.spawnRotationEventsCount;
 
                 /// Add on scene change event callback
-                BeatSaberPlus.SDK.Game.Logic.OnSceneChange += Game_OnSceneChange;
+                CP_SDK_BS.Game.Logic.OnSceneChange += Game_OnSceneChange;
 
                 /// Update rotation count
                 IPA.Utilities.ReflectionUtil.SetProperty<BeatmapData, int>(l_IDifficultyBeatmap.beatmapData, "spawnRotationEventsCount", 0);
@@ -70,9 +70,9 @@ namespace BeatSaberPlus_GameTweaker.Patches
         /// When the active scene is changed
         /// </summary>
         /// <param name="p_SceneType"></param>
-        private static void Game_OnSceneChange(BeatSaberPlus.SDK.Game.Logic.SceneType p_SceneType)
+        private static void Game_OnSceneChange(CP_SDK_BS.Game.Logic.SceneType p_SceneType)
         {
-            if (p_SceneType != BeatSaberPlus.SDK.Game.Logic.SceneType.Menu)
+            if (p_SceneType != CP_SDK_BS.Game.Logic.SceneType.Menu)
                 return;
 
             /// Restore rotation count
@@ -80,7 +80,7 @@ namespace BeatSaberPlus_GameTweaker.Patches
                 IPA.Utilities.ReflectionUtil.SetProperty<BeatmapData, int>(m_BeatMapToRestore, "spawnRotationEventsCount", m_BeatMapToRestoreValue);
 
             /// Remove on scene change event callback
-            BeatSaberPlus.SDK.Game.Logic.OnSceneChange -= Game_OnSceneChange;
+            CP_SDK_BS.Game.Logic.OnSceneChange -= Game_OnSceneChange;
 
             /// Remove reference
             m_BeatMapToRestore = null;

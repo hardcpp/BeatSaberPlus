@@ -72,7 +72,7 @@ namespace ChatPlexMod_MenuMusic.Data
             if (l_CustomPreviewBeatmapLevel == null)
                 return false;
 
-            BeatSaberPlus.SDK.Game.LevelSelection.FilterToSpecificSong(l_CustomPreviewBeatmapLevel);
+            CP_SDK_BS.Game.LevelSelection.FilterToSpecificSong(l_CustomPreviewBeatmapLevel);
             return true;
 #else
 #error Missing game implementation

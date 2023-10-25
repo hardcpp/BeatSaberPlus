@@ -137,13 +137,13 @@
     <None Include="BuildTargets.targets" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\BeatSaberPlus\BeatSaberPlus.csproj">
-      <Project>{84972bac-4faf-4da8-92ed-e3a735af0e92}</Project>
-      <Name>BeatSaberPlus</Name>
-    </ProjectReference>
+    <EmbeddedResource Include="ChatPlexMod_Chat\Resources\ViewerIcon.png" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="ChatPlexMod_Chat\Resources\ViewerIcon.png" />
+    <ProjectReference Include="..\..\ChatPlexSDK_BS\ChatPlexSDK_BS.csproj">
+      <Project>{84972bac-4faf-4da8-92ed-e3a735af0e92}</Project>
+      <Name>ChatPlexSDK_BS</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="BuildTargets.targets" />

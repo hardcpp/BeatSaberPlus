@@ -63,7 +63,7 @@ namespace ChatPlexMod_Chat.UI
         /// </summary>
         protected override sealed void OnViewCreation()
         {
-            var l_WhiteSprite = CP_SDK.Unity.SpriteU.CreateFromTextureWithBorders(Texture2D.whiteTexture);
+            var l_WhiteSprite = CP_SDK.Unity.SpriteU.CreateFromTexture(Texture2D.whiteTexture);
 
             Templates.FullRectLayout(
                 Templates.TitleBar("Prediction"),

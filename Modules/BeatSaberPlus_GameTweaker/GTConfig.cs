@@ -69,7 +69,7 @@ namespace BeatSaberPlus_GameTweaker
         /// </summary>
         /// <returns></returns>
         public override string GetRelativePath()
-            => $"{CP_SDK.ChatPlexSDK.ProductName}/GameTweaker/Config";
+            => $"{CP_SDK.ChatPlexSDK.ProductName}Plus/GameTweaker/Config";
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -80,7 +80,7 @@ namespace BeatSaberPlus_GameTweaker
         /// <param name="p_OnCreation">On creation</param>
         protected override void OnInit(bool p_OnCreation)
         {
-            Save();
+
         }
     }
 }

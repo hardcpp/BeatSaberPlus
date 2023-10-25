@@ -76,7 +76,7 @@ namespace BeatSaberPlus_ChatRequest
             }
 
             /// Avoid saving during play
-            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene != BeatSaberPlus.SDK.Game.Logic.ESceneType.Playing)
+            if (CP_SDK_BS.Game.Logic.ActiveScene != CP_SDK_BS.Game.Logic.ESceneType.Playing)
             {
                 CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() =>
                 {
@@ -103,7 +103,7 @@ namespace BeatSaberPlus_ChatRequest
                     SongBlackList.RemoveAll(z => z == p_Entry);
                 } } }
 
-                BeatSaberPlus.SDK.Game.BeatMapsClient.ClearCache(p_Entry.BeatSaver_Map.id);
+                CP_SDK_BS.Game.BeatMapsClient.ClearCache(p_Entry.BeatSaver_Map.id);
 
                 CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() =>
                 {
@@ -119,7 +119,7 @@ namespace BeatSaberPlus_ChatRequest
             if (!p_Valid)
                 return;
 
-            BeatSaberPlus.SDK.Game.BeatMapsClient.Cache(p_Entry.BeatSaver_Map);
+            CP_SDK_BS.Game.BeatMapsClient.Cache(p_Entry.BeatSaver_Map);
 
             /// Update request manager
             OnQueueChanged();
@@ -135,7 +135,7 @@ namespace BeatSaberPlus_ChatRequest
         /// <param name="p_Service">Source channel</param>
         /// <param name="p_SourceMessage">Context message</param>
         /// <param name="p_ContextMap">Context map</param>
-        internal void SendChatMessage(string p_Message, IChatService p_Service, IChatMessage p_SourceMessage, BeatSaberPlus.SDK.Game.BeatMaps.MapDetail p_ContextMap = null)
+        internal void SendChatMessage(string p_Message, IChatService p_Service, IChatMessage p_SourceMessage, CP_SDK_BS.Game.BeatMaps.MapDetail p_ContextMap = null)
         {
             if (p_SourceMessage != null && p_SourceMessage.Sender != null)
                 p_Message = p_Message.Replace("$UserName", p_SourceMessage.Sender.DisplayName);
@@ -267,7 +267,7 @@ namespace BeatSaberPlus_ChatRequest
 
                     /// Clear cache
                     if (SongBlackList.Count(x => x.BeatSaver_Map.id == l_ToRemove.BeatSaver_Map.id) == 0)
-                        BeatSaberPlus.SDK.Game.BeatMapsClient.ClearCache(l_ToRemove.BeatSaver_Map.id);
+                        CP_SDK_BS.Game.BeatMapsClient.ClearCache(l_ToRemove.BeatSaver_Map.id);
 
                     SongHistory.RemoveAt(SongHistory.Count - 1);
                 }
@@ -378,7 +378,7 @@ namespace BeatSaberPlus_ChatRequest
         /// <param name="p_SenderName">Requester name</param>
         /// <param name="p_Reply">Output reply</param>
         /// <returns></returns>
-        private bool FilterBeatMap(BeatSaberPlus.SDK.Game.BeatMaps.MapDetail p_BeatMap, string p_SenderName, out string p_Reply)
+        private bool FilterBeatMap(CP_SDK_BS.Game.BeatMaps.MapDetail p_BeatMap, string p_SenderName, out string p_Reply)
         {
             p_Reply = "";
 

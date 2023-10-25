@@ -109,9 +109,9 @@ namespace ChatPlexMod_Chat.Components
             Text.margin                             = new Vector4(s_LeftRightMargins, s_TopDownMargins, s_LeftRightMargins, s_TopDownMargins);
             Text.raycastTarget                      = false;
             Text.enableWordWrapping                 = true;
-            Text.fontStyle                          = FontStyles.Normal;
-            Text.overflowMode                       = TextOverflowModes.Overflow;
-            Text.alignment                          = TextAlignmentOptions.TopLeft;
+            TMProProxy.TMP_Text_SetFontStyle(Text, FontStyles.Normal);
+            TMProProxy.TMP_Text_SetTextOverflowMode(Text, TextOverflowModes.Overflow);
+            TMProProxy.TMP_Text_SetAlignment(Text, TextAlignmentOptions.TopLeft);
             Text.OnLatePreRenderRebuildComplete += Text_OnLatePreRenderRebuildComplete;
 
             /// Prepare sub text
@@ -123,9 +123,9 @@ namespace ChatPlexMod_Chat.Components
             SubText.margin                          = new Vector4(s_LeftRightMargins, s_TopDownMargins, s_LeftRightMargins, s_TopDownMargins);
             SubText.raycastTarget                   = false;
             SubText.enableWordWrapping              = true;
-            SubText.fontStyle                       = FontStyles.Normal;
-            SubText.overflowMode                    = TextOverflowModes.Overflow;
-            SubText.alignment                       = TextAlignmentOptions.TopLeft;
+            TMProProxy.TMP_Text_SetFontStyle(SubText, FontStyles.Normal);
+            TMProProxy.TMP_Text_SetTextOverflowMode(SubText, TextOverflowModes.Overflow);
+            TMProProxy.TMP_Text_SetAlignment(SubText, TextAlignmentOptions.TopLeft);
             SubText.OnLatePreRenderRebuildComplete += Text_OnLatePreRenderRebuildComplete;
 
             /// Accent image
@@ -205,8 +205,8 @@ namespace ChatPlexMod_Chat.Components
         /// </summary>
         private void OnTextChanged()
         {
-            float l_TextHeight      = Mathf.Max(0, Text.GetRenderedValues().y + (2 * s_TopDownMargins));
-            float l_SubTextHeight   = SubTextEnabled ? Mathf.Max(0, SubText.GetRenderedValues().y + (2 * s_TopDownMargins)) : 0;
+            float l_TextHeight      = Mathf.Max(0, TMProProxy.TMP_Text_GetRendererValues(Text).y + (2 * s_TopDownMargins));
+            float l_SubTextHeight   = SubTextEnabled ? Mathf.Max(0, TMProProxy.TMP_Text_GetRendererValues(SubText).y + (2 * s_TopDownMargins)) : 0;
 
             //if (l_TextHeight == 0)
             //    l_TextHeight = Text.GetPreferredValues(" ").y;

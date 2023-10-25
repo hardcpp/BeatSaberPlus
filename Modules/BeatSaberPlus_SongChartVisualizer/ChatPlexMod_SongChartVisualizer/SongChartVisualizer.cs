@@ -50,7 +50,7 @@ namespace ChatPlexMod_SongChartVisualizer
             /// Bind event
             CP_SDK.ChatPlexSDK.OnGenericSceneChange += ChatPlexSDK_OnGenericSceneChange;
 #if BEATSABER
-            BeatSaberPlus.SDK.Game.Logic.OnLevelStarted += Game_LevelStarted;
+            CP_SDK_BS.Game.Logic.OnLevelStarted += Game_LevelStarted;
 #else
 #error Missing game implementation
 #endif
@@ -68,7 +68,7 @@ namespace ChatPlexMod_SongChartVisualizer
                 m_ChartFloatingPanel.SetSize(new Vector2(105.0f, 65.0f));
                 m_ChartFloatingPanel.SetBackground(true);
                 m_ChartFloatingPanel.SetBackgroundColor(SCVConfig.Instance.BackgroundColor);
-                m_ChartFloatingPanel.OnSceneRelease(CP_SDK.ChatPlexSDK.EGenericScene.Playing, ChartFloatingPanel_OnRelease);
+                m_ChartFloatingPanel.OnSceneRelease(CP_SDK.EGenericScene.Playing, ChartFloatingPanel_OnRelease);
                 m_ChartFloatingPanel.SetRadius(0f);
 
                 m_ChartFloatingPanelView = CP_SDK.UI.UISystem.CreateViewController<UI.ChartFloatingPanelView>();
@@ -112,7 +112,7 @@ namespace ChatPlexMod_SongChartVisualizer
             /// Unbind event
             CP_SDK.ChatPlexSDK.OnGenericSceneChange -= ChatPlexSDK_OnGenericSceneChange;
 #if BEATSABER
-            BeatSaberPlus.SDK.Game.Logic.OnLevelStarted -= Game_LevelStarted;
+            CP_SDK_BS.Game.Logic.OnLevelStarted -= Game_LevelStarted;
 #else
 #error Missing game implementation
 #endif
@@ -141,9 +141,9 @@ namespace ChatPlexMod_SongChartVisualizer
         /// On generic scene change
         /// </summary>
         /// <param name="p_GenericScene"></param>
-        private void ChatPlexSDK_OnGenericSceneChange(CP_SDK.ChatPlexSDK.EGenericScene p_GenericScene)
+        private void ChatPlexSDK_OnGenericSceneChange(CP_SDK.EGenericScene p_GenericScene)
         {
-            if (p_GenericScene != CP_SDK.ChatPlexSDK.EGenericScene.Menu)
+            if (p_GenericScene != CP_SDK.EGenericScene.Menu)
                 return;
 
             m_RootTransform.gameObject.SetActive(false);
@@ -153,10 +153,10 @@ namespace ChatPlexMod_SongChartVisualizer
         /// When a level start
         /// </summary>
         /// <param name="p_Data">Level data</param>
-        private void Game_LevelStarted(BeatSaberPlus.SDK.Game.LevelData p_Data)
+        private void Game_LevelStarted(CP_SDK_BS.Game.LevelData p_Data)
         {
             /// Not enabled in multi-player
-            if (p_Data.Type == BeatSaberPlus.SDK.Game.LevelType.Multiplayer)
+            if (p_Data.Type == CP_SDK_BS.Game.LevelType.Multiplayer)
                 return;
 
             /// Start the task
@@ -230,14 +230,14 @@ namespace ChatPlexMod_SongChartVisualizer
             yield return new WaitForEndOfFrame();
 
 #if BEATSABER
-            if (BeatSaberPlus.SDK.Game.Logic.LevelData?.Data?.playerSpecificSettings?.noTextsAndHuds ?? false)
+            if (CP_SDK_BS.Game.Logic.LevelData?.Data?.playerSpecificSettings?.noTextsAndHuds ?? false)
             {
                 m_RootTransform.gameObject.SetActive(false);
                 yield break;
             }
 
-            var l_TransformedBeatmapData    = BeatSaberPlus.SDK.Game.Logic.LevelData?.Data?.transformedBeatmapData;
-            var l_DifficultyBeatmap         = BeatSaberPlus.SDK.Game.Logic.LevelData?.Data?.difficultyBeatmap;
+            var l_TransformedBeatmapData    = CP_SDK_BS.Game.Logic.LevelData?.Data?.transformedBeatmapData;
+            var l_DifficultyBeatmap         = CP_SDK_BS.Game.Logic.LevelData?.Data?.difficultyBeatmap;
             var l_SongDuration              = l_DifficultyBeatmap?.level?.beatmapLevelData?.audioClip?.length ?? -1f;
 
             if (l_TransformedBeatmapData == null
@@ -247,7 +247,7 @@ namespace ChatPlexMod_SongChartVisualizer
                 yield break;
             }
 
-            var l_HasRotation = BeatSaberPlus.SDK.Game.Logic.LevelData?.HasRotations ?? false;
+            var l_HasRotation = CP_SDK_BS.Game.Logic.LevelData?.HasRotations ?? false;
 #else
 #error Missing game implementation
 #endif
@@ -270,7 +270,7 @@ namespace ChatPlexMod_SongChartVisualizer
                 if (m_AudioTimeSyncController != null)
                     break;
 
-                if (CP_SDK.ChatPlexSDK.ActiveGenericScene != CP_SDK.ChatPlexSDK.EGenericScene.Playing)
+                if (CP_SDK.ChatPlexSDK.ActiveGenericScene != CP_SDK.EGenericScene.Playing)
                     yield break;
 
                 yield return l_Waiter;
@@ -291,7 +291,7 @@ namespace ChatPlexMod_SongChartVisualizer
                         break;
                     }
 
-                    if (CP_SDK.ChatPlexSDK.ActiveGenericScene != CP_SDK.ChatPlexSDK.EGenericScene.Playing)
+                    if (CP_SDK.ChatPlexSDK.ActiveGenericScene != CP_SDK.EGenericScene.Playing)
                         yield break;
 
                     l_Atempt++;
@@ -315,7 +315,7 @@ namespace ChatPlexMod_SongChartVisualizer
         private void ChartFloatingPanel_OnRelease(Vector3 p_LocalPosition, Vector3 p_LocalEulerAngles)
         {
 #if BEATSABER
-            var l_HasRotation = BeatSaberPlus.SDK.Game.Logic.LevelData?.HasRotations ?? false;
+            var l_HasRotation = CP_SDK_BS.Game.Logic.LevelData?.HasRotations ?? false;
 #else
 #error Missing game implementation
 #endif

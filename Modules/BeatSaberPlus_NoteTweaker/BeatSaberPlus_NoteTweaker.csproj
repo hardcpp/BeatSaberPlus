@@ -138,7 +138,7 @@
     <Compile Include="Logger.cs" />
     <Compile Include="NoteTweaker.cs" />
     <Compile Include="NTConfig.cs" />
-    <Compile Include="Patches\PBombContoller.cs" />
+    <Compile Include="Patches\PBombNoteController.cs" />
     <Compile Include="Patches\PColorNoteVisuals.cs" />
     <Compile Include="Patches\PBurstSliderGameNoteController.cs" />
     <Compile Include="Patches\PGameNoteController.cs" />
@@ -158,9 +158,9 @@
     <None Include="BuildTargets.targets" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\BeatSaberPlus\BeatSaberPlus.csproj">
+    <ProjectReference Include="..\..\ChatPlexSDK_BS\ChatPlexSDK_BS.csproj">
       <Project>{84972bac-4faf-4da8-92ed-e3a735af0e92}</Project>
-      <Name>BeatSaberPlus</Name>
+      <Name>ChatPlexSDK_BS</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

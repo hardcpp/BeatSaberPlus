@@ -14,7 +14,7 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Conditions
 
         public override bool Eval(ChatPlexMod_ChatIntegrations.Models.EventContext p_Context)
         {
-            return BeatSaberPlus.SDK.Game.Logic.ActiveScene == BeatSaberPlus.SDK.Game.Logic.ESceneType.Menu;
+            return CP_SDK_BS.Game.Logic.ActiveScene == CP_SDK_BS.Game.Logic.ESceneType.Menu;
         }
     }
 
@@ -87,7 +87,7 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Conditions
 
         public override bool Eval(ChatPlexMod_ChatIntegrations.Models.EventContext p_Context)
         {
-            var l_LevelCompletionDataResults = BeatSaberPlus.SDK.Game.Logic.LevelCompletionData.Results;
+            var l_LevelCompletionDataResults = CP_SDK_BS.Game.Logic.LevelCompletionData.Results;
             var l_LevelEndAction             = l_LevelCompletionDataResults.levelEndAction;
             var l_LevelEndStateType          = l_LevelCompletionDataResults.levelEndStateType;
 
@@ -151,31 +151,31 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Conditions
 
         public override bool Eval(ChatPlexMod_ChatIntegrations.Models.EventContext p_Context)
         {
-            if (CP_SDK.ChatPlexSDK.ActiveGenericScene != CP_SDK.ChatPlexSDK.EGenericScene.Playing)
+            if (CP_SDK.ChatPlexSDK.ActiveGenericScene != CP_SDK.EGenericScene.Playing)
                 return false;
 
-            var l_LevelData = BeatSaberPlus.SDK.Game.Logic.LevelData;
+            var l_LevelData = CP_SDK_BS.Game.Logic.LevelData;
 
             if (l_LevelData == null)
                 return false;
 
-            var l_IsInReplay        = BeatSaberPlus.SDK.Game.Scoring.IsInReplay;
+            var l_IsInReplay        = CP_SDK_BS.Game.Scoring.IsInReplay;
             var l_LevelTypeCond     = false;
             var l_BeatMapTypeCond   = false;
 
             switch (Model.LevelType)
             {
                 case Enums.LevelType.E.Solo:
-                    l_LevelTypeCond = !l_IsInReplay && l_LevelData.Type == BeatSaberPlus.SDK.Game.LevelType.Solo;
+                    l_LevelTypeCond = !l_IsInReplay && l_LevelData.Type == CP_SDK_BS.Game.LevelType.Solo;
                     break;
                 case Enums.LevelType.E.Multiplayer:
-                    l_LevelTypeCond = !l_IsInReplay && l_LevelData.Type == BeatSaberPlus.SDK.Game.LevelType.Multiplayer;
+                    l_LevelTypeCond = !l_IsInReplay && l_LevelData.Type == CP_SDK_BS.Game.LevelType.Multiplayer;
                     break;
                 case Enums.LevelType.E.Replay:
-                    l_LevelTypeCond = l_IsInReplay && l_LevelData.Type == BeatSaberPlus.SDK.Game.LevelType.Solo;
+                    l_LevelTypeCond = l_IsInReplay && l_LevelData.Type == CP_SDK_BS.Game.LevelType.Solo;
                     break;
                 case Enums.LevelType.E.SoloAndMultiplayer:
-                    l_LevelTypeCond = !l_IsInReplay && (l_LevelData.Type == BeatSaberPlus.SDK.Game.LevelType.Solo || l_LevelData.Type == BeatSaberPlus.SDK.Game.LevelType.Multiplayer);
+                    l_LevelTypeCond = !l_IsInReplay && (l_LevelData.Type == CP_SDK_BS.Game.LevelType.Solo || l_LevelData.Type == CP_SDK_BS.Game.LevelType.Multiplayer);
                     break;
                 case Enums.LevelType.E.Any:
                 default:

@@ -99,7 +99,7 @@ namespace BeatSaberPlus_GameTweaker.Patches
                         m_CustomReactionTime.SetMaxValue(1000f);
                         m_CustomReactionTime.SetIncrements(1f);
                         m_CustomReactionTime.SetInteger(true);
-                        m_CustomReactionTime.SetFormatter((x) => ((int)x).ToString() + "ms");
+                        m_CustomReactionTime.SetFormatter(CP_SDK.UI.ValueFormatters.MillisecondsShort);
                         m_CustomReactionTime.OnValueChanged((x) =>
                         {
                             m_NoteJumpFixedDurationSettingsController.SetValue(m_NoteJumpFixedDurationSettingsController.values[((int)x) - 200], true);

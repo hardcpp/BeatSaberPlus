@@ -36,8 +36,8 @@ namespace BeatSaberPlus_GameTweaker
         protected override void OnEnable()
         {
             /// Bind event
-            BeatSaberPlus.SDK.Game.Logic.OnSceneChange  += Game_OnSceneChange;
-            BeatSaberPlus.SDK.Game.Logic.OnLevelStarted += Game_OnLevelStarted;
+            CP_SDK_BS.Game.Logic.OnSceneChange  += Game_OnSceneChange;
+            CP_SDK_BS.Game.Logic.OnLevelStarted += Game_OnLevelStarted;
 
             Managers.CustomMenuLightManager.Init();
 
@@ -56,8 +56,8 @@ namespace BeatSaberPlus_GameTweaker
             CP_SDK.UI.UISystem.DestroyUI(ref m_SettingsMainView);
 
             /// Unbind event
-            BeatSaberPlus.SDK.Game.Logic.OnLevelStarted -= Game_OnLevelStarted;
-            BeatSaberPlus.SDK.Game.Logic.OnSceneChange  -= Game_OnSceneChange;
+            CP_SDK_BS.Game.Logic.OnLevelStarted -= Game_OnLevelStarted;
+            CP_SDK_BS.Game.Logic.OnSceneChange  -= Game_OnSceneChange;
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -237,16 +237,16 @@ namespace BeatSaberPlus_GameTweaker
         /// On game scene change
         /// </summary>
         /// <param name="p_Scene">New scene</param>
-        private void Game_OnSceneChange(BeatSaberPlus.SDK.Game.Logic.ESceneType p_Scene)
+        private void Game_OnSceneChange(CP_SDK_BS.Game.Logic.ESceneType p_Scene)
         {
-            Patches.Lights.PLightsPatches.SetIsValidScene(p_Scene == BeatSaberPlus.SDK.Game.Logic.ESceneType.Playing);
+            Patches.Lights.PLightsPatches.SetIsValidScene(p_Scene == CP_SDK_BS.Game.Logic.ESceneType.Playing);
             UpdateWorldParticles();
         }
         /// <summary>
         /// On level started
         /// </summary>
         /// <param name="p_LevelData">Level data</param>
-        private void Game_OnLevelStarted(BeatSaberPlus.SDK.Game.LevelData p_LevelData)
+        private void Game_OnLevelStarted(CP_SDK_BS.Game.LevelData p_LevelData)
         {
             Patches.Lights.PLightsPatches.SetFromConfig();
             Patches.PNoteDebrisSpawner.SetFromConfig();

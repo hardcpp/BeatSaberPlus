@@ -31,13 +31,15 @@ namespace BeatSaberPlus_NoteTweaker.Patches
             if (!m_Enabled && !m_TempEnabled)
                 return;
 
-            __instance.gameObject.transform.localScale = m_TempEnabled ? m_TempNoteScale : m_NoteScale;
+            __instance.transform.localScale = m_TempEnabled ? m_TempNoteScale : m_NoteScale;
+
+            var l_BoxScale = m_TempEnabled ? m_TempNoteInvScale : m_NoteInvScale;
 
             for (int l_I = 0; l_I < ____bigCuttableBySaberList.Length; ++l_I)
-                ____bigCuttableBySaberList[l_I].transform.localScale = m_TempEnabled ? m_TempNoteInvScale : m_NoteInvScale;
+                ____bigCuttableBySaberList[l_I].transform.localScale = l_BoxScale;
 
             for (int l_I = 0; l_I < ____smallCuttableBySaberList.Length; ++l_I)
-                ____smallCuttableBySaberList[l_I].transform.localScale = m_TempEnabled ? m_TempNoteInvScale : m_NoteInvScale;
+                ____smallCuttableBySaberList[l_I].transform.localScale = l_BoxScale;
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -85,9 +87,9 @@ namespace BeatSaberPlus_NoteTweaker.Patches
         /// <returns></returns>
         private static bool IsScaleAllowed()
         {
-            if ((BeatSaberPlus.SDK.Game.Logic.LevelData?.Data?.gameplayModifiers?.proMode ?? false)
-             || (BeatSaberPlus.SDK.Game.Logic.LevelData?.Data?.gameplayModifiers?.smallCubes ?? false)
-             || (BeatSaberPlus.SDK.Game.Logic.LevelData?.Data?.gameplayModifiers?.strictAngles ?? false))
+            if ((CP_SDK_BS.Game.Logic.LevelData?.Data?.gameplayModifiers?.proMode ?? false)
+             || (CP_SDK_BS.Game.Logic.LevelData?.Data?.gameplayModifiers?.smallCubes ?? false)
+             || (CP_SDK_BS.Game.Logic.LevelData?.Data?.gameplayModifiers?.strictAngles ?? false))
                 return false;
 
             return true;

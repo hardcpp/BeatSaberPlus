@@ -2,13 +2,13 @@
   "$schema": "https://raw.githubusercontent.com/beat-saber-modding-group/BSIPA-MetadataFileSchema/master/Schema.json",
   "id": "BeatSaberPlus_ChatIntegrations",
   "name": "BeatSaberPlus_ChatIntegrations",
-  "author": "HardCPP#1985",
-  "version": "6.1.0",
+  "author": "HardCPP",
+  "version": "6.2.0",
   "description": "",
   "gameVersion": "1.31.0",
   "dependsOn": {
     "BSIPA": "^4.3.0",
-    "BeatSaberPlusCORE": "^6.1.0"
+    "ChatPlexSDK_BS": "^6.2.0"
   },
   "loadAfter": [
     "BeatSaberPlus_Chat",
@@ -16,12 +16,13 @@
     "BeatSaberPlus_ChatRequest",
     "BeatSaberPlus_GameTweaker",
     "BeatSaberPlus_MenuMusic",
+    "BeatSaberPlus_Multiplayer",
     "BeatSaberPlus_NoteTweaker",
     "BeatSaberPlus_SongChartVisualizer",
     "BeatSaberPlus_SongOverlay"
   ],
   "links": {
-    "project-home": "https://discord.gg/K4X94Ea",
+    "project-home": "https://discord.chatplex.org",
     "donate": "https://donate.chatplex.org"
   }
 }

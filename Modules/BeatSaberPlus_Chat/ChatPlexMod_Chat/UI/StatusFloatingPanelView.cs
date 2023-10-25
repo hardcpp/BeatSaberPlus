@@ -29,7 +29,7 @@ namespace ChatPlexMod_Chat.UI
         protected override void OnViewCreation()
         {
             var l_Assembly          = Assembly.GetExecutingAssembly();
-            var l_ViewerIconSprite  = CP_SDK.Unity.SpriteU.CreateFromRawWithBorders(CP_SDK.Misc.Resources.FromRelPath(l_Assembly, "ChatPlexMod_Chat.Resources.ViewerIcon.png"));
+            var l_ViewerIconSprite  = CP_SDK.Unity.SpriteU.CreateFromRaw(CP_SDK.Misc.Resources.FromRelPath(l_Assembly, "ChatPlexMod_Chat.Resources.ViewerIcon.png"));
 
             XUIHLayout.Make(
                 XUIImage.Make(l_ViewerIconSprite)

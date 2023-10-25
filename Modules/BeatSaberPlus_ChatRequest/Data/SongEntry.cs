@@ -6,7 +6,7 @@ namespace BeatSaberPlus_ChatRequest.Data
     /// <summary>
     /// Song entry
     /// </summary>
-    public class SongEntry : BeatSaberPlus.SDK.UI.Data.SongListItem
+    public class SongEntry : CP_SDK_BS.UI.Data.SongListItem
     {
         internal DateTime?      RequestTime     = null;
         internal string         RequesterName   = "";
@@ -52,7 +52,7 @@ namespace BeatSaberPlus_ChatRequest.Data
 
             return new SongEntry()
             {
-                BeatSaver_Map   = BeatSaberPlus.SDK.Game.BeatMapsClient.GetFromCacheByKey(l_Key) ?? BeatSaberPlus.SDK.Game.BeatMaps.MapDetail.PartialFromKey(l_Key),
+                BeatSaver_Map   = CP_SDK_BS.Game.BeatMapsClient.GetFromCacheByKey(l_Key) ?? CP_SDK_BS.Game.BeatMaps.MapDetail.PartialFromKey(l_Key),
                 RequestTime     = CP_SDK.Misc.Time.FromUnixTime(l_Time),
                 RequesterName   = l_Requester,
                 TitlePrefix     = l_Prefix,

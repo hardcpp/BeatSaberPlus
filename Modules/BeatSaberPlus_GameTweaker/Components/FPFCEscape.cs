@@ -56,8 +56,8 @@ namespace BeatSaberPlus_GameTweaker.Components
         private void Update()
         {
             /// Don't activate in menu
-            if (BeatSaberPlus.SDK.Game.Logic.ActiveScene != BeatSaberPlus.SDK.Game.Logic.ESceneType.Playing
-                || BeatSaberPlus.SDK.Game.Logic.LevelData?.Type == BeatSaberPlus.SDK.Game.LevelType.Multiplayer)
+            if (CP_SDK_BS.Game.Logic.ActiveScene != CP_SDK_BS.Game.Logic.ESceneType.Playing
+                || CP_SDK_BS.Game.Logic.LevelData?.Type == CP_SDK_BS.Game.LevelType.Multiplayer)
                 return;
 
             /// Wait for components

@@ -17,7 +17,7 @@ namespace BeatSaberPlus_SongOverlay
         /// </summary>
         /// <returns></returns>
         public override string GetRelativePath()
-            => $"{CP_SDK.ChatPlexSDK.ProductName}/SongOverlay/Config";
+            => $"{CP_SDK.ChatPlexSDK.ProductName}Plus/SongOverlay/Config";
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -28,12 +28,7 @@ namespace BeatSaberPlus_SongOverlay
         /// <param name="p_OnCreation">On creation</param>
         protected override void OnInit(bool p_OnCreation)
         {
-            if (p_OnCreation)
-            {
 
-            }
-
-            Save();
         }
     }
 }

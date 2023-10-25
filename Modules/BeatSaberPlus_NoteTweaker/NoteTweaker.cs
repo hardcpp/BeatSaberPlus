@@ -41,10 +41,10 @@ namespace BeatSaberPlus_NoteTweaker
         /// </summary>
         protected override void OnEnable()
         {
-            BeatSaberPlus.SDK.Game.Logic.OnSceneChange += OnSceneChange;
+            CP_SDK_BS.Game.Logic.OnSceneChange += OnSceneChange;
 
             /// Trigger a Set config
-            OnSceneChange(BeatSaberPlus.SDK.Game.Logic.ESceneType.Menu);
+            OnSceneChange(CP_SDK_BS.Game.Logic.ESceneType.Menu);
 
             try
             {
@@ -63,23 +63,39 @@ namespace BeatSaberPlus_NoteTweaker
         /// </summary>
         protected override void OnDisable()
         {
-            BeatSaberPlus.SDK.Game.Logic.OnSceneChange -= OnSceneChange;
+            CP_SDK_BS.Game.Logic.OnSceneChange -= OnSceneChange;
 
             CP_SDK.UI.UISystem.DestroyUI(ref m_SettingsLeftView);
             CP_SDK.UI.UISystem.DestroyUI(ref m_SettingsMainView);
             CP_SDK.UI.UISystem.DestroyUI(ref m_SettingsRightView);
 
             /// Restore config
+            Patches.PBombNoteController.SetFromConfig(true);
+            Patches.PBombNoteController.SetTemp(false, 1f);
+            Patches.PBurstSliderGameNoteController.SetFromConfig(true);
+            Patches.PBurstSliderGameNoteController.SetTemp(false, 1f);
             Patches.PColorNoteVisuals.SetFromConfig(true);
             Patches.PColorNoteVisuals.SetBlockColorOverride(false, Color.black, Color.black);
             Patches.PGameNoteController.SetFromConfig(true);
             Patches.PGameNoteController.SetTemp(false, 1f);
-            Patches.PBurstSliderGameNoteController.SetFromConfig(true);
-            Patches.PBurstSliderGameNoteController.SetTemp(false, 1f);
-            Patches.PBombController.SetFromConfig(true);
-            Patches.PBombController.SetTemp(false, 1f);
             Patches.PSliderController.SetFromConfig(true);
             Patches.PSliderHapticFeedbackInteractionEffect.SetFromConfig(true);
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Get Module settings UI
+        /// </summary>
+        protected override (CP_SDK.UI.IViewController, CP_SDK.UI.IViewController, CP_SDK.UI.IViewController) GetSettingsViewControllersImplementation()
+        {
+            if (m_SettingsLeftView == null)     m_SettingsLeftView  = CP_SDK.UI.UISystem.CreateViewController<UI.SettingsLeftView>();
+            if (m_SettingsMainView == null)     m_SettingsMainView  = CP_SDK.UI.UISystem.CreateViewController<UI.SettingsMainView>();
+            if (m_SettingsRightView == null)    m_SettingsRightView = CP_SDK.UI.UISystem.CreateViewController<UI.SettingsRightView>();
+
+            /// Change main view
+            return (m_SettingsMainView, m_SettingsLeftView, m_SettingsRightView);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -105,10 +121,10 @@ namespace BeatSaberPlus_NoteTweaker
 
             NTConfig.Instance.ActiveProfile = Mathf.Clamp(p_Index, 0, NTConfig.Instance.Profiles.Count);
 
+            Patches.PBombNoteController.SetFromConfig(true);
+            Patches.PBurstSliderGameNoteController.SetFromConfig(true);
             Patches.PColorNoteVisuals.SetFromConfig(true);
             Patches.PGameNoteController.SetFromConfig(true);
-            Patches.PBurstSliderGameNoteController.SetFromConfig(true);
-            Patches.PBombController.SetFromConfig(true);
             Patches.PSliderController.SetFromConfig(true);
             Patches.PSliderHapticFeedbackInteractionEffect.SetFromConfig(true);
 
@@ -120,38 +136,22 @@ namespace BeatSaberPlus_NoteTweaker
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
-        /// Get Module settings UI
-        /// </summary>
-        protected override (CP_SDK.UI.IViewController, CP_SDK.UI.IViewController, CP_SDK.UI.IViewController) GetSettingsViewControllersImplementation()
-        {
-            if (m_SettingsLeftView == null)     m_SettingsLeftView  = CP_SDK.UI.UISystem.CreateViewController<UI.SettingsLeftView>();
-            if (m_SettingsMainView == null)     m_SettingsMainView  = CP_SDK.UI.UISystem.CreateViewController<UI.SettingsMainView>();
-            if (m_SettingsRightView == null)    m_SettingsRightView = CP_SDK.UI.UISystem.CreateViewController<UI.SettingsRightView>();
-
-            /// Change main view
-            return (m_SettingsMainView, m_SettingsLeftView, m_SettingsRightView);
-        }
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        /// <summary>
         /// When the active scene change
         /// </summary>
         /// <param name="p_Scene">New active scene</param>
-        private void OnSceneChange(BeatSaberPlus.SDK.Game.Logic.ESceneType p_Scene)
+        private void OnSceneChange(CP_SDK_BS.Game.Logic.ESceneType p_Scene)
         {
-            if (p_Scene == BeatSaberPlus.SDK.Game.Logic.ESceneType.Playing && m_BackupProfileIndex.HasValue)
+            if (p_Scene == CP_SDK_BS.Game.Logic.ESceneType.Playing && m_BackupProfileIndex.HasValue)
                 NTConfig.Instance.ActiveProfile = Mathf.Clamp(m_BackupProfileIndex.Value, 0, NTConfig.Instance.Profiles.Count);
 
+            Patches.PBombNoteController.SetFromConfig(true);
+            Patches.PBombNoteController.SetTemp(false, 1f);
+            Patches.PBurstSliderGameNoteController.SetFromConfig(true);
+            Patches.PBurstSliderGameNoteController.SetTemp(false, 1f);
             Patches.PColorNoteVisuals.SetFromConfig(true);
             Patches.PColorNoteVisuals.SetBlockColorOverride(false, Color.black, Color.black);
             Patches.PGameNoteController.SetFromConfig(true);
             Patches.PGameNoteController.SetTemp(false, 1f);
-            Patches.PBurstSliderGameNoteController.SetFromConfig(true);
-            Patches.PBurstSliderGameNoteController.SetTemp(false, 1f);
-            Patches.PBombController.SetFromConfig(true);
-            Patches.PBombController.SetTemp(false, 1f);
             Patches.PSliderController.SetFromConfig(true);
             Patches.PSliderHapticFeedbackInteractionEffect.SetFromConfig(true);
         }

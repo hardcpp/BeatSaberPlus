@@ -12,8 +12,6 @@ namespace BeatSaberPlus_NoteTweaker.Patches
     [HarmonyPatch(nameof(ColorNoteVisuals.HandleNoteControllerDidInit))]
     public class PColorNoteVisuals : ColorNoteVisuals
     {
-        private static ColorManager m_ColorManager;
-
         private static bool m_Enabled = false;
         private static bool m_BlockColorsEnabled = false;
         private static Vector3 m_ArrowScale;
@@ -57,8 +55,6 @@ namespace BeatSaberPlus_NoteTweaker.Patches
                                      ref MeshRenderer[] ____circleMeshRenderers,
                                      ref MaterialPropertyBlockController[]  ____materialPropertyBlockControllers)
         {
-            m_ColorManager = ____colorManager;
-
             var l_ColorType = ____noteController.noteData.colorType;
 
             if (m_BlockColorsEnabled)
@@ -155,6 +151,16 @@ namespace BeatSaberPlus_NoteTweaker.Patches
             SetDotScaleFromConfig(l_Profile);
             SetDotColorsFromConfig(l_Profile);
         }
+        public static void SetBlockColorOverride(bool p_Enabled, Color p_Left, Color p_Right)
+        {
+            m_BlockColorsEnabled    = p_Enabled;
+            m_LeftBlockColor        = ColorU.WithAlpha(p_Left, 1f);
+            m_RightBlockColor       = ColorU.WithAlpha(p_Right, 1f);
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
         internal static void SetArrowScaleFromConfig(NTConfig._Profile p_Profile)
         {
             m_ArrowScale        = (NTConfig.Instance.Enabled ? p_Profile.ArrowsScale : 1.0f) * Vector3.one;
@@ -180,24 +186,6 @@ namespace BeatSaberPlus_NoteTweaker.Patches
             m_DotAlpha          = NTConfig.Instance.Enabled ? p_Profile.DotsIntensity       : 1f;
             m_LeftCircleColor   = NTConfig.Instance.Enabled ? p_Profile.DotsLColor          : new Color(0.659f, 0.125f, 0.125f, 1.000f);
             m_RightCircleColor  = NTConfig.Instance.Enabled ? p_Profile.DotsRColor          : new Color(0.125f, 0.392f, 0.659f, 1.000f);
-        }
-
-        public static void SetBlockColorOverride(bool p_Enabled, Color p_Left, Color p_Right)
-        {
-            m_BlockColorsEnabled    = p_Enabled;
-            m_LeftBlockColor        = ColorU.WithAlpha(p_Left,  1f);
-            m_RightBlockColor       = ColorU.WithAlpha(p_Right, 1f);
-        }
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        public static Color? GetColorForSaber(SaberType p_Type)
-        {
-            if (m_ColorManager != null)
-                return m_ColorManager.ColorForSaberType(p_Type);
-
-            return null;
         }
     }
 }

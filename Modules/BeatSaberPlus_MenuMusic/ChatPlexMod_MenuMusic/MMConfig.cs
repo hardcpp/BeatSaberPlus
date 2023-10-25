@@ -27,7 +27,7 @@ namespace ChatPlexMod_MenuMusic
         /// </summary>
         /// <returns></returns>
         public override string GetRelativePath()
-            => $"{CP_SDK.ChatPlexSDK.ProductName}/MenuMusic/Config";
+            => $"{CP_SDK.ChatPlexSDK.ProductName}Plus/MenuMusic/Config";
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -38,7 +38,7 @@ namespace ChatPlexMod_MenuMusic
         /// <param name="p_OnCreation">On creation</param>
         protected override void OnInit(bool p_OnCreation)
         {
-            Save();
+
         }
     }
 }

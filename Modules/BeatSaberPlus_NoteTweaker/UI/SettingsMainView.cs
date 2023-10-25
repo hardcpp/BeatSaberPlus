@@ -495,6 +495,7 @@ namespace BeatSaberPlus_NoteTweaker.UI
             ShowKeyboardModal(NTConfig.Instance.GetActiveProfile().Name, (p_NewName) =>
             {
                 NTConfig.Instance.GetActiveProfile().Name = string.IsNullOrEmpty(p_NewName) ? "No name..." : p_NewName;
+                ProfilesTab_Refresh();
                 RefreshSettings();
             });
         }
@@ -542,7 +543,7 @@ namespace BeatSaberPlus_NoteTweaker.UI
 
             System.IO.File.WriteAllText(NoteTweaker.EXPORT_FOLDER + l_FileName, l_Serialized, System.Text.Encoding.Unicode);
 
-            ShowMessageModal("Event exported in\n" + NoteTweaker.EXPORT_FOLDER);
+            ShowMessageModal("Profile exported in\n" + NoteTweaker.EXPORT_FOLDER);
         }
         /// <summary>
         /// Import an profile

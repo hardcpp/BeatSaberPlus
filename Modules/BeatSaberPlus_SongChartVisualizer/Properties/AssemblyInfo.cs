@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following
@@ -10,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("HardCPP")]
 [assembly: AssemblyProduct("BeatSaberPlus_SongChartVisualizer")]
-[assembly: AssemblyCopyright("Copyright © HardCPP 2022")]
+[assembly: AssemblyCopyright("Copyright © HardCPP 2023")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("en")]
 
@@ -32,5 +31,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("6.1.0")]
-[assembly: AssemblyFileVersion("6.1.0")]
+[assembly: AssemblyVersion("6.2.0")]
+[assembly: AssemblyFileVersion("6.2.0")]

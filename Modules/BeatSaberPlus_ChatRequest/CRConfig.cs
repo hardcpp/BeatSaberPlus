@@ -215,7 +215,7 @@ namespace BeatSaberPlus_ChatRequest
         /// </summary>
         /// <returns></returns>
         public override string GetRelativePath()
-            => $"{CP_SDK.ChatPlexSDK.ProductName}/ChatRequest/Config";
+            => $"{CP_SDK.ChatPlexSDK.ProductName}Plus/ChatRequest/Config";
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -226,7 +226,7 @@ namespace BeatSaberPlus_ChatRequest
         /// <param name="p_OnCreation">On creation</param>
         protected override void OnInit(bool p_OnCreation)
         {
-            Save();
+
         }
     }
 }

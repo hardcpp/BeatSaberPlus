@@ -39,7 +39,7 @@ namespace ChatPlexMod_Chat.UI
         /// </summary>
         protected override void OnViewCreation()
         {
-            var l_WhiteSprite = CP_SDK.Unity.SpriteU.CreateFromTextureWithBorders(Texture2D.whiteTexture);
+            var l_WhiteSprite = CP_SDK.Unity.SpriteU.CreateFromTexture(Texture2D.whiteTexture);
 
             XUIHLayout.Make(
                 XUIHLayout.Make(

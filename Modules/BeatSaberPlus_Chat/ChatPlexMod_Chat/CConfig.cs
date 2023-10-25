@@ -33,6 +33,12 @@ namespace ChatPlexMod_Chat
 
         private static Vector3 DefaultChatPlayingPosition = new Vector3(2.33f,  2.145f,  3.669f);
         private static Vector3 DefaultChatPlayingRotation = new Vector3(0.00f, 49.4501f, 0.000f);
+#elif DANCEDASH
+        private static Vector3 DefaultChatMenuPosition = new Vector3(0.00f, 4.10f, 3.50f);
+        private static Vector3 DefaultChatMenuRotation = new Vector3(325.00f, 0.00f, 0.00f);
+
+        private static Vector3 DefaultChatPlayingPosition = new Vector3(0.00f, 4.20f, 5.80f);
+        private static Vector3 DefaultChatPlayingRotation = new Vector3(325.00f, 0.00f, 0.00f);
 #else
 #error Missing game implementation
 #endif
@@ -84,7 +90,7 @@ namespace ChatPlexMod_Chat
         /// </summary>
         /// <returns></returns>
         public override string GetRelativePath()
-            => $"{CP_SDK.ChatPlexSDK.ProductName}/Chat/Config";
+            => $"{CP_SDK.ChatPlexSDK.ProductName}Plus/Chat/Config";
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -105,8 +111,6 @@ namespace ChatPlexMod_Chat
                     "!bsr"
                 };
             }
-
-            Save();
         }
 
         ////////////////////////////////////////////////////////////////////////////

@@ -77,8 +77,8 @@ namespace BeatSaberPlus_ChatRequest
             BuildCommandTable();
 
             /// Bind events
-            BeatSaberPlus.SDK.Game.Logic.OnMenuSceneLoaded += OnMenuSceneLoaded;
-            BeatSaberPlus.SDK.Game.Logic.OnSceneChange     += OnSceneChange;
+            CP_SDK_BS.Game.Logic.OnMenuSceneLoaded += OnMenuSceneLoaded;
+            CP_SDK_BS.Game.Logic.OnSceneChange     += OnSceneChange;
 
             if (!m_ChatCoreAcquired)
             {
@@ -106,8 +106,8 @@ namespace BeatSaberPlus_ChatRequest
             SaveDatabase();
 
             /// Unbind events
-            BeatSaberPlus.SDK.Game.Logic.OnMenuSceneLoaded -= OnMenuSceneLoaded;
-            BeatSaberPlus.SDK.Game.Logic.OnSceneChange     -= OnSceneChange;
+            CP_SDK_BS.Game.Logic.OnMenuSceneLoaded -= OnMenuSceneLoaded;
+            CP_SDK_BS.Game.Logic.OnSceneChange     -= OnSceneChange;
 
             /// Un-init chat core
             if (m_ChatCoreAcquired)
@@ -216,19 +216,19 @@ namespace BeatSaberPlus_ChatRequest
         /// When the active scene is changed
         /// </summary>
         /// <param name="p_Scene">New scene</param>
-        private void OnSceneChange(BeatSaberPlus.SDK.Game.Logic.ESceneType p_Scene)
+        private void OnSceneChange(CP_SDK_BS.Game.Logic.ESceneType p_Scene)
         {
-            if (p_Scene == BeatSaberPlus.SDK.Game.Logic.ESceneType.Menu)
+            if (p_Scene == CP_SDK_BS.Game.Logic.ESceneType.Menu)
                 UpdateButton();
-            else if (p_Scene == BeatSaberPlus.SDK.Game.Logic.ESceneType.Playing)
+            else if (p_Scene == CP_SDK_BS.Game.Logic.ESceneType.Playing)
             {
                 try
                 {
-                    if (BeatSaberPlus.SDK.Game.Logic.LevelData != null
-                        && BeatSaberPlus.SDK.Game.Logic.LevelData?.Data != null
-                        && BeatSaberPlus.SDK.Game.Logic.LevelData?.Data.difficultyBeatmap != null)
+                    if (CP_SDK_BS.Game.Logic.LevelData != null
+                        && CP_SDK_BS.Game.Logic.LevelData?.Data != null
+                        && CP_SDK_BS.Game.Logic.LevelData?.Data.difficultyBeatmap != null)
                     {
-                        var l_CurrentMap = BeatSaberPlus.SDK.Game.Logic.LevelData?.Data.difficultyBeatmap;
+                        var l_CurrentMap = CP_SDK_BS.Game.Logic.LevelData?.Data.difficultyBeatmap;
 
                         if (m_LastPlayingLevel != l_CurrentMap.level)
                         {
@@ -248,10 +248,11 @@ namespace BeatSaberPlus_ChatRequest
 
                                     if (l_CachedEntry == null)
                                     {
-                                        BeatSaberPlus.SDK.Game.BeatMapsClient.GetOnlineByHash(l_Hash, (p_Valid, p_BeatMap) =>
+                                        CP_SDK_BS.Game.BeatMapsClient.GetOnlineByHash(l_Hash, (p_Valid, p_BeatMap) =>
                                         {
                                             if (   !p_Valid
-                                                || l_CurrentMap.level != (BeatSaberPlus.SDK.Game.Logic.LevelData?.Data?.difficultyBeatmap?.level ?? null))
+                                                || p_BeatMap == null
+                                                || l_CurrentMap.level != (CP_SDK_BS.Game.Logic.LevelData?.Data?.difficultyBeatmap?.level ?? null))
                                                 return;
 
                                             m_LastPlayingLevelResponse += " https://beatsaver.com/maps/" + p_BeatMap.id;
@@ -296,14 +297,14 @@ namespace BeatSaberPlus_ChatRequest
                 yield return l_Waiter;
             }
 
-            m_ManagerButtonP = BeatSaberPlus.SDK.UI.Button.CreatePrimary(l_LevelSelectionNavigationController.transform, "Chat\nRequest", () => UI.ManagerViewFlowCoordinator.Instance().Present(), null);
+            m_ManagerButtonP = CP_SDK_BS.UI.Button.CreatePrimary(l_LevelSelectionNavigationController.transform, "Chat\nRequest", () => UI.ManagerViewFlowCoordinator.Instance().Present(), null);
             m_ManagerButtonP.transform.localPosition = new Vector3(72.50f, 41.50f - 3, 2.6f);
             m_ManagerButtonP.transform.localScale    = new Vector3(0.8f, 0.6f, 0.8f);
             m_ManagerButtonP.transform.SetAsFirstSibling();
             m_ManagerButtonP.gameObject.SetActive(false);
             m_ManagerButtonP.GetComponentInChildren<TextMeshProUGUI>().fontStyle = FontStyles.Normal;
 
-            m_ManagerButtonS = BeatSaberPlus.SDK.UI.Button.Create(l_LevelSelectionNavigationController.transform, "Chat\nRequest", () => UI.ManagerViewFlowCoordinator.Instance().Present(), null);
+            m_ManagerButtonS = CP_SDK_BS.UI.Button.Create(l_LevelSelectionNavigationController.transform, "Chat\nRequest", () => UI.ManagerViewFlowCoordinator.Instance().Present(), null);
             m_ManagerButtonS.transform.localPosition = new Vector3(72.50f, 38.50f - 3, 2.6f);
             m_ManagerButtonS.transform.localScale    = new Vector3(0.8f, 0.6f, 0.8f);
             m_ManagerButtonS.transform.SetAsFirstSibling();

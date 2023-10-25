@@ -30,7 +30,7 @@ namespace ChatPlexMod_MenuMusic.Data
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="p_MusicProvider"></param>
+        /// <param name="p_MusicProvider">Music provider instance</param>
         /// <param name="p_SongPath">Path to the music file</param>
         /// <param name="p_SongCoverPath">Path to the music cover file</param>
         /// <param name="p_SongName">Name of the song</param>
@@ -147,7 +147,7 @@ namespace ChatPlexMod_MenuMusic.Data
             yield return l_Loader.SendWebRequest();
 
             /// Skip if it's not the menu
-            if (CP_SDK.ChatPlexSDK.ActiveGenericScene != CP_SDK.ChatPlexSDK.EGenericScene.Menu)
+            if (CP_SDK.ChatPlexSDK.ActiveGenericScene != CP_SDK.EGenericScene.Menu)
                 yield break;
 
             if (p_Token.IsCancelled(l_StartSerial))
@@ -205,7 +205,7 @@ namespace ChatPlexMod_MenuMusic.Data
                     yield break;
             }
 
-            if (CP_SDK.ChatPlexSDK.ActiveGenericScene != CP_SDK.ChatPlexSDK.EGenericScene.Menu)
+            if (CP_SDK.ChatPlexSDK.ActiveGenericScene != CP_SDK.EGenericScene.Menu)
                 yield break;
 
             if (p_Token.IsCancelled(l_StartSerial))

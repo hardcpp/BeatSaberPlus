@@ -85,7 +85,7 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Events
         /// <param name="p_Context">Event context</param>
         protected override sealed void BuildProvidedValues(ChatPlexMod_ChatIntegrations.Models.EventContext p_Context)
         {
-            var l_LevelData     = p_Context.CustomData as BeatSaberPlus.SDK.Game.LevelData;
+            var l_LevelData     = p_Context.CustomData as CP_SDK_BS.Game.LevelData;
             var l_GameMode      = l_LevelData.Data.difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName;
             var l_Difficulty    = l_LevelData.Data.difficultyBeatmap.difficulty.Name();
 

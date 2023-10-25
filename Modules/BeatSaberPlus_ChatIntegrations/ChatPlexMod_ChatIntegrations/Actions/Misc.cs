@@ -332,7 +332,7 @@ namespace ChatPlexMod_ChatIntegrations.Actions
             if (Model.PreventNextActionFailure)
                 p_Context.PreventNextActionFailure = true;
 
-            yield return new WaitUntil(() => CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.ChatPlexSDK.EGenericScene.Menu);
+            yield return new WaitUntil(() => CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.EGenericScene.Menu);
         }
     }
 
@@ -390,7 +390,7 @@ namespace ChatPlexMod_ChatIntegrations.Actions
             if (Model.PreventNextActionFailure)
                 p_Context.PreventNextActionFailure = true;
 
-            yield return new WaitUntil(() => CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.ChatPlexSDK.EGenericScene.Playing);
+            yield return new WaitUntil(() => CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.EGenericScene.Playing);
         }
     }
 }

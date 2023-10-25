@@ -35,7 +35,7 @@ namespace ChatPlexMod_SongChartVisualizer
         /// </summary>
         /// <returns></returns>
         public override string GetRelativePath()
-            => $"{CP_SDK.ChatPlexSDK.ProductName}/SongChartVisualizer/Config";
+            => $"{CP_SDK.ChatPlexSDK.ProductName}Plus/SongChartVisualizer/Config";
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -46,7 +46,7 @@ namespace ChatPlexMod_SongChartVisualizer
         /// <param name="p_OnCreation">On creation</param>
         protected override void OnInit(bool p_OnCreation)
         {
-            Save();
+
         }
 
         ////////////////////////////////////////////////////////////////////////////
