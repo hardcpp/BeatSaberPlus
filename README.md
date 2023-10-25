@@ -5,9 +5,9 @@
 
 **[READ THE PATCH NOTES ! 🥖](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-Patchnotes)**
 
-Current version : 6.0.8
+Current version : 6.1.0
 
-BeatSaber compatibility : 1.25.0 to 1.29.1 AND 1.31.0
+BeatSaber compatibility : 1.25.0 to 1.29.1 AND 1.31.0 to 1.31.1
 
 **Important:** Most modules are disabled by default. Enable them in BeatSaberPlus -> Settings.  
 *   If you enable the Chat module, it will open a page in your browser for configuration.
