@@ -1,0 +1,3 @@
+[submodule "ChatPlexSDK-BS"]
+	path = ChatPlexSDK-BS
+	url = https://github.com/hardcpp/ChatPlexSDK-BS.git
