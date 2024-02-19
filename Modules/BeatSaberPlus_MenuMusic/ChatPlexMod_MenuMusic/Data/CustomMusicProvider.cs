@@ -45,6 +45,20 @@ namespace ChatPlexMod_MenuMusic.Data
         {
             return false;
         }
+        /// <summary>
+        /// Shuffle music collection
+        /// </summary>
+        public override void Shuffle()
+        {
+            for (var l_I = 0; l_I < m_Musics.Count; ++l_I)
+            {
+                var l_Swapped = m_Musics[l_I];
+                var l_NewIndex = UnityEngine.Random.Range(l_I, m_Musics.Count);
+
+                m_Musics[l_I] = m_Musics[l_NewIndex];
+                m_Musics[l_NewIndex] = l_Swapped;
+            }
+        }
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -86,6 +100,7 @@ namespace ChatPlexMod_MenuMusic.Data
                         " "
                     ));
                 }
+                Shuffle();
             }
             catch (Exception p_Exception)
             {

@@ -834,7 +834,7 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Actions
         {
             /// todo
             return;
-
+            /*
             var l_Sabers            = Resources.FindObjectsOfTypeAll<SaberModelController>();
             var l_ColorManager      = null as ColorManager;
             var l_ColorSchemeBackup = null as ColorScheme;
@@ -886,7 +886,7 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Actions
 
                 if (!p_UseDefault && l_I == (l_Sabers.Length - 1))
                     l_ColorManager.SetProperty<ColorManager, ColorScheme>("_colorScheme", l_ColorSchemeBackup);
-            }
+            }*/
         }
     }
 

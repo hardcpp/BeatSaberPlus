@@ -20,5 +20,9 @@ namespace ChatPlexMod_MenuMusic.Data
         /// </summary>
         /// <param name="p_Music">Target music</param>
         public abstract bool StartGameSpecificGamePlay(Music p_Music);
+        /// <summary>
+        /// Shuffle music collection
+        /// </summary>
+        public abstract void Shuffle();
     }
 }

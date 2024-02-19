@@ -77,17 +77,31 @@ namespace ChatPlexMod_MenuMusic.Data
 #else
 #error Missing game implementation
 #endif
-    }
+        }
+        /// <summary>
+        /// Shuffle music collection
+        /// </summary>
+        public override void Shuffle()
+        {
+            for (var l_I = 0; l_I < m_Musics.Count; ++l_I)
+            {
+                var l_Swapped = m_Musics[l_I];
+                var l_NewIndex = Random.Range(l_I, m_Musics.Count);
 
-    ////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////
+                m_Musics[l_I] = m_Musics[l_NewIndex];
+                m_Musics[l_NewIndex] = l_Swapped;
+            }
+        }
 
-    /// <summary>
-    /// Load game songs
-    /// </summary>
-    /// <returns></returns>
-    private IEnumerator Coroutine_LoadGameSongs()
-    {
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Load game songs
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerator Coroutine_LoadGameSongs()
+        {
 #if BEATSABER
             yield return new WaitUntil(() => !SongCore.Loader.AreSongsLoading && SongCore.Loader.CustomLevels.Count > 0);
 
@@ -106,14 +120,7 @@ namespace ChatPlexMod_MenuMusic.Data
                 ));
             }
 
-            for (var l_I = 0; l_I < m_Musics.Count; ++l_I)
-            {
-                var l_Swapped  = m_Musics[l_I];
-                var l_NewIndex = Random.Range(l_I, m_Musics.Count);
-
-                m_Musics[l_I]           = m_Musics[l_NewIndex];
-                m_Musics[l_NewIndex]    = l_Swapped;
-            }
+            Shuffle();
 #else
 #error Missing game implementation
 #endif

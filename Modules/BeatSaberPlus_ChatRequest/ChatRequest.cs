@@ -309,7 +309,7 @@ namespace BeatSaberPlus_ChatRequest
             m_ManagerButtonS.transform.localScale    = new Vector3(0.8f, 0.6f, 0.8f);
             m_ManagerButtonS.transform.SetAsFirstSibling();
             m_ManagerButtonS.gameObject.SetActive(true);
-            m_ManagerButtonP.GetComponentInChildren<TextMeshProUGUI>().fontStyle = FontStyles.Normal;
+            m_ManagerButtonS.GetComponentInChildren<TextMeshProUGUI>().fontStyle = FontStyles.Normal;
             m_ManagerButtonS.GetComponentInChildren<TextMeshProUGUI>().margin = new Vector4(0, 4, 0, 0);
 
             var l_Images = m_ManagerButtonP.GetComponentsInChildren<HMUI.ImageView>();

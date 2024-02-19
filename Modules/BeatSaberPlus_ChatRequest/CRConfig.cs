@@ -10,6 +10,8 @@ namespace BeatSaberPlus_ChatRequest
         {
             [JsonProperty] internal bool NoBeatSage = false;
 
+            [JsonProperty] internal bool NoRanked = false;
+
             [JsonProperty] internal bool NPSMin = false;
             [JsonProperty] internal int NPSMinV = 0;
 
@@ -21,6 +23,9 @@ namespace BeatSaberPlus_ChatRequest
 
             [JsonProperty] internal bool NJSMax = false;
             [JsonProperty] internal int NJSMaxV = 30;
+
+            [JsonProperty] internal bool DurationMin = false;
+            [JsonProperty] internal int DurationMinV = 1;
 
             [JsonProperty] internal bool DurationMax = false;
             [JsonProperty] internal int DurationMaxV = 3;

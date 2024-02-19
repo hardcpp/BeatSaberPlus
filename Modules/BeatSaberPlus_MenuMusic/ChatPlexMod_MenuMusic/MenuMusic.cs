@@ -1,7 +1,6 @@
 using CP_SDK.Chat.Interfaces;
 using System;
 using System.Collections;
-using System.IO;
 using System.Linq;
 using UnityEngine;
 
@@ -405,12 +404,9 @@ namespace ChatPlexMod_MenuMusic
             }
 
             if (p_Random)
-            {
-                System.Random l_Random = new System.Random(Environment.TickCount);
-                m_CurrentSongIndex = l_Random.Next(0, m_MusicProvider.Musics.Count);
-            }
-            else
-                m_CurrentSongIndex++;
+                m_MusicProvider.Shuffle();
+
+            m_CurrentSongIndex++;
 
             /// Load and play audio clip
             LoadNextMusic(p_OnSceneTransition);
@@ -608,7 +604,7 @@ namespace ChatPlexMod_MenuMusic
                         if (!m_IsPaused
                             && !l_Channel.isPlaying
                             && l_Channel.clip == m_CurrentMusicAudioClip
-                            && l_ChannelsController.IndexOf(l_ChannelController) == m_PreviewPlayer._activeChannel)
+                            && Array.IndexOf(l_ChannelsController, l_ChannelController) == m_PreviewPlayer._activeChannel)
                         {
                             l_Channel.UnPause();
                         }

@@ -394,7 +394,12 @@ namespace BeatSaberPlus_ChatRequest
 
             if (CRConfig.Instance.Filters.NoBeatSage && p_BeatMap.automapper)
             {
-                p_Reply = $"@{p_SenderName} BeatSage map are not allowed!";
+                p_Reply = $"@{p_SenderName} BeatSage maps are not allowed!";
+                return false;
+            }
+            if (CRConfig.Instance.Filters.NoRanked && p_BeatMap.ranked)
+            {
+                p_Reply = $"@{p_SenderName} Ranked maps are not allowed!";
                 return false;
             }
             if (l_FilterNPSMin || l_FilterNPSMax)
@@ -442,6 +447,11 @@ namespace BeatSaberPlus_ChatRequest
                     p_Reply = $"@{p_SenderName} this song has no difficulty with a NJS between {l_NJSMin} and {l_NJSMax}!";
                     return false;
                 }
+            }
+            if (CRConfig.Instance.Filters.DurationMin && (int)p_BeatMap.metadata.duration < (CRConfig.Instance.Filters.DurationMinV * 60))
+            {
+                p_Reply = $"@{p_SenderName} this song is too short ({CRConfig.Instance.Filters.DurationMaxV} minute(s) minimum)!";
+                return false;
             }
             if (CRConfig.Instance.Filters.DurationMax && (int)p_BeatMap.metadata.duration > (CRConfig.Instance.Filters.DurationMaxV * 60))
             {

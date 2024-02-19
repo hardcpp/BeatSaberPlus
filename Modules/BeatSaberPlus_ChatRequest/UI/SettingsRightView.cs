@@ -8,10 +8,12 @@ namespace BeatSaberPlus_ChatRequest.UI
     internal sealed class SettingsRightView : CP_SDK.UI.ViewController<SettingsRightView>
     {
         private XUIToggle m_NoBeatSageToggle;
+        private XUIToggle m_NoRankedToggle;
         private XUIToggle m_NPSMinToggle;
         private XUIToggle m_NPSMaxToggle;
         private XUIToggle m_NJSMinToggle;
         private XUIToggle m_NJSMaxToggle;
+        private XUIToggle m_DurationMinToggle;
         private XUIToggle m_DurationMaxToggle;
         private XUIToggle m_VoteMinToggle;
         private XUIToggle m_DateMinToggle;
@@ -20,6 +22,7 @@ namespace BeatSaberPlus_ChatRequest.UI
         private XUISlider m_NPSMax;
         private XUISlider m_NJSMin;
         private XUISlider m_NJSMax;
+        private XUISlider m_DurationMin;
         private XUISlider m_DurationMax;
         private XUISlider m_VoteMin;
         private XUISlider m_DateMin;
@@ -47,39 +50,44 @@ namespace BeatSaberPlus_ChatRequest.UI
                 XUIHLayout.Make(
                     XUIVLayout.Make(
                         XUIText.Make("No BeatSage"),
+                        XUIText.Make("No Ranked"),
                         XUIText.Make("NPS min"),
                         XUIText.Make("NPS max"),
                         XUIText.Make("NJS min"),
                         XUIText.Make("NJS max"),
+                        XUIText.Make("Duration min"),
                         XUIText.Make("Duration max"),
                         XUIText.Make("Vote min"),
                         XUIText.Make("Upload date min"),
                         XUIText.Make("Upload date max")
                     )
-                    .SetSpacing(2)
-                    .SetPadding(2)
+                    .SetSpacing(1)
+                    .SetPadding(0)
                     .SetWidth(30)
                     .OnReady(x => x.HOrVLayoutGroup.childForceExpandWidth = true)
                     .ForEachDirect<XUIText>(x => x.SetAlign(TMPro.TextAlignmentOptions.CaplineLeft)),
 
                     XUIVLayout.Make(
                         XUIToggle.Make().SetValue(CRConfig.Instance.Filters.NoBeatSage ).Bind(ref m_NoBeatSageToggle ),
+                        XUIToggle.Make().SetValue(CRConfig.Instance.Filters.NoRanked   ).Bind(ref m_NoRankedToggle   ),
                         XUIToggle.Make().SetValue(CRConfig.Instance.Filters.NPSMin     ).Bind(ref m_NPSMinToggle     ),
                         XUIToggle.Make().SetValue(CRConfig.Instance.Filters.NPSMax     ).Bind(ref m_NPSMaxToggle     ),
                         XUIToggle.Make().SetValue(CRConfig.Instance.Filters.NJSMin     ).Bind(ref m_NJSMinToggle     ),
                         XUIToggle.Make().SetValue(CRConfig.Instance.Filters.NJSMax     ).Bind(ref m_NJSMaxToggle     ),
+                        XUIToggle.Make().SetValue(CRConfig.Instance.Filters.DurationMin).Bind(ref m_DurationMinToggle),
                         XUIToggle.Make().SetValue(CRConfig.Instance.Filters.DurationMax).Bind(ref m_DurationMaxToggle),
                         XUIToggle.Make().SetValue(CRConfig.Instance.Filters.VoteMin    ).Bind(ref m_VoteMinToggle    ),
                         XUIToggle.Make().SetValue(CRConfig.Instance.Filters.DateMin    ).Bind(ref m_DateMinToggle    ),
                         XUIToggle.Make().SetValue(CRConfig.Instance.Filters.DateMax    ).Bind(ref m_DateMaxToggle    )
                     )
-                    .SetSpacing(2)
-                    .SetPadding(2)
+                    .SetSpacing(1)
+                    .SetPadding(0)
                     .SetWidth(20)
                     .ForEachDirect<XUIToggle>(x => x.OnValueChanged(_ => OnValueChanged())),
 
                     XUIVLayout.Make(
                         XUIText.Make("Discard all BeatSage maps"),
+                        XUIText.Make("Discard all ranked maps"),
                         XUISlider.Make()
                             .SetMinValue(0f).SetMaxValue(100f).SetIncrements(   1f).SetInteger(true)
                             .SetValue(CRConfig.Instance.Filters.NPSMinV)
@@ -98,6 +106,10 @@ namespace BeatSaberPlus_ChatRequest.UI
                             .Bind(ref m_NJSMax),
                         XUISlider.Make()
                             .SetMinValue(1f).SetMaxValue( 60f).SetIncrements(   1f).SetInteger(true)
+                            .SetValue(CRConfig.Instance.Filters.DurationMinV)
+                            .Bind(ref m_DurationMin),
+                        XUISlider.Make()
+                            .SetMinValue(1f).SetMaxValue( 60f).SetIncrements(   1f).SetInteger(true)
                             .SetValue(CRConfig.Instance.Filters.DurationMaxV)
                             .Bind(ref m_DurationMax),
                         XUISlider.Make()
@@ -113,8 +125,8 @@ namespace BeatSaberPlus_ChatRequest.UI
                             .SetValue(CRConfig.Instance.Filters.DateMaxV)
                             .Bind(ref m_DateMax)
                     )
-                    .SetSpacing(2)
-                    .SetPadding(2)
+                    .SetSpacing(1)
+                    .SetPadding(0)
                     .SetWidth(65)
                     .ForEachDirect<XUISlider>(x => x.OnValueChanged(_ => OnValueChanged()))
                 )
@@ -147,6 +159,7 @@ namespace BeatSaberPlus_ChatRequest.UI
             m_NPSMax.SetInteractable(       m_NPSMaxToggle.Element.GetValue());
             m_NJSMin.SetInteractable(       m_NJSMinToggle.Element.GetValue());
             m_NJSMax.SetInteractable(       m_NJSMaxToggle.Element.GetValue());
+            m_DurationMin.SetInteractable(  m_DurationMinToggle.Element.GetValue());
             m_DurationMax.SetInteractable(  m_DurationMaxToggle.Element.GetValue());
             m_VoteMin.SetInteractable(      m_VoteMinToggle.Element.GetValue());
             m_DateMin.SetInteractable(      m_DateMinToggle.Element.GetValue());
@@ -154,10 +167,12 @@ namespace BeatSaberPlus_ChatRequest.UI
 
             /// Left
             CRConfig.Instance.Filters.NoBeatSage   = m_NoBeatSageToggle.Element.GetValue();
+            CRConfig.Instance.Filters.NoRanked     = m_NoRankedToggle.Element.GetValue();
             CRConfig.Instance.Filters.NPSMin       = m_NPSMinToggle.Element.GetValue();
             CRConfig.Instance.Filters.NPSMax       = m_NPSMaxToggle.Element.GetValue();
             CRConfig.Instance.Filters.NJSMin       = m_NJSMinToggle.Element.GetValue();
             CRConfig.Instance.Filters.NJSMax       = m_NJSMaxToggle.Element.GetValue();
+            CRConfig.Instance.Filters.DurationMin  = m_DurationMinToggle.Element.GetValue();
             CRConfig.Instance.Filters.DurationMax  = m_DurationMaxToggle.Element.GetValue();
             CRConfig.Instance.Filters.VoteMin      = m_VoteMinToggle.Element.GetValue();
             CRConfig.Instance.Filters.DateMin      = m_DateMinToggle.Element.GetValue();
@@ -168,6 +183,7 @@ namespace BeatSaberPlus_ChatRequest.UI
             CRConfig.Instance.Filters.NPSMaxV       = (int)m_NPSMax.Element.GetValue();
             CRConfig.Instance.Filters.NJSMinV       = (int)m_NJSMin.Element.GetValue();
             CRConfig.Instance.Filters.NJSMaxV       = (int)m_NJSMax.Element.GetValue();
+            CRConfig.Instance.Filters.DurationMinV  = (int)m_DurationMin.Element.GetValue();
             CRConfig.Instance.Filters.DurationMaxV  = (int)m_DurationMax.Element.GetValue();
             CRConfig.Instance.Filters.VoteMinV      = m_VoteMin.Element.GetValue();
             CRConfig.Instance.Filters.DateMinV      = (int)m_DateMin.Element.GetValue();
@@ -186,10 +202,12 @@ namespace BeatSaberPlus_ChatRequest.UI
 
             /// Left
             m_NoBeatSageToggle.SetValue(    CRConfig.Instance.Filters.NoBeatSage);
+            m_NoRankedToggle.SetValue(      CRConfig.Instance.Filters.NoRanked);
             m_NPSMinToggle.SetValue(        CRConfig.Instance.Filters.NPSMin);
             m_NPSMaxToggle.SetValue(        CRConfig.Instance.Filters.NPSMax);
             m_NJSMinToggle.SetValue(        CRConfig.Instance.Filters.NJSMin);
             m_NJSMaxToggle.SetValue(        CRConfig.Instance.Filters.NJSMax);
+            m_DurationMinToggle.SetValue(   CRConfig.Instance.Filters.DurationMin);
             m_DurationMaxToggle.SetValue(   CRConfig.Instance.Filters.DurationMax);
             m_VoteMinToggle.SetValue(       CRConfig.Instance.Filters.VoteMin);
             m_DateMinToggle.SetValue(       CRConfig.Instance.Filters.DateMin);
@@ -200,6 +218,7 @@ namespace BeatSaberPlus_ChatRequest.UI
             m_NPSMax.SetValue(      CRConfig.Instance.Filters.NPSMaxV);
             m_NJSMin.SetValue(      CRConfig.Instance.Filters.NJSMinV);
             m_NJSMax.SetValue(      CRConfig.Instance.Filters.NJSMaxV);
+            m_DurationMin.SetValue( CRConfig.Instance.Filters.DurationMinV);
             m_DurationMax.SetValue( CRConfig.Instance.Filters.DurationMaxV);
             m_VoteMin.SetValue(     CRConfig.Instance.Filters.VoteMinV);
             m_DateMin.SetValue(     CRConfig.Instance.Filters.DateMinV);
