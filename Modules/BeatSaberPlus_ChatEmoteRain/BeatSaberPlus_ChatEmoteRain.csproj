@@ -109,7 +109,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="BuildTargets.targets" />
-    <EmbeddedResource Include="ChatPlexMod_ChatEmoteRain\Resources\PreviewMaterial.bundle" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ChatPlexSDK_BS\ChatPlexSDK_BS.csproj">

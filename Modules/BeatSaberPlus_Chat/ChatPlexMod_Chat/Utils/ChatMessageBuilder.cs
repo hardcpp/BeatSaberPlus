@@ -90,7 +90,7 @@ namespace ChatPlexMod_Chat.Utils
                     Logger.Instance.Warning($"Failed to prepare some/all images for msg \"{p_Message.Message}\"!");
 
                 /// Replace all instances of <;> with a zero-width non-breaking character
-                StringBuilder l_StringBuilder = new StringBuilder(p_Message.Message).Replace("<", "<\u200B").Replace(">", "\u200B>");
+                StringBuilder l_StringBuilder = new StringBuilder(p_Message.Message).Replace("<", "<\u200B").Replace("<​\u200B3", "<3").Replace(">", "\u200B>").Replace("\r", "").Replace("\n", "");
 
                 if (p_Message.Emotes != null)
                 {
@@ -131,6 +131,9 @@ namespace ChatPlexMod_Chat.Utils
                     }
                 }
 
+                if (p_Message.IsGiganticEmote)
+                    l_StringBuilder.Insert(0, "\n<size=600%>");
+
                 /// System messages get a grayish color to differentiate them from normal messages in chat, and do not receive a username/badge prefix
                 if (p_Message.IsSystemMessage)
                 {
@@ -170,8 +173,8 @@ namespace ChatPlexMod_Chat.Utils
                         }
                     }
                 }
-
-                return l_StringBuilder.Replace("\r", "").Replace("\n", "").ToString();
+                Logger.Instance.Error(l_StringBuilder.ToString());
+                return l_StringBuilder.ToString();
             }
             catch (Exception p_Exception)
             {

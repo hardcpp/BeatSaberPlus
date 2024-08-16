@@ -13,11 +13,11 @@ namespace ChatPlexMod_ChatIntegrations
     /// </summary>
     public partial class ChatIntegrations : CP_SDK.ModuleBase<ChatIntegrations>
     {
-        public static string s_DATABASE_FILE            => Path.Combine(CIConfig.Instance.DataLocation, "Database.json");
-        public static string s_EXPORT_PATH              => Path.Combine(CIConfig.Instance.DataLocation, "Export/");
-        public static string s_IMPORT_PATH              => Path.Combine(CIConfig.Instance.DataLocation, "Import/");
-        public static string s_EMOTE_RAIN_ASSETS_PATH   => Path.Combine(CIConfig.Instance.DataLocation, "Assets/EmoteRain/");
-        public static string s_SOUND_CLIPS_ASSETS_PATH  => Path.Combine(CIConfig.Instance.DataLocation, "Assets/SoundClips/");
+        public static string s_DATABASE_FILE            => Path.Combine(CIConfig.Instance.DataLocation, "Database.json").Replace("\\", "/");
+        public static string s_EXPORT_PATH              => Path.Combine(CIConfig.Instance.DataLocation, "Export/").Replace("\\", "/");
+        public static string s_IMPORT_PATH              => Path.Combine(CIConfig.Instance.DataLocation, "Import/").Replace("\\", "/");
+        public static string s_EMOTE_RAIN_ASSETS_PATH   => Path.Combine(CIConfig.Instance.DataLocation, "Assets/EmoteRain/").Replace("\\", "/");
+        public static string s_SOUND_CLIPS_ASSETS_PATH  => Path.Combine(CIConfig.Instance.DataLocation, "Assets/SoundClips/").Replace("\\", "/");
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////

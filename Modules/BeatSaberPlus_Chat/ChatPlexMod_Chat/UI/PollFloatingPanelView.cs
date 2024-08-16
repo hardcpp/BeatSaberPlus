@@ -169,8 +169,8 @@ namespace ChatPlexMod_Chat.UI
         private void Update()
         {
             if (m_LastPoll != null
-                && m_LastPoll.status != CP_SDK.Chat.Models.Twitch.Helix_Poll.Status.ARCHIVED
-                && m_LastPoll.status != CP_SDK.Chat.Models.Twitch.Helix_Poll.Status.INVALID)
+                && m_LastPoll.status != CP_SDK.Chat.Models.Twitch.EHelix_PollStatus.ARCHIVED
+                && m_LastPoll.status != CP_SDK.Chat.Models.Twitch.EHelix_PollStatus.INVALID)
             {
                 if (m_CurrentPollStart < 0)
                 {
@@ -203,8 +203,8 @@ namespace ChatPlexMod_Chat.UI
                 if ((p_Poll?.id ?? null) != (m_LastPoll?.id ?? null))
                 {
                     if (p_Poll != null
-                        && p_Poll.status != CP_SDK.Chat.Models.Twitch.Helix_Poll.Status.ARCHIVED
-                        && p_Poll.status != CP_SDK.Chat.Models.Twitch.Helix_Poll.Status.INVALID)
+                        && p_Poll.status != CP_SDK.Chat.Models.Twitch.EHelix_PollStatus.ARCHIVED
+                        && p_Poll.status != CP_SDK.Chat.Models.Twitch.EHelix_PollStatus.INVALID)
                     {
                         CurrentScreen?.gameObject?.SetActive(true);
 
@@ -217,8 +217,8 @@ namespace ChatPlexMod_Chat.UI
                             for (int l_I = 0; l_I < p_Poll.choices.Count && l_I < m_ProgressBars.Length; ++l_I)
                                 l_TotalVotes += p_Poll.choices[l_I].votes;
 
-                            if (   p_Poll.status == CP_SDK.Chat.Models.Twitch.Helix_Poll.Status.TERMINATED
-                                || p_Poll.status == CP_SDK.Chat.Models.Twitch.Helix_Poll.Status.COMPLETED)
+                            if (   p_Poll.status == CP_SDK.Chat.Models.Twitch.EHelix_PollStatus.TERMINATED
+                                || p_Poll.status == CP_SDK.Chat.Models.Twitch.EHelix_PollStatus.COMPLETED)
                             {
                                 var l_Sorted = p_Poll.choices.OrderByDescending(x => x.votes).ToArray();
 
@@ -247,8 +247,8 @@ namespace ChatPlexMod_Chat.UI
                         m_CurrentPollStart  = Time.realtimeSinceStartup - Mathf.Abs((float)(l_UTCNow - l_UTCStart).TotalSeconds);
                         m_CurrentPollEnd    = m_CurrentPollStart + p_Poll.duration;
 
-                        if (   p_Poll.status == CP_SDK.Chat.Models.Twitch.Helix_Poll.Status.TERMINATED
-                            || p_Poll.status == CP_SDK.Chat.Models.Twitch.Helix_Poll.Status.COMPLETED)
+                        if (   p_Poll.status == CP_SDK.Chat.Models.Twitch.EHelix_PollStatus.TERMINATED
+                            || p_Poll.status == CP_SDK.Chat.Models.Twitch.EHelix_PollStatus.COMPLETED)
                             m_CurrentPollEnd = Time.realtimeSinceStartup;
                     }
                     else
@@ -262,8 +262,8 @@ namespace ChatPlexMod_Chat.UI
                         for (var l_I = 0; l_I < p_Poll.choices.Count && l_I < m_ProgressBars.Length; ++l_I)
                             l_TotalVotes += p_Poll.choices[l_I].votes;
 
-                        if (   p_Poll.status == CP_SDK.Chat.Models.Twitch.Helix_Poll.Status.TERMINATED
-                            || p_Poll.status == CP_SDK.Chat.Models.Twitch.Helix_Poll.Status.COMPLETED)
+                        if (   p_Poll.status == CP_SDK.Chat.Models.Twitch.EHelix_PollStatus.TERMINATED
+                            || p_Poll.status == CP_SDK.Chat.Models.Twitch.EHelix_PollStatus.COMPLETED)
                         {
                             var l_Sorted = p_Poll.choices.OrderByDescending(x => x.votes).ToArray();
 
@@ -277,13 +277,13 @@ namespace ChatPlexMod_Chat.UI
                         }
                     }
 
-                    if (   p_Poll.status == CP_SDK.Chat.Models.Twitch.Helix_Poll.Status.TERMINATED
-                        || p_Poll.status == CP_SDK.Chat.Models.Twitch.Helix_Poll.Status.COMPLETED)
+                    if (   p_Poll.status == CP_SDK.Chat.Models.Twitch.EHelix_PollStatus.TERMINATED
+                        || p_Poll.status == CP_SDK.Chat.Models.Twitch.EHelix_PollStatus.COMPLETED)
                         m_CurrentPollEnd = Time.realtimeSinceStartup;
 
-                    if (   p_Poll.status == CP_SDK.Chat.Models.Twitch.Helix_Poll.Status.ARCHIVED
-                        || p_Poll.status == CP_SDK.Chat.Models.Twitch.Helix_Poll.Status.INVALID
-                        || p_Poll.status == CP_SDK.Chat.Models.Twitch.Helix_Poll.Status.MODERATED)
+                    if (   p_Poll.status == CP_SDK.Chat.Models.Twitch.EHelix_PollStatus.ARCHIVED
+                        || p_Poll.status == CP_SDK.Chat.Models.Twitch.EHelix_PollStatus.INVALID
+                        || p_Poll.status == CP_SDK.Chat.Models.Twitch.EHelix_PollStatus.MODERATED)
                         CurrentScreen?.gameObject?.SetActive(false);
                 }
 

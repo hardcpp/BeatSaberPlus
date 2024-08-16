@@ -22,7 +22,11 @@ namespace BeatSaberPlus_ChatRequest.UI
           CP_SDK_BS.UI.Data.SongListController,
           IProgress<float>
     {
-        private static CustomPreviewBeatmapLevel m_SongToSelectAfterDismiss = null;
+#if BEATSABER_1_35_0_OR_NEWER
+        private static BeatmapLevel m_SongToSelectAfterDismiss = null;
+#else
+        private static IPreviewBeatmapLevel m_SongToSelectAfterDismiss = null;
+#endif
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -310,8 +314,11 @@ namespace BeatSaberPlus_ChatRequest.UI
             /// Set selected song
             m_SelectedSong = l_SongEntry;
 
-            var l_LocalSong = SongCore.Loader.GetLevelByHash(m_SelectedSong.BeatSaver_Map.SelectMapVersion().hash);
-            if (l_LocalSong != null && SongCore.Loader.CustomLevels.ContainsKey(l_LocalSong.customLevelPath))
+#if BEATSABER_1_35_0_OR_NEWER
+            if (CP_SDK_BS.Game.Levels.TryGetBeatmapLevelForHash(m_SelectedSong.BeatSaver_Map.SelectMapVersion().hash, out _))
+#else
+            if (CP_SDK_BS.Game.Levels.TryGetPreviewBeatmapLevelForLevelID(m_SelectedSong.BeatSaver_Map.SelectMapVersion().hash, out _))
+#endif
                 m_SongInfo_Detail.SetPrimaryButtonText("Play");
             else
                 m_SongInfo_Detail.SetPrimaryButtonText("Download");
@@ -389,8 +396,11 @@ namespace BeatSaberPlus_ChatRequest.UI
 
             try
             {
-                var l_LocalSong = SongCore.Loader.GetLevelByHash(m_SelectedSong.BeatSaver_Map.SelectMapVersion().hash);
-                if (l_LocalSong != null && SongCore.Loader.CustomLevels.ContainsKey(l_LocalSong.customLevelPath))
+#if BEATSABER_1_35_0_OR_NEWER
+                if (CP_SDK_BS.Game.Levels.TryGetBeatmapLevelForHash(m_SelectedSong.BeatSaver_Map.SelectMapVersion().hash, out var l_LocalSong))
+#else
+                if (CP_SDK_BS.Game.Levels.TryGetPreviewBeatmapLevelForLevelID(m_SelectedSong.BeatSaver_Map.SelectMapVersion().hash, out var l_LocalSong))
+#endif
                 {
                     ChatRequest.Instance.DequeueSong(m_SelectedSong, true);
 
@@ -419,12 +429,7 @@ namespace BeatSaberPlus_ChatRequest.UI
                             if (p_IsSuccess)
                             {
                                 m_SongReloadingExpectedPath = p_SongReloadingExpectedPath;
-
-                                CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() =>
-                                {
-                                    SongCore.Loader.SongsLoadedEvent += OnDownloadedSongLoaded;
-                                    SongCore.Loader.Instance.RefreshSongs(false);
-                                });
+                                CP_SDK_BS.Game.Levels.ReloadSongs(false, OnDownloadedSongLoaded);
                             }
                             else
                             {
@@ -481,29 +486,17 @@ namespace BeatSaberPlus_ChatRequest.UI
         /// </summary>
         /// <param name="p_Loader">Loader instance</param>
         /// <param name="p_Maps">All loaded songs</param>
-        private void OnDownloadedSongLoaded(SongCore.Loader p_Loader, ConcurrentDictionary<string, CustomPreviewBeatmapLevel> p_Maps)
+        private void OnDownloadedSongLoaded()
         {
-            /// Remove callback
-            SongCore.Loader.SongsLoadedEvent -= OnDownloadedSongLoaded;
-
             /// Avoid refresh if not active view anymore
             if (!CanBeUpdated)
                 return;
 
-            var l_LocalSong = SongCore.Loader.GetLevelByHash(m_SelectedSong.BeatSaver_Map.SelectMapVersion().hash);
-            if (l_LocalSong == null)
-            {
-                foreach (var l_Current in p_Maps)
-                {
-                    if (!l_Current.Value.customLevelPath.ToLower().Contains(m_SongReloadingExpectedPath.ToLower()))
-                        continue;
-
-                    l_LocalSong = l_Current.Value;
-                    break;
-                }
-            }
-
-            if (l_LocalSong == null || l_LocalSong.levelID.Replace("custom_level_", "").ToLower() != m_SelectedSong.BeatSaver_Map.SelectMapVersion().hash)
+#if BEATSABER_1_35_0_OR_NEWER
+            if (!CP_SDK_BS.Game.Levels.TryGetBeatmapLevelForHash(m_SelectedSong.BeatSaver_Map.SelectMapVersion().hash, out var l_LocalSong))
+#else
+            if (!CP_SDK_BS.Game.Levels.TryGetPreviewBeatmapLevelForLevelID(m_SelectedSong.BeatSaver_Map.SelectMapVersion().hash, out var l_LocalSong))
+#endif
             {
                 CloseLoadingModal();
                 ShowMessageModal("An error occurred while downloading this map.\nDownloaded song doesn't match.");

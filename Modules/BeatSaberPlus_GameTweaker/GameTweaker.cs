@@ -124,7 +124,11 @@ namespace BeatSaberPlus_GameTweaker
             } catch (System.Exception p_PatchException) { Logger.Instance.Error("[GameTweaker] Error on updating PMainMenuViewController"); Logger.Instance.Error(p_PatchException); }
             /// Apply new content promotional settings
             try {
+#if BEATSABER_1_35_0_OR_NEWER
+                Patches.PMusicPackPromoBanner.SetEnabled(!p_ForceDisable && GTConfig.Instance.MainMenu.RemoveNewContentPromotional);
+#else
                 Patches.PPromoViewController.SetEnabled(!p_ForceDisable && GTConfig.Instance.MainMenu.RemoveNewContentPromotional);
+#endif
             } catch (System.Exception p_PatchException) { Logger.Instance.Error("[GameTweaker] Error on updating PPromoViewController"); Logger.Instance.Error(p_PatchException); }
             /// Apply player settings
             try {

@@ -273,6 +273,25 @@ namespace BeatSaberPlus_SongOverlay.Network
                 var l_WorkingMapInfo = m_MapInfoEvent.mapInfoChanged;
                 var l_CoverTask      = null as Task<Sprite>;
 
+#if BEATSABER_1_35_0_OR_NEWER
+                if (l_WorkingMapInfo.level_id != l_Map.Data.beatmapLevel.levelID)
+                {
+                    try { l_CoverTask = l_Map.Data.beatmapLevel.previewMediaData.GetCoverSpriteAsync(CancellationToken.None); } catch { }
+
+                    l_WorkingMapInfo.level_id   = l_Map.Data.beatmapLevel.levelID;
+                    l_WorkingMapInfo.name       = l_Map.Data.beatmapLevel.songName;
+                    l_WorkingMapInfo.sub_name   = l_Map.Data.beatmapLevel.songSubName;
+                    l_WorkingMapInfo.artist     = l_Map.Data.beatmapLevel.songAuthorName;
+                    l_WorkingMapInfo.mapper     = l_Map.Data.beatmapLevel.allMappers.FirstOrDefault();
+                    l_WorkingMapInfo.duration   = (uint)(l_Map.Data.beatmapLevel.songDuration * 1000f);
+                    l_WorkingMapInfo.BPM        = l_Map.Data.beatmapLevel.beatsPerMinute;
+                    l_WorkingMapInfo.PP         = 0f;
+                    l_WorkingMapInfo.BSRKey     = "";
+                }
+
+                l_WorkingMapInfo.characteristic = l_Map.Data.beatmapKey.beatmapCharacteristic.serializedName.ToString();
+                l_WorkingMapInfo.difficulty     = l_Map.Data.beatmapKey.difficulty.ToString();
+#else
                 if (l_WorkingMapInfo.level_id != l_Map.Data.previewBeatmapLevel.levelID)
                 {
                     try { l_CoverTask = l_Map.Data.previewBeatmapLevel.GetCoverImageAsync(CancellationToken.None); } catch { }
@@ -290,6 +309,7 @@ namespace BeatSaberPlus_SongOverlay.Network
 
                 l_WorkingMapInfo.characteristic = l_Map.Data.difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName.ToString();
                 l_WorkingMapInfo.difficulty     = l_Map.Data.difficultyBeatmap.difficulty.ToString();
+#endif
 
                 CP_SDK.Unity.MTCoroutineStarter.Start(Coroutine_WaitForGameplayReady(l_Map.Type, l_CoverTask));
             }

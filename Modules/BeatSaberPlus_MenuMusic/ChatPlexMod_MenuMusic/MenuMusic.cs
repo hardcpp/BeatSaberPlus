@@ -296,7 +296,7 @@ namespace ChatPlexMod_MenuMusic
             var l_Waiter = new WaitForSeconds(0.25f);
             while (true)
             {
-                l_ScreenContainer = Resources.FindObjectsOfTypeAll<GameObject>().FirstOrDefault(x => x.name == "ScreenContainer" && x.activeInHierarchy);
+                l_ScreenContainer = Resources.FindObjectsOfTypeAll<GameObject>().FirstOrDefault(x => x.name == "ScreenContainer" && x.activeInHierarchy && x.transform.parent?.parent?.name == "UI");
 
                 if (l_ScreenContainer != null && l_ScreenContainer)
                     break;

@@ -86,10 +86,17 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Events
         protected override sealed void BuildProvidedValues(ChatPlexMod_ChatIntegrations.Models.EventContext p_Context)
         {
             var l_LevelData     = p_Context.CustomData as CP_SDK_BS.Game.LevelData;
-            var l_GameMode      = l_LevelData.Data.difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName;
-            var l_Difficulty    = l_LevelData.Data.difficultyBeatmap.difficulty.Name();
+#if BEATSABER_1_35_0_OR_NEWER
+            string l_GameMode   = l_LevelData.Data.beatmapKey.beatmapCharacteristic.serializedName;
+            string l_Difficulty = l_LevelData.Data.beatmapKey.difficulty.Name();
+            string l_SongName   = l_LevelData.Data.beatmapLevel.allMappers.FirstOrDefault() + " - " + l_LevelData.Data.beatmapLevel.songName;
+#else
+            string l_GameMode   = l_LevelData.Data.difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName;
+            string l_Difficulty = l_LevelData.Data.difficultyBeatmap.difficulty.Name();
+            string l_SongName   = l_LevelData.Data.difficultyBeatmap.level.songAuthorName + " - " + l_LevelData.Data.difficultyBeatmap.level.songName;
+#endif
 
-            p_Context.AddValue(EValueType.String, "SongName", l_LevelData.Data.difficultyBeatmap.level.songAuthorName + " - " + l_LevelData.Data.difficultyBeatmap.level.songName);
+            p_Context.AddValue(EValueType.String, "SongName",   l_SongName);
             p_Context.AddValue(EValueType.String, "Difficulty", l_GameMode + " - " + l_Difficulty);
         }
     }

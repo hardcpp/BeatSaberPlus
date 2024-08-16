@@ -39,7 +39,7 @@ namespace ChatPlexMod_Chat.Components
         /// <summary>
         /// Images to add
         /// </summary>
-        private List<(Vector3, CP_SDK.Unity.EnhancedImage)> m_ImagesToAdd;
+        private List<(Vector3, CP_SDK.Unity.EnhancedImage, float)> m_ImagesToAdd;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -99,7 +99,7 @@ namespace ChatPlexMod_Chat.Components
                 defaultCapacity: 10
             );
 
-            m_ImagesToAdd = new List<(Vector3, CP_SDK.Unity.EnhancedImage)>(20);
+            m_ImagesToAdd = new List<(Vector3, CP_SDK.Unity.EnhancedImage, float)>(20);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -166,7 +166,7 @@ namespace ChatPlexMod_Chat.Components
                         if (FontInfo == null || !FontInfo.TryGetImageInfo(l_Character, out var l_ImageInfo))
                             continue;
 
-                        m_ImagesToAdd.Add((l_CharacterInfo.topLeft, l_ImageInfo));
+                        m_ImagesToAdd.Add((l_CharacterInfo.topLeft, l_ImageInfo, l_CharacterInfo.scale));
                     }
 
                     CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() => RebuildImagesInternal());
@@ -195,8 +195,6 @@ namespace ChatPlexMod_Chat.Components
             if (!this)
                 return;
 
-            var l_ScaleFactor       = (float)((double)m_currentFontSize / (double)m_currentFontAsset.faceInfo.pointSize * (double)m_currentFontAsset.faceInfo.scale * (m_isOrthographic ? 1.0 : 0.1f));
-            var l_LocalScale        = new Vector3(l_ScaleFactor * 1.08f, l_ScaleFactor * 1.08f, l_ScaleFactor * 1.08f);
             var l_ImagesToAddCount  = m_ImagesToAdd.Count;
             var l_AlreadyAllocated  = m_CurrentImages.Count;
             var l_Iterator          = 0;
@@ -228,9 +226,9 @@ namespace ChatPlexMod_Chat.Components
                 }
 
                 var l_RectTransform = l_Image.rectTransform;
-                l_RectTransform.localScale    = l_LocalScale;
+                l_RectTransform.localScale    = Vector3.one * l_Infos.Item3;
                 l_RectTransform.sizeDelta     = new Vector2(l_Infos.Item2.Width, l_Infos.Item2.Height);
-                l_RectTransform.localPosition = l_Infos.Item1 - new Vector3(0, l_Infos.Item2.Height * l_ScaleFactor * 0.558f / 2);
+                l_RectTransform.localPosition = l_Infos.Item1 - new Vector3(0, l_Infos.Item2.Height * l_Infos.Item3 * 0.558f / 2);
             }
 
             /// Allocate
@@ -251,9 +249,9 @@ namespace ChatPlexMod_Chat.Components
                 }
 
                 var l_RectTransform = l_Image.rectTransform;
-                l_RectTransform.localScale    = l_LocalScale;
+                l_RectTransform.localScale    = Vector3.one * l_Infos.Item3;
                 l_RectTransform.sizeDelta     = new Vector2(l_Infos.Item2.Width, l_Infos.Item2.Height);
-                l_RectTransform.localPosition = l_Infos.Item1 - new Vector3(0, l_Infos.Item2.Height * l_ScaleFactor * 0.558f / 2);
+                l_RectTransform.localPosition = l_Infos.Item1 - new Vector3(0, l_Infos.Item2.Height * l_Infos.Item3 * 0.558f / 2);
 
                 m_CurrentImages.Add(l_Image);
             }

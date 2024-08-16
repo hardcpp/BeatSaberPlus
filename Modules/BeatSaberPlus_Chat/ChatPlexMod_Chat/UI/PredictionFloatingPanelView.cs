@@ -175,16 +175,16 @@ namespace ChatPlexMod_Chat.UI
         {
             if (m_LastPrediction != null)
             {
-                var l_HasExpired =  (m_LastPrediction.status == CP_SDK.Chat.Models.Twitch.Helix_Prediction.Status.RESOLVED
+                var l_HasExpired =  (m_LastPrediction.status == CP_SDK.Chat.Models.Twitch.EHelix_PredictionStatus.RESOLVED
                                         && m_WindowEnd < Time.realtimeSinceStartup)
-                                    || m_LastPrediction.status == CP_SDK.Chat.Models.Twitch.Helix_Prediction.Status.CANCELED;
+                                    || m_LastPrediction.status == CP_SDK.Chat.Models.Twitch.EHelix_PredictionStatus.CANCELED;
 
                 if (l_HasExpired)
                     CurrentScreen?.gameObject?.SetActive(false);
                 else
                 {
-                    if (m_LastPrediction.status == CP_SDK.Chat.Models.Twitch.Helix_Prediction.Status.ACTIVE
-                        || m_LastPrediction.status == CP_SDK.Chat.Models.Twitch.Helix_Prediction.Status.RESOLVED)
+                    if (m_LastPrediction.status == CP_SDK.Chat.Models.Twitch.EHelix_PredictionStatus.ACTIVE
+                        || m_LastPrediction.status == CP_SDK.Chat.Models.Twitch.EHelix_PredictionStatus.RESOLVED)
                     {
                         if (m_WindowStart < 0)
                         {
@@ -226,10 +226,15 @@ namespace ChatPlexMod_Chat.UI
 
                 m_LockButton.SetInteractable(false);
 
-                m_TwitchService.HelixAPI.EndPrediction(m_LastPrediction.id, CP_SDK.Chat.Models.Twitch.Helix_Prediction.Status.LOCKED, null, (_, x) =>
-                {
-                    HelixAPI_OnActivePredictionChanged(x);
-                });
+                m_TwitchService.HelixAPI.EndPrediction(
+                    new CP_SDK.Chat.Models.Twitch.Helix_EndPrediction_Query(m_LastPrediction.id, CP_SDK.Chat.Models.Twitch.EHelix_PredictionStatus.LOCKED, null),
+                    (p_Status, x, p_Error) =>
+                    {
+                        Logger.Instance.Error(p_Status.ToString());
+                        Logger.Instance.Error(p_Error);
+                        HelixAPI_OnActivePredictionChanged(x);
+                    }
+                );
             });
         }
         /// <summary>
@@ -245,11 +250,14 @@ namespace ChatPlexMod_Chat.UI
                 m_PickButtonBlue.SetInteractable(false);
                 m_PickButtonPink.SetInteractable(false);
 
-                var l_Winner = m_LastPrediction.outcomes.FirstOrDefault(x => x.color == CP_SDK.Chat.Models.Twitch.Helix_Prediction.Color.BLUE)?.id ?? null;
-                m_TwitchService.HelixAPI.EndPrediction(m_LastPrediction.id, CP_SDK.Chat.Models.Twitch.Helix_Prediction.Status.RESOLVED, l_Winner, (_, x) =>
-                {
-                    HelixAPI_OnActivePredictionChanged(x);
-                });
+                var l_Winner = m_LastPrediction.outcomes.FirstOrDefault(x => x.color == CP_SDK.Chat.Models.Twitch.EHelix_PredictionColor.BLUE)?.id ?? null;
+                m_TwitchService.HelixAPI.EndPrediction(
+                    new CP_SDK.Chat.Models.Twitch.Helix_EndPrediction_Query(m_LastPrediction.id, CP_SDK.Chat.Models.Twitch.EHelix_PredictionStatus.RESOLVED, l_Winner), 
+                    (_, x, __) =>
+                    {
+                        HelixAPI_OnActivePredictionChanged(x);
+                    }
+                );
             });
         }
         /// <summary>
@@ -265,11 +273,14 @@ namespace ChatPlexMod_Chat.UI
                 m_PickButtonBlue.SetInteractable(false);
                 m_PickButtonPink.SetInteractable(false);
 
-                var l_Winner = m_LastPrediction.outcomes.FirstOrDefault(x => x.color == CP_SDK.Chat.Models.Twitch.Helix_Prediction.Color.PINK)?.id ?? null;
-                m_TwitchService.HelixAPI.EndPrediction(m_LastPrediction.id, CP_SDK.Chat.Models.Twitch.Helix_Prediction.Status.RESOLVED, l_Winner, (_, x) =>
-                {
-                    HelixAPI_OnActivePredictionChanged(x);
-                });
+                var l_Winner = m_LastPrediction.outcomes.FirstOrDefault(x => x.color == CP_SDK.Chat.Models.Twitch.EHelix_PredictionColor.PINK)?.id ?? null;
+                m_TwitchService.HelixAPI.EndPrediction(
+                    new CP_SDK.Chat.Models.Twitch.Helix_EndPrediction_Query(m_LastPrediction.id, CP_SDK.Chat.Models.Twitch.EHelix_PredictionStatus.RESOLVED, l_Winner),
+                    (_, x, __) =>
+                    {
+                        HelixAPI_OnActivePredictionChanged(x);
+                    }
+                );
             });
         }
         /// <summary>
@@ -283,10 +294,14 @@ namespace ChatPlexMod_Chat.UI
                     return;
 
                 m_CancelButton.SetInteractable(false);
-                m_TwitchService.HelixAPI.EndPrediction(m_LastPrediction.id, CP_SDK.Chat.Models.Twitch.Helix_Prediction.Status.CANCELED, null, (_, x) =>
-                {
-                    HelixAPI_OnActivePredictionChanged(x);
-                });
+
+                m_TwitchService.HelixAPI.EndPrediction(
+                    new CP_SDK.Chat.Models.Twitch.Helix_EndPrediction_Query(m_LastPrediction.id, CP_SDK.Chat.Models.Twitch.EHelix_PredictionStatus.CANCELED, null),
+                    (_, x, __) =>
+                    {
+                        HelixAPI_OnActivePredictionChanged(x);
+                    }
+                );
             });
         }
 
@@ -301,9 +316,9 @@ namespace ChatPlexMod_Chat.UI
         {
             if (p_Prediction != null)
             {
-                var l_HasExpired = (p_Prediction.status == CP_SDK.Chat.Models.Twitch.Helix_Prediction.Status.RESOLVED
+                var l_HasExpired = (p_Prediction.status == CP_SDK.Chat.Models.Twitch.EHelix_PredictionStatus.RESOLVED
                                         && (p_Prediction.ended_at?.AddSeconds(60) < DateTime.UtcNow))
-                                    || p_Prediction.status == CP_SDK.Chat.Models.Twitch.Helix_Prediction.Status.CANCELED;
+                                    || p_Prediction.status == CP_SDK.Chat.Models.Twitch.EHelix_PredictionStatus.CANCELED;
 
                 if (l_HasExpired)
                 {
@@ -387,25 +402,48 @@ namespace ChatPlexMod_Chat.UI
                         m_Ratios.SetText(l_Ratios);
                         m_Votees.SetText(l_Votees);
 
-                        m_LockButtonFrame.SetActive(p_Prediction.status == CP_SDK.Chat.Models.Twitch.Helix_Prediction.Status.ACTIVE);
+                        m_LockButtonFrame.SetActive(p_Prediction.status == CP_SDK.Chat.Models.Twitch.EHelix_PredictionStatus.ACTIVE);
 
-                        m_PickButtonFrame.SetActive(p_Prediction.status == CP_SDK.Chat.Models.Twitch.Helix_Prediction.Status.LOCKED
-                                                 || p_Prediction.status == CP_SDK.Chat.Models.Twitch.Helix_Prediction.Status.RESOLVED);
+                        m_PickButtonFrame.SetActive(p_Prediction.status == CP_SDK.Chat.Models.Twitch.EHelix_PredictionStatus.LOCKED
+                                                 || p_Prediction.status == CP_SDK.Chat.Models.Twitch.EHelix_PredictionStatus.RESOLVED);
 
-                        m_CancelButton.SetInteractable(p_Prediction.status != CP_SDK.Chat.Models.Twitch.Helix_Prediction.Status.RESOLVED);
+                        m_CancelButton.SetInteractable(p_Prediction.status != CP_SDK.Chat.Models.Twitch.EHelix_PredictionStatus.RESOLVED);
 
                         m_WindowStart   = Time.realtimeSinceStartup - Mathf.Abs((float)(DateTime.UtcNow - p_Prediction.created_at).TotalSeconds);
                         m_WindowEnd     = m_WindowStart + p_Prediction.prediction_window;
 
-                        if (p_Prediction.status == CP_SDK.Chat.Models.Twitch.Helix_Prediction.Status.LOCKED)
-                            m_TimeProgressBar.SetBackgroundFillAmount(0.0f);
-                        else if (p_Prediction.status == CP_SDK.Chat.Models.Twitch.Helix_Prediction.Status.RESOLVED)
+                        if (p_Prediction.status == CP_SDK.Chat.Models.Twitch.EHelix_PredictionStatus.ACTIVE)
                         {
                             m_PickButtonBlue.SetInteractable(false);
                             m_PickButtonPink.SetInteractable(false);
 
+                            m_LockButton.SetInteractable(true);
+                        }
+                        else if (p_Prediction.status == CP_SDK.Chat.Models.Twitch.EHelix_PredictionStatus.LOCKED)
+                        {
+                            m_PickButtonBlue.SetInteractable(true);
+                            m_PickButtonPink.SetInteractable(true);
+
+                            m_LockButton.SetInteractable(false);
+
+                            m_TimeProgressBar.SetBackgroundFillAmount(0.0f);
+                        }
+                        else if (p_Prediction.status == CP_SDK.Chat.Models.Twitch.EHelix_PredictionStatus.RESOLVED)
+                        {
+                            m_PickButtonBlue.SetInteractable(false);
+                            m_PickButtonPink.SetInteractable(false);
+
+                            m_LockButton.SetInteractable(false);
+
                             m_WindowStart   = Time.realtimeSinceStartup;
                             m_WindowEnd     = Time.realtimeSinceStartup + 60f;
+                        }
+                        else
+                        {
+                            m_PickButtonBlue.SetInteractable(false);
+                            m_PickButtonPink.SetInteractable(false);
+
+                            m_LockButton.SetInteractable(false);
                         }
 
                         m_LastPrediction = p_Prediction;

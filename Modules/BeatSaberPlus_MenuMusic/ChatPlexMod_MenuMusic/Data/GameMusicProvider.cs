@@ -48,7 +48,11 @@ namespace ChatPlexMod_MenuMusic.Data
         public override bool StartGameSpecificGamePlay(Music p_Music)
         {
 #if BEATSABER
-            var l_CustomPreviewBeatmapLevel = null as CustomPreviewBeatmapLevel;
+#if BEATSABER_1_35_0_OR_NEWER
+            var l_BeatmapLevel = null as BeatmapLevel;
+#else
+            var l_BeatmapLevel = null as CustomPreviewBeatmapLevel;
+#endif
             try
             {
                 if (p_Music != null)
@@ -60,7 +64,11 @@ namespace ChatPlexMod_MenuMusic.Data
                         if (l_RelativeFolder.Contains("/"))
                             l_RelativeFolder = l_RelativeFolder.Substring(0, l_RelativeFolder.LastIndexOf("/"));
 
-                        l_CustomPreviewBeatmapLevel = SongCore.Loader.CustomLevels.Where(x => x.Value.customLevelPath.Contains(l_RelativeFolder)).Select(x => x.Value).FirstOrDefault();
+#if BEATSABER_1_35_0_OR_NEWER
+                        l_BeatmapLevel = SongCore.Loader.CustomLevels.Where(x => x.Key.Contains(l_RelativeFolder)).Select(x => x.Value).FirstOrDefault();
+#else
+                        l_BeatmapLevel = SongCore.Loader.CustomLevels.Where(x => x.Value.customLevelPath.Contains(l_RelativeFolder)).Select(x => x.Value).FirstOrDefault();
+#endif
                     }
                 }
             }
@@ -69,10 +77,10 @@ namespace ChatPlexMod_MenuMusic.Data
 
             }
 
-            if (l_CustomPreviewBeatmapLevel == null)
+            if (l_BeatmapLevel == null)
                 return false;
 
-            CP_SDK_BS.Game.LevelSelection.FilterToSpecificSong(l_CustomPreviewBeatmapLevel);
+            CP_SDK_BS.Game.LevelSelection.FilterToSpecificSong(l_BeatmapLevel);
             return true;
 #else
 #error Missing game implementation
@@ -107,14 +115,26 @@ namespace ChatPlexMod_MenuMusic.Data
 
             foreach (var l_Current in SongCore.Loader.CustomLevels)
             {
+#if BEATSABER_1_35_0_OR_NEWER
+                if (!(l_Current.Value.previewMediaData is FileSystemPreviewMediaData l_FileSystemPreviewMediaData))
+                    continue;
+
+                var l_Extension = Path.GetExtension(l_FileSystemPreviewMediaData._previewAudioClipPath).ToLower();
+#else
                 var l_Extension = Path.GetExtension(l_Current.Value.standardLevelInfoSaveData.songFilename).ToLower();
+#endif
                 if (l_Extension != ".egg" && l_Extension != ".ogg")
                     continue;
 
                 m_Musics.Add(new Music(
                     this,
+#if BEATSABER_1_35_0_OR_NEWER
+                    l_FileSystemPreviewMediaData._previewAudioClipPath,
+                    l_FileSystemPreviewMediaData._coverSpritePath,
+#else
                     Path.Combine("Beat Saber_Data\\CustomLevels\\", l_Current.Value.customLevelPath, l_Current.Value.standardLevelInfoSaveData.songFilename),
                     Path.Combine("Beat Saber_Data\\CustomLevels\\", l_Current.Value.customLevelPath, l_Current.Value.standardLevelInfoSaveData.coverImageFilename),
+#endif
                     l_Current.Value.songName,
                     l_Current.Value.songAuthorName
                 ));

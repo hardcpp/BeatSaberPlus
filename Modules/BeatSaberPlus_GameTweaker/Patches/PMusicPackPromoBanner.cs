@@ -1,20 +1,20 @@
-﻿#if !BEATSABER_1_35_0_OR_NEWER
+﻿#if BEATSABER_1_35_0_OR_NEWER
 using HarmonyLib;
 using System.Collections.Generic;
 
 namespace BeatSaberPlus_GameTweaker.Patches
 {
     /// <summary>
-    /// PromoViewController remover
+    /// MusicPackPromoBanner remover
     /// </summary>
-    [HarmonyPatch(typeof(PromoViewController))]
-    [HarmonyPatch("DidActivate")]
-    public class PPromoViewController : PromoViewController
+    [HarmonyPatch(typeof(MusicPackPromoBanner))]
+    [HarmonyPatch(nameof(MusicPackPromoBanner.Setup))]
+    public class PMusicPackPromoBanner : MusicPackPromoBanner
     {
         /// <summary>
-        /// PromoViewController instance
+        /// MusicPackPromoBanner instance
         /// </summary>
-        private static PromoViewController m_Instance = null;
+        private static MusicPackPromoBanner m_Instance = null;
         /// <summary>
         /// Original states
         /// </summary>
@@ -26,8 +26,8 @@ namespace BeatSaberPlus_GameTweaker.Patches
         /// <summary>
         /// Prefix
         /// </summary>
-        /// <param name="__instance">PromoViewController instance</param>
-        internal static void Postfix(ref PromoViewController __instance)
+        /// <param name="__instance">MusicPackPromoBanner instance</param>
+        internal static void Postfix(ref MusicPackPromoBanner __instance)
         {
             if (__instance != m_Instance)
                 m_OriginalStates.Clear();
@@ -50,7 +50,7 @@ namespace BeatSaberPlus_GameTweaker.Patches
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
-        /// Set if PromoViewController should be hidden
+        /// Set if MusicPackPromoBanner should be hidden
         /// </summary>
         /// <param name="p_Enabled">New state</param>
         internal static void SetEnabled(bool p_Enabled)

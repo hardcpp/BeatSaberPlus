@@ -38,7 +38,11 @@ namespace BeatSaberPlus_ChatRequest
 
         private ConcurrentBag<string>   m_RequestedThisSession      = new ConcurrentBag<string>();
         private DateTime                m_LastQueueCommandTime      = DateTime.Now;
+#if BEATSABER_1_35_0_OR_NEWER
+        private BeatmapLevel            m_LastPlayingLevel          = null;
+#else
         private IBeatmapLevel           m_LastPlayingLevel          = null;
+#endif
         private string                  m_LastPlayingLevelResponse  = "";
 
         ////////////////////////////////////////////////////////////////////////////

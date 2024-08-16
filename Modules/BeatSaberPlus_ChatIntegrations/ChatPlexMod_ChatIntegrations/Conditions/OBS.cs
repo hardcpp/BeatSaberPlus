@@ -1,5 +1,6 @@
 using CP_SDK.XUI;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 using OBSService = CP_SDK.OBS.Service;
@@ -174,7 +175,7 @@ namespace ChatPlexMod_ChatIntegrations.Conditions
             var l_Selected  = "<i>None</i>";
 
             if (OBSService.Status == OBSService.EStatus.Connected)
-                l_Choices.AddRange(OBSService.Scenes.Keys);
+                l_Choices.AddRange(OBSService.Scenes.Values.Select(x => x.sceneName));
             else
                 CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Condition failed, not connected to OBS!");
 
@@ -217,8 +218,8 @@ namespace ChatPlexMod_ChatIntegrations.Conditions
 
         private void OnSelectActiveSceneButton()
         {
-            Model.SceneName = OBSService.ActiveScene?.name;
-            m_Dropdown.SetValue(OBSService.ActiveScene?.name);
+            Model.SceneName = OBSService.ActiveProgramScene?.sceneName;
+            m_Dropdown.SetValue(OBSService.ActiveProgramScene?.sceneName);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -232,7 +233,7 @@ namespace ChatPlexMod_ChatIntegrations.Conditions
                 return false;
             }
 
-            return OBSService.ActiveScene?.name == Model.SceneName;
+            return OBSService.ActiveProgramScene?.sceneName == Model.SceneName;
         }
     }
 
@@ -258,7 +259,7 @@ namespace ChatPlexMod_ChatIntegrations.Conditions
             var l_Selected  = "<i>None</i>";
 
             if (OBSService.Status == OBSService.EStatus.Connected)
-                l_Choices.AddRange(OBSService.Scenes.Keys);
+                l_Choices.AddRange(OBSService.Scenes.Values.Select(x => x.sceneName));
             else
                 CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Condition failed, not connected to OBS!");
 
@@ -301,8 +302,8 @@ namespace ChatPlexMod_ChatIntegrations.Conditions
 
         private void OnSelectActiveSceneButton()
         {
-            Model.SceneName = OBSService.ActiveScene?.name;
-            m_Dropdown.SetValue(OBSService.ActiveScene?.name);
+            Model.SceneName = OBSService.ActiveProgramScene?.sceneName;
+            m_Dropdown.SetValue(OBSService.ActiveProgramScene?.sceneName);
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -316,7 +317,7 @@ namespace ChatPlexMod_ChatIntegrations.Conditions
                 return false;
             }
 
-            return !(OBSService.ActiveScene?.name == Model.SceneName);
+            return !(OBSService.ActiveProgramScene?.sceneName == Model.SceneName);
         }
     }
 }

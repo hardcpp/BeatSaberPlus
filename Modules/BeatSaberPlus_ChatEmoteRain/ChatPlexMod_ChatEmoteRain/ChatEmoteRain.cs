@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using UnityEngine;
 
 using EmitterConfig = CP_SDK.Unity.Components.EnhancedImageParticleEmitter.EmitterConfig;
@@ -60,8 +59,6 @@ namespace ChatPlexMod_ChatEmoteRain
             if (!Directory.Exists(CUSTOM_RAIN_PATH))
                 Directory.CreateDirectory(CUSTOM_RAIN_PATH);
 
-            LoadAssets();
-
             m_MenuManager       = new GameObject("[ChatPlexMod_ChatEmoteRain.MenuManager]").AddComponent<CP_SDK.Unity.Components.EnhancedImageParticleEmitterManager>();
             m_PlayingManager    = new GameObject("[ChatPlexMod_ChatEmoteRain.PlayingManager]").AddComponent<CP_SDK.Unity.Components.EnhancedImageParticleEmitterManager>();
 
@@ -106,9 +103,6 @@ namespace ChatPlexMod_ChatEmoteRain
             CP_SDK.UI.UISystem.DestroyUI(ref m_SettingsLeftView);
             CP_SDK.UI.UISystem.DestroyUI(ref m_SettingsMainView);
             CP_SDK.UI.UISystem.DestroyUI(ref m_SettingsRightView);
-
-            /// Unload assets
-            UnloadAssets();
 
             /// Unload SubRain emotes
             m_SubRainTextures.Clear();
@@ -192,40 +186,14 @@ namespace ChatPlexMod_ChatEmoteRain
         internal void UpdateTemplateFor(CP_SDK.EGenericScene p_Scene)
         {
             if (p_Scene == CP_SDK.EGenericScene.Menu)
-                m_MenuManager.Configure(POOL_SIZE_PER_SCENE, CERConfig.Instance.MenuEmitters, m_PreviewMaterial, CERConfig.Instance.MenuSize, CERConfig.Instance.MenuSpeed, CERConfig.Instance.EmoteDelay);
+                m_MenuManager.Configure(POOL_SIZE_PER_SCENE, CERConfig.Instance.MenuEmitters, CERConfig.Instance.MenuSize, CERConfig.Instance.MenuSpeed, CERConfig.Instance.EmoteDelay);
             else if (p_Scene == CP_SDK.EGenericScene.Playing)
-                m_PlayingManager.Configure(POOL_SIZE_PER_SCENE, CERConfig.Instance.SongEmitters, m_PreviewMaterial, CERConfig.Instance.SongSize, CERConfig.Instance.SongSpeed, CERConfig.Instance.EmoteDelay);
+                m_PlayingManager.Configure(POOL_SIZE_PER_SCENE, CERConfig.Instance.SongEmitters, CERConfig.Instance.SongSize, CERConfig.Instance.SongSpeed, CERConfig.Instance.EmoteDelay);
         }
         internal void SetTemplatesPreview(CP_SDK.EGenericScene p_Scene, bool p_Enabled, EmitterConfig p_Focus)
         {
                  if (p_Scene == CP_SDK.EGenericScene.Menu)      m_MenuManager.SetPreview(p_Enabled, p_Focus);
             else if (p_Scene == CP_SDK.EGenericScene.Playing)   m_PlayingManager.SetPreview(p_Enabled, p_Focus);
-        }
-
-        ////////////////////////////////////////////////////////////////////////////
-        ////////////////////////////////////////////////////////////////////////////
-
-        /// <summary>
-        /// Load assets
-        /// </summary>
-        private void LoadAssets()
-        {
-            m_PreviewMateralAssetBundle = AssetBundle.LoadFromMemory(
-                CP_SDK.Misc.Resources.FromRelPath(Assembly.GetExecutingAssembly(), "ChatPlexMod_ChatEmoteRain.Resources.PreviewMaterial.bundle")
-            );
-
-            m_PreviewMaterial = m_PreviewMateralAssetBundle.LoadAsset<Material>("PreviewMaterial");
-        }
-        /// <summary>
-        /// Unload assets
-        /// </summary>
-        private void UnloadAssets()
-        {
-            if (m_PreviewMateralAssetBundle == null)
-                return;
-
-            m_PreviewMateralAssetBundle.Unload(true);
-            m_PreviewMateralAssetBundle = null;
         }
 
         ////////////////////////////////////////////////////////////////////////////

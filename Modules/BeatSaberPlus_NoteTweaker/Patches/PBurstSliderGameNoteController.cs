@@ -12,6 +12,7 @@ namespace BeatSaberPlus_NoteTweaker.Patches
     {
         private static bool m_Enabled = false;
         private static bool m_TempEnabled = false;
+        private static bool m_WasTempEnabled = false;
         private static Vector3 m_NoteScale;
         private static Vector3 m_NoteInvScale;
         private static Vector3 m_TempNoteScale;
@@ -28,16 +29,30 @@ namespace BeatSaberPlus_NoteTweaker.Patches
         /// <param name="____smallCuttableBySaber">BoxCuttableBySaber instance</param>
         internal static void Postfix(ref BurstSliderGameNoteController __instance, ref BoxCuttableBySaber[] ____bigCuttableBySaberList, ref BoxCuttableBySaber[] ____smallCuttableBySaberList)
         {
-            if (!m_Enabled && !m_TempEnabled)
+            if (!m_Enabled && !m_TempEnabled && !m_WasTempEnabled)
                 return;
 
-            __instance.gameObject.transform.localScale = m_TempEnabled ? m_TempNoteScale : m_NoteScale;
+            var l_NoteScale     = m_NoteScale;
+            var l_NoteInvScale  = m_NoteInvScale;
+
+            if (m_TempEnabled)
+            {
+                l_NoteScale     = m_TempNoteScale;
+                l_NoteInvScale  = m_TempNoteInvScale;
+            }
+            else if (m_WasTempEnabled)
+            {
+                l_NoteScale     = Vector3.one;
+                l_NoteInvScale  = Vector3.one;
+            }
+
+            __instance.gameObject.transform.localScale = l_NoteScale;
 
             for (int l_I = 0; l_I < ____bigCuttableBySaberList.Length; ++l_I)
-                ____bigCuttableBySaberList[l_I].transform.localScale = m_TempEnabled ? m_TempNoteInvScale : m_NoteInvScale;
+                ____bigCuttableBySaberList[l_I].transform.localScale = l_NoteInvScale;
 
             for (int l_I = 0; l_I < ____smallCuttableBySaberList.Length; ++l_I)
-                ____smallCuttableBySaberList[l_I].transform.localScale = m_TempEnabled ? m_TempNoteInvScale : m_NoteInvScale;
+                ____smallCuttableBySaberList[l_I].transform.localScale = l_NoteInvScale;
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -57,7 +72,10 @@ namespace BeatSaberPlus_NoteTweaker.Patches
             m_NoteInvScale          = (1f / l_NoteScale) * Vector3.one;
 
             if (p_OnSceneSwitch)
+            {
                 m_TempEnabled = false;
+                m_WasTempEnabled = false;
+            }
         }
         /// <summary>
         /// Set temp config
@@ -74,6 +92,9 @@ namespace BeatSaberPlus_NoteTweaker.Patches
             m_TempEnabled           = p_Enabled;
             m_TempNoteScale         =       (p_Scale) * Vector3.one;
             m_TempNoteInvScale      = (1f / (p_Scale))* Vector3.one;
+
+            if (p_Enabled)
+                m_WasTempEnabled = true;
         }
 
         ////////////////////////////////////////////////////////////////////////////

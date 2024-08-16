@@ -237,12 +237,16 @@ namespace ChatPlexMod_SongChartVisualizer
             }
 
             var l_TransformedBeatmapData    = CP_SDK_BS.Game.Logic.LevelData?.Data?.transformedBeatmapData;
-            var l_DifficultyBeatmap         = CP_SDK_BS.Game.Logic.LevelData?.Data?.difficultyBeatmap;
-            var l_SongDuration              = l_DifficultyBeatmap?.level?.beatmapLevelData?.audioClip?.length ?? -1f;
+#if BEATSABER_1_35_0_OR_NEWER
+            var l_AudioClip                 = CP_SDK_BS.Game.Logic.LevelData?.Data?.songAudioClip;
+#else
+            var l_AudioClip                 = CP_SDK_BS.Game.Logic.LevelData?.Data?.difficultyBeatmap?.level?.beatmapLevelData?.audioClip;
+#endif
+            var l_SongDuration              = l_AudioClip?.length ?? -1f;
 
-            if (l_TransformedBeatmapData == null
-                || l_DifficultyBeatmap   == null
-                || l_SongDuration        == -1f)
+            if (l_TransformedBeatmapData    == null
+                || l_AudioClip              == null
+                || l_SongDuration           == -1f)
             {
                 yield break;
             }
@@ -306,6 +310,9 @@ namespace ChatPlexMod_SongChartVisualizer
 #endif
 
             m_ChartFloatingPanelView.SetRotationFollow(m_RootTransform, l_RotationFollow);
+
+            if (!l_RotationFollow && m_RootTransform)
+                m_RootTransform.localRotation = Quaternion.identity;
         }
         /// <summary>
         /// When the floating panel is moved

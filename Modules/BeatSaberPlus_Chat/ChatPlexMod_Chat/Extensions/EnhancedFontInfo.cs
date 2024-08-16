@@ -141,9 +141,9 @@ namespace ChatPlexMod_Chat.Extensions
 
                     var l_Glypth = new Glyph(l_ReplaceCharacter, new GlyphMetrics(0, 0, 0, 0, p_ImageInfo.Width), new GlyphRect(0, 0, 0, 0));
 
-#if BEATSABER && !BEATSABER_1_29_4_OR_NEWER
+#if BEATSABER && !BEATSABER_1_35_0_OR_NEWER
                     Font.characterLookupTable.Add(l_ReplaceCharacter, new TMP_Character(l_ReplaceCharacter, l_Glypth));
-#elif BEATSABER_1_29_4_OR_NEWER || UNITY_TESTING || SYNTHRIDERS || AUDIOTRIP || BOOMBOX || DANCEDASH
+#elif BEATSABER_1_35_0_OR_NEWER || UNITY_TESTING || SYNTHRIDERS || AUDIOTRIP || BOOMBOX || DANCEDASH
                     Font.characterLookupTable.Add(l_ReplaceCharacter, new TMP_Character(l_ReplaceCharacter, Font, l_Glypth));
 #else
 #error Missing game implementation

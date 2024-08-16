@@ -1,6 +1,10 @@
-﻿using CP_SDK.Unity.Extensions;
-using HarmonyLib;
+﻿#if BEATSABER_1_35_0_OR_NEWER
+using BGLib.Polyglot;
+#else
 using Polyglot;
+#endif
+using CP_SDK.Unity.Extensions;
+using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using TMPro;

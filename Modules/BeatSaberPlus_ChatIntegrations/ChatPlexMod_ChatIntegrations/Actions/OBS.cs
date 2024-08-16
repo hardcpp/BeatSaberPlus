@@ -251,7 +251,7 @@ namespace ChatPlexMod_ChatIntegrations.Actions
                 return;
             }
 
-            OBSService.StartStreaming();
+            OBSService.StartStream();
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -266,7 +266,7 @@ namespace ChatPlexMod_ChatIntegrations.Actions
                 yield break;
             }
 
-            OBSService.StartStreaming();
+            OBSService.StartStream();
 
             yield return null;
         }
@@ -390,7 +390,7 @@ namespace ChatPlexMod_ChatIntegrations.Actions
                 l_Result = l_Result.Replace(l_Key, l_ReplaceValue);
             }
 
-            OBSService.SetRecordFilenameFormat(l_Result);
+            OBSService.SetProfileParameter_Output_FilenameFormatting(l_Result);
 
             yield return null;
         }
@@ -459,7 +459,7 @@ namespace ChatPlexMod_ChatIntegrations.Actions
                 return;
             }
 
-            OBSService.StopStreaming();
+            OBSService.StopStream();
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -474,7 +474,7 @@ namespace ChatPlexMod_ChatIntegrations.Actions
                 yield break;
             }
 
-            OBSService.StopStreaming();
+            OBSService.StopStream();
 
             yield return null;
         }
@@ -502,7 +502,7 @@ namespace ChatPlexMod_ChatIntegrations.Actions
             var l_Choices  = new List<string>() { "<i>None</i>" };
 
             if (OBSService.Status == OBSService.EStatus.Connected)
-                l_Choices.AddRange(OBSService.Scenes.Keys);
+                l_Choices.AddRange(OBSService.Scenes.Values.Select(x => x.sceneName));
             else
             {
                 XUIElements = new IXUIElement[]
@@ -527,7 +527,7 @@ namespace ChatPlexMod_ChatIntegrations.Actions
 
             XUIElements = new IXUIElement[]
             {
-                XUIText.Make("Dummy event to execute"),
+                XUIText.Make(Description),
                 XUIDropdown.Make().SetOptions(l_Choices).SetValue(l_Selected)
                     .OnValueChanged((_, __) => OnSettingChanged()).Bind(ref m_Scene),
 
@@ -554,7 +554,7 @@ namespace ChatPlexMod_ChatIntegrations.Actions
         ////////////////////////////////////////////////////////////////////////////
 
         private void OnSelectActiveSceneButton()
-            => m_Scene.SetValue(OBSService.ActiveScene?.name);
+            => m_Scene.SetValue(OBSService.ActiveProgramScene?.sceneName);
         private void OnTestButton()
         {
             if (OBSService.Status != OBSService.EStatus.Connected)
@@ -563,8 +563,8 @@ namespace ChatPlexMod_ChatIntegrations.Actions
                 return;
             }
 
-            if (OBSService.Scenes.TryGetValue(Model.SceneName, out var l_Scene))
-                l_Scene.SetAsPreview();
+            if (OBSService.TryGetSceneByName(Model.SceneName, out var l_Scene))
+                l_Scene.SetCurrentPreview();
             else
                 CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_SwitchPreviewToScene Scene:{Model.SceneName} not found!");
         }
@@ -581,8 +581,8 @@ namespace ChatPlexMod_ChatIntegrations.Actions
                 yield break;
             }
 
-            if (OBSService.Scenes.TryGetValue(Model.SceneName, out var l_Scene))
-                l_Scene.SetAsPreview();
+            if (OBSService.TryGetSceneByName(Model.SceneName, out var l_Scene))
+                l_Scene.SetCurrentPreview();
             else
             {
                 p_Context.HasActionFailed = true;
@@ -615,7 +615,7 @@ namespace ChatPlexMod_ChatIntegrations.Actions
             var l_Choices  = new List<string>() { "<i>None</i>" };
 
             if (OBSService.Status == OBSService.EStatus.Connected)
-                l_Choices.AddRange(OBSService.Scenes.Keys);
+                l_Choices.AddRange(OBSService.Scenes.Values.Select(x => x.sceneName));
             else
             {
                 XUIElements = new IXUIElement[]
@@ -640,7 +640,7 @@ namespace ChatPlexMod_ChatIntegrations.Actions
 
             XUIElements = new IXUIElement[]
             {
-                XUIText.Make("Dummy event to execute"),
+                XUIText.Make(Description),
                 XUIDropdown.Make().SetOptions(l_Choices).SetValue(l_Selected)
                     .OnValueChanged((_, __) => OnSettingChanged()).Bind(ref m_Scene),
 
@@ -667,7 +667,7 @@ namespace ChatPlexMod_ChatIntegrations.Actions
         ////////////////////////////////////////////////////////////////////////////
 
         private void OnSelectActiveSceneButton()
-            => m_Scene.SetValue(OBSService.ActiveScene?.name);
+            => m_Scene.SetValue(OBSService.ActiveProgramScene?.sceneName);
         private void OnTestButton()
         {
             if (OBSService.Status != OBSService.EStatus.Connected)
@@ -676,8 +676,8 @@ namespace ChatPlexMod_ChatIntegrations.Actions
                 return;
             }
 
-            if (OBSService.Scenes.TryGetValue(Model.SceneName, out var l_Scene))
-                l_Scene.SwitchTo();
+            if (OBSService.TryGetSceneByName(Model.SceneName, out var l_Scene))
+                l_Scene.SetCurrentProgram();
             else
                 CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_SwitchToScene Scene:{Model.SceneName} not found!");
         }
@@ -694,8 +694,8 @@ namespace ChatPlexMod_ChatIntegrations.Actions
                 yield break;
             }
 
-            if (OBSService.Scenes.TryGetValue(Model.SceneName, out var l_Scene))
-                l_Scene.SwitchTo();
+            if (OBSService.TryGetSceneByName(Model.SceneName, out var l_Scene))
+                l_Scene.SetCurrentProgram();
             else
             {
                 p_Context.HasActionFailed = true;
@@ -838,7 +838,7 @@ namespace ChatPlexMod_ChatIntegrations.Actions
             var l_SelectedScene = "<i>None</i>";
 
             if (OBSService.Status == OBSService.EStatus.Connected)
-                l_SceneChoices.AddRange(OBSService.Scenes.Keys.ToList<string>());
+                l_SceneChoices.AddRange(OBSService.Scenes.Values.Select(x => x.sceneName));
 
             for (int l_I = 0; l_I < l_SceneChoices.Count; ++l_I)
             {
@@ -913,19 +913,18 @@ namespace ChatPlexMod_ChatIntegrations.Actions
 
             if (OBSService.Status == OBSService.EStatus.Connected)
             {
-                if (!OBSService.Scenes.TryGetValue(Model.SceneName, out var l_Scene))
+                if (!OBSService.TryGetSceneByName(Model.SceneName, out var l_Scene))
                 {
-                    CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_ToggleSource Scene:{Model.SceneName} not found!");
+                    if (Model.SceneName != "<i>None</i>")
+                        CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_ToggleSource Scene:{Model.SceneName} not found!");
+
                     return;
                 }
 
-                for (int l_I = 0;l_I < l_Scene.sources.Count; ++l_I)
+                for (int l_I = 0;l_I < l_Scene.sceneItems.Count; ++l_I)
                 {
-                    var l_Source = l_Scene.sources[l_I];
-                    l_SourceChoices.Add(l_Source.name);
-
-                    for (int l_Y = 0; l_Y < l_Source.groupChildren.Count; ++l_Y)
-                        l_SourceChoices.Add(l_Source.groupChildren[l_Y].name);
+                    var l_Source = l_Scene.sceneItems[l_I];
+                    l_SourceChoices.Add(l_Source.sourceName);
                 }
             }
             else
@@ -948,8 +947,8 @@ namespace ChatPlexMod_ChatIntegrations.Actions
 
         private void OnSelectActiveSceneButton()
         {
-            Model.SceneName = OBSService.ActiveScene?.name;
-            m_Scene.SetValue(OBSService.ActiveScene?.name);
+            Model.SceneName = OBSService.ActiveProgramScene?.sceneName;
+            m_Scene.SetValue(OBSService.ActiveProgramScene?.sceneName);
         }
         private void OnTestButton()
         {
@@ -959,11 +958,19 @@ namespace ChatPlexMod_ChatIntegrations.Actions
                 return;
             }
 
-            CP_SDK.OBS.Models.Source l_Source = null;
-            if (OBSService.Scenes.TryGetValue(Model.SceneName, out var l_Scene) && (l_Source = l_Scene.GetSourceByName(Model.SourceName)) != null)
-                l_Source.SetVisible(Model.ChangeType == Enums.Toggle.E.Toggle ? !l_Source.render : (Model.ChangeType == Enums.Toggle.E.Enable ? true : false));
-            else
-                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_ToggleSource Scene:{Model.SceneName} not found!");
+            if (!OBSService.TryGetSceneByName(Model.SceneName, out var l_Scene))
+            {
+                if (Model.SceneName != "<i>None</i>")
+                    CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_ToggleSource Scene:{Model.SceneName} not found!");
+
+                return;
+            }
+
+            var l_Source = l_Scene.GetSourceItemByName(Model.SourceName);
+            if (l_Source != null)
+                l_Source.SetEnabled(Model.ChangeType == Enums.Toggle.E.Toggle ? !l_Source.sceneItemEnabled : (Model.ChangeType == Enums.Toggle.E.Enable ? true : false));
+            else if (Model.SourceName != "<i>None</i>")
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_ToggleSource Source:{Model.SourceName} not found!");
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -978,13 +985,25 @@ namespace ChatPlexMod_ChatIntegrations.Actions
                 yield break;
             }
 
-            CP_SDK.OBS.Models.Source l_Source = null;
-            if (OBSService.Scenes.TryGetValue(Model.SceneName, out var l_Scene) && (l_Source = l_Scene.GetSourceByName(Model.SourceName)) != null)
-                l_Source.SetVisible(Model.ChangeType == Enums.Toggle.E.Toggle ? !l_Source.render : (Model.ChangeType == Enums.Toggle.E.Enable ? true : false));
+            if (!OBSService.TryGetSceneByName(Model.SceneName, out var l_Scene))
+            {
+                p_Context.HasActionFailed = true;
+
+                if (Model.SceneName != "<i>None</i>")
+                    CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_ToggleSource Scene:{Model.SceneName} not found!");
+
+                yield return null;
+            }
+
+            var l_Source = l_Scene.GetSourceItemByName(Model.SourceName);
+            if (l_Source != null)
+                l_Source.SetEnabled(Model.ChangeType == Enums.Toggle.E.Toggle ? !l_Source.sceneItemEnabled : (Model.ChangeType == Enums.Toggle.E.Enable ? true : false));
             else
             {
                 p_Context.HasActionFailed = true;
-                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_ToggleSource Scene:{Model.SceneName} not found!");
+
+                if (Model.SourceName != "<i>None</i>")
+                    CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_ToggleSource Source:{Model.SceneName} not found!");
             }
 
             yield return null;
@@ -1028,7 +1047,7 @@ namespace ChatPlexMod_ChatIntegrations.Actions
             var l_SelectedScene = "<i>None</i>";
 
             if (OBSService.Status == OBSService.EStatus.Connected)
-                l_SceneChoices.AddRange(OBSService.Scenes.Keys.ToList<string>());
+                l_SceneChoices.AddRange(OBSService.Scenes.Values.Select(x => x.sceneName));
 
             for (int l_I = 0; l_I < l_SceneChoices.Count; ++l_I)
             {
@@ -1103,19 +1122,18 @@ namespace ChatPlexMod_ChatIntegrations.Actions
 
             if (OBSService.Status == OBSService.EStatus.Connected)
             {
-                if (!OBSService.Scenes.TryGetValue(Model.SceneName, out var l_Scene))
+                if (!OBSService.TryGetSceneByName(Model.SceneName, out var l_Scene))
                 {
-                    CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_ToggleSourceAudio Scene:{Model.SceneName} not found!");
+                    if (Model.SceneName != "<i>None</i>")
+                        CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_ToggleSourceAudio Scene:{Model.SceneName} not found!");
+
                     return;
                 }
 
-                for (int l_I = 0;l_I < l_Scene.sources.Count; ++l_I)
+                for (int l_I = 0;l_I < l_Scene.sceneItems.Count; ++l_I)
                 {
-                    var l_Source = l_Scene.sources[l_I];
-                    l_SourceChoices.Add(l_Source.name);
-
-                    for (int l_Y = 0; l_Y < l_Source.groupChildren.Count; ++l_Y)
-                        l_SourceChoices.Add(l_Source.groupChildren[l_Y].name);
+                    var l_Source = l_Scene.sceneItems[l_I];
+                    l_SourceChoices.Add(l_Source.sourceName);
                 }
             }
             else
@@ -1138,8 +1156,8 @@ namespace ChatPlexMod_ChatIntegrations.Actions
 
         private void OnSelectActiveSceneButton()
         {
-            Model.SceneName = OBSService.ActiveScene?.name;
-            m_Scene.SetValue(OBSService.ActiveScene?.name);
+            Model.SceneName = OBSService.ActiveProgramScene?.sceneName;
+            m_Scene.SetValue(OBSService.ActiveProgramScene?.sceneName);
         }
         private void OnTestButton()
         {
@@ -1149,11 +1167,24 @@ namespace ChatPlexMod_ChatIntegrations.Actions
                 return;
             }
 
-            CP_SDK.OBS.Models.Source l_Source = null;
-            if (OBSService.Scenes.TryGetValue(Model.SceneName, out var l_Scene) && (l_Source = l_Scene.GetSourceByName(Model.SourceName)) != null)
-                l_Source.SetMuted(Model.ChangeType == Enums.Toggle.E.Toggle ? !l_Source.render : (Model.ChangeType == Enums.Toggle.E.Enable ? true : false));
-            else
-                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_ToggleSourceAudio Scene:{Model.SceneName} not found!");
+            if (!OBSService.TryGetSceneByName(Model.SceneName, out var l_Scene))
+            {
+                if (Model.SceneName != "<i>None</i>")
+                    CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_ToggleSourceAudio Scene:{Model.SceneName} not found!");
+
+                return;
+            }
+
+            var l_Source = l_Scene.GetSourceItemByName(Model.SourceName);
+            if (l_Source != null)
+            {
+                if (Model.ChangeType == Enums.Toggle.E.Toggle)
+                    l_Source.ToggleMute();
+                else
+                    l_Source.SetMuted(Model.ChangeType == Enums.Toggle.E.Enable ? true : false);
+            }
+            else if (Model.SourceName != "<i>None</i>")
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_ToggleSourceAudio Source:{Model.SourceName} not found!");
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -1168,13 +1199,30 @@ namespace ChatPlexMod_ChatIntegrations.Actions
                 yield break;
             }
 
-            CP_SDK.OBS.Models.Source l_Source = null;
-            if (OBSService.Scenes.TryGetValue(Model.SceneName, out var l_Scene) && (l_Source = l_Scene.GetSourceByName(Model.SourceName)) != null)
-                l_Source.SetMuted(Model.ChangeType == Enums.Toggle.E.Toggle ? !l_Source.render : (Model.ChangeType == Enums.Toggle.E.Enable ? true : false));
+            if (!OBSService.TryGetSceneByName(Model.SceneName, out var l_Scene))
+            {
+                p_Context.HasActionFailed = true;
+
+                if (Model.SceneName != "<i>None</i>")
+                    CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_ToggleSourceAudio Scene:{Model.SceneName} not found!");
+
+                yield return null;
+            }
+
+            var l_Source = l_Scene.GetSourceItemByName(Model.SourceName);
+            if (l_Source != null)
+            {
+                if (Model.ChangeType == Enums.Toggle.E.Toggle)
+                    l_Source.ToggleMute();
+                else
+                    l_Source.SetMuted(Model.ChangeType == Enums.Toggle.E.Enable ? true : false);
+            }
             else
             {
                 p_Context.HasActionFailed = true;
-                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_ToggleSourceAudio Scene:{Model.SceneName} not found!");
+
+                if (Model.SourceName != "<i>None</i>")
+                    CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_ToggleSourceAudio Source:{Model.SourceName} not found!");
             }
 
             yield return null;
@@ -1206,7 +1254,7 @@ namespace ChatPlexMod_ChatIntegrations.Actions
             var l_SelectedTransition    = "<i>None</i>";
 
             if (OBSService.Status == OBSService.EStatus.Connected)
-                l_TransitionChoices.AddRange(OBSService.Transitions.ToList<string>());
+                l_TransitionChoices.AddRange(OBSService.Transitions.Values.Select(x => x.transitionName));
             else
             {
                 XUIElements = new IXUIElement[]
@@ -1288,14 +1336,23 @@ namespace ChatPlexMod_ChatIntegrations.Actions
                 return;
             }
 
+            var l_Transition = null as CP_SDK.OBS.Models.Transition;
+            if (Model.OverrideTransition && !OBSService.TryGetTransitionByName(Model.Transition, out l_Transition))
+            {
+                if (Model.Transition != "<i>None</i>")
+                    CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_Transition Transition:{Model.Transition} not found!");
+
+                return;
+            }
+
             if (Model.OverrideDuration && Model.OverrideTransition)
-                OBSService.PreviewTransitionToScene(Model.Duration, Model.Transition);
+                OBSService.CustomStudioModeTransition(Model.Duration, l_Transition);
             else if (Model.OverrideDuration)
-                OBSService.PreviewTransitionToScene(Model.Duration);
+                OBSService.CustomStudioModeTransition(Model.Duration);
             else if (Model.OverrideTransition)
-                OBSService.PreviewTransitionToScene(-1, Model.Transition);
+                OBSService.CustomStudioModeTransition(-1, l_Transition);
             else
-                OBSService.PreviewTransitionToScene();
+                OBSService.CustomStudioModeTransition();
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -1310,15 +1367,25 @@ namespace ChatPlexMod_ChatIntegrations.Actions
                 yield break;
             }
 
+            var l_Transition = null as CP_SDK.OBS.Models.Transition;
+            if (Model.OverrideTransition && !OBSService.TryGetTransitionByName(Model.Transition, out l_Transition))
+            {
+                p_Context.HasActionFailed = true;
+
+                if (Model.Transition != "<i>None</i>")
+                    CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_Transition Transition:{Model.Transition} not found!");
+
+                yield return null;
+            }
 
             if (Model.OverrideDuration && Model.OverrideTransition)
-                OBSService.PreviewTransitionToScene(Model.Duration, Model.Transition);
+                OBSService.CustomStudioModeTransition(Model.Duration, l_Transition);
             else if (Model.OverrideDuration)
-                OBSService.PreviewTransitionToScene(Model.Duration);
+                OBSService.CustomStudioModeTransition(Model.Duration);
             else if (Model.OverrideTransition)
-                OBSService.PreviewTransitionToScene(-1, Model.Transition);
+                OBSService.CustomStudioModeTransition(-1, l_Transition);
             else
-                OBSService.PreviewTransitionToScene();
+                OBSService.CustomStudioModeTransition();
 
             yield return null;
         }

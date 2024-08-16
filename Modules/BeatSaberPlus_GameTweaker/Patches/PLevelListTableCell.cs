@@ -1,7 +1,6 @@
 ﻿using CP_SDK.Unity.Extensions;
 using HarmonyLib;
 using TMPro;
-using UnityEngine;
 
 namespace BeatSaberPlus_GameTweaker.Patches
 {
@@ -12,8 +11,13 @@ namespace BeatSaberPlus_GameTweaker.Patches
         /// <summary>
         /// DidActivate
         /// </summary>
+#if BEATSABER_1_35_0_OR_NEWER
+        internal static void Postfix(BeatmapLevel level, bool isFavorite,
+                                     ref TextMeshProUGUI ____songNameText)
+#else
         internal static void Postfix(IPreviewBeatmapLevel level, bool isFavorite,
                                      ref TextMeshProUGUI ____songNameText)
+#endif
         {
             if (GTConfig.Instance.LevelSelection.HighlightEnabled)
             {

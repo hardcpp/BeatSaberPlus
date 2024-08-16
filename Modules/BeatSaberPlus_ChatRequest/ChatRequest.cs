@@ -224,45 +224,46 @@ namespace BeatSaberPlus_ChatRequest
             {
                 try
                 {
-                    if (CP_SDK_BS.Game.Logic.LevelData != null
-                        && CP_SDK_BS.Game.Logic.LevelData?.Data != null
-                        && CP_SDK_BS.Game.Logic.LevelData?.Data.difficultyBeatmap != null)
+#if BEATSABER_1_35_0_OR_NEWER
+                    var l_CurrentMap    = CP_SDK_BS.Game.Logic.LevelData?.Data?.beatmapLevel;
+                    var l_Mapper        = l_CurrentMap.allMappers.FirstOrDefault()?.Replace(".", " . ");
+#else
+                    var l_CurrentMap    = CP_SDK_BS.Game.Logic.LevelData?.Data?.difficultyBeatmap?.level;
+                    var l_Mapper        = l_CurrentMap.levelAuthorName.Replace(".", " . ");
+#endif
+
+                    if (m_LastPlayingLevel != l_CurrentMap)
                     {
-                        var l_CurrentMap = CP_SDK_BS.Game.Logic.LevelData?.Data.difficultyBeatmap;
+                        m_LastPlayingLevel          = l_CurrentMap;
+                        m_LastPlayingLevelResponse  = CRConfig.Instance.SafeMode2 ? "" : l_CurrentMap.songName.Replace(".", " . ") + " by " + l_Mapper;
 
-                        if (m_LastPlayingLevel != l_CurrentMap.level)
+                        if (CP_SDK_BS.Game.Levels.LevelID_IsCustom(l_CurrentMap.levelID) && CP_SDK_BS.Game.Levels.TryGetHashFromLevelID(l_CurrentMap.levelID, out var l_Hash))
                         {
-                            m_LastPlayingLevel          = l_CurrentMap.level;
-                            m_LastPlayingLevelResponse  = CRConfig.Instance.SafeMode2 ? "" : l_CurrentMap.level.songName.Replace(".", " . ") + " by " + l_CurrentMap.level.levelAuthorName.Replace(".", " . ");
+                            var l_CachedEntry = null as Data.SongEntry;
 
-                            if (l_CurrentMap.level is CustomBeatmapLevel
-                                && l_CurrentMap.level.levelID.StartsWith("custom_level_"))
+                            lock (SongHistory)
+                                l_CachedEntry = SongHistory.Where(x => x.BeatSaver_Map != null && x.BeatSaver_Map.SelectMapVersion().hash.ToUpper() == l_Hash).FirstOrDefault();
+
+                            if (l_CachedEntry == null)
                             {
-                                var l_Hash = l_CurrentMap.level.levelID.Substring("custom_level_".Length).ToLower();
-                                if (l_Hash != "")
+                                CP_SDK_BS.Game.BeatMapsClient.GetOnlineByHash(l_Hash, (p_Valid, p_BeatMap) =>
                                 {
-                                    var l_CachedEntry = null as Data.SongEntry;
+                                    if (   !p_Valid
+                                        || p_BeatMap == null
+#if BEATSABER_1_35_0_OR_NEWER
+                                        || l_CurrentMap != (CP_SDK_BS.Game.Logic.LevelData?.Data?.beatmapLevel ?? null)
+#else
+                                        || l_CurrentMap != (CP_SDK_BS.Game.Logic.LevelData?.Data?.difficultyBeatmap?.level ?? null)
+#endif
+                                        )
+                                        return;
 
-                                    lock (SongHistory)
-                                        l_CachedEntry = SongHistory.Where(x => x.BeatSaver_Map != null && x.BeatSaver_Map.SelectMapVersion().hash.ToLower() == l_Hash).FirstOrDefault();
-
-                                    if (l_CachedEntry == null)
-                                    {
-                                        CP_SDK_BS.Game.BeatMapsClient.GetOnlineByHash(l_Hash, (p_Valid, p_BeatMap) =>
-                                        {
-                                            if (   !p_Valid
-                                                || p_BeatMap == null
-                                                || l_CurrentMap.level != (CP_SDK_BS.Game.Logic.LevelData?.Data?.difficultyBeatmap?.level ?? null))
-                                                return;
-
-                                            m_LastPlayingLevelResponse += " https://beatsaver.com/maps/" + p_BeatMap.id;
-                                        });
-                                    }
-                                    else
-                                    {
-                                        m_LastPlayingLevelResponse += " https://beatsaver.com/maps/" + l_CachedEntry.BeatSaver_Map.id;
-                                    }
-                                }
+                                    m_LastPlayingLevelResponse += " https://beatsaver.com/maps/" + p_BeatMap.id;
+                                });
+                            }
+                            else
+                            {
+                                m_LastPlayingLevelResponse += " https://beatsaver.com/maps/" + l_CachedEntry.BeatSaver_Map.id;
                             }
                         }
                     }

@@ -464,7 +464,11 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Actions
             bool l_Failed = true;
             if (CP_SDK_BS.Game.Logic.ActiveScene == CP_SDK_BS.Game.Logic.ESceneType.Playing)
             {
+#if BEATSABER_1_35_0_OR_NEWER
+                var l_Level     = CP_SDK_BS.Game.Logic.LevelData?.Data?.beatmapKey.difficulty;
+#else
                 var l_Level     = CP_SDK_BS.Game.Logic.LevelData?.Data?.difficultyBeatmap?.difficulty;
+#endif
                 var l_Effects   = l_Level == BeatmapDifficulty.ExpertPlus
                     ? CP_SDK_BS.Game.Logic.LevelData?.Data?.playerSpecificSettings?.environmentEffectsFilterExpertPlusPreset
                     : CP_SDK_BS.Game.Logic.LevelData?.Data?.playerSpecificSettings?.environmentEffectsFilterDefaultPreset;

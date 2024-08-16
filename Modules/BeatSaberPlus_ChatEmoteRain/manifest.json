@@ -3,12 +3,12 @@
   "id": "BeatSaberPlus_ChatEmoteRain",
   "name": "BeatSaberPlus_ChatEmoteRain",
   "author": "HardCPP",
-  "version": "6.2.2",
+  "version": "6.3.0",
   "description": "",
-  "gameVersion": "1.34.2",
+  "gameVersion": "1.37.1",
   "dependsOn": {
     "BSIPA": "^4.3.0",
-    "ChatPlexSDK_BS": "^6.2.2"
+    "ChatPlexSDK_BS": "^6.3.0"
   },
   "links": {
     "project-home": "https://discord.chatplex.org",

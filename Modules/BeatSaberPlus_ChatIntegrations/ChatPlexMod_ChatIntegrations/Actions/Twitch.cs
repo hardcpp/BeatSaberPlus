@@ -130,7 +130,7 @@ namespace ChatPlexMod_ChatIntegrations.Actions
             if (l_TwitchService != null)
             {
                 var l_HelixAPI = (l_TwitchService as CP_SDK.Chat.Services.Twitch.TwitchService).HelixAPI;
-                l_HelixAPI.CreateMarker(l_Message, null);
+                l_HelixAPI.CreateMarker(new CP_SDK.Chat.Models.Twitch.Helix_CreateMarker_Query(l_Message), null);
             }
 
             yield return null;
@@ -155,14 +155,17 @@ namespace ChatPlexMod_ChatIntegrations.Actions
             if (l_TwitchService != null)
             {
                 var l_HelixAPI = (l_TwitchService as CP_SDK.Chat.Services.Twitch.TwitchService).HelixAPI;
-                l_HelixAPI.CreateClip((p_Status, p_Result) =>
-                {
-                    if (p_Status != CP_SDK.Chat.Services.Twitch.TwitchHelixResult.OK)
-                        return;
+                l_HelixAPI.CreateClip(
+                    new CP_SDK.Chat.Models.Twitch.Helix_CreateClip_Query(),
+                    (p_Status, p_Result, p_Error) =>
+                    {
+                        if (p_Status != CP_SDK.Chat.Services.Twitch.EHelixResult.OK)
+                            return;
 
-                    try { System.IO.File.AppendAllLines($"{CP_SDK.ChatPlexSDK.ProductName}Plus_TwitchClips.txt", new List<string>() { p_Result?.edit_url ?? "invalid" }); }
-                    catch { }
-                });
+                        try { System.IO.File.AppendAllLines($"{CP_SDK.ChatPlexSDK.ProductName}Plus_TwitchClips.txt", new List<string>() { p_Result?.edit_url ?? "invalid" }); }
+                        catch { }
+                    }
+                );
             }
 
             yield return null;

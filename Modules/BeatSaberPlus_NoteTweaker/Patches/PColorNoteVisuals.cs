@@ -12,25 +12,27 @@ namespace BeatSaberPlus_NoteTweaker.Patches
     [HarmonyPatch(nameof(ColorNoteVisuals.HandleNoteControllerDidInit))]
     public class PColorNoteVisuals : ColorNoteVisuals
     {
-        private static bool m_Enabled = false;
-        private static bool m_BlockColorsEnabled = false;
-        private static Vector3 m_ArrowScale;
-        private static Vector3 m_ArrowGlowScale;
-        private static bool m_OverrideArrowColors;
-        private static float m_ArrowAlpha;
-        private static Color m_LeftArrowColor;
-        private static Color m_RightArrowColor;
-        private static bool m_CircleEnabled;
-        private static bool m_CircleForceEnabled;
-        private static Vector3 m_CircleScale;
-        private static Vector3 m_BurstCircleScale;
-        private static Vector3 m_PrecisionCircleScale;
-        private static bool m_OverrideDotColors;
-        private static float m_DotAlpha;
-        private static Color m_LeftCircleColor;
-        private static Color m_RightCircleColor;
-        private static Color m_LeftBlockColor;
-        private static Color m_RightBlockColor;
+        private static ColorManager m_ColorManager;
+
+        private static bool     m_Enabled               = false;
+        private static bool     m_BlockColorsEnabled    = false;
+        private static Vector3  m_ArrowScale;
+        private static Vector3  m_ArrowGlowScale;
+        private static bool     m_OverrideArrowColors;
+        private static float    m_ArrowAlpha;
+        private static Color    m_LeftArrowColor;
+        private static Color    m_RightArrowColor;
+        private static bool     m_CircleEnabled;
+        private static bool     m_CircleForceEnabled;
+        private static Vector3  m_CircleScale;
+        private static Vector3  m_BurstCircleScale;
+        private static Vector3  m_PrecisionCircleScale;
+        private static bool     m_OverrideDotColors;
+        private static float    m_DotAlpha;
+        private static Color    m_LeftCircleColor;
+        private static Color    m_RightCircleColor;
+        private static Color    m_LeftBlockColor;
+        private static Color    m_RightBlockColor;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -55,6 +57,8 @@ namespace BeatSaberPlus_NoteTweaker.Patches
                                      ref MeshRenderer[] ____circleMeshRenderers,
                                      ref MaterialPropertyBlockController[]  ____materialPropertyBlockControllers)
         {
+            m_ColorManager = ____colorManager;
+
             var l_ColorType = ____noteController.noteData.colorType;
 
             if (m_BlockColorsEnabled)
@@ -186,6 +190,17 @@ namespace BeatSaberPlus_NoteTweaker.Patches
             m_DotAlpha          = NTConfig.Instance.Enabled ? p_Profile.DotsIntensity       : 1f;
             m_LeftCircleColor   = NTConfig.Instance.Enabled ? p_Profile.DotsLColor          : new Color(0.659f, 0.125f, 0.125f, 1.000f);
             m_RightCircleColor  = NTConfig.Instance.Enabled ? p_Profile.DotsRColor          : new Color(0.125f, 0.392f, 0.659f, 1.000f);
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        public static Color? GetColorForSaber(SaberType p_Type)
+        {
+            if (m_ColorManager != null)
+                return m_ColorManager.ColorForSaberType(p_Type);
+
+            return null;
         }
     }
 }

@@ -217,7 +217,7 @@ namespace ChatPlexMod_ChatIntegrations.Events
 
             if (l_TwitchHelix != null)
             {
-                var l_URL           = $"https://api.twitch.tv/helix/channel_points/custom_rewards/redemptions?broadcaster_id={l_TwitchHelix.BroadcasterID}&reward_id={Model.RewardID}&id={p_Context.PointsEvent.TransactionID}";
+                var l_URL           = $"https://api.twitch.tv/helix/channel_points/custom_rewards/redemptions?broadcaster_id={l_TwitchHelix.BroadcasterUserID}&reward_id={Model.RewardID}&id={p_Context.PointsEvent.TransactionID}";
                 var l_Content       = new JObject()
                 {
                     ["status"] = "FULFILLED",
@@ -240,7 +240,7 @@ namespace ChatPlexMod_ChatIntegrations.Events
 
             if (l_TwitchHelix != null)
             {
-                var l_URL           = $"https://api.twitch.tv/helix/channel_points/custom_rewards/redemptions?broadcaster_id={l_TwitchHelix.BroadcasterID}&reward_id={Model.RewardID}&id={p_Context.PointsEvent.TransactionID}";
+                var l_URL           = $"https://api.twitch.tv/helix/channel_points/custom_rewards/redemptions?broadcaster_id={l_TwitchHelix.BroadcasterUserID}&reward_id={Model.RewardID}&id={p_Context.PointsEvent.TransactionID}";
                 var l_Content       = new JObject()
                 {
                     ["status"] = "CANCELED",
@@ -268,7 +268,7 @@ namespace ChatPlexMod_ChatIntegrations.Events
 
                 if (l_TwitchHelix != null)
                 {
-                    var l_URL           = $"https://api.twitch.tv/helix/channel_points/custom_rewards?broadcaster_id={l_TwitchHelix.BroadcasterID}&id={Model.RewardID}";
+                    var l_URL           = $"https://api.twitch.tv/helix/channel_points/custom_rewards?broadcaster_id={l_TwitchHelix.BroadcasterUserID}&id={Model.RewardID}";
                     var l_Content       = new JObject()
                     {
                         ["is_enabled"] = false
@@ -330,7 +330,7 @@ namespace ChatPlexMod_ChatIntegrations.Events
             {
                 var l_TwitchService = CP_SDK.Chat.Service.Multiplexer.Services.FirstOrDefault(x => x is CP_SDK.Chat.Services.Twitch.TwitchService);
                 var l_TwitchHelix   = l_TwitchService != null ? (l_TwitchService as CP_SDK.Chat.Services.Twitch.TwitchService).HelixAPI : null;
-                var l_URL           = $"https://api.twitch.tv/helix/channel_points/custom_rewards?broadcaster_id={l_TwitchHelix.BroadcasterID}&id={Model.RewardID}";
+                var l_URL           = $"https://api.twitch.tv/helix/channel_points/custom_rewards?broadcaster_id={l_TwitchHelix.BroadcasterUserID}&id={Model.RewardID}";
 
                 if (l_TwitchHelix != null)
                     l_TwitchHelix.WebClient.GetAsync(l_URL, CancellationToken.None, CreateOrUpdateReward_Callback, true);
@@ -344,7 +344,7 @@ namespace ChatPlexMod_ChatIntegrations.Events
             var l_TwitchService = CP_SDK.Chat.Service.Multiplexer.Services.FirstOrDefault(x => x is CP_SDK.Chat.Services.Twitch.TwitchService);
             var l_TwitchHelix   = l_TwitchService != null ? (l_TwitchService as CP_SDK.Chat.Services.Twitch.TwitchService).HelixAPI : null;
             var l_ShouldCreate  = p_GetReply == null || !p_GetReply.IsSuccessStatusCode;
-            var l_URL           = $"https://api.twitch.tv/helix/channel_points/custom_rewards?broadcaster_id={l_TwitchHelix.BroadcasterID}";
+            var l_URL           = $"https://api.twitch.tv/helix/channel_points/custom_rewards?broadcaster_id={l_TwitchHelix.BroadcasterUserID}";
 
             if (l_ShouldCreate)
             {
@@ -456,7 +456,7 @@ namespace ChatPlexMod_ChatIntegrations.Events
 
             if (l_TwitchHelix != null)
             {
-                var l_URL = $"https://api.twitch.tv/helix/channel_points/custom_rewards?broadcaster_id={l_TwitchHelix.BroadcasterID}&id={Model.RewardID}";
+                var l_URL = $"https://api.twitch.tv/helix/channel_points/custom_rewards?broadcaster_id={l_TwitchHelix.BroadcasterUserID}&id={Model.RewardID}";
 
                 l_TwitchHelix.WebClient.DeleteAsync(l_URL, CancellationToken.None, null, true);
             }

@@ -1,4 +1,8 @@
-﻿using Polyglot;
+﻿#if BEATSABER_1_35_0_OR_NEWER
+using BGLib.Polyglot;
+#else
+using Polyglot;
+#endif
 using System.Linq;
 using TMPro;
 using UnityEngine;

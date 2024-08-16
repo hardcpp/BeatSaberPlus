@@ -336,7 +336,12 @@ namespace BeatSaberPlus_ChatRequest
             string l_Response = "";
             if (CP_SDK_BS.Game.Logic.LevelData == null
                 || CP_SDK_BS.Game.Logic.LevelData?.Data == null
-                || CP_SDK_BS.Game.Logic.LevelData?.Data.difficultyBeatmap == null)
+#if BEATSABER_1_35_0_OR_NEWER
+                || CP_SDK_BS.Game.Logic.LevelData?.Data.beatmapLevel == null
+#else
+                || CP_SDK_BS.Game.Logic.LevelData?.Data.difficultyBeatmap == null
+#endif
+                )
             {
                 if (m_LastPlayingLevelResponse == "")
                     l_Response = CRConfig.Instance.Commands.LinkCommand_NoSong;
