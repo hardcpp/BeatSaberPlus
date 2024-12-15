@@ -79,7 +79,7 @@ namespace BeatSaberPlus_ChatRequest
                            internal EPermission BSRHelpCommandPermissions   = EPermission.Viewers;
             [JsonProperty] internal bool        BSRHelpCommandEnabled       = true;
             [JsonProperty] internal string      BSRHelpCommand              = "bsrhelp";
-            [JsonProperty] internal string      BSRHelpCommand_Reply        = "@$UserName To request a song, go to https://beatsaver.com/search and find a song, Click on \"Copy !bsr\" button and paste this on the stream and I'll play it soon!.";
+            [JsonProperty] internal string      BSRHelpCommand_Reply        = "@$UserName To request a song, go to https://beatsaver.com/search and find a song, Click on the Twitch icon next to the song and paste this in the stream chat and I'll play it soon!.";
 
             [JsonProperty, JsonConverter(typeof(StringEnumConverter))]
                            internal EPermission LinkCommandPermissions  = EPermission.Viewers;
