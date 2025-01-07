@@ -1358,6 +1358,8 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Actions
                             var l_Current = l_SpawnList[l_S];
                             l_BeatmapObjectSpawnController.HandleNoteDataCallback(NoteData.CreateBombNoteData(
                                 l_AudioTimeSyncController.songTime + l_Time,
+                                0.0f /* TODO */,
+                                0,
                                 l_Current.Item1,
                                 (NoteLineLayer)l_Current.Item2
                                 )
@@ -1445,7 +1447,11 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Actions
                     for (int l_I = 0; l_I < Model.Count; ++l_I)
                     {
                         l_BeatmapObjectSpawnController.HandleObstacleDataCallback(new ObstacleData(
+#if BEATSABER_1_38_0_OR_NEWER
+                            l_AudioTimeSyncController.songTime + l_Time, 0.0f /* TODO */, 0.0f /* TODO */, 0, 4, NoteLineLayer.Top, 0.3f, -4, 3
+#else
                             l_AudioTimeSyncController.songTime + l_Time, 4, NoteLineLayer.Top, 0.3f, -4, 3
+#endif
                         ));
                         l_Time += Model.Interval;
                     }

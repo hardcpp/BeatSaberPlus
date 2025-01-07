@@ -255,9 +255,17 @@ namespace BeatSaberPlus_GameTweaker
             Patches.Lights.PLightsPatches.SetFromConfig();
             Patches.PNoteDebrisSpawner.SetFromConfig();
 
+#if BEATSABER_1_38_0_OR_NEWER
+            if (GTConfig.Instance.Environment.RemoveMusicBandLogo && p_LevelData?.Data?.targetEnvironmentInfo != null)
+#else
             if (GTConfig.Instance.Environment.RemoveMusicBandLogo && p_LevelData?.Data?.environmentInfo != null)
+#endif
             {
+#if BEATSABER_1_38_0_OR_NEWER
+                switch (p_LevelData.Data.targetEnvironmentInfo.serializedName)
+#else
                 switch (p_LevelData.Data.environmentInfo.serializedName)
+#endif
                 {
                     case "BTSEnvironment":
                     case "LinkinParkEnvironment":

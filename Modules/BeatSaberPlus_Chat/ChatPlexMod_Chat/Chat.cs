@@ -501,7 +501,7 @@ namespace ChatPlexMod_Chat
 
                 /// Prepare data for level with rotations
 #if BEATSABER
-                var l_Is360Level    = CP_SDK_BS.Game.Logic.LevelData?.Data?.transformedBeatmapData?.spawnRotationEventsCount > 0;
+                var l_Is360Level    = CP_SDK_BS.Game.Logic.LevelData?.HasRotations ?? false;
                 var l_RotationRef   = l_Is360Level ? Resources.FindObjectsOfTypeAll<FlyingGameHUDRotation>().FirstOrDefault()?.gameObject : null as GameObject;
 #elif SYNTHRIDERS
                 var l_RotationRef   = Resources.FindObjectsOfTypeAll<GameObject>().FirstOrDefault(x => x.name == "[Score & Misc]");

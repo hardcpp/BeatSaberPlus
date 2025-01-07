@@ -52,6 +52,10 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="BeatSaber.ViewSystem" Publicize="true">
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatSaber.ViewSystem.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="DataModels">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\DataModels.dll</HintPath>
       <Private>False</Private>

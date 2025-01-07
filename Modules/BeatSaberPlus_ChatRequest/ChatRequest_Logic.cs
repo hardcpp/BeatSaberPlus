@@ -36,14 +36,15 @@ namespace BeatSaberPlus_ChatRequest
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        private ConcurrentBag<string>   m_RequestedThisSession      = new ConcurrentBag<string>();
-        private DateTime                m_LastQueueCommandTime      = DateTime.Now;
+        private ConcurrentBag<string>   m_RequestedThisSession          = new ConcurrentBag<string>();
+        private DateTime                m_LastQueueCommandTime          = DateTime.Now;
 #if BEATSABER_1_35_0_OR_NEWER
-        private BeatmapLevel            m_LastPlayingLevel          = null;
+        private BeatmapLevel            m_LastPlayingLevel              = null;
 #else
-        private IBeatmapLevel           m_LastPlayingLevel          = null;
+        private IBeatmapLevel           m_LastPlayingLevel              = null;
 #endif
-        private string                  m_LastPlayingLevelResponse  = "";
+        private string                  m_LastPlayingLevelResponse      = "";
+        private string                  m_LastPlayingLevelResponseLink  = "";
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -139,7 +140,14 @@ namespace BeatSaberPlus_ChatRequest
         /// <param name="p_Service">Source channel</param>
         /// <param name="p_SourceMessage">Context message</param>
         /// <param name="p_ContextMap">Context map</param>
-        internal void SendChatMessage(string p_Message, IChatService p_Service, IChatMessage p_SourceMessage, CP_SDK_BS.Game.BeatMaps.MapDetail p_ContextMap = null)
+        /// <param name="p_Keys">Additional replace keys</param>
+        internal void SendChatMessage(
+                string                              p_Message,
+                IChatService                        p_Service,
+                IChatMessage                        p_SourceMessage,
+                CP_SDK_BS.Game.BeatMaps.MapDetail   p_ContextMap    = null,
+                params (string, string)[]           p_Keys
+            )
         {
             if (p_SourceMessage != null && p_SourceMessage.Sender != null)
                 p_Message = p_Message.Replace("$UserName", p_SourceMessage.Sender.DisplayName);
@@ -151,6 +159,15 @@ namespace BeatSaberPlus_ChatRequest
                 p_Message = p_Message.Replace("$LevelAuthorName",   CRConfig.Instance.SafeMode2 ? p_ContextMap.id : p_ContextMap.metadata.levelAuthorName.Replace(".", " . "));
                 p_Message = p_Message.Replace("$UploaderName",      CRConfig.Instance.SafeMode2 ? p_ContextMap.id : p_ContextMap.uploader.name.Replace(".", " . "));
                 p_Message = p_Message.Replace("$Vote",              Math.Round((double)p_ContextMap.stats.score * 100f, 0).ToString());
+            }
+
+            if (p_Keys != null)
+            {
+                foreach (var l_CurrentKey in p_Keys)
+                    p_Message = p_Message.Replace(
+                        l_CurrentKey.Item1,
+                        l_CurrentKey.Item1 == "$SongLink" ? l_CurrentKey.Item2 : l_CurrentKey.Item2.Replace(".", " . ")
+                    );
             }
 
             if (p_Service == null && p_SourceMessage == null)
@@ -202,9 +219,9 @@ namespace BeatSaberPlus_ChatRequest
         internal void ToggleQueueStatus()
         {
             if (QueueOpen)
-                SendChatMessage("Queue is now closed!", null, null);
+                SendChatMessage(CRConfig.Instance.Commands.CloseCommand_OK, null, null);
             else
-                SendChatMessage("Queue is now open!", null, null);
+                SendChatMessage(CRConfig.Instance.Commands.OpenCommand_OK, null, null);
 
             QueueOpen = !QueueOpen;
 
@@ -281,7 +298,7 @@ namespace BeatSaberPlus_ChatRequest
             OnQueueChanged();
 
             if (p_ChatNotify)
-                SendChatMessage($"$SongName / $LevelAuthorName $Vote% (bsr $BSRKey) requested by @{p_Entry.RequesterName} is next!", null, null, p_Entry.BeatSaver_Map);
+                SendChatMessage(CRConfig.Instance.Messages.NextSong, null, null, p_Entry.BeatSaver_Map, ("$RequesterName", p_Entry.RequesterName));
         }
         /// <summary>
         /// Clear queue

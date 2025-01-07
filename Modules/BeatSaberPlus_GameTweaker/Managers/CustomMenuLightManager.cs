@@ -106,6 +106,7 @@ namespace BeatSaberPlus_GameTweaker.Managers
                 {
                     m_MenuLightsManager._preset = m_DefaultPreset;
                     m_MenuLightsManager.enabled = true;
+                    m_MenuLightsManager.RefreshColors();
                 }
             }
             catch
@@ -127,6 +128,7 @@ namespace BeatSaberPlus_GameTweaker.Managers
                 {
                     m_MenuLightsManager._preset = m_DefaultPreset;
                     m_MenuLightsManager.enabled = true;
+                    m_MenuLightsManager.RefreshColors();
                 }
             }
             catch
@@ -148,6 +150,7 @@ namespace BeatSaberPlus_GameTweaker.Managers
                 {
                     m_MenuLightsManager._preset = m_LevelClearedPreset;
                     m_MenuLightsManager.enabled = true;
+                    m_MenuLightsManager.RefreshColors();
                 }
             }
             catch
@@ -169,6 +172,7 @@ namespace BeatSaberPlus_GameTweaker.Managers
                 {
                     m_MenuLightsManager._preset = m_LevelFailedPreset;
                     m_MenuLightsManager.enabled = true;
+                    m_MenuLightsManager.RefreshColors();
                 }
             }
             catch

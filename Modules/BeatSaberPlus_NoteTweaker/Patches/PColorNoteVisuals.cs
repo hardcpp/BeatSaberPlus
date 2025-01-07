@@ -133,18 +133,14 @@ namespace BeatSaberPlus_NoteTweaker.Patches
                 var l_CurrentRenderer = ____circleMeshRenderers[l_I];
                 l_CurrentRenderer.enabled                            = l_DotEnabled;
                 l_CurrentRenderer.gameObject.transform.localScale    = l_CircleScale;
-                l_CurrentRenderer.material.color                     = l_DotColor;
 
-                if (l_DotEnabled)
+                m_ComponentsCache.Clear();
+                l_CurrentRenderer.GetComponents(m_ComponentsCache);
+                for (int l_MBI = 0; l_MBI < m_ComponentsCache.Count; ++l_MBI)
                 {
-                    m_ComponentsCache.Clear();
-                    l_CurrentRenderer.GetComponents(m_ComponentsCache);
-                    for (int l_MBI = 0; l_MBI < m_ComponentsCache.Count; ++l_MBI)
-                    {
-                        var l_CurrentBlock = m_ComponentsCache[l_MBI];
-                        l_CurrentBlock.materialPropertyBlock.SetColor(_colorId, l_DotColor);
-                        l_CurrentBlock.ApplyChanges();
-                    }
+                    var l_CurrentBlock = m_ComponentsCache[l_MBI];
+                    l_CurrentBlock.materialPropertyBlock.SetColor(_colorId, l_DotColor);
+                    l_CurrentBlock.ApplyChanges();
                 }
             }
         }

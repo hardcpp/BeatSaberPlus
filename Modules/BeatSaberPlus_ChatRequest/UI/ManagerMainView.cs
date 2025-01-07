@@ -317,7 +317,7 @@ namespace BeatSaberPlus_ChatRequest.UI
 #if BEATSABER_1_35_0_OR_NEWER
             if (CP_SDK_BS.Game.Levels.TryGetBeatmapLevelForHash(m_SelectedSong.BeatSaver_Map.SelectMapVersion().hash, out _))
 #else
-            if (CP_SDK_BS.Game.Levels.TryGetPreviewBeatmapLevelForLevelID(m_SelectedSong.BeatSaver_Map.SelectMapVersion().hash, out _))
+            if (CP_SDK_BS.Game.Levels.TryGetPreviewBeatmapLevelForHash(m_SelectedSong.BeatSaver_Map.SelectMapVersion().hash, out _))
 #endif
                 m_SongInfo_Detail.SetPrimaryButtonText("Play");
             else
@@ -399,7 +399,7 @@ namespace BeatSaberPlus_ChatRequest.UI
 #if BEATSABER_1_35_0_OR_NEWER
                 if (CP_SDK_BS.Game.Levels.TryGetBeatmapLevelForHash(m_SelectedSong.BeatSaver_Map.SelectMapVersion().hash, out var l_LocalSong))
 #else
-                if (CP_SDK_BS.Game.Levels.TryGetPreviewBeatmapLevelForLevelID(m_SelectedSong.BeatSaver_Map.SelectMapVersion().hash, out var l_LocalSong))
+                if (CP_SDK_BS.Game.Levels.TryGetPreviewBeatmapLevelForHash(m_SelectedSong.BeatSaver_Map.SelectMapVersion().hash, out var l_LocalSong))
 #endif
                 {
                     ChatRequest.Instance.DequeueSong(m_SelectedSong, true);
@@ -495,7 +495,7 @@ namespace BeatSaberPlus_ChatRequest.UI
 #if BEATSABER_1_35_0_OR_NEWER
             if (!CP_SDK_BS.Game.Levels.TryGetBeatmapLevelForHash(m_SelectedSong.BeatSaver_Map.SelectMapVersion().hash, out var l_LocalSong))
 #else
-            if (!CP_SDK_BS.Game.Levels.TryGetPreviewBeatmapLevelForLevelID(m_SelectedSong.BeatSaver_Map.SelectMapVersion().hash, out var l_LocalSong))
+            if (!CP_SDK_BS.Game.Levels.TryGetPreviewBeatmapLevelForHash(m_SelectedSong.BeatSaver_Map.SelectMapVersion().hash, out var l_LocalSong))
 #endif
             {
                 CloseLoadingModal();

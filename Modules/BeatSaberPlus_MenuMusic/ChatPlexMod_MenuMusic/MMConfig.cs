@@ -18,6 +18,7 @@ namespace ChatPlexMod_MenuMusic
         [JsonProperty] internal bool LoopCurrentMusic = false;
         [JsonProperty] internal bool UseOnlyCustomMenuSongsFolder = false;
         [JsonProperty] internal float PlaybackVolume = 0.5f;
+        [JsonProperty] internal string LastPlayingSongPath = "";
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////

@@ -276,7 +276,11 @@ namespace BeatSaberPlus_SongOverlay.Network
 #if BEATSABER_1_35_0_OR_NEWER
                 if (l_WorkingMapInfo.level_id != l_Map.Data.beatmapLevel.levelID)
                 {
+#if BEATSABER_1_35_0_OR_NEWER
+                    try { l_CoverTask = l_Map.Data.beatmapLevel.previewMediaData.GetCoverSpriteAsync(); } catch { }
+#else
                     try { l_CoverTask = l_Map.Data.beatmapLevel.previewMediaData.GetCoverSpriteAsync(CancellationToken.None); } catch { }
+#endif
 
                     l_WorkingMapInfo.level_id   = l_Map.Data.beatmapLevel.levelID;
                     l_WorkingMapInfo.name       = l_Map.Data.beatmapLevel.songName;
@@ -430,7 +434,7 @@ namespace BeatSaberPlus_SongOverlay.Network
                     m_ResumeEventQueued         = true;
                 };
 
-                m_IsPaused = m_PauseController._paused;
+                m_IsPaused = m_PauseController._paused == PauseController.PauseState.Paused;
             }
             else
                 m_IsPaused = false;

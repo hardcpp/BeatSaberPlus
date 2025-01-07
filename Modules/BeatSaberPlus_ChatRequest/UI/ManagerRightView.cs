@@ -149,7 +149,7 @@ namespace BeatSaberPlus_ChatRequest.UI
             ShowMessageModal("Song sent to the chat.");
 
             var l_Plugin = ChatRequest.Instance;
-            l_Plugin.SendChatMessage($"\"{m_LastDetail.name.Replace(".", " . ")}\" by {m_LastDetail.metadata.levelAuthorName.Replace(".", " . ")} => https://beatmaps.io/maps/{m_LastDetail.id}", null, null);
+            l_Plugin.SendChatMessage($"\"{m_LastDetail.name.Replace(".", " . ")}\" by {m_LastDetail.metadata.levelAuthorName.Replace(".", " . ")} => https://beatsaver.com/maps/{m_LastDetail.id}", null, null);
         }
         /// <summary>
         /// On beat saver pressed
@@ -157,7 +157,7 @@ namespace BeatSaberPlus_ChatRequest.UI
         private void OnBeatsaverPressed()
         {
             ShowMessageModal("URL opened in your web browser.");
-            Application.OpenURL("https://beatmaps.io/maps/" + m_LastDetail.id);
+            Application.OpenURL("https://beatsaver.com/maps/" + m_LastDetail.id);
         }
     }
 }

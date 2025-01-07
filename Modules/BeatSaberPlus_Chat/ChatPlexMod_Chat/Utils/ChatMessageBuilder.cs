@@ -173,7 +173,7 @@ namespace ChatPlexMod_Chat.Utils
                         }
                     }
                 }
-                Logger.Instance.Error(l_StringBuilder.ToString());
+
                 return l_StringBuilder.ToString();
             }
             catch (Exception p_Exception)

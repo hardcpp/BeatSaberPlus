@@ -49,6 +49,9 @@ namespace ChatPlexMod_MenuMusic
         private Coroutine                           m_WaitUntillReadyCoroutine  = null;
         private CP_SDK.Misc.FastCancellationToken   m_FastCancellationToken     = new CP_SDK.Misc.FastCancellationToken();
 
+        private CP_SDK.EGenericScene                m_LastActiveScene;
+        private bool                                m_LastPlayingRescue         = true;
+
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
@@ -72,11 +75,12 @@ namespace ChatPlexMod_MenuMusic
                 m_OriginalAmbientVolumeScale    = m_PreviewPlayer._ambientVolumeScale;
             }
 
-            UpdateMusicProvider();
-
-            /// Enable at start if in menu
-            if (CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.EGenericScene.Menu)
-                ChatPlexSDK_OnGenericSceneChange(CP_SDK.EGenericScene.Menu);
+            if (UpdateMusicProvider(true))
+            {
+                /// Enable at start if in menu
+                if (CP_SDK.ChatPlexSDK.ActiveGenericScene == CP_SDK.EGenericScene.Menu)
+                    ChatPlexSDK_OnGenericSceneChange(CP_SDK.EGenericScene.Menu);
+            }
         }
         /// <summary>
         /// Disable the Module
@@ -143,6 +147,7 @@ namespace ChatPlexMod_MenuMusic
                     m_PreviewPlayer._defaultAudioClip = m_OriginalMenuMusic;
 
                 DestroyFloatingPlayer();
+                m_LastActiveScene = p_Scene;
                 return;
             }
 
@@ -154,10 +159,12 @@ namespace ChatPlexMod_MenuMusic
             m_PreviewPlayer._volumeScale        = 0f;
 
             /// Start a new music
-            if (MMConfig.Instance.StartANewMusicOnSceneChange)
+            if (p_Scene != m_LastActiveScene && MMConfig.Instance.StartANewMusicOnSceneChange)
                 StartNewMusic(false, true);
             else
                 LoadNextMusic(true);
+
+            m_LastActiveScene = p_Scene;
         }
         /// <summary>
         /// On text message received
@@ -191,8 +198,13 @@ namespace ChatPlexMod_MenuMusic
         /// <summary>
         /// Update the music provider
         /// </summary>
-        internal void UpdateMusicProvider()
+        /// <param name="p_SkipIfAlreadySet">Skip if a music provider already exist</param>
+        /// <returns>True if a new music provider is set</returns>
+        internal bool UpdateMusicProvider(bool p_SkipIfAlreadySet = false)
         {
+            if (p_SkipIfAlreadySet && m_MusicProvider != null)
+                return false;
+
             switch (MMConfig.Instance.MusicProvider)
             {
                 case Data.MusicProviderType.E.CustomMusic:
@@ -205,6 +217,7 @@ namespace ChatPlexMod_MenuMusic
             }
 
             StartNewMusic();
+            return true;
         }
         /// <summary>
         /// Update playback volume
@@ -408,6 +421,15 @@ namespace ChatPlexMod_MenuMusic
 
             m_CurrentSongIndex++;
 
+            if (m_LastPlayingRescue)
+            {
+                var l_SongIndex = m_MusicProvider.Musics.FindIndex(x => x.GetSongPath() == MMConfig.Instance.LastPlayingSongPath);
+                if (l_SongIndex != -1)
+                    m_CurrentSongIndex = l_SongIndex;
+
+                m_LastPlayingRescue = false;
+            }
+
             /// Load and play audio clip
             LoadNextMusic(p_OnSceneTransition);
         }
@@ -449,6 +471,10 @@ namespace ChatPlexMod_MenuMusic
             if (m_CurrentSongIndex >= m_MusicProvider.Musics.Count) m_CurrentSongIndex = 0;
 
             var l_MusicToLoad = m_MusicProvider.Musics[m_CurrentSongIndex];
+
+            /// Save
+            MMConfig.Instance.LastPlayingSongPath = l_MusicToLoad.GetSongPath();
+            MMConfig.Instance.Save();
 
             m_FastCancellationToken.Cancel();
             l_MusicToLoad.GetAudioAsync(m_FastCancellationToken, (p_AudioClip) => {

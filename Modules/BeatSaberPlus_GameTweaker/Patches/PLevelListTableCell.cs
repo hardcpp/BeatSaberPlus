@@ -11,7 +11,10 @@ namespace BeatSaberPlus_GameTweaker.Patches
         /// <summary>
         /// DidActivate
         /// </summary>
-#if BEATSABER_1_35_0_OR_NEWER
+#if BEATSABER_1_38_0_OR_NEWER
+        internal static void Postfix(BeatmapLevel beatmapLevel, bool isFavorite,
+                                     ref TextMeshProUGUI ____songNameText)
+#elif BEATSABER_1_35_0_OR_NEWER
         internal static void Postfix(BeatmapLevel level, bool isFavorite,
                                      ref TextMeshProUGUI ____songNameText)
 #else
@@ -21,7 +24,11 @@ namespace BeatSaberPlus_GameTweaker.Patches
         {
             if (GTConfig.Instance.LevelSelection.HighlightEnabled)
             {
+#if BEATSABER_1_38_0_OR_NEWER
+                CP_SDK_BS.Game.Levels.GetScoresByLevelID(beatmapLevel.levelID, out var l_HaveAnyScore, out var l_HaveAllScores);
+#else
                 CP_SDK_BS.Game.Levels.GetScoresByLevelID(level.levelID, out var l_HaveAnyScore, out var l_HaveAllScores);
+#endif
 
                 var l_ColorPrefix = "";
                 if (l_HaveAllScores)

@@ -139,13 +139,6 @@ namespace BeatSaberPlus_ChatRequest
                 m_ManagerButtonS = null;
             }
 
-            /// Destroy flow coordinator
-            if (m_ManagerViewFlowCoordinator != null)
-            {
-                GameObject.Destroy(m_ManagerViewFlowCoordinator.gameObject);
-                m_ManagerViewFlowCoordinator = null;
-            }
-
             CP_SDK.UI.UISystem.DestroyUI(ref m_SettingsLeftView);
             CP_SDK.UI.UISystem.DestroyUI(ref m_SettingsMainView);
             CP_SDK.UI.UISystem.DestroyUI(ref m_SettingsRightView);
@@ -188,6 +181,8 @@ namespace BeatSaberPlus_ChatRequest
         {
             if (m_ManagerButtonP == null || !m_ManagerButtonP || m_ManagerButtonS == null || !m_ManagerButtonS)
             {
+                UI.ManagerViewFlowCoordinator.Destroy();
+
                 /// Stop coroutine
                 if (m_CreateButtonCoroutine != null)
                 {
@@ -226,16 +221,20 @@ namespace BeatSaberPlus_ChatRequest
                 {
 #if BEATSABER_1_35_0_OR_NEWER
                     var l_CurrentMap    = CP_SDK_BS.Game.Logic.LevelData?.Data?.beatmapLevel;
-                    var l_Mapper        = l_CurrentMap.allMappers.FirstOrDefault()?.Replace(".", " . ");
+                    var l_Mapper        = l_CurrentMap.allMappers.FirstOrDefault();
 #else
                     var l_CurrentMap    = CP_SDK_BS.Game.Logic.LevelData?.Data?.difficultyBeatmap?.level;
-                    var l_Mapper        = l_CurrentMap.levelAuthorName.Replace(".", " . ");
+                    var l_Mapper        = l_CurrentMap.levelAuthorName;
 #endif
 
                     if (m_LastPlayingLevel != l_CurrentMap)
                     {
-                        m_LastPlayingLevel          = l_CurrentMap;
-                        m_LastPlayingLevelResponse  = CRConfig.Instance.SafeMode2 ? "" : l_CurrentMap.songName.Replace(".", " . ") + " by " + l_Mapper;
+                        m_LastPlayingLevel = l_CurrentMap;
+
+                        if (CRConfig.Instance.SafeMode2)
+                            m_LastPlayingLevelResponse = $" ";
+                        else
+                            m_LastPlayingLevelResponse = $"{l_CurrentMap.songName} by {l_Mapper}";
 
                         if (CP_SDK_BS.Game.Levels.LevelID_IsCustom(l_CurrentMap.levelID) && CP_SDK_BS.Game.Levels.TryGetHashFromLevelID(l_CurrentMap.levelID, out var l_Hash))
                         {
@@ -258,12 +257,12 @@ namespace BeatSaberPlus_ChatRequest
                                         )
                                         return;
 
-                                    m_LastPlayingLevelResponse += " https://beatsaver.com/maps/" + p_BeatMap.id;
+                                    m_LastPlayingLevelResponseLink = "https://beatsaver.com/maps/" + p_BeatMap.id;
                                 });
                             }
                             else
                             {
-                                m_LastPlayingLevelResponse += " https://beatsaver.com/maps/" + l_CachedEntry.BeatSaver_Map.id;
+                                m_LastPlayingLevelResponseLink = "https://beatsaver.com/maps/" + l_CachedEntry.BeatSaver_Map.id;
                             }
                         }
                     }

@@ -1,4 +1,5 @@
 ﻿using CP_SDK.Chat.Interfaces;
+using CP_SDK.OBS.Models;
 using CP_SDK.XUI;
 using System;
 using System.Collections;
@@ -814,6 +815,12 @@ namespace ChatPlexMod_ChatIntegrations.Actions
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
+        private List<string>    m_SourceChoicesText = null;
+        private List<SceneItem> m_SourceChoicesItem = null;
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
         public override string Description => "Toggle source visibility";
 
         ////////////////////////////////////////////////////////////////////////////
@@ -874,7 +881,7 @@ namespace ChatPlexMod_ChatIntegrations.Actions
 
             BuildUIAuto(p_Parent);
 
-            RebuildSourceList();
+            UpdateSourceSelection();
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -892,7 +899,7 @@ namespace ChatPlexMod_ChatIntegrations.Actions
             Model.SceneName     = m_Scene.Element.GetValue();
 
             if (l_SceneChanged)
-                RebuildSourceList();
+                UpdateSourceSelection();
         }
         private void OnSettingChangedSrc()
         {
@@ -908,8 +915,8 @@ namespace ChatPlexMod_ChatIntegrations.Actions
 
         private void RebuildSourceList()
         {
-            var l_SourceChoices     = new List<string>() { "<i>None</i>" };
-            var l_SelectedSource    = "<i>None</i>";
+            var l_SourceChoicesText     = new List<string>() { "<i>None</i>" };
+            var l_SourceChoicesItem     = new List<SceneItem>() { null };
 
             if (OBSService.Status == OBSService.EStatus.Connected)
             {
@@ -921,25 +928,62 @@ namespace ChatPlexMod_ChatIntegrations.Actions
                     return;
                 }
 
-                for (int l_I = 0;l_I < l_Scene.sceneItems.Count; ++l_I)
+                for (int l_I = 0; l_I < l_Scene.sceneItems.Count; ++l_I)
                 {
                     var l_Source = l_Scene.sceneItems[l_I];
-                    l_SourceChoices.Add(l_Source.sourceName);
+                    l_SourceChoicesText.Add(l_Source.sourceName);
+                    l_SourceChoicesItem.Add(l_Source);
+
+                    if (l_Source.SubItems?.Count > 0)
+                    {
+                        for (int l_Y = 0; l_Y < l_Source.SubItems.Count; ++l_Y)
+                        {
+                            var l_SubSource = l_Source.SubItems[l_Y];
+                            l_SourceChoicesText.Add($"⟼{l_SubSource.sourceName}");
+                            l_SourceChoicesItem.Add(l_SubSource);
+                        }
+                    }
                 }
             }
             else
                 CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
 
-            for (int l_I = 0; l_I < l_SourceChoices.Count; ++l_I)
+            m_SourceChoicesText = l_SourceChoicesText;
+            m_SourceChoicesItem = l_SourceChoicesItem;
+        }
+        private void UpdateSourceSelection()
+        {
+            if (m_SourceChoicesItem == null)
+                RebuildSourceList();
+
+            var l_SelectedSource = "<i>None</i>";
+            for (int l_I = 0; l_I < m_SourceChoicesText.Count; ++l_I)
             {
-                if (l_SourceChoices[l_I] != Model.SourceName)
+                if (m_SourceChoicesText[l_I] != Model.SourceName)
                     continue;
 
-                l_SelectedSource = l_SourceChoices[l_I];
+                l_SelectedSource = m_SourceChoicesText[l_I];
                 break;
             }
 
-            m_Source.SetOptions(l_SourceChoices).SetValue(l_SelectedSource);
+            m_Source.SetOptions(m_SourceChoicesText).SetValue(l_SelectedSource);
+        }
+        private SceneItem FindSource()
+        {
+            if (m_SourceChoicesItem == null)
+                RebuildSourceList();
+
+            var l_SceneItem = null as SceneItem;
+            for (int l_I = 0; l_I < m_SourceChoicesText.Count; ++l_I)
+            {
+                if (m_SourceChoicesText[l_I] != Model.SourceName)
+                    continue;
+
+                l_SceneItem = m_SourceChoicesItem[l_I];
+                break;
+            }
+
+            return l_SceneItem;
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -966,9 +1010,9 @@ namespace ChatPlexMod_ChatIntegrations.Actions
                 return;
             }
 
-            var l_Source = l_Scene.GetSourceItemByName(Model.SourceName);
+            var l_Source = FindSource();
             if (l_Source != null)
-                l_Source.SetEnabled(Model.ChangeType == Enums.Toggle.E.Toggle ? !l_Source.sceneItemEnabled : (Model.ChangeType == Enums.Toggle.E.Enable ? true : false));
+                l_Source.SetEnabled(Model.ChangeType == Enums.Toggle.E.Toggle ? !l_Source.sceneItemEnabled : (Model.ChangeType == Enums.Toggle.E.Enable));
             else if (Model.SourceName != "<i>None</i>")
                 CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_ToggleSource Source:{Model.SourceName} not found!");
         }
@@ -995,9 +1039,9 @@ namespace ChatPlexMod_ChatIntegrations.Actions
                 yield return null;
             }
 
-            var l_Source = l_Scene.GetSourceItemByName(Model.SourceName);
+            var l_Source = FindSource();
             if (l_Source != null)
-                l_Source.SetEnabled(Model.ChangeType == Enums.Toggle.E.Toggle ? !l_Source.sceneItemEnabled : (Model.ChangeType == Enums.Toggle.E.Enable ? true : false));
+                l_Source.SetEnabled(Model.ChangeType == Enums.Toggle.E.Toggle ? !l_Source.sceneItemEnabled : (Model.ChangeType == Enums.Toggle.E.Enable));
             else
             {
                 p_Context.HasActionFailed = true;
@@ -1019,6 +1063,12 @@ namespace ChatPlexMod_ChatIntegrations.Actions
         private XUIDropdown m_ChangeType    = null;
         private XUIDropdown m_Scene         = null;
         private XUIDropdown m_Source        = null;
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        private List<string>    m_SourceChoicesText = null;
+        private List<SceneItem> m_SourceChoicesItem = null;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -1083,7 +1133,7 @@ namespace ChatPlexMod_ChatIntegrations.Actions
 
             BuildUIAuto(p_Parent);
 
-            RebuildSourceList();
+            UpdateSourceSelection();
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -1101,7 +1151,7 @@ namespace ChatPlexMod_ChatIntegrations.Actions
             Model.SceneName     = m_Scene.Element.GetValue();
 
             if (l_SceneChanged)
-                RebuildSourceList();
+                UpdateSourceSelection();
         }
         private void OnSettingChangedSrc()
         {
@@ -1117,8 +1167,8 @@ namespace ChatPlexMod_ChatIntegrations.Actions
 
         private void RebuildSourceList()
         {
-            var l_SourceChoices     = new List<string>() { "<i>None</i>" };
-            var l_SelectedSource    = "<i>None</i>";
+            var l_SourceChoicesText = new List<string>() { "<i>None</i>" };
+            var l_SourceChoicesItem = new List<SceneItem>() { null };
 
             if (OBSService.Status == OBSService.EStatus.Connected)
             {
@@ -1130,25 +1180,62 @@ namespace ChatPlexMod_ChatIntegrations.Actions
                     return;
                 }
 
-                for (int l_I = 0;l_I < l_Scene.sceneItems.Count; ++l_I)
+                for (int l_I = 0; l_I < l_Scene.sceneItems.Count; ++l_I)
                 {
                     var l_Source = l_Scene.sceneItems[l_I];
-                    l_SourceChoices.Add(l_Source.sourceName);
+                    l_SourceChoicesText.Add(l_Source.sourceName);
+                    l_SourceChoicesItem.Add(l_Source);
+
+                    if (l_Source.SubItems?.Count > 0)
+                    {
+                        for (int l_Y = 0; l_Y < l_Source.SubItems.Count; ++l_Y)
+                        {
+                            var l_SubSource = l_Source.SubItems[l_Y];
+                            l_SourceChoicesText.Add($"⟼{l_SubSource.sourceName}");
+                            l_SourceChoicesItem.Add(l_SubSource);
+                        }
+                    }
                 }
             }
             else
                 CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
 
-            for (int l_I = 0; l_I < l_SourceChoices.Count; ++l_I)
+            m_SourceChoicesText = l_SourceChoicesText;
+            m_SourceChoicesItem = l_SourceChoicesItem;
+        }
+        private void UpdateSourceSelection()
+        {
+            if (m_SourceChoicesItem == null)
+                RebuildSourceList();
+
+            var l_SelectedSource = "<i>None</i>";
+            for (int l_I = 0; l_I < m_SourceChoicesText.Count; ++l_I)
             {
-                if (l_SourceChoices[l_I] != Model.SourceName)
+                if (m_SourceChoicesText[l_I] != Model.SourceName)
                     continue;
 
-                l_SelectedSource = l_SourceChoices[l_I];
+                l_SelectedSource = m_SourceChoicesText[l_I];
                 break;
             }
 
-            m_Source.SetOptions(l_SourceChoices).SetValue(l_SelectedSource);
+            m_Source.SetOptions(m_SourceChoicesText).SetValue(l_SelectedSource);
+        }
+        private SceneItem FindSource()
+        {
+            if (m_SourceChoicesItem == null)
+                RebuildSourceList();
+
+            var l_SceneItem = null as SceneItem;
+            for (int l_I = 0; l_I < m_SourceChoicesText.Count; ++l_I)
+            {
+                if (m_SourceChoicesText[l_I] != Model.SourceName)
+                    continue;
+
+                l_SceneItem = m_SourceChoicesItem[l_I];
+                break;
+            }
+
+            return l_SceneItem;
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -1175,13 +1262,13 @@ namespace ChatPlexMod_ChatIntegrations.Actions
                 return;
             }
 
-            var l_Source = l_Scene.GetSourceItemByName(Model.SourceName);
+            var l_Source = FindSource();
             if (l_Source != null)
             {
                 if (Model.ChangeType == Enums.Toggle.E.Toggle)
                     l_Source.ToggleMute();
                 else
-                    l_Source.SetMuted(Model.ChangeType == Enums.Toggle.E.Enable ? true : false);
+                    l_Source.SetMuted(Model.ChangeType == Enums.Toggle.E.Enable);
             }
             else if (Model.SourceName != "<i>None</i>")
                 CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_ToggleSourceAudio Source:{Model.SourceName} not found!");
@@ -1209,13 +1296,13 @@ namespace ChatPlexMod_ChatIntegrations.Actions
                 yield return null;
             }
 
-            var l_Source = l_Scene.GetSourceItemByName(Model.SourceName);
+            var l_Source = FindSource();
             if (l_Source != null)
             {
                 if (Model.ChangeType == Enums.Toggle.E.Toggle)
                     l_Source.ToggleMute();
                 else
-                    l_Source.SetMuted(Model.ChangeType == Enums.Toggle.E.Enable ? true : false);
+                    l_Source.SetMuted(Model.ChangeType == Enums.Toggle.E.Enable);
             }
             else
             {

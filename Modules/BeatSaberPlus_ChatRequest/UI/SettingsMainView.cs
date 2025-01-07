@@ -1,5 +1,4 @@
-﻿using CP_SDK.UI.Components;
-using CP_SDK.XUI;
+﻿using CP_SDK.XUI;
 using System.Collections.Generic;
 using UnityEngine.UI;
 
@@ -18,7 +17,15 @@ namespace BeatSaberPlus_ChatRequest.UI
         private XUIToggle m_GeneralTab_PlayPreviewMusic;
         private XUIToggle m_GeneralTab_BigCoverArt;
         private XUISlider m_GeneralTab_QueueSize;
-        private XUISlider m_GeneralTab_QueueCooldown;
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        private XUIToggle m_CooldownTab_BSRCooldownPerUser;
+        private XUISlider m_CooldownTab_BSRCooldown;
+
+        private XUIToggle m_CooldownTab_QueueCooldownPerUser;
+        private XUISlider m_CooldownTab_QueueCooldown;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -38,7 +45,8 @@ namespace BeatSaberPlus_ChatRequest.UI
 
                 XUITabControl.Make(
                     ("General",     BuildGeneralTab()),
-                    ("Commands",    BuildCommandsTab())
+                    ("Commands",    BuildCommandsTab()),
+                    ("Cooldown",    BuildCooldownTab())
                 )
             )
             .SetBackground(true, null, true)
@@ -86,7 +94,6 @@ namespace BeatSaberPlus_ChatRequest.UI
                         .SetMinValue(0f).SetMaxValue(50f).SetIncrements(1f).SetInteger(true)
                         .SetValue(CRConfig.Instance.HistorySize)
                         .Bind(ref m_GeneralTab_HistorySize)
-
                 )
                 .SetSpacing(2)
                 .SetPadding(2)
@@ -108,14 +115,8 @@ namespace BeatSaberPlus_ChatRequest.UI
                     XUIText.Make("Queue command show count"),
                     XUISlider.Make()
                         .SetMinValue(1f).SetMaxValue(10f).SetIncrements(1f).SetInteger(true)
-                        .SetValue(CRConfig.Instance.QueueCommandShowSize)
-                        .Bind(ref m_GeneralTab_QueueSize),
-
-                    XUIText.Make("Queue command cooldown seconds"),
-                    XUISlider.Make()
-                        .SetMinValue(0f).SetMaxValue(60f).SetIncrements(1f).SetInteger(true)
-                        .SetValue(CRConfig.Instance.QueueCommandCooldown)
-                        .Bind(ref m_GeneralTab_QueueCooldown)
+                        .SetValue(CRConfig.Instance.Commands.QueueCommandShowSize)
+                        .Bind(ref m_GeneralTab_QueueSize)
                 )
                 .SetSpacing(2)
                 .SetPadding(2)
@@ -175,6 +176,52 @@ namespace BeatSaberPlus_ChatRequest.UI
             .OnReady(x => x.CSizeFitter.horizontalFit = x.CSizeFitter.verticalFit = ContentSizeFitter.FitMode.Unconstrained)
             .OnReady(x => x.HOrVLayoutGroup.childForceExpandWidth = true);
         }
+        /// <summary>
+        /// Build the cooldown tab
+        /// </summary>
+        /// <returns></returns>
+        private IXUIElement BuildCooldownTab()
+        {
+            return XUIHLayout.Make(
+                XUIVLayout.Make(
+                    XUIText.Make("BSR command cooldown per user"),
+                    XUIToggle.Make()
+                        .SetValue(CRConfig.Instance.Commands.BSRCommandCooldownPerUser)
+                        .Bind(ref m_CooldownTab_BSRCooldownPerUser),
+
+                    XUIText.Make("BSR command cooldown in seconds"),
+                    XUISlider.Make()
+                        .SetMinValue(0f).SetMaxValue(60f).SetIncrements(1f).SetInteger(true)
+                        .SetValue(CRConfig.Instance.Commands.BSRCommandCooldown)
+                        .Bind(ref m_CooldownTab_BSRCooldown)
+                )
+                .SetSpacing(2)
+                .SetPadding(2)
+                .SetWidth(60)
+                .ForEachDirect<XUIText>(x => x.SetAlign(TMPro.TextAlignmentOptions.Midline))
+                .ForEachDirect<XUISlider>(x => x.OnValueChanged(_ => OnValueChanged())),
+
+                XUIVLayout.Make(
+                    XUIText.Make("Queue command cooldown per user"),
+                    XUIToggle.Make()
+                        .SetValue(CRConfig.Instance.Commands.QueueCommandCooldownPerUser)
+                        .Bind(ref m_CooldownTab_QueueCooldownPerUser),
+
+                    XUIText.Make("Queue command cooldown in seconds"),
+                    XUISlider.Make()
+                        .SetMinValue(0f).SetMaxValue(60f).SetIncrements(1f).SetInteger(true)
+                        .SetValue(CRConfig.Instance.Commands.QueueCommandCooldown)
+                        .Bind(ref m_CooldownTab_QueueCooldown)
+                )
+                .SetSpacing(2)
+                .SetPadding(2)
+                .SetWidth(60)
+                .ForEachDirect<XUIText>(x => x.SetAlign(TMPro.TextAlignmentOptions.Midline))
+                .ForEachDirect<XUISlider>(x => x.OnValueChanged(_ => OnValueChanged()))
+                .ForEachDirect<XUIToggle>(x => x.OnValueChanged(_ => OnValueChanged()))
+            )
+            .OnReady(x => x.CSizeFitter.horizontalFit = UnityEngine.UI.ContentSizeFitter.FitMode.Unconstrained);
+        }
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -188,17 +235,22 @@ namespace BeatSaberPlus_ChatRequest.UI
             if (m_PreventChanges)
                 return;
 
-            /// Left
-            CRConfig.Instance.UserMaxRequest           = (int)m_GeneralTab_UserRequest.Element.GetValue();
-            CRConfig.Instance.VIPBonusRequest          = (int)m_GeneralTab_VIPBonusRequest.Element.GetValue();
-            CRConfig.Instance.SubscriberBonusRequest   = (int)m_GeneralTab_SubscriberBonusRequest.Element.GetValue();
-            CRConfig.Instance.HistorySize              = (int)m_GeneralTab_HistorySize.Element.GetValue();
+            /// General tab
+            CRConfig.Instance.UserMaxRequest                = (int)m_GeneralTab_UserRequest.Element.GetValue();
+            CRConfig.Instance.VIPBonusRequest               = (int)m_GeneralTab_VIPBonusRequest.Element.GetValue();
+            CRConfig.Instance.SubscriberBonusRequest        = (int)m_GeneralTab_SubscriberBonusRequest.Element.GetValue();
+            CRConfig.Instance.HistorySize                   = (int)m_GeneralTab_HistorySize.Element.GetValue();
 
-            /// Right
-            CRConfig.Instance.PlayPreviewMusic         = m_GeneralTab_PlayPreviewMusic.Element.GetValue();
-            CRConfig.Instance.BigCoverArt              = m_GeneralTab_BigCoverArt.Element.GetValue();
-            CRConfig.Instance.QueueCommandShowSize     = (int)m_GeneralTab_QueueSize.Element.GetValue();
-            CRConfig.Instance.QueueCommandCooldown     = (int)m_GeneralTab_QueueCooldown.Element.GetValue();
+            CRConfig.Instance.PlayPreviewMusic              = m_GeneralTab_PlayPreviewMusic.Element.GetValue();
+            CRConfig.Instance.BigCoverArt                   = m_GeneralTab_BigCoverArt.Element.GetValue();
+            CRConfig.Instance.Commands.QueueCommandShowSize = (int)m_GeneralTab_QueueSize.Element.GetValue();
+
+            /// Cooldown tab
+            CRConfig.Instance.Commands.BSRCommandCooldownPerUser    = m_CooldownTab_BSRCooldownPerUser.Element.GetValue();
+            CRConfig.Instance.Commands.BSRCommandCooldown           = (int)m_CooldownTab_BSRCooldown.Element.GetValue();
+
+            CRConfig.Instance.Commands.QueueCommandCooldownPerUser  = m_CooldownTab_QueueCooldownPerUser.Element.GetValue();
+            CRConfig.Instance.Commands.QueueCommandCooldown         = (int)m_CooldownTab_QueueCooldown.Element.GetValue();
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -211,15 +263,22 @@ namespace BeatSaberPlus_ChatRequest.UI
         {
             m_PreventChanges = true;
 
-            m_GeneralTab_UserRequest           .SetValue(CRConfig.Instance.UserMaxRequest);
+            /// General tab
+            m_GeneralTab_UserRequest.SetValue(CRConfig.Instance.UserMaxRequest);
             m_GeneralTab_VIPBonusRequest       .SetValue(CRConfig.Instance.VIPBonusRequest);
             m_GeneralTab_SubscriberBonusRequest.SetValue(CRConfig.Instance.SubscriberBonusRequest);
             m_GeneralTab_HistorySize           .SetValue(CRConfig.Instance.HistorySize);
 
             m_GeneralTab_PlayPreviewMusic      .SetValue(CRConfig.Instance.PlayPreviewMusic);
             m_GeneralTab_BigCoverArt           .SetValue(CRConfig.Instance.BigCoverArt);
-            m_GeneralTab_QueueSize             .SetValue(CRConfig.Instance.QueueCommandShowSize);
-            m_GeneralTab_QueueCooldown         .SetValue(CRConfig.Instance.QueueCommandCooldown);
+            m_GeneralTab_QueueSize             .SetValue(CRConfig.Instance.Commands.QueueCommandShowSize);
+
+            /// Cooldown tab
+            m_CooldownTab_BSRCooldownPerUser.SetValue(CRConfig.Instance.Commands.BSRCommandCooldownPerUser);
+            m_CooldownTab_BSRCooldown.SetValue(CRConfig.Instance.Commands.BSRCommandCooldown);
+
+            m_CooldownTab_QueueCooldownPerUser.SetValue(CRConfig.Instance.Commands.QueueCommandCooldownPerUser);
+            m_CooldownTab_QueueCooldown.SetValue(CRConfig.Instance.Commands.QueueCommandCooldown);
 
             m_PreventChanges = false;
         }
