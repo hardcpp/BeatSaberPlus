@@ -140,17 +140,27 @@ namespace ChatPlexMod_Chat.Utils
                     l_StringBuilder.Insert(0, $"<color=#bbbbbbbb>");
                     l_StringBuilder.Append("</color>");
                 }
-                else
-                {
+                else {
+                    var l_UsernameDisplay = p_Message.Sender.PaintedName;
+                    
+                    /// Twitch-specific, username display for users with international names
+                    if (p_Message.Sender.GetType() == typeof(TwitchUser)) 
+                    {
+                        if (!p_Message.Sender.UserName.Equals(p_Message.Sender.DisplayName.ToLower())) 
+                            l_UsernameDisplay = ($"{p_Message.Sender.DisplayName} ({p_Message.Sender.UserName})");
+                        if (CConfig.Instance.OnlyShowTwitchLoginNames)
+                            l_UsernameDisplay = p_Message.Sender.UserName;
+                    }
+                    
                     /// Message becomes the color of their name if it's an action message
                     if (p_Message.IsActionMessage)
                     {
-                        l_StringBuilder.Insert(0, $"<color={p_Message.Sender.Color}><b>{p_Message.Sender.PaintedName}</b> ");
+                        l_StringBuilder.Insert(0, $"<color={p_Message.Sender.Color}><b>{l_UsernameDisplay}</b> ");
                         l_StringBuilder.Append("</color>");
                     }
                     /// Insert username w/ color
                     else
-                        l_StringBuilder.Insert(0, $"<color={p_Message.Sender.Color}><b>{p_Message.Sender.PaintedName}</b></color>: ");
+                        l_StringBuilder.Insert(0, $"<color={p_Message.Sender.Color}><b>{l_UsernameDisplay}</b></color>: ");
 
                     if (p_Message.Sender.Badges != null)
                     {
