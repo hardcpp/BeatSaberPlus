@@ -64,6 +64,7 @@ namespace ChatPlexMod_Chat
         [JsonProperty] internal bool ShowChannelPointsEvent     = true;
         [JsonProperty] internal bool FilterViewersCommands      = false;
         [JsonProperty] internal bool FilterBroadcasterCommands  = false;
+        [JsonProperty] internal bool OnlyShowTwitchLoginNames   = false;
 
         [JsonProperty] internal Color BackgroundColor   = new Color(0.00f, 0.00f, 0.00f, 0.90f);
         [JsonProperty] internal Color HighlightColor    = new Color(0.57f, 0.28f, 1.00f, 0.12f);
