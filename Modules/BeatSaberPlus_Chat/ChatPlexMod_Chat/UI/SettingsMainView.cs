@@ -39,10 +39,10 @@ namespace ChatPlexMod_Chat.UI
             Templates.FullRectLayoutMainView(
                 Templates.TitleBar("Chat  | Settings"),
 
-                XUITabControl.Make(
-                    ("General", BuildGeneralTab()),
-                    ("Twitch", BuildTwitchTab())
-                ).Bind(ref m_TabControl)
+            XUITabControl.Make(
+                ("General", BuildGeneralTab()),
+                ("Twitch", BuildTwitchTab())
+            ).Bind(ref m_TabControl)
             )
             .SetBackground(true, null, true)
             .BuildUI(transform);
