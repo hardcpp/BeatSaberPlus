@@ -155,8 +155,8 @@ namespace BeatSaberPlus_ChatRequest.UI
                 new Data.CommandListItem(l_CConfig.BsrBanMapperCommand, () => l_CConfig.BsrBanMapperCommandPermissions, (x) => l_CConfig.BsrBanMapperCommandPermissions = x),
                 new Data.CommandListItem(l_CConfig.BsrUnbanMapperCommand, () => l_CConfig.BsrUnbanMapperCommandPermissions, (x) => l_CConfig.BsrUnbanMapperCommandPermissions = x),
                 new Data.CommandListItem(l_CConfig.RemapCommand, () => l_CConfig.RemapCommandPermissions, (x) => l_CConfig.RemapCommandPermissions = x),
-                new Data.CommandListItem(l_CConfig.AllowCommand, () => l_CConfig.AllowCommandPermissions, (x) => l_CConfig.AllowCommandPermissions = x),
-                new Data.CommandListItem(l_CConfig.BlockCommand, () => l_CConfig.BlockCommandPermissions, (x) => l_CConfig.BlockCommandPermissions = x)
+                new Data.CommandListItem(l_CConfig.AllowlistCommand, () => l_CConfig.AllowlistCommandPermissions, (x) => l_CConfig.AllowlistCommandPermissions = x),
+                new Data.CommandListItem(l_CConfig.BlocklistCommand, () => l_CConfig.BlocklistCommandPermissions, (x) => l_CConfig.BlocklistCommandPermissions = x)
             };
 
             return XUIVLayout.Make(

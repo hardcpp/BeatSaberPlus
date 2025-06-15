@@ -44,7 +44,7 @@ namespace ChatPlexMod_MenuMusic
         private float               m_BackupTime                    = 0f;
         private bool                m_IsPaused                      = false;
 
-        private Data.IMusicProvider                 m_MusicProvider             = new Data.GameMusicProvider();
+        private Data.IMusicProvider                 m_MusicProvider             = null;
         private int                                 m_CurrentSongIndex          = 0;
         private Coroutine                           m_WaitUntillReadyCoroutine  = null;
         private CP_SDK.Misc.FastCancellationToken   m_FastCancellationToken     = new CP_SDK.Misc.FastCancellationToken();

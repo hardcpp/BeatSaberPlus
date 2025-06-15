@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using BeatSaberPlus_MenuMusic;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -17,14 +18,15 @@ namespace ChatPlexMod_MenuMusic.Data
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        public override MusicProviderType.E Type            => MusicProviderType.E.GameMusic;
-        public override bool                IsReady         => !m_IsLoading;
+        public override MusicProviderType.E Type                => MusicProviderType.E.GameMusic;
+        public override bool                IsReady             => !m_IsLoading;
 #if BEATSABER
-        public override bool                SupportPlayIt   => true;
+        public override bool                SupportPlayIt       => true;
+        public override bool                SupportAddToQueue   => true;
 #else
 #error Missing game implementation
 #endif
-        public override List<Music>         Musics          => m_Musics;
+        public override List<Music>         Musics              => m_Musics;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -44,31 +46,24 @@ namespace ChatPlexMod_MenuMusic.Data
         /// <summary>
         /// Per game implementation of the Play It button
         /// </summary>
-        /// <param name="p_Music">Target music</param>
-        public override bool StartGameSpecificGamePlay(Music p_Music)
+        /// <param name="music">Target music</param>
+        /// <param name="viewController">Source view controller</param>
+        public override void StartGameSpecificGamePlay(Music music, CP_SDK.UI.IViewController viewController)
         {
 #if BEATSABER
-#if BEATSABER_1_35_0_OR_NEWER
             var l_BeatmapLevel = null as BeatmapLevel;
-#else
-            var l_BeatmapLevel = null as CustomPreviewBeatmapLevel;
-#endif
             try
             {
-                if (p_Music != null)
+                if (music != null)
                 {
-                    var l_FullPath = p_Music.GetSongPath();
+                    var l_FullPath = music.GetSongPath();
                     if (l_FullPath.Contains("Beat Saber_Data/CustomLevels/"))
                     {
                         var l_RelativeFolder = l_FullPath.Substring(l_FullPath.IndexOf("Beat Saber_Data/CustomLevels/") + "Beat Saber_Data/CustomLevels/".Length);
                         if (l_RelativeFolder.Contains("/"))
                             l_RelativeFolder = l_RelativeFolder.Substring(0, l_RelativeFolder.LastIndexOf("/"));
 
-#if BEATSABER_1_35_0_OR_NEWER
                         l_BeatmapLevel = SongCore.Loader.CustomLevels.Where(x => x.Key.Contains(l_RelativeFolder)).Select(x => x.Value).FirstOrDefault();
-#else
-                        l_BeatmapLevel = SongCore.Loader.CustomLevels.Where(x => x.Value.customLevelPath.Contains(l_RelativeFolder)).Select(x => x.Value).FirstOrDefault();
-#endif
                     }
                 }
             }
@@ -78,14 +73,128 @@ namespace ChatPlexMod_MenuMusic.Data
             }
 
             if (l_BeatmapLevel == null)
-                return false;
+            {
+                CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() =>
+                {
+                    if (viewController)
+                        viewController.ShowMessageModal("Song not found!");
+                });
+
+                return;
+            }
 
             CP_SDK_BS.Game.LevelSelection.FilterToSpecificSong(l_BeatmapLevel);
-            return true;
+
+            return;
 #else
 #error Missing game implementation
 #endif
         }
+        /// <summary>
+        /// Per game implementation of the Add to queue button
+        /// </summary>
+        /// <param name="music">Target music</param>
+        /// <param name="viewController">Source view controller</param>
+        public override void AddToQueue(Music music, CP_SDK.UI.IViewController viewController)
+        {
+#if BEATSABER
+            if (!ModulePresence.ChatRequest)
+            {
+                CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() =>
+                {
+                    if (viewController)
+                        viewController.ShowMessageModal("Chat request is not installed or enabled!");
+                });
+                return;
+            }
+
+            var l_BeatmapLevel = null as BeatmapLevel;
+            try
+            {
+                if (music != null)
+                {
+                    var l_FullPath = music.GetSongPath();
+                    if (l_FullPath.Contains("Beat Saber_Data/CustomLevels/"))
+                    {
+                        var l_RelativeFolder = l_FullPath.Substring(l_FullPath.IndexOf("Beat Saber_Data/CustomLevels/") + "Beat Saber_Data/CustomLevels/".Length);
+                        if (l_RelativeFolder.Contains("/"))
+                            l_RelativeFolder = l_RelativeFolder.Substring(0, l_RelativeFolder.LastIndexOf("/"));
+
+                        l_BeatmapLevel = SongCore.Loader.CustomLevels.Where(x => x.Key.Contains(l_RelativeFolder)).Select(x => x.Value).FirstOrDefault();
+                    }
+                }
+            }
+            catch (System.Exception)
+            {
+
+            }
+
+            if (l_BeatmapLevel == null)
+            {
+                CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() =>
+                {
+                    if (viewController)
+                        viewController.ShowMessageModal("Song not found!");
+                });
+
+                return;
+            }
+
+            AddToChatRequestQueue(l_BeatmapLevel, viewController);
+#else
+#error Missing game implementation
+#endif
+        }
+#if BEATSABER
+        private bool AddToChatRequestQueue(BeatmapLevel beatmapLevel, CP_SDK.UI.IViewController viewController)
+        {
+            CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() =>
+            {
+                if (viewController)
+                    viewController.ShowLoadingModal();
+            });
+
+            BeatSaberPlus_ChatRequest.ChatRequest.Instance.AddToQueueFromBeatmapLevel(
+                beatmapLevel:   beatmapLevel,
+                requester:      null,
+                onBehalfOf:     "$MenuMusic",
+                forceNamePrefix:"🎵",
+                asModAdd:       true,
+                addToTop:       false,
+                callback:       (p_Result) =>
+                {
+                    CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() =>
+                    {
+                        if (!viewController)
+                            return;
+
+                        viewController.CloseLoadingModal();
+
+                        switch (p_Result.Result)
+                        {
+                            case BeatSaberPlus_ChatRequest.Models.EAddToQueueResult.OK:
+                                viewController.ShowMessageModal("Song added to the queue!");
+                                break;
+
+                            case BeatSaberPlus_ChatRequest.Models.EAddToQueueResult.NotFound:
+                                viewController.ShowMessageModal("Song not found on BeatSaver!");
+                                break;
+
+                            case BeatSaberPlus_ChatRequest.Models.EAddToQueueResult.AlreadyInQueue:
+                                viewController.ShowMessageModal("Song is already in queue!");
+                                break;
+
+                            default:
+                                viewController.ShowMessageModal($"Error: {p_Result.Result.ToString()}");
+                                break;
+                        }
+                    });
+                }
+            );
+
+            return true;
+        }
+#endif
         /// <summary>
         /// Shuffle music collection
         /// </summary>
@@ -115,26 +224,17 @@ namespace ChatPlexMod_MenuMusic.Data
 
             foreach (var l_Current in SongCore.Loader.CustomLevels)
             {
-#if BEATSABER_1_35_0_OR_NEWER
                 if (!(l_Current.Value.previewMediaData is FileSystemPreviewMediaData l_FileSystemPreviewMediaData))
                     continue;
 
                 var l_Extension = Path.GetExtension(l_FileSystemPreviewMediaData._previewAudioClipPath).ToLower();
-#else
-                var l_Extension = Path.GetExtension(l_Current.Value.standardLevelInfoSaveData.songFilename).ToLower();
-#endif
                 if (l_Extension != ".egg" && l_Extension != ".ogg")
                     continue;
 
                 m_Musics.Add(new Music(
                     this,
-#if BEATSABER_1_35_0_OR_NEWER
                     l_FileSystemPreviewMediaData._previewAudioClipPath,
                     l_FileSystemPreviewMediaData._coverSpritePath,
-#else
-                    Path.Combine("Beat Saber_Data\\CustomLevels\\", l_Current.Value.customLevelPath, l_Current.Value.standardLevelInfoSaveData.songFilename),
-                    Path.Combine("Beat Saber_Data\\CustomLevels\\", l_Current.Value.customLevelPath, l_Current.Value.standardLevelInfoSaveData.coverImageFilename),
-#endif
                     l_Current.Value.songName,
                     l_Current.Value.songAuthorName
                 ));

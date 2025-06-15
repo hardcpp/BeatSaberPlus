@@ -43,7 +43,7 @@ namespace BeatSaberPlus_ChatRequest
                 {
                     foreach (JObject l_Current in (JArray)l_JSON["queue"])
                     {
-                        var l_Entry = Data.SongEntry.Deserialize(l_Current);
+                        var l_Entry = Models.SongEntry.Deserialize(l_Current);
                         if (l_Entry == null)
                             continue;
 
@@ -58,7 +58,7 @@ namespace BeatSaberPlus_ChatRequest
                 {
                     foreach (JObject l_Current in (JArray)l_JSON["history"])
                     {
-                        var l_Entry = Data.SongEntry.Deserialize(l_Current);
+                        var l_Entry = Models.SongEntry.Deserialize(l_Current);
                         if (l_Entry == null)
                             continue;
 
@@ -69,15 +69,58 @@ namespace BeatSaberPlus_ChatRequest
                             l_Entry.BeatSaver_Map.Populate((x) => OnBeatmapPopulated(x, l_Entry));
                     }
                 }
+                if (l_JSON["allowlist"] != null && l_JSON["allowlist"].Type == JTokenType.Array)
+                {
+                    foreach (var l_CurrentRaw in (JArray)l_JSON["allowlist"])
+                    {
+                        var l_Current = null as JObject;
+                        if (l_CurrentRaw.Type == JTokenType.String)
+                        {
+                            l_Current = new JObject()
+                            {
+                                ["key"] = l_CurrentRaw.Value<string>() ?? "",
+                                ["rqn"] = "$BS+Backport"
+                            };
+                        }
+                        else
+                            l_Current = (JObject)l_CurrentRaw;
+
+                        var l_Entry = Models.SongEntry.Deserialize(l_Current);
+                        if (l_Entry == null)
+                            continue;
+
+                        SongAllowlist.Add(l_Entry);
+
+                        /// Start populate
+                        if (l_Entry.BeatSaver_Map.Partial)
+                            l_Entry.BeatSaver_Map.Populate((x) => OnBeatmapPopulated(x, l_Entry));
+                    }
+                }
+                /** LEGACY blacklist was renamed blocklist */
                 if (l_JSON["blacklist"] != null && l_JSON["blacklist"].Type == JTokenType.Array)
                 {
                     foreach (JObject l_Current in (JArray)l_JSON["blacklist"])
                     {
-                        var l_Entry = Data.SongEntry.Deserialize(l_Current);
+                        var l_Entry = Models.SongEntry.Deserialize(l_Current);
                         if (l_Entry == null)
                             continue;
 
-                        SongBlackList.Add(l_Entry);
+                        SongBlocklist.Add(l_Entry);
+
+                        /// Start populate
+                        if (l_Entry.BeatSaver_Map.Partial)
+                            l_Entry.BeatSaver_Map.Populate((x) => OnBeatmapPopulated(x, l_Entry));
+                    }
+                }
+                if (l_JSON["blocklist"] != null && l_JSON["blocklist"].Type == JTokenType.Array)
+                {
+                    foreach (JObject l_Current in (JArray)l_JSON["blocklist"])
+                    {
+                        var l_Entry = Models.SongEntry.Deserialize(l_Current);
+                        if (l_Entry == null)
+                            continue;
+
+                        SongBlocklist.Add(l_Entry);
 
                         /// Start populate
                         if (l_Entry.BeatSaver_Map.Partial)
@@ -107,11 +150,6 @@ namespace BeatSaberPlus_ChatRequest
                         Remaps.Add(l_Left, l_Right);
                     }
                 }
-                if (l_JSON["allowlist"] != null && l_JSON["allowlist"].Type == JTokenType.Array)
-                {
-                    foreach (var l_Current in (JArray)l_JSON["allowlist"])
-                        AllowList.Add(l_Current.Value<string>() ?? "");
-                }
             }
             catch (System.Exception p_Exception)
             {
@@ -124,19 +162,21 @@ namespace BeatSaberPlus_ChatRequest
         /// </summary>
         private void SaveDatabase()
         {
-            lock (SongQueue) { lock (SongHistory) { lock (SongBlackList) { lock (BannedUsers) { lock (Remaps) { lock (AllowList) {
-                if (SongQueue.Count == 0 && SongHistory.Count == 0 && SongBlackList.Count == 0)
+            lock (SongQueue) { lock (SongHistory) {  lock (SongAllowlist) { lock (SongBlocklist) { lock (BannedUsers) { lock (Remaps) {
+                if (SongQueue.Count == 0 && SongHistory.Count == 0 && SongBlocklist.Count == 0)
                     return;
 
                 try
                 {
                     var l_Requests  = new JArray();
                     var l_History   = new JArray();
-                    var l_BlackList = new JArray();
+                    var l_Allowlist = new JArray();
+                    var l_Blocklist = new JArray();
 
-                    for (var l_I = 0; l_I < SongQueue.Count;     ++l_I) l_Requests.Add(Data.SongEntry.Serialize(SongQueue[l_I]));
-                    for (var l_I = 0; l_I < SongHistory.Count;   ++l_I) l_History.Add(Data.SongEntry.Serialize(SongHistory[l_I]));
-                    for (var l_I = 0; l_I < SongBlackList.Count; ++l_I) l_BlackList.Add(Data.SongEntry.Serialize(SongBlackList[l_I]));
+                    for (var l_I = 0; l_I < SongQueue.Count;     ++l_I) l_Requests.Add(Models.SongEntry.Serialize(SongQueue[l_I]));
+                    for (var l_I = 0; l_I < SongHistory.Count;   ++l_I) l_History.Add(Models.SongEntry.Serialize(SongHistory[l_I]));
+                    for (var l_I = 0; l_I < SongAllowlist.Count; ++l_I) l_Allowlist.Add(Models.SongEntry.Serialize(SongAllowlist[l_I]));
+                    for (var l_I = 0; l_I < SongBlocklist.Count; ++l_I) l_Blocklist.Add(Models.SongEntry.Serialize(SongBlocklist[l_I]));
 
                     var l_Remaps = new JArray();
                     foreach (var l_KVP in Remaps)
@@ -152,11 +192,11 @@ namespace BeatSaberPlus_ChatRequest
                     {
                         { "queue",          l_Requests                          },
                         { "history",        l_History                           },
-                        { "blacklist",      l_BlackList                         },
+                        { "allowlist",      l_Allowlist                         },
+                        { "blocklist",      l_Blocklist                         },
                         { "bannedusers",    new JArray(BannedUsers.ToArray())   },
                         { "bannedmappers",  new JArray(BannedMappers.ToArray()) },
                         { "remaps",         l_Remaps                            },
-                        { "allowlist",      new JArray(AllowList.ToArray())     }
                     };
 
                     string l_ResultJSON = l_JSON.ToString();
@@ -188,14 +228,14 @@ namespace BeatSaberPlus_ChatRequest
                     int l_Added = 0;
                     for (int l_I = 0; l_I < SongQueue.Count && l_Added < CRConfig.Instance.OverlayIntegration.SimpleQueueFileCount; ++l_I)
                     {
-                        if (SongQueue[l_I].BeatSaver_Map == null || SongQueue[l_I].BeatSaver_Map.Partial)
+                        if (SongQueue[l_I].BeatSaver_Map != null && SongQueue[l_I].BeatSaver_Map.Partial)
                             continue;
 
                         string l_Line = l_Format.Replace("%i", (l_I + 1).ToString())
-                                                .Replace("%n", SongQueue[l_I].BeatSaver_Map.name)
-                                                .Replace("%m", SongQueue[l_I].BeatSaver_Map.metadata.levelAuthorName)
+                                                .Replace("%n", SongQueue[l_I].GetSongName())
+                                                .Replace("%m", SongQueue[l_I].GetLevelAuthorName())
                                                 .Replace("%r", SongQueue[l_I].RequesterName)
-                                                .Replace("%k", SongQueue[l_I].BeatSaver_Map.id);
+                                                .Replace("%k", SongQueue[l_I].BeatSaver_Map?.id ?? "----");
 
                         if (l_I > 0)
                             l_Content += "\n";

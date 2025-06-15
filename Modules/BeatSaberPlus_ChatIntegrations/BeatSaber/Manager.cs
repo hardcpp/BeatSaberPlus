@@ -41,6 +41,9 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber
             CI.RegisterActionType("Camera2_SwitchToScene",            () => new Actions.Camera2_SwitchToScene());
             CI.RegisterActionType("Camera2_ToggleCamera",             () => new Actions.Camera2_ToggleCamera());
 
+            CI.RegisterActionType("ChatRequest_AddToQueue",           () => new Actions.ChatRequest_AddToQueue());
+            CI.RegisterActionType("ChatRequest_ToggleQueue",          () => new Actions.ChatRequest_ToggleQueue());
+
             CI.RegisterActionType("GamePlay_ChangeBombColor",         () => new Actions.GamePlay_ChangeBombColor());
             CI.RegisterActionType("GamePlay_ChangeBombScale",         () => new Actions.GamePlay_ChangeBombScale());
             CI.RegisterActionType("GamePlay_ChangeDebris",            () => new Actions.GamePlay_ChangeDebris());

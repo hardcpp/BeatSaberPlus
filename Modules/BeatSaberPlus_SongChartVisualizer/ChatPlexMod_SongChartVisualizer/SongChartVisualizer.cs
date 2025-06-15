@@ -237,11 +237,7 @@ namespace ChatPlexMod_SongChartVisualizer
             }
 
             var l_TransformedBeatmapData    = CP_SDK_BS.Game.Logic.LevelData?.Data?.transformedBeatmapData;
-#if BEATSABER_1_35_0_OR_NEWER
             var l_AudioClip                 = CP_SDK_BS.Game.Logic.LevelData?.Data?.songAudioClip;
-#else
-            var l_AudioClip                 = CP_SDK_BS.Game.Logic.LevelData?.Data?.difficultyBeatmap?.level?.beatmapLevelData?.audioClip;
-#endif
             var l_SongDuration              = l_AudioClip?.length ?? -1f;
 
             if (l_TransformedBeatmapData    == null

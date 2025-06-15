@@ -17,10 +17,11 @@ namespace ChatPlexMod_MenuMusic.Data
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        public override MusicProviderType.E Type            => MusicProviderType.E.CustomMusic;
-        public override bool                IsReady         => !m_IsLoading;
-        public override bool                SupportPlayIt   => false;
-        public override List<Music>         Musics          => m_Musics;
+        public override MusicProviderType.E Type                => MusicProviderType.E.CustomMusic;
+        public override bool                IsReady             => !m_IsLoading;
+        public override bool                SupportPlayIt       => false;
+        public override bool                SupportAddToQueue   => false;
+        public override List<Music>         Musics              => m_Musics;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -40,10 +41,20 @@ namespace ChatPlexMod_MenuMusic.Data
         /// <summary>
         /// Per game implementation of the Play It button
         /// </summary>
-        /// <param name="p_Music">Target music</param>
-        public override bool StartGameSpecificGamePlay(Music p_Music)
+        /// <param name="music">Target music</param>
+        /// <param name="viewController">Source view controller</param>
+        public override void StartGameSpecificGamePlay(Music music, CP_SDK.UI.IViewController viewController)
         {
-            return false;
+
+        }
+        /// <summary>
+        /// Per game implementation of the Add to queue button
+        /// </summary>
+        /// <param name="music">Target music</param>
+        /// <param name="viewController">Source view controller</param>
+        public override void AddToQueue(Music music, CP_SDK.UI.IViewController viewController)
+        {
+
         }
         /// <summary>
         /// Shuffle music collection

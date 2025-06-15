@@ -482,7 +482,7 @@ namespace ChatPlexMod_Chat.UI
             if (!CConfig.Instance.ShowChannelPointsEvent)
                 return;
 
-            if (!m_ChatFont.HasReplaceCharacter("TwitchChannelPoint_" + p_Event.Title))
+            if (p_Event.Image != null && !m_ChatFont.HasReplaceCharacter("TwitchChannelPoint_" + p_Event.Title))
             {
                 TaskCompletionSource<CP_SDK.Unity.EnhancedImage> l_TaskCompletionSource = new TaskCompletionSource<CP_SDK.Unity.EnhancedImage>();
 
@@ -499,7 +499,7 @@ namespace ChatPlexMod_Chat.UI
 
             var l_ImagePart = "for";
 
-            if (m_ChatFont.TryGetReplaceCharacter("TwitchChannelPoint_" + p_Event.Title, out uint p_Character))
+            if (p_Event.Image != null && m_ChatFont.TryGetReplaceCharacter("TwitchChannelPoint_" + p_Event.Title, out uint p_Character))
                 l_ImagePart = char.ConvertFromUtf32((int)p_Character);
 
             var l_Prefix        = !string.IsNullOrEmpty(p_Channel.Prefix) ? $"<b><color=yellow>[{p_Channel.Prefix}]</color></b> " : string.Empty;
@@ -543,9 +543,9 @@ namespace ChatPlexMod_Chat.UI
             var l_Prefix        = !string.IsNullOrEmpty(p_Channel.Prefix) ? $"<b><color=yellow>[{p_Channel.Prefix}]</color></b> " : string.Empty;
             var l_MessageStr    = $"{l_Prefix}<#FFFFFFBB>[<b>{p_Service.DisplayName}</b>] <color={p_User.Color}><b>@{p_User.PaintedName}</b> ";
             if (p_Event.IsGift)
-                l_MessageStr += $"gifted <color={p_User.Color}><b>{p_Event.PurchasedMonthCount}</b></color> month of <color={p_User.Color}><b>{p_Event.SubPlan}</b></color> to <color={p_User.Color}><b>@{p_Event.RecipientDisplayName}</b></color>!";
+                l_MessageStr += $"was gifted a month of <color={p_User.Color}><b>{p_Event.SubPlan}</b></color>!";
             else
-                l_MessageStr += $"did get a <color={p_User.Color}><b>{p_Event.PurchasedMonthCount}</b></color> month of <color={p_User.Color}><b>{p_Event.SubPlan}</b></color>!";
+                l_MessageStr += $"did get a month of <color={p_User.Color}><b>{p_Event.SubPlan}</b></color>!";
 
             CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() =>
             {

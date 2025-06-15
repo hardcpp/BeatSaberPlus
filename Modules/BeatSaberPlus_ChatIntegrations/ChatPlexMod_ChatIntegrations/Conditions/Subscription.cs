@@ -123,7 +123,7 @@ namespace ChatPlexMod_ChatIntegrations.Conditions
 
         public override bool Eval(Models.EventContext p_Context)
         {
-            return p_Context.SubscriptionEvent != null && Enums.Comparison.Evaluate(Model.Comparison, (uint)p_Context.SubscriptionEvent.PurchasedMonthCount, Model.Count);
+            return true;// p_Context.SubscriptionEvent != null && Enums.Comparison.Evaluate(Model.Comparison, (uint)p_Context.SubscriptionEvent.PurchasedMonthCount, Model.Count);
         }
     }
 }

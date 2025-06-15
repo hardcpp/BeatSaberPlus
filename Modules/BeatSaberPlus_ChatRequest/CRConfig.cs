@@ -1,4 +1,4 @@
-﻿using BeatSaberPlus_ChatRequest.Data;
+﻿using BeatSaberPlus_ChatRequest.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;
@@ -34,6 +34,9 @@ namespace BeatSaberPlus_ChatRequest
 
             [JsonProperty] internal bool VoteMin = false;
             [JsonProperty] internal float VoteMinV = 0.5f;
+
+            [JsonProperty] internal bool IgnoreMinVoteBelow = true;
+            [JsonProperty] internal int IgnoreMinVoteBelowV = 4;
 
             [JsonProperty] internal bool DateMin = false;
             [JsonProperty] internal int DateMinV = 0;
@@ -72,7 +75,7 @@ namespace BeatSaberPlus_ChatRequest
             [JsonProperty] internal string      BSRCommand_SearchDisabled   = "@$UserName Search is disabled";
             [JsonProperty] internal string      BSRCommand_Search0Result    = "@$UserName your search $Search produced 0 results!";
             [JsonProperty] internal string      BSRCommand_SearchResults    = "@$UserName your search $Search produced $Count results: $Results";
-            [JsonProperty] internal string      BSRCommand_Blacklisted      = "@$UserName (bsr $BSRKey) $SongName / $LevelAuthorName is blacklisted!";
+            [JsonProperty] internal string      BSRCommand_Blocklisted      = "@$UserName (bsr $BSRKey) $SongName / $LevelAuthorName is blocklisted!";
             [JsonProperty] internal string      BSRCommand_AlreadyQueued    = "@$UserName (bsr $BSRKey) $SongName / $LevelAuthorName is already in queue!";
             [JsonProperty] internal string      BSRCommand_RequestLimit     = "@$UserName you already have $UserRequestCount on the queue. $UserType are limited to $UserTypeLimit request(s).";
             [JsonProperty] internal string      BSRCommand_AlreadyPlayed    = "@$UserName this song was already requested this session!";
@@ -203,17 +206,17 @@ namespace BeatSaberPlus_ChatRequest
             [JsonProperty] internal string      RemapCommand_NotFound  = $"@$UserName No remap found for $Source!";
 
             [JsonProperty, JsonConverter(typeof(StringEnumConverter))]
-                           internal EPermission AllowCommandPermissions = EPermission.Moderators;
-            [JsonProperty] internal bool        AllowCommandEnabled     = true;
-            [JsonProperty] internal string      AllowCommand            = "allow";
-            [JsonProperty] internal string      AllowCommand_OK         = $"@$UserName All $BSRKey requests will be allowed!";
+                           internal EPermission AllowlistCommandPermissions         = EPermission.Moderators;
+            [JsonProperty] internal bool        AllowlistCommandEnabled             = true;
+            [JsonProperty] internal string      AllowlistCommand                    = "allow";
+            [JsonProperty] internal string      AllowlistCommand_OK                 = $"@$UserName All $BSRKey requests will be allowed!";
+            [JsonProperty] internal string      AllowlistCommand_AlreadyAllowlisted = "@$UserName (bsr $BSRKey) $SongName / $LevelAuthorName is already allowlisted!";
 
             [JsonProperty, JsonConverter(typeof(StringEnumConverter))]
-                           internal EPermission BlockCommandPermissions         = EPermission.Moderators;
-            [JsonProperty] internal bool        BlockCommandEnabled             = true;
-            [JsonProperty] internal string      BlockCommand                    = "block";
-            [JsonProperty] internal string      BlockCommand_InvalidKey         = "@$UserName Invalid key!";
-            [JsonProperty] internal string      BlockCommand_AlreadyBlacklisted = "@$UserName (bsr $BSRKey) $SongName / $LevelAuthorName is already blacklisted!";
+                           internal EPermission BlocklistCommandPermissions         = EPermission.Moderators;
+            [JsonProperty] internal bool        BlocklistCommandEnabled             = true;
+            [JsonProperty] internal string      BlocklistCommand                    = "block";
+            [JsonProperty] internal string      BlocklistCommand_AlreadyBlocklisted = "@$UserName (bsr $BSRKey) $SongName / $LevelAuthorName is already blacklisted!";
         }
 
         internal class _Messages

@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
 
-namespace BeatSaberPlus_ChatRequest.Data
+namespace BeatSaberPlus_ChatRequest.Models
 {
     /// <summary>
     /// Song entry
@@ -24,7 +24,7 @@ namespace BeatSaberPlus_ChatRequest.Data
         {
             return new JObject
             {
-                ["key"] = p_SongEntry.BeatSaver_Map.id,
+                ["key"] = p_SongEntry.BeatSaver_Map?.id ?? p_SongEntry.GetLevelHash(),
                 ["rqt"] = p_SongEntry.RequestTime.HasValue ? CP_SDK.Misc.Time.ToUnixTime(p_SongEntry.RequestTime.Value) : CP_SDK.Misc.Time.UnixTimeNow(),
                 ["rqn"] = p_SongEntry.RequesterName,
                 ["npr"] = p_SongEntry.TitlePrefix,

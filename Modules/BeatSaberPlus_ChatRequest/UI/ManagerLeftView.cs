@@ -23,17 +23,17 @@ namespace BeatSaberPlus_ChatRequest.UI
                 Templates.TitleBar("Tools"),
 
                 XUIVLayout.Make(
-                    XUIPrimaryButton.Make("Select random",                   OnRandomButton),
+                    XUIPrimaryButton.Make("Select random",      OnRandomButton),
 
                     XUIVSpacer.Make(5f),
 
-                    XUIPrimaryButton.Make("ENABLE SAFE MODE",                OnSafeModeButton).Bind(ref m_SafeModeButton),
-                    XUIPrimaryButton.Make("Remove all request from queue",   OnClearQueueButton),
-                    XUIPrimaryButton.Make("Reset blacklist",                 OnResetBlacklistButton),
+                    XUIPrimaryButton.Make("ENABLE SAFE MODE",   OnSafeModeButton).Bind(ref m_SafeModeButton),
+                    XUIPrimaryButton.Make("Clear queue",        OnClearQueueButton),
+                    XUIPrimaryButton.Make("Reset blocklist",    OnResetBlocklistButton),
 
                     XUIVSpacer.Make(5f),
 
-                    XUISecondaryButton.Make("Close queue",                   OnQueueButton).Bind(ref m_QueueButton)
+                    XUISecondaryButton.Make("Close queue",      OnQueueButton).Bind(ref m_QueueButton)
                 )
                 .SetWidth(60f)
                 .SetPadding(0)
@@ -131,25 +131,25 @@ namespace BeatSaberPlus_ChatRequest.UI
         /// </summary>
         private void OnClearQueueButton()
         {
-            ShowConfirmationModal("<color=yellow><b>Do you really want to reset clear the song queue?", (p_Confirm) =>
+            ShowConfirmationModal("<color=yellow><b>Do you really want to clear your queue?", (p_Confirm) =>
             {
                 if (!p_Confirm)
                     return;
 
-                ChatRequest.Instance.ClearQueue();
+                ChatRequest.Instance.ClearSongEntryQueue();
             });
         }
         /// <summary>
-        /// Cleat queue button
+        /// Reset the blocklist button
         /// </summary>
-        private void OnResetBlacklistButton()
+        private void OnResetBlocklistButton()
         {
-            ShowConfirmationModal("<color=yellow><b>Do you really want to reset your blacklist?", (p_Confirm) =>
+            ShowConfirmationModal("<color=yellow><b>Do you really want to reset your blocklist?", (p_Confirm) =>
             {
                 if (!p_Confirm)
                     return;
 
-                ChatRequest.Instance.ResetBlacklist();
+                ChatRequest.Instance.ResetSongEntryBlocklist();
             });
         }
 

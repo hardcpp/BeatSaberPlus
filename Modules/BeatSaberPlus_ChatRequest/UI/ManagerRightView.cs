@@ -117,6 +117,12 @@ namespace BeatSaberPlus_ChatRequest.UI
                 return;
             }
 
+            if (p_Detail == null)
+            {
+                m_Root?.Element?.gameObject?.SetActive(false);
+                return;
+            }
+
             string l_Description = System.Net.WebUtility.HtmlDecode(p_Detail.description.Replace("\r\n", "\n").Replace("<", "<\u200B").Replace(">", "\u200B>"));
             if (l_Description.Trim().Length == 0)
                 l_Description = "<align=\"center\"><alpha=#AA><i>No description...</i></align>";

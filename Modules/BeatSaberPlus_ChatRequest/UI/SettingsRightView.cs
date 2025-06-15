@@ -16,6 +16,7 @@ namespace BeatSaberPlus_ChatRequest.UI
         private XUIToggle m_DurationMinToggle;
         private XUIToggle m_DurationMaxToggle;
         private XUIToggle m_VoteMinToggle;
+        private XUIToggle m_IgnoreMinVoteBelowToggle;
         private XUIToggle m_DateMinToggle;
         private XUIToggle m_DateMaxToggle;
         private XUISlider m_NPSMin;
@@ -25,6 +26,7 @@ namespace BeatSaberPlus_ChatRequest.UI
         private XUISlider m_DurationMin;
         private XUISlider m_DurationMax;
         private XUISlider m_VoteMin;
+        private XUISlider m_IgnoreMinVoteBelow;
         private XUISlider m_DateMin;
         private XUISlider m_DateMax;
 
@@ -58,6 +60,7 @@ namespace BeatSaberPlus_ChatRequest.UI
                         XUIText.Make("Duration min"),
                         XUIText.Make("Duration max"),
                         XUIText.Make("Vote min"),
+                        XUIText.Make("Ignore min vote below"),
                         XUIText.Make("Upload date min"),
                         XUIText.Make("Upload date max")
                     )
@@ -77,6 +80,7 @@ namespace BeatSaberPlus_ChatRequest.UI
                         XUIToggle.Make().SetValue(CRConfig.Instance.Filters.DurationMin).Bind(ref m_DurationMinToggle),
                         XUIToggle.Make().SetValue(CRConfig.Instance.Filters.DurationMax).Bind(ref m_DurationMaxToggle),
                         XUIToggle.Make().SetValue(CRConfig.Instance.Filters.VoteMin    ).Bind(ref m_VoteMinToggle    ),
+                        XUIToggle.Make().SetValue(CRConfig.Instance.Filters.IgnoreMinVoteBelow  ).Bind(ref m_IgnoreMinVoteBelowToggle  ),
                         XUIToggle.Make().SetValue(CRConfig.Instance.Filters.DateMin    ).Bind(ref m_DateMinToggle    ),
                         XUIToggle.Make().SetValue(CRConfig.Instance.Filters.DateMax    ).Bind(ref m_DateMaxToggle    )
                     )
@@ -117,6 +121,10 @@ namespace BeatSaberPlus_ChatRequest.UI
                             .SetValue(CRConfig.Instance.Filters.VoteMinV)
                             .Bind(ref m_VoteMin),
                         XUISlider.Make()
+                            .SetMinValue(0f).SetMaxValue(14f).SetIncrements(1f).SetInteger(true)
+                            .SetValue(CRConfig.Instance.Filters.IgnoreMinVoteBelowV)
+                            .Bind(ref m_IgnoreMinVoteBelow),
+                        XUISlider.Make()
                             .SetMinValue(0f).SetMaxValue(100f).SetIncrements(   1f).SetInteger(true)
                             .SetValue(CRConfig.Instance.Filters.DateMinV)
                             .Bind(ref m_DateMin),
@@ -132,11 +140,14 @@ namespace BeatSaberPlus_ChatRequest.UI
                 )
                 .OnReady(x => x.CSizeFitter.horizontalFit = UnityEngine.UI.ContentSizeFitter.FitMode.Unconstrained)
             )
+            .SetPadding(2, 0, 0, 0)
+            .SetSpacing(0)
             .SetBackground(true, null, true)
             .BuildUI(transform);
 
             m_DurationMax.SetFormatter(CP_SDK.UI.ValueFormatters.Minutes);
             m_VoteMin.SetFormatter(CP_SDK.UI.ValueFormatters.Percentage);
+            m_IgnoreMinVoteBelow.SetFormatter(CP_SDK.UI.ValueFormatters.Days);
             m_DateMin.SetFormatter(CP_SDK.UI.ValueFormatters.DateMonthFrom2018Short);
             m_DateMax.SetFormatter(CP_SDK.UI.ValueFormatters.DateMonthFrom2018Short);
 
@@ -155,39 +166,42 @@ namespace BeatSaberPlus_ChatRequest.UI
                 return;
 
             /// Update interactable
-            m_NPSMin.SetInteractable(       m_NPSMinToggle.Element.GetValue());
-            m_NPSMax.SetInteractable(       m_NPSMaxToggle.Element.GetValue());
-            m_NJSMin.SetInteractable(       m_NJSMinToggle.Element.GetValue());
-            m_NJSMax.SetInteractable(       m_NJSMaxToggle.Element.GetValue());
-            m_DurationMin.SetInteractable(  m_DurationMinToggle.Element.GetValue());
-            m_DurationMax.SetInteractable(  m_DurationMaxToggle.Element.GetValue());
-            m_VoteMin.SetInteractable(      m_VoteMinToggle.Element.GetValue());
-            m_DateMin.SetInteractable(      m_DateMinToggle.Element.GetValue());
-            m_DateMax.SetInteractable(      m_DateMaxToggle.Element.GetValue());
+            m_NPSMin.SetInteractable(               m_NPSMinToggle.Element.GetValue());
+            m_NPSMax.SetInteractable(               m_NPSMaxToggle.Element.GetValue());
+            m_NJSMin.SetInteractable(               m_NJSMinToggle.Element.GetValue());
+            m_NJSMax.SetInteractable(               m_NJSMaxToggle.Element.GetValue());
+            m_DurationMin.SetInteractable(          m_DurationMinToggle.Element.GetValue());
+            m_DurationMax.SetInteractable(          m_DurationMaxToggle.Element.GetValue());
+            m_VoteMin.SetInteractable(              m_VoteMinToggle.Element.GetValue());
+            m_IgnoreMinVoteBelow.SetInteractable(   m_IgnoreMinVoteBelowToggle.Element.GetValue());
+            m_DateMin.SetInteractable(              m_DateMinToggle.Element.GetValue());
+            m_DateMax.SetInteractable(              m_DateMaxToggle.Element.GetValue());
 
             /// Left
-            CRConfig.Instance.Filters.NoBeatSage   = m_NoBeatSageToggle.Element.GetValue();
-            CRConfig.Instance.Filters.NoRanked     = m_NoRankedToggle.Element.GetValue();
-            CRConfig.Instance.Filters.NPSMin       = m_NPSMinToggle.Element.GetValue();
-            CRConfig.Instance.Filters.NPSMax       = m_NPSMaxToggle.Element.GetValue();
-            CRConfig.Instance.Filters.NJSMin       = m_NJSMinToggle.Element.GetValue();
-            CRConfig.Instance.Filters.NJSMax       = m_NJSMaxToggle.Element.GetValue();
-            CRConfig.Instance.Filters.DurationMin  = m_DurationMinToggle.Element.GetValue();
-            CRConfig.Instance.Filters.DurationMax  = m_DurationMaxToggle.Element.GetValue();
-            CRConfig.Instance.Filters.VoteMin      = m_VoteMinToggle.Element.GetValue();
-            CRConfig.Instance.Filters.DateMin      = m_DateMinToggle.Element.GetValue();
-            CRConfig.Instance.Filters.DateMax      = m_DateMaxToggle.Element.GetValue();
+            CRConfig.Instance.Filters.NoBeatSage            = m_NoBeatSageToggle.Element.GetValue();
+            CRConfig.Instance.Filters.NoRanked              = m_NoRankedToggle.Element.GetValue();
+            CRConfig.Instance.Filters.NPSMin                = m_NPSMinToggle.Element.GetValue();
+            CRConfig.Instance.Filters.NPSMax                = m_NPSMaxToggle.Element.GetValue();
+            CRConfig.Instance.Filters.NJSMin                = m_NJSMinToggle.Element.GetValue();
+            CRConfig.Instance.Filters.NJSMax                = m_NJSMaxToggle.Element.GetValue();
+            CRConfig.Instance.Filters.DurationMin           = m_DurationMinToggle.Element.GetValue();
+            CRConfig.Instance.Filters.DurationMax           = m_DurationMaxToggle.Element.GetValue();
+            CRConfig.Instance.Filters.VoteMin               = m_VoteMinToggle.Element.GetValue();
+            CRConfig.Instance.Filters.IgnoreMinVoteBelow    = m_IgnoreMinVoteBelowToggle.Element.GetValue();
+            CRConfig.Instance.Filters.DateMin               = m_DateMinToggle.Element.GetValue();
+            CRConfig.Instance.Filters.DateMax               = m_DateMaxToggle.Element.GetValue();
 
             /// Right
-            CRConfig.Instance.Filters.NPSMinV       = (int)m_NPSMin.Element.GetValue();
-            CRConfig.Instance.Filters.NPSMaxV       = (int)m_NPSMax.Element.GetValue();
-            CRConfig.Instance.Filters.NJSMinV       = (int)m_NJSMin.Element.GetValue();
-            CRConfig.Instance.Filters.NJSMaxV       = (int)m_NJSMax.Element.GetValue();
-            CRConfig.Instance.Filters.DurationMinV  = (int)m_DurationMin.Element.GetValue();
-            CRConfig.Instance.Filters.DurationMaxV  = (int)m_DurationMax.Element.GetValue();
-            CRConfig.Instance.Filters.VoteMinV      = m_VoteMin.Element.GetValue();
-            CRConfig.Instance.Filters.DateMinV      = (int)m_DateMin.Element.GetValue();
-            CRConfig.Instance.Filters.DateMaxV      = (int)m_DateMax.Element.GetValue();
+            CRConfig.Instance.Filters.NPSMinV               = (int)m_NPSMin.Element.GetValue();
+            CRConfig.Instance.Filters.NPSMaxV               = (int)m_NPSMax.Element.GetValue();
+            CRConfig.Instance.Filters.NJSMinV               = (int)m_NJSMin.Element.GetValue();
+            CRConfig.Instance.Filters.NJSMaxV               = (int)m_NJSMax.Element.GetValue();
+            CRConfig.Instance.Filters.DurationMinV          = (int)m_DurationMin.Element.GetValue();
+            CRConfig.Instance.Filters.DurationMaxV          = (int)m_DurationMax.Element.GetValue();
+            CRConfig.Instance.Filters.VoteMinV              = m_VoteMin.Element.GetValue();
+            CRConfig.Instance.Filters.IgnoreMinVoteBelowV   = (int)m_IgnoreMinVoteBelow.Element.GetValue();
+            CRConfig.Instance.Filters.DateMinV              = (int)m_DateMin.Element.GetValue();
+            CRConfig.Instance.Filters.DateMaxV              = (int)m_DateMax.Element.GetValue();
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -201,28 +215,30 @@ namespace BeatSaberPlus_ChatRequest.UI
             m_PreventChanges = true;
 
             /// Left
-            m_NoBeatSageToggle.SetValue(    CRConfig.Instance.Filters.NoBeatSage);
-            m_NoRankedToggle.SetValue(      CRConfig.Instance.Filters.NoRanked);
-            m_NPSMinToggle.SetValue(        CRConfig.Instance.Filters.NPSMin);
-            m_NPSMaxToggle.SetValue(        CRConfig.Instance.Filters.NPSMax);
-            m_NJSMinToggle.SetValue(        CRConfig.Instance.Filters.NJSMin);
-            m_NJSMaxToggle.SetValue(        CRConfig.Instance.Filters.NJSMax);
-            m_DurationMinToggle.SetValue(   CRConfig.Instance.Filters.DurationMin);
-            m_DurationMaxToggle.SetValue(   CRConfig.Instance.Filters.DurationMax);
-            m_VoteMinToggle.SetValue(       CRConfig.Instance.Filters.VoteMin);
-            m_DateMinToggle.SetValue(       CRConfig.Instance.Filters.DateMin);
-            m_DateMaxToggle.SetValue(       CRConfig.Instance.Filters.DateMax);
+            m_NoBeatSageToggle.SetValue(            CRConfig.Instance.Filters.NoBeatSage);
+            m_NoRankedToggle.SetValue(              CRConfig.Instance.Filters.NoRanked);
+            m_NPSMinToggle.SetValue(                CRConfig.Instance.Filters.NPSMin);
+            m_NPSMaxToggle.SetValue(                CRConfig.Instance.Filters.NPSMax);
+            m_NJSMinToggle.SetValue(                CRConfig.Instance.Filters.NJSMin);
+            m_NJSMaxToggle.SetValue(                CRConfig.Instance.Filters.NJSMax);
+            m_DurationMinToggle.SetValue(           CRConfig.Instance.Filters.DurationMin);
+            m_DurationMaxToggle.SetValue(           CRConfig.Instance.Filters.DurationMax);
+            m_VoteMinToggle.SetValue(               CRConfig.Instance.Filters.VoteMin);
+            m_IgnoreMinVoteBelowToggle.SetValue(    CRConfig.Instance.Filters.IgnoreMinVoteBelow);
+            m_DateMinToggle.SetValue(               CRConfig.Instance.Filters.DateMin);
+            m_DateMaxToggle.SetValue(               CRConfig.Instance.Filters.DateMax);
 
             /// Right
-            m_NPSMin.SetValue(      CRConfig.Instance.Filters.NPSMinV);
-            m_NPSMax.SetValue(      CRConfig.Instance.Filters.NPSMaxV);
-            m_NJSMin.SetValue(      CRConfig.Instance.Filters.NJSMinV);
-            m_NJSMax.SetValue(      CRConfig.Instance.Filters.NJSMaxV);
-            m_DurationMin.SetValue( CRConfig.Instance.Filters.DurationMinV);
-            m_DurationMax.SetValue( CRConfig.Instance.Filters.DurationMaxV);
-            m_VoteMin.SetValue(     CRConfig.Instance.Filters.VoteMinV);
-            m_DateMin.SetValue(     CRConfig.Instance.Filters.DateMinV);
-            m_DateMax.SetValue(     CRConfig.Instance.Filters.DateMaxV);
+            m_NPSMin.SetValue(              CRConfig.Instance.Filters.NPSMinV);
+            m_NPSMax.SetValue(              CRConfig.Instance.Filters.NPSMaxV);
+            m_NJSMin.SetValue(              CRConfig.Instance.Filters.NJSMinV);
+            m_NJSMax.SetValue(              CRConfig.Instance.Filters.NJSMaxV);
+            m_DurationMin.SetValue(         CRConfig.Instance.Filters.DurationMinV);
+            m_DurationMax.SetValue(         CRConfig.Instance.Filters.DurationMaxV);
+            m_VoteMin.SetValue(             CRConfig.Instance.Filters.VoteMinV);
+            m_IgnoreMinVoteBelow.SetValue(  CRConfig.Instance.Filters.IgnoreMinVoteBelowV);
+            m_DateMin.SetValue(             CRConfig.Instance.Filters.DateMinV);
+            m_DateMax.SetValue(             CRConfig.Instance.Filters.DateMaxV);
 
             m_PreventChanges = false;
 

@@ -24,14 +24,15 @@
     <DebugSymbols>true</DebugSymbols>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;BEATSABER_1_35_0_OR_NEWER;BEATSABER_1_38_0_OR_NEWER</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>BEATSABER_1_35_0_OR_NEWER;BEATSABER_1_38_0_OR_NEWER</DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -146,12 +147,15 @@
   <ItemGroup>
     <Compile Include="BeatSaber\Actions\Camera2.cs" />
     <Compile Include="BeatSaber\Actions\NoteTweaker.cs" />
+    <Compile Include="BeatSaber\Actions\ChatRequest.cs" />
     <Compile Include="BeatSaber\Enums\BeatmapModType.cs" />
+    <Compile Include="BeatSaber\Enums\EChatRequestQueueToggle.cs" />
     <Compile Include="BeatSaber\Enums\ValueSource.cs" />
     <Compile Include="BeatSaber\Enums\QueueStatus.cs" />
     <Compile Include="BeatSaber\Enums\LevelType.cs" />
     <Compile Include="BeatSaber\Manager.cs" />
     <Compile Include="BeatSaber\Models\Actions\NoteTweaker.cs" />
+    <Compile Include="BeatSaber\Models\Actions\ChatRequest.cs" />
     <Compile Include="BeatSaber\ModulePresence.cs" />
     <Compile Include="ChatPlexMod_ChatIntegrations\Actions\OBS.cs" />
     <Compile Include="BeatSaber\Actions\SongChartVisualizer.cs" />

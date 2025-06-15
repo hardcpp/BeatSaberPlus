@@ -59,17 +59,8 @@
         /// <param name="p_LevelData">Level data</param>
         private void Game_OnLevelStarted(CP_SDK_BS.Game.LevelData p_LevelData)
         {
-#if BEATSABER_1_35_0_OR_NEWER
-            var l_MapName = p_LevelData?.Data?.beatmapLevel?.songName ?? "?";
-#else
-            var l_MapName = p_LevelData?.Data?.previewBeatmapLevel?.songName ?? "?";
-#endif
-
-#if BEATSABER_1_38_0_OR_NEWER
-            var l_PlatformName = p_LevelData?.Data?.targetEnvironmentInfo?.serializedName ?? "?";
-#else
-            var l_PlatformName = p_LevelData?.Data?.environmentInfo?.serializedName ?? "?";
-#endif
+            var l_MapName       = p_LevelData?.Data?.beatmapLevel?.songName ?? "?";
+            var l_PlatformName  = p_LevelData?.Data?.targetEnvironmentInfo?.serializedName ?? "?";
 
             Logger.Instance.Warning($"Map {l_MapName} started on platform {l_PlatformName}");
         }

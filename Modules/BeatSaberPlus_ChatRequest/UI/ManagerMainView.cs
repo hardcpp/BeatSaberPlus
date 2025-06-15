@@ -1,10 +1,8 @@
 ﻿using CP_SDK.UI.Data;
 using CP_SDK.Unity.Extensions;
 using CP_SDK.XUI;
-using HMUI;
 using System;
 using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
@@ -22,11 +20,7 @@ namespace BeatSaberPlus_ChatRequest.UI
           CP_SDK_BS.UI.Data.SongListController,
           IProgress<float>
     {
-#if BEATSABER_1_35_0_OR_NEWER
         private static BeatmapLevel m_SongToSelectAfterDismiss = null;
-#else
-        private static IPreviewBeatmapLevel m_SongToSelectAfterDismiss = null;
-#endif
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -47,14 +41,13 @@ namespace BeatSaberPlus_ChatRequest.UI
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        private BeatSaberPlus_ChatRequest.Data.SongEntry            m_SelectedSong              = null;
-        private List<BeatSaberPlus_ChatRequest.Data.SongEntry>      m_SongsProvider             = null;
-        private string                                              m_SongReloadingExpectedPath = "";
-        private int                                                 m_LastTab                   = 0;
-        private float                                               m_Tab0Scroll                = 0.0f;
-        private float                                               m_Tab1Scroll                = 0.0f;
-        private float                                               m_Tab2Scroll                = 0.0f;
-
+        private Models.SongEntry          m_SelectedSong              = null;
+        private List<Models.SongEntry>    m_SongsProvider             = null;
+        private int                       m_LastTab                   = 0;
+        private float                     m_Tab0Scroll                = 0.0f;
+        private float                     m_Tab1Scroll                = 0.0f;
+        private float                     m_Tab2Scroll                = 0.0f;
+        private float                     m_Tab3Scroll                = 0.0f;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -64,12 +57,11 @@ namespace BeatSaberPlus_ChatRequest.UI
         /// </summary>
         protected override sealed void OnViewCreation()
         {
-
             Templates.FullRectLayoutMainView(
                 Templates.TitleBar("Title")
                     .ForEachDirect<XUIText>(x => x.Bind(ref m_Title)),
 
-                XUITextSegmentedControl.Make(new string[] { "Requests", "History", "Blacklist" })
+                XUITextSegmentedControl.Make(new string[] { "Queue", "History", "Allowlist", "Blocklist" })
                     .OnActiveChanged(OnQueueTypeChanged)
                     .Bind(ref m_TypeSegmentControl),
 
@@ -88,7 +80,6 @@ namespace BeatSaberPlus_ChatRequest.UI
                     .OnReady(x => x.CSizeFitter.horizontalFit = x.CSizeFitter.verticalFit = ContentSizeFitter.FitMode.Unconstrained)
                     .OnReady(x => x.HOrVLayoutGroup.childForceExpandWidth = true)
                     .OnReady(x => x.HOrVLayoutGroup.childForceExpandHeight = true),
-
 
                     XUIVLayout.Make(
                         XUIImage.Make(CP_SDK.UI.UISystem.GetUIRoundBGSprite())
@@ -159,7 +150,7 @@ namespace BeatSaberPlus_ChatRequest.UI
                 CP_SDK.Unity.SpriteU.CreateFromRaw(CP_SDK.Misc.Resources.FromPath(Assembly.GetExecutingAssembly(), "BeatSaberPlus_ChatRequest.Resources.Unblacklist.png"))
             );
             m_SongInfo_Detail.SetFavoriteToggleHoverHint("Add/Remove to blacklist");
-            m_SongInfo_Detail.SetFavoriteToggleCallback(OnBlacklistButtonPressed);
+            m_SongInfo_Detail.SetFavoriteToggleCallback(OnAllowlistBlocklistButtonPressed);
 
             m_SongInfo_Detail.SetSecondaryButtonEnabled(true);
             m_SongInfo_Detail.SetSecondaryButtonText("Skip");
@@ -207,14 +198,16 @@ namespace BeatSaberPlus_ChatRequest.UI
             if (m_LastTab == 0) m_Tab0Scroll = l_OldScroll;
             if (m_LastTab == 1) m_Tab1Scroll = l_OldScroll;
             if (m_LastTab == 2) m_Tab2Scroll = l_OldScroll;
+            if (m_LastTab == 3) m_Tab3Scroll = l_OldScroll;
 
             UnselectSong();
-            m_SongsProvider = p_Index == 0 ? ChatRequest.Instance.SongQueue : (p_Index == 1 ? ChatRequest.Instance.SongHistory : ChatRequest.Instance.SongBlackList);
+            m_SongsProvider = p_Index == 0 ? ChatRequest.Instance.SongQueue : (p_Index == 1 ? ChatRequest.Instance.SongHistory : (p_Index == 2 ? ChatRequest.Instance.SongAllowlist : ChatRequest.Instance.SongBlocklist));
             RebuildSongList();
 
             if (p_Index == 0) m_SongList.Element.ScrollTo(m_Tab0Scroll, false);
             if (p_Index == 1) m_SongList.Element.ScrollTo(m_Tab1Scroll, false);
             if (p_Index == 2) m_SongList.Element.ScrollTo(m_Tab2Scroll, false);
+            if (p_Index == 3) m_SongList.Element.ScrollTo(m_Tab3Scroll, false);
             m_LastTab = p_Index;
 
             m_SongInfo_Detail.SetSecondaryButtonText(p_Index == 0 ? "Skip" : "Add to queue");
@@ -278,7 +271,7 @@ namespace BeatSaberPlus_ChatRequest.UI
         /// <param name="p_SelectedItem">Selected item</param>
         private void OnSongSelected(IListItem p_SelectedItem)
         {
-            if (p_SelectedItem == null || !(p_SelectedItem is BeatSaberPlus_ChatRequest.Data.SongEntry l_SongEntry))
+            if (p_SelectedItem == null || !(p_SelectedItem is BeatSaberPlus_ChatRequest.Models.SongEntry l_SongEntry))
             {
                 UnselectSong();
                 return;
@@ -289,7 +282,7 @@ namespace BeatSaberPlus_ChatRequest.UI
             /// Hide if invalid song
             if (p_SelectedItem == null
                 || l_SongEntry.Invalid
-                || l_SongEntry.BeatSaver_Map == null
+                || l_SongEntry.BeatSaver_Map == null && l_SongEntry.BeatmapLevel == null
                 || (l_SongEntry.BeatSaver_Map != null && l_SongEntry.BeatSaver_Map.Partial))
             {
                 UnselectSong();
@@ -302,23 +295,35 @@ namespace BeatSaberPlus_ChatRequest.UI
             ManagerRightView.Instance.SetVisible(true);
 
             /// Update UIs
-            if (!m_SongInfo_Detail.FromBeatSaver(l_SongEntry.BeatSaver_Map, l_SongEntry.Cover))
+            if (l_SongEntry.BeatSaver_Map != null)
+            {
+                if (!m_SongInfo_Detail.FromBeatSaver(l_SongEntry.BeatSaver_Map, l_SongEntry.Cover))
+                {
+                    UnselectSong();
+                    return;
+                }
+            }
+            else if (l_SongEntry.BeatmapLevel != null)
+            {
+                if (!m_SongInfo_Detail.FromGame(l_SongEntry.BeatmapLevel, l_SongEntry.Cover))
+                {
+                    UnselectSong();
+                    return;
+                }
+            }
+            else
             {
                 UnselectSong();
                 return;
             }
 
-            m_SongInfo_Detail.SetFavoriteToggleValue(m_TypeSegmentControl.Element.GetActiveText() == 2/* Blacklist */);
+            m_SongInfo_Detail.SetFavoriteToggleValue(m_TypeSegmentControl.Element.GetActiveText() >= 2/* Allowlist, Blocklist */);
             ManagerRightView.Instance.SetDetail(l_SongEntry.BeatSaver_Map);
 
             /// Set selected song
             m_SelectedSong = l_SongEntry;
 
-#if BEATSABER_1_35_0_OR_NEWER
-            if (CP_SDK_BS.Game.Levels.TryGetBeatmapLevelForHash(m_SelectedSong.BeatSaver_Map.SelectMapVersion().hash, out _))
-#else
-            if (CP_SDK_BS.Game.Levels.TryGetPreviewBeatmapLevelForHash(m_SelectedSong.BeatSaver_Map.SelectMapVersion().hash, out _))
-#endif
+            if (CP_SDK_BS.Game.Levels.TryGetBeatmapLevelForHash(m_SelectedSong.GetLevelHash(), out _))
                 m_SongInfo_Detail.SetPrimaryButtonText("Play");
             else
                 m_SongInfo_Detail.SetPrimaryButtonText("Download");
@@ -333,7 +338,7 @@ namespace BeatSaberPlus_ChatRequest.UI
         {
             m_TypeSegmentControl.SetActiveText(0/* Request */);
 
-            var l_ToSelect = null as BeatSaberPlus_ChatRequest.Data.SongEntry;
+            var l_ToSelect = null as BeatSaberPlus_ChatRequest.Models.SongEntry;
             lock (ChatRequest.Instance.SongQueue)
             {
                 var l_SongCount = ChatRequest.Instance.SongQueue.Count;
@@ -375,9 +380,9 @@ namespace BeatSaberPlus_ChatRequest.UI
             }
 
             if (m_TypeSegmentControl.Element.GetActiveText() == 0/* Request */)
-                ChatRequest.Instance.DequeueSong(m_SelectedSong, false);
+                ChatRequest.Instance.DequeueSongEntry(m_SelectedSong, false);
             else
-                ChatRequest.Instance.ReEnqueueSong(m_SelectedSong);
+                ChatRequest.Instance.ReEnqueueSongEntry(m_SelectedSong);
 
             UnselectSong();
             RebuildSongList();
@@ -396,13 +401,9 @@ namespace BeatSaberPlus_ChatRequest.UI
 
             try
             {
-#if BEATSABER_1_35_0_OR_NEWER
-                if (CP_SDK_BS.Game.Levels.TryGetBeatmapLevelForHash(m_SelectedSong.BeatSaver_Map.SelectMapVersion().hash, out var l_LocalSong))
-#else
-                if (CP_SDK_BS.Game.Levels.TryGetPreviewBeatmapLevelForHash(m_SelectedSong.BeatSaver_Map.SelectMapVersion().hash, out var l_LocalSong))
-#endif
+                if (CP_SDK_BS.Game.Levels.TryGetBeatmapLevelForHash(m_SelectedSong.GetLevelHash(), out var l_LocalSong))
                 {
-                    ChatRequest.Instance.DequeueSong(m_SelectedSong, true);
+                    ChatRequest.Instance.DequeueSongEntry(m_SelectedSong, true);
 
                     if (m_TypeSegmentControl.Element.GetActiveText() == 0)
                         m_SongList.RemoveListItem(m_SelectedSong);
@@ -428,7 +429,6 @@ namespace BeatSaberPlus_ChatRequest.UI
                         (p_IsSuccess, p_SongReloadingExpectedPath) => {
                             if (p_IsSuccess)
                             {
-                                m_SongReloadingExpectedPath = p_SongReloadingExpectedPath;
                                 CP_SDK_BS.Game.Levels.ReloadSongs(false, OnDownloadedSongLoaded);
                             }
                             else
@@ -456,24 +456,26 @@ namespace BeatSaberPlus_ChatRequest.UI
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
-        /// On black list button pressed
+        /// On allowlist/blocklist button pressed
         /// </summary>
-        private void OnBlacklistButtonPressed()
+        private void OnAllowlistBlocklistButtonPressed()
         {
-            if (m_TypeSegmentControl.Element.GetActiveText() == 2/* Blacklist */)
-                ChatRequest.Instance.UnBlacklistSong(m_SelectedSong);
+            if (m_TypeSegmentControl.Element.GetActiveText() == 2/* Allowlist */)
+                ChatRequest.Instance.RemoveSongEntryFromAllowlist(m_SelectedSong);
+            else if (m_TypeSegmentControl.Element.GetActiveText() == 3/* Blocklist */)
+                ChatRequest.Instance.RemoveSongEntryFromBlocklist(m_SelectedSong);
             /// Show modal
             else
             {
-                ShowConfirmationModal("<color=yellow><b>Do you really want to blacklist this song?", (p_Confirm) => {
+                ShowConfirmationModal("<color=yellow><b>Do you really want to blocklist this song?", (p_Confirm) => {
                     if (!p_Confirm)
                         return;
 
                     /// Update UI
                     m_SongInfo_Detail.SetFavoriteToggleValue(true);
 
-                    /// Blacklist the song
-                    ChatRequest.Instance.BlacklistSong(m_SelectedSong);
+                    /// Blocklist the song
+                    ChatRequest.Instance.AddSongEntryToBlocklist(m_SelectedSong);
                 });
             }
         }
@@ -492,11 +494,7 @@ namespace BeatSaberPlus_ChatRequest.UI
             if (!CanBeUpdated)
                 return;
 
-#if BEATSABER_1_35_0_OR_NEWER
-            if (!CP_SDK_BS.Game.Levels.TryGetBeatmapLevelForHash(m_SelectedSong.BeatSaver_Map.SelectMapVersion().hash, out var l_LocalSong))
-#else
-            if (!CP_SDK_BS.Game.Levels.TryGetPreviewBeatmapLevelForHash(m_SelectedSong.BeatSaver_Map.SelectMapVersion().hash, out var l_LocalSong))
-#endif
+            if (!CP_SDK_BS.Game.Levels.TryGetBeatmapLevelForHash(m_SelectedSong.GetLevelHash(), out var l_LocalSong))
             {
                 CloseLoadingModal();
                 ShowMessageModal("An error occurred while downloading this map.\nDownloaded song doesn't match.");

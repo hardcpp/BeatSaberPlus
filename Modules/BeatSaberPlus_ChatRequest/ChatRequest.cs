@@ -148,12 +148,12 @@ namespace BeatSaberPlus_ChatRequest
             /// Clear database
             SongQueue.Clear();
             SongHistory.Clear();
-            SongBlackList.Clear();
+            SongAllowlist.Clear();
+            SongBlocklist.Clear();
             BannedUsers.Clear();
             BannedMappers.Clear();
             Remaps.Clear();
-            AllowList.Clear();
-            m_RequestedThisSession = new System.Collections.Concurrent.ConcurrentBag<string>();
+            m_RequestedThisSessionID = new System.Collections.Concurrent.ConcurrentBag<string>();
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -219,13 +219,8 @@ namespace BeatSaberPlus_ChatRequest
             {
                 try
                 {
-#if BEATSABER_1_35_0_OR_NEWER
                     var l_CurrentMap    = CP_SDK_BS.Game.Logic.LevelData?.Data?.beatmapLevel;
                     var l_Mapper        = l_CurrentMap.allMappers.FirstOrDefault();
-#else
-                    var l_CurrentMap    = CP_SDK_BS.Game.Logic.LevelData?.Data?.difficultyBeatmap?.level;
-                    var l_Mapper        = l_CurrentMap.levelAuthorName;
-#endif
 
                     if (m_LastPlayingLevel != l_CurrentMap)
                     {
@@ -238,10 +233,10 @@ namespace BeatSaberPlus_ChatRequest
 
                         if (CP_SDK_BS.Game.Levels.LevelID_IsCustom(l_CurrentMap.levelID) && CP_SDK_BS.Game.Levels.TryGetHashFromLevelID(l_CurrentMap.levelID, out var l_Hash))
                         {
-                            var l_CachedEntry = null as Data.SongEntry;
+                            var l_CachedEntry = null as Models.SongEntry;
 
                             lock (SongHistory)
-                                l_CachedEntry = SongHistory.Where(x => x.BeatSaver_Map != null && x.BeatSaver_Map.SelectMapVersion().hash.ToUpper() == l_Hash).FirstOrDefault();
+                                l_CachedEntry = SongHistory.FirstOrDefault(x => x.GetLevelHash() == l_Hash);
 
                             if (l_CachedEntry == null)
                             {
@@ -249,18 +244,14 @@ namespace BeatSaberPlus_ChatRequest
                                 {
                                     if (   !p_Valid
                                         || p_BeatMap == null
-#if BEATSABER_1_35_0_OR_NEWER
                                         || l_CurrentMap != (CP_SDK_BS.Game.Logic.LevelData?.Data?.beatmapLevel ?? null)
-#else
-                                        || l_CurrentMap != (CP_SDK_BS.Game.Logic.LevelData?.Data?.difficultyBeatmap?.level ?? null)
-#endif
                                         )
                                         return;
 
                                     m_LastPlayingLevelResponseLink = "https://beatsaver.com/maps/" + p_BeatMap.id;
                                 });
                             }
-                            else
+                            else if (l_CachedEntry.BeatSaver_Map != null)
                             {
                                 m_LastPlayingLevelResponseLink = "https://beatsaver.com/maps/" + l_CachedEntry.BeatSaver_Map.id;
                             }

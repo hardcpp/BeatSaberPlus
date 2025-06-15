@@ -124,11 +124,7 @@ namespace BeatSaberPlus_GameTweaker
             } catch (System.Exception p_PatchException) { Logger.Instance.Error("[GameTweaker] Error on updating PMainMenuViewController"); Logger.Instance.Error(p_PatchException); }
             /// Apply new content promotional settings
             try {
-#if BEATSABER_1_35_0_OR_NEWER
                 Patches.PMusicPackPromoBanner.SetEnabled(!p_ForceDisable && GTConfig.Instance.MainMenu.RemoveNewContentPromotional);
-#else
-                Patches.PPromoViewController.SetEnabled(!p_ForceDisable && GTConfig.Instance.MainMenu.RemoveNewContentPromotional);
-#endif
             } catch (System.Exception p_PatchException) { Logger.Instance.Error("[GameTweaker] Error on updating PPromoViewController"); Logger.Instance.Error(p_PatchException); }
             /// Apply player settings
             try {
@@ -255,17 +251,9 @@ namespace BeatSaberPlus_GameTweaker
             Patches.Lights.PLightsPatches.SetFromConfig();
             Patches.PNoteDebrisSpawner.SetFromConfig();
 
-#if BEATSABER_1_38_0_OR_NEWER
             if (GTConfig.Instance.Environment.RemoveMusicBandLogo && p_LevelData?.Data?.targetEnvironmentInfo != null)
-#else
-            if (GTConfig.Instance.Environment.RemoveMusicBandLogo && p_LevelData?.Data?.environmentInfo != null)
-#endif
             {
-#if BEATSABER_1_38_0_OR_NEWER
                 switch (p_LevelData.Data.targetEnvironmentInfo.serializedName)
-#else
-                switch (p_LevelData.Data.environmentInfo.serializedName)
-#endif
                 {
                     case "BTSEnvironment":
                     case "LinkinParkEnvironment":

@@ -23,11 +23,11 @@ namespace BeatSaberPlus_ChatRequest
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        internal List<Data.SongEntry> SongQueue      = new List<Data.SongEntry>();
-        internal List<Data.SongEntry> SongHistory    = new List<Data.SongEntry>();
-        internal List<Data.SongEntry> SongBlackList  = new List<Data.SongEntry>();
+        internal List<Models.SongEntry> SongQueue      = new List<Models.SongEntry>();
+        internal List<Models.SongEntry> SongHistory    = new List<Models.SongEntry>();
+        internal List<Models.SongEntry> SongAllowlist  = new List<Models.SongEntry>();
+        internal List<Models.SongEntry> SongBlocklist  = new List<Models.SongEntry>();
 
-        internal List<string> AllowList     = new List<string>();
         internal List<string> BannedUsers   = new List<string>();
         internal List<string> BannedMappers = new List<string>();
 
@@ -36,13 +36,9 @@ namespace BeatSaberPlus_ChatRequest
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        private ConcurrentBag<string>   m_RequestedThisSession          = new ConcurrentBag<string>();
-        private DateTime                m_LastQueueCommandTime          = DateTime.Now;
-#if BEATSABER_1_35_0_OR_NEWER
+        private ConcurrentBag<string>   m_RequestedThisSessionID        = new ConcurrentBag<string>();
+        private ConcurrentBag<string>   m_RequestedThisSessionHash      = new ConcurrentBag<string>();
         private BeatmapLevel            m_LastPlayingLevel              = null;
-#else
-        private IBeatmapLevel           m_LastPlayingLevel              = null;
-#endif
         private string                  m_LastPlayingLevelResponse      = "";
         private string                  m_LastPlayingLevelResponseLink  = "";
 
@@ -50,28 +46,357 @@ namespace BeatSaberPlus_ChatRequest
         ////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
+        /// Add to queue from a BSR key
+        /// </summary>
+        /// <param name="bsrKey">BSR Key in hex</param>
+        /// <param name="requester">Optional requester</param>
+        /// <param name="onBehalfOf">Optional on behalf of (Someone with privileges requesting for someone else)</param>
+        /// <param name="forceNamePrefix">Optional name prefix override</param>
+        /// <param name="asModAdd">As a moderator add</param>
+        /// <param name="addToTop">Should add to the top of the queue?</param>
+        /// <param name="callback">Result callback</param>
+        public void AddToQueueFromBSRKey(
+            string                          bsrKey,
+            IChatUser                       requester,
+            string                          onBehalfOf,
+            string                          forceNamePrefix,
+            bool                            asModAdd,
+            bool                            addToTop,
+            Action<Models.AddToQueueResult> callback)
+        {
+            if (!QueueOpen && !asModAdd)
+            {
+                callback?.Invoke(new Models.AddToQueueResult(Models.EAddToQueueResult.QueueClosed, bsrKey));
+                return;
+            }
+
+            if (requester != null && IsRequesterBanned(requester))
+            {
+                callback?.Invoke(new Models.AddToQueueResult(Models.EAddToQueueResult.RequesterBanned, bsrKey));
+                return;
+            }
+
+            /// Look for remaps
+            lock (Remaps)
+            {
+                if (Remaps.TryGetValue(bsrKey.ToLower(), out var l_RemapKey))
+                    bsrKey = l_RemapKey;
+            }
+
+            var l_ForceAllow = false;
+            lock (SongAllowlist)
+            {
+                var l_BeatMap = SongAllowlist.FirstOrDefault(x => x.BeatSaver_Map != null && x.BeatSaver_Map.id.Equals(bsrKey, StringComparison.OrdinalIgnoreCase));
+                if (l_BeatMap != null)
+                    l_ForceAllow = true;
+            }
+
+            /// Check if already requested
+            if (!asModAdd && m_RequestedThisSessionID.Contains(bsrKey.ToLower()))
+            {
+                callback?.Invoke(new Models.AddToQueueResult(Models.EAddToQueueResult.AlreadyRequestedThisSession, bsrKey));
+                return;
+            }
+
+            /// Check if allow listed or blocklisted
+            if (!asModAdd && !l_ForceAllow)
+            {
+                lock (SongBlocklist)
+                {
+                    var l_BeatMap = SongBlocklist.FirstOrDefault(x => x.BeatSaver_Map != null && x.BeatSaver_Map.id.Equals(bsrKey, StringComparison.OrdinalIgnoreCase));
+                    if (l_BeatMap != null)
+                    {
+                        callback?.Invoke(new Models.AddToQueueResult(Models.EAddToQueueResult.MapBanned, bsrKey, l_BeatMap));
+                        return;
+                    }
+                }
+            }
+
+            var l_RateLimit     = new Models.RequesterRateLimit(CRConfig.Instance.UserMaxRequest, "Users");
+
+            /// Check if already in queue
+            lock (SongQueue)
+            {
+                var l_BeatMap = SongQueue.FirstOrDefault(x => x.BeatSaver_Map != null && x.BeatSaver_Map.id.Equals(bsrKey, StringComparison.OrdinalIgnoreCase));
+                if (l_BeatMap != null)
+                {
+                    callback?.Invoke(new Models.AddToQueueResult(Models.EAddToQueueResult.AlreadyInQueue, bsrKey, l_BeatMap));
+                    return;
+                }
+
+                if (requester != null)
+                    l_RateLimit.CurrentRequestCount = SongQueue.Where(x => x.RequesterName == requester.UserName).Count();
+            }
+
+            /// Handle limits and title prefix
+            if (requester != null)
+            {
+                l_RateLimit.UpdateRateLimitFromRequester(requester);
+
+                if (l_RateLimit.CurrentRequestCount >= l_RateLimit.RequestMaxCount)
+                {
+                    callback?.Invoke(new Models.AddToQueueResult(Models.EAddToQueueResult.RequestLimit, bsrKey, l_RateLimit));
+                    return;
+                }
+            }
+
+            /// Fetch beatmap
+            CP_SDK_BS.Game.BeatMapsClient.GetOnlineByKey(bsrKey, (_, p_BeatMap) =>
+            {
+                AddToQueueFinal(
+                    requestTerm:    bsrKey,
+                    requester:      requester,
+                    onBehalfOf:     onBehalfOf,
+                    forceNamePrefix:forceNamePrefix,
+                    asModAdd:       asModAdd,
+                    addToTop:       addToTop,
+                    forceAllow:     l_ForceAllow,
+                    beatmapLevel:   null,
+                    mapDetail:      p_BeatMap,
+                    callback:       callback
+                );
+            });
+        }
+        /// <summary>
+        /// Add to queue from a BeatmapLevel
+        /// </summary>
+        /// <param name="beatmapLevel">Local level</param>
+        /// <param name="requester">Optional requester</param>
+        /// <param name="onBehalfOf">Optional on behalf of (Someone with privileges requesting for someone else)</param>
+        /// <param name="forceNamePrefix">Optional name prefix override</param>
+        /// <param name="asModAdd">As a moderator add</param>
+        /// <param name="addToTop">Should add to the top of the queue?</param>
+        /// <param name="callback">Result callback</param>
+        public void AddToQueueFromBeatmapLevel(
+            BeatmapLevel                    beatmapLevel,
+            IChatUser                       requester,
+            string                          onBehalfOf,
+            string                          forceNamePrefix,
+            bool                            asModAdd,
+            bool                            addToTop,
+            Action<Models.AddToQueueResult> callback)
+        {
+            var l_LevelHash = string.Empty;
+            if (beatmapLevel == null || !CP_SDK_BS.Game.Levels.TryGetHashFromLevelID(beatmapLevel.levelID, out l_LevelHash))
+            {
+                callback?.Invoke(new Models.AddToQueueResult(Models.EAddToQueueResult.NotFound, l_LevelHash));
+                return;
+            }
+
+            if (!QueueOpen && !asModAdd)
+            {
+                callback?.Invoke(new Models.AddToQueueResult(Models.EAddToQueueResult.QueueClosed, l_LevelHash));
+                return;
+            }
+
+            if (requester != null && IsRequesterBanned(requester))
+            {
+                callback?.Invoke(new Models.AddToQueueResult(Models.EAddToQueueResult.RequesterBanned, l_LevelHash));
+                return;
+            }
+
+            var l_ForceAllow = false;
+            lock (SongAllowlist)
+            {
+                var l_BeatMap = SongAllowlist.FirstOrDefault(x => x.GetLevelHash() == l_LevelHash);
+                if (l_BeatMap != null)
+                    l_ForceAllow = true;
+            }
+
+            /// Check if already requested
+            if (!asModAdd && m_RequestedThisSessionHash.Contains(l_LevelHash))
+            {
+                callback?.Invoke(new Models.AddToQueueResult(Models.EAddToQueueResult.AlreadyRequestedThisSession, l_LevelHash));
+                return;
+            }
+
+            /// Check if allow listed or blocklisted
+            if (!asModAdd && !l_ForceAllow)
+            {
+                lock (SongBlocklist)
+                {
+                    var l_BeatMap = SongBlocklist.FirstOrDefault(x => x.GetLevelHash().Equals(l_LevelHash, StringComparison.OrdinalIgnoreCase));
+                    if (l_BeatMap != null)
+                    {
+                        callback?.Invoke(new Models.AddToQueueResult(Models.EAddToQueueResult.MapBanned, l_LevelHash, l_BeatMap));
+                        return;
+                    }
+                }
+            }
+
+            var l_RateLimit = new Models.RequesterRateLimit(CRConfig.Instance.UserMaxRequest, "Users");
+
+            /// Check if already in queue
+            lock (SongQueue)
+            {
+                var l_BeatMap = SongQueue.FirstOrDefault(x => x.GetLevelHash().Equals(l_LevelHash, StringComparison.OrdinalIgnoreCase));
+                if (l_BeatMap != null)
+                {
+                    callback?.Invoke(new Models.AddToQueueResult(Models.EAddToQueueResult.AlreadyInQueue, l_LevelHash, l_BeatMap));
+                    return;
+                }
+
+                if (requester != null)
+                    l_RateLimit.CurrentRequestCount = SongQueue.Where(x => x.RequesterName == requester.UserName).Count();
+            }
+
+            /// Handle limits and title prefix
+            if (requester != null)
+            {
+                l_RateLimit.UpdateRateLimitFromRequester(requester);
+
+                if (l_RateLimit.CurrentRequestCount >= l_RateLimit.RequestMaxCount)
+                {
+                    callback?.Invoke(new Models.AddToQueueResult(Models.EAddToQueueResult.RequestLimit, l_LevelHash, l_RateLimit));
+                    return;
+                }
+            }
+
+            /// Fetch beatmap
+            CP_SDK_BS.Game.BeatMapsClient.GetOnlineByHash(l_LevelHash, (_, p_BeatMap) =>
+            {
+                AddToQueueFinal(
+                    requestTerm:    l_LevelHash,
+                    requester:      requester,
+                    onBehalfOf:     onBehalfOf,
+                    forceNamePrefix:forceNamePrefix,
+                    asModAdd:       asModAdd,
+                    addToTop:       addToTop,
+                    forceAllow:     l_ForceAllow,
+                    beatmapLevel:   beatmapLevel,
+                    mapDetail:      p_BeatMap,
+                    callback:       callback
+                );
+            });
+        }
+        /// <summary>
+        /// Add to queue final
+        /// </summary>
+        /// <param name="requestTerm"></param>
+        /// <param name="requester">Optional requester</param>
+        /// <param name="onBehalfOf">Optional on behalf of (Someone with privileges requesting for someone else)</param>
+        /// <param name="forceNamePrefix">Optional name prefix override</param>
+        /// <param name="asModAdd">As a moderator add</param>
+        /// <param name="addToTop">Should add to the top of the queue?</param>
+        /// <param name="forceAllow">Force allow adding to queue</param>
+        /// <param name="beatmapLevel">Local level</param>
+        /// <param name="mapDetail">Found map details from BeatMaps</param>
+        /// <param name="callback">Result callback</param>
+        private void AddToQueueFinal(
+            string                              requestTerm,
+            IChatUser                           requester,
+            string                              onBehalfOf,
+            string                              forceNamePrefix,
+            bool                                asModAdd,
+            bool                                addToTop,
+            bool                                forceAllow,
+            BeatmapLevel                        beatmapLevel,
+            CP_SDK_BS.Game.BeatMaps.MapDetail   mapDetail,
+            Action<Models.AddToQueueResult>     callback)
+        {
+            try
+            {
+                if (mapDetail == null)
+                {
+                    callback?.Invoke(new Models.AddToQueueResult(Models.EAddToQueueResult.NotFound, requestTerm));
+                    return;
+                }
+
+                /// Check if already requested (A second time because of delay)
+                if (!asModAdd && m_RequestedThisSessionID.Contains(mapDetail.id.ToLower()))
+                {
+                    callback?.Invoke(new Models.AddToQueueResult(Models.EAddToQueueResult.AlreadyRequestedThisSession, requestTerm));
+                    return;
+                }
+
+                var l_RequesterName = requester?.UserName ?? "<unk>";
+                if (requester == null && !string.IsNullOrEmpty(onBehalfOf))
+                {
+                    l_RequesterName = onBehalfOf;
+                    onBehalfOf = string.Empty;
+                }
+
+                var l_NamePrefix    = GetTitlePrefixFromRequester(requester);
+                var l_Entry         = new Models.SongEntry()
+                {
+                    BeatSaver_Map   = mapDetail,
+                    BeatmapLevel    = beatmapLevel,
+                    RequesterName   = l_RequesterName,
+                    RequestTime     = DateTime.Now,
+                    TitlePrefix     = !string.IsNullOrEmpty(forceNamePrefix) ? forceNamePrefix : l_NamePrefix
+                };
+
+                var l_IsMapperBanned = false;
+                lock (BannedMappers)
+                    l_IsMapperBanned = BannedMappers.Contains(mapDetail.uploader.name.ToLower());
+
+                if (l_IsMapperBanned)
+                {
+                    callback?.Invoke(new Models.AddToQueueResult(Models.EAddToQueueResult.MapperBanned, requestTerm, l_Entry));
+                    return;
+                }
+
+                var l_FilterError = string.Empty;
+                if (asModAdd || forceAllow || FilterBeatMap(mapDetail, l_RequesterName, out l_FilterError))
+                {
+                    m_RequestedThisSessionID.Add(mapDetail.id.ToLower());
+                    m_RequestedThisSessionHash.Add(l_Entry.GetLevelHash());
+
+                    if (asModAdd && !string.IsNullOrEmpty(onBehalfOf))
+                    {
+                        l_RequesterName = onBehalfOf + "\n(Added by " + l_NamePrefix + " " + l_RequesterName + ")";
+                        l_NamePrefix    = string.Empty;
+                    }
+
+                    lock (SongQueue)
+                    {
+                        if (addToTop)
+                            SongQueue.Insert(0, l_Entry);
+                        else
+                            SongQueue.Add(l_Entry);
+                    }
+
+                    OnBeatmapPopulated(true, l_Entry);
+
+                    /// Update request manager
+                    OnQueueChanged();
+
+                    callback?.Invoke(new Models.AddToQueueResult(Models.EAddToQueueResult.OK, requestTerm, l_Entry));
+                }
+                else if (!string.IsNullOrEmpty(l_FilterError))
+                {
+                    callback?.Invoke(new Models.AddToQueueResult(Models.EAddToQueueResult.FilterError, requestTerm, l_Entry, l_FilterError));
+                }
+            }
+            catch (System.Exception p_Exception)
+            {
+                Logger.Instance.Error("AddToQueueFinal");
+                Logger.Instance.Error(p_Exception);
+            }
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
         /// When the queue is changed
         /// </summary>
-        /// <param name="p_UpdateSimpleQueueFile">Update simple queue list for OBS integration</param>
-        /// <param name="p_UpdateSongList">Update queue and total queue duration</param>
-        private void OnQueueChanged(bool p_UpdateSimpleQueueFile = true, bool p_UpdateSongList = true)
+        /// <param name="updateSimpleQueueFile">Update simple queue list for OBS integration</param>
+        /// <param name="updateSongList">Update queue and total queue duration</param>
+        private void OnQueueChanged(bool updateSimpleQueueFile = true, bool updateSongList = true)
         {
             /// Update simple queue file
-            if (p_UpdateSimpleQueueFile)
+            if (updateSimpleQueueFile)
                 UpdateSimpleQueueFile();
 
-            if (p_UpdateSongList)
+            if (updateSongList)
             {
                 QueueDuration = 0;
                 try
                 {
                     lock (SongQueue)
                     {
-                        SongQueue.ForEach(x =>
-                        {
-                            if (!x.BeatSaver_Map.Partial)
-                                QueueDuration += (int)x.BeatSaver_Map.metadata.duration;
-                        });
+                        SongQueue.ForEach(x => QueueDuration += (int)x.GetSongDuration());
                     }
                 }
                 catch
@@ -87,7 +412,7 @@ namespace BeatSaberPlus_ChatRequest
                 {
                     UpdateButton();
 
-                    if (p_UpdateSongList && UI.ManagerMainView.CanBeUpdated)
+                    if (updateSongList && UI.ManagerMainView.CanBeUpdated)
                         UI.ManagerMainView.Instance.RebuildSongList();
 
                     SaveDatabase();
@@ -97,18 +422,19 @@ namespace BeatSaberPlus_ChatRequest
         /// <summary>
         /// When a beatmap get fully loaded
         /// </summary>
-        /// <param name="p_Task">Task instance</param>
-        private void OnBeatmapPopulated(bool p_Valid, Data.SongEntry p_Entry)
+        /// <param name="valid">Is the beatmap valid</param>
+        /// <param name="songEntry">Context song entry</param>
+        private void OnBeatmapPopulated(bool valid, Models.SongEntry songEntry)
         {
-            if (!p_Valid)
+            if (!valid)
             {
-                lock (SongQueue) { lock (SongHistory) { lock (SongBlackList) {
-                    SongQueue.RemoveAll(    x => x == p_Entry);
-                    SongHistory.RemoveAll(  y => y == p_Entry);
-                    SongBlackList.RemoveAll(z => z == p_Entry);
+                lock (SongQueue) { lock (SongHistory) { lock (SongBlocklist) {
+                    SongQueue.RemoveAll(    x => x == songEntry);
+                    SongHistory.RemoveAll(  y => y == songEntry);
+                    SongBlocklist.RemoveAll(z => z == songEntry);
                 } } }
 
-                CP_SDK_BS.Game.BeatMapsClient.ClearCache(p_Entry.BeatSaver_Map.id);
+                CP_SDK_BS.Game.BeatMapsClient.ClearCache(songEntry.BeatSaver_Map?.id ?? null);
 
                 CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() =>
                 {
@@ -121,10 +447,10 @@ namespace BeatSaberPlus_ChatRequest
                 });
             }
 
-            if (!p_Valid)
+            if (!valid)
                 return;
 
-            CP_SDK_BS.Game.BeatMapsClient.Cache(p_Entry.BeatSaver_Map);
+            CP_SDK_BS.Game.BeatMapsClient.Cache(songEntry.BeatSaver_Map);
 
             /// Update request manager
             OnQueueChanged();
@@ -136,75 +462,91 @@ namespace BeatSaberPlus_ChatRequest
         /// <summary>
         /// Send message to chat
         /// </summary>
-        /// <param name="p_Message">Messages to send</param>
-        /// <param name="p_Service">Source channel</param>
-        /// <param name="p_SourceMessage">Context message</param>
-        /// <param name="p_ContextMap">Context map</param>
-        /// <param name="p_Keys">Additional replace keys</param>
+        /// <param name="message">Messages to send</param>
+        /// <param name="service">Source channel</param>
+        /// <param name="sourceMessage">Context message</param>
+        /// <param name="songEntry">Context SongEntry</param>
+        /// <param name="toReplace">Additional replace keys</param>
         internal void SendChatMessage(
-                string                              p_Message,
-                IChatService                        p_Service,
-                IChatMessage                        p_SourceMessage,
-                CP_SDK_BS.Game.BeatMaps.MapDetail   p_ContextMap    = null,
-                params (string, string)[]           p_Keys
+                string                      message,
+                IChatService                service,
+                IChatMessage                sourceMessage,
+                Models.SongEntry            songEntry = null,
+                params (string, string)[]   toReplace
             )
         {
-            if (p_SourceMessage != null && p_SourceMessage.Sender != null)
-                p_Message = p_Message.Replace("$UserName", p_SourceMessage.Sender.DisplayName);
+            if (sourceMessage != null && sourceMessage.Sender != null)
+                message = message.Replace("$UserName", sourceMessage.Sender.DisplayName);
 
-            if (p_ContextMap != null)
+            if (songEntry != null)
             {
-                p_Message = p_Message.Replace("$BSRKey",            p_ContextMap.id);
-                p_Message = p_Message.Replace("$SongName",          CRConfig.Instance.SafeMode2 ? p_ContextMap.id : p_ContextMap.metadata.songName.Replace(".", " . "));
-                p_Message = p_Message.Replace("$LevelAuthorName",   CRConfig.Instance.SafeMode2 ? p_ContextMap.id : p_ContextMap.metadata.levelAuthorName.Replace(".", " . "));
-                p_Message = p_Message.Replace("$UploaderName",      CRConfig.Instance.SafeMode2 ? p_ContextMap.id : p_ContextMap.uploader.name.Replace(".", " . "));
-                p_Message = p_Message.Replace("$Vote",              Math.Round((double)p_ContextMap.stats.score * 100f, 0).ToString());
+                var l_LevelID           = songEntry.BeatSaver_Map?.id ?? "----";
+                var l_SongName          = songEntry.GetSongName();
+                var l_SongAuthorName    = songEntry.GetSongAuthorName();
+                var l_LevelAuthorName   = songEntry.GetLevelAuthorName();
+                var l_LevelUploaderName = songEntry.GetLevelUploaderName();
+
+                message = message.Replace("$RequesterName",     songEntry.RequesterName);
+                message = message.Replace("$BSRKey",            l_LevelID);
+                message = message.Replace("$SongName",          CRConfig.Instance.SafeMode2 ? l_LevelID : l_SongName.Replace(".", " . "));
+                message = message.Replace("$SongAuthorName",    CRConfig.Instance.SafeMode2 ? l_LevelID : l_SongAuthorName.Replace(".", " . "));
+                message = message.Replace("$LevelAuthorName",   CRConfig.Instance.SafeMode2 ? l_LevelID : l_LevelAuthorName.Replace(".", " . "));
+                message = message.Replace("$UploaderName",      CRConfig.Instance.SafeMode2 ? l_LevelID : l_LevelUploaderName.Replace(".", " . "));
+
+                if (songEntry.BeatSaver_Map != null)
+                    message = message.Replace("$Vote",  Math.Round((double)songEntry.BeatSaver_Map.stats.score * 100f, 0).ToString());
+                else
+                    message = message.Replace("$Vote",  "--");
             }
 
-            if (p_Keys != null)
+            if (toReplace != null)
             {
-                foreach (var l_CurrentKey in p_Keys)
-                    p_Message = p_Message.Replace(
+                foreach (var l_CurrentKey in toReplace)
+                    message = message.Replace(
                         l_CurrentKey.Item1,
                         l_CurrentKey.Item1 == "$SongLink" ? l_CurrentKey.Item2 : l_CurrentKey.Item2.Replace(".", " . ")
                     );
             }
 
-            if (p_Service == null && p_SourceMessage == null)
-                CP_SDK.Chat.Service.BroadcastMessage("! " + p_Message);
+            if (service == null && sourceMessage == null)
+                CP_SDK.Chat.Service.BroadcastMessage("! " + message);
             else
-                p_Service.SendTextMessage(p_SourceMessage.Channel, "! " + p_Message);
+                service.SendTextMessage(sourceMessage.Channel, "! " + message);
         }
         /// <summary>
-        /// Is user banned
+        /// Is a requester banned
         /// </summary>
-        /// <param name="p_UserName">User name to check</param>
+        /// <param name="requester">Requester to check</param>
         /// <returns></returns>
-        private bool IsUserBanned(string p_UserName)
+        private bool IsRequesterBanned(IChatUser requester)
         {
+            if (requester == null)
+                return false;
+
             lock (BannedUsers)
-                return BannedUsers.Where(x => x.ToLower() == p_UserName.ToLower()).Count() != 0;
+                return BannedUsers.Any(x => x.Equals(requester.UserName, StringComparison.OrdinalIgnoreCase));
         }
         /// <summary>
-        /// Has privileges
+        /// Has requester permission
         /// </summary>
-        /// <param name="p_User">Source user</param>
+        /// <param name="requester">Requester</param>
+        /// <param name="permission">Checking permission</param>
         /// <returns></returns>
-        private bool HasPower(IChatUser p_User, CRConfig._Commands.EPermission p_Permissions)
+        private bool HasRequesterPermission(IChatUser requester, CRConfig._Commands.EPermission permission)
         {
-            if (p_User.IsBroadcaster)
+            if (requester.IsBroadcaster)
                 return true;
 
-            if ((p_Permissions & CRConfig._Commands.EPermission.Viewers) != 0)
+            if ((permission & CRConfig._Commands.EPermission.Viewers) != 0)
                 return true;
 
-            if ((p_Permissions & CRConfig._Commands.EPermission.Subscribers) != 0 && p_User.IsSubscriber)
+            if ((permission & CRConfig._Commands.EPermission.Subscribers) != 0 && requester.IsSubscriber)
                 return true;
 
-            if ((p_Permissions & CRConfig._Commands.EPermission.VIPs) != 0 && p_User.IsVip)
+            if ((permission & CRConfig._Commands.EPermission.VIPs) != 0 && requester.IsVip)
                 return true;
 
-            if ((p_Permissions & CRConfig._Commands.EPermission.Moderators) != 0 && p_User.IsModerator)
+            if ((permission & CRConfig._Commands.EPermission.Moderators) != 0 && requester.IsModerator)
                 return true;
 
             return false;
@@ -216,7 +558,7 @@ namespace BeatSaberPlus_ChatRequest
         /// <summary>
         /// Toggle queue status
         /// </summary>
-        internal void ToggleQueueStatus()
+        public void ToggleQueueStatus()
         {
             if (QueueOpen)
                 SendChatMessage(CRConfig.Instance.Commands.CloseCommand_OK, null, null);
@@ -239,10 +581,10 @@ namespace BeatSaberPlus_ChatRequest
         /// <summary>
         /// Re-Enqueue a song by play or skip
         /// </summary>
-        /// <param name="p_Entry">Song to dequeue</param>
-        internal void ReEnqueueSong(Data.SongEntry p_Entry)
+        /// <param name="songEntry">Song to re-enqueue</param>
+        internal void ReEnqueueSongEntry(Models.SongEntry songEntry)
         {
-            if (p_Entry == null)
+            if (songEntry == null)
                 return;
 
             lock (SongQueue)
@@ -250,12 +592,12 @@ namespace BeatSaberPlus_ChatRequest
                 lock (SongHistory)
                 {
                     /// Remove from history
-                    if (SongHistory.Contains(p_Entry))
-                        SongHistory.Remove(p_Entry);
+                    if (SongHistory.Contains(songEntry))
+                        SongHistory.Remove(songEntry);
 
                     /// Move at top of queue
-                    SongQueue.RemoveAll(x => x.BeatSaver_Map.id == p_Entry.BeatSaver_Map.id);
-                    SongQueue.Insert(0, p_Entry);
+                    SongQueue.RemoveAll(x => x.GetLevelHash() == songEntry.GetLevelHash());
+                    SongQueue.Insert(0, songEntry);
                 }
             }
 
@@ -265,21 +607,22 @@ namespace BeatSaberPlus_ChatRequest
         /// <summary>
         /// Dequeue a song by play or skip
         /// </summary>
-        /// <param name="p_Entry">Song to dequeue</param>
-        internal void DequeueSong(Data.SongEntry p_Entry, bool p_ChatNotify)
+        /// <param name="songEntry">Song to dequeue</param>
+        /// <param name="notifyChat">Should notify chat?</param>
+        internal void DequeueSongEntry(Models.SongEntry songEntry, bool notifyChat)
         {
-            if (p_Entry == null)
+            if (songEntry == null)
                 return;
 
-            lock (SongQueue) { lock (SongHistory) { lock (SongBlackList)
+            lock (SongQueue) { lock (SongHistory) { lock (SongBlocklist)
             {
                 /// Remove from queue
-                if (SongQueue.Contains(p_Entry))
-                    SongQueue.Remove(p_Entry);
+                if (SongQueue.Contains(songEntry))
+                    SongQueue.Remove(songEntry);
 
                 /// Move at top of history
-                SongHistory.RemoveAll(x => x.BeatSaver_Map.id == p_Entry.BeatSaver_Map.id);
-                SongHistory.Insert(0, p_Entry);
+                SongHistory.RemoveAll(x => x.GetLevelHash() == songEntry.GetLevelHash());
+                SongHistory.Insert(0, songEntry);
 
                 /// Reduce history size
                 while (SongHistory.Count > CRConfig.Instance.HistorySize)
@@ -287,7 +630,7 @@ namespace BeatSaberPlus_ChatRequest
                     var l_ToRemove = SongHistory.ElementAt(SongHistory.Count - 1);
 
                     /// Clear cache
-                    if (SongBlackList.Count(x => x.BeatSaver_Map.id == l_ToRemove.BeatSaver_Map.id) == 0)
+                    if (SongBlocklist.Count(x => x.GetLevelHash() == l_ToRemove.GetLevelHash()) == 0)
                         CP_SDK_BS.Game.BeatMapsClient.ClearCache(l_ToRemove.BeatSaver_Map.id);
 
                     SongHistory.RemoveAt(SongHistory.Count - 1);
@@ -297,13 +640,13 @@ namespace BeatSaberPlus_ChatRequest
             /// Update request manager
             OnQueueChanged();
 
-            if (p_ChatNotify)
-                SendChatMessage(CRConfig.Instance.Messages.NextSong, null, null, p_Entry.BeatSaver_Map, ("$RequesterName", p_Entry.RequesterName));
+            if (notifyChat)
+                SendChatMessage(CRConfig.Instance.Messages.NextSong, null, null, songEntry);
         }
         /// <summary>
         /// Clear queue
         /// </summary>
-        internal void ClearQueue()
+        public void ClearSongEntryQueue()
         {
             lock (SongQueue)
             {
@@ -314,49 +657,94 @@ namespace BeatSaberPlus_ChatRequest
             OnQueueChanged();
         }
         /// <summary>
-        /// Blacklist song
+        /// Add a song entry to the allowlist
         /// </summary>
-        /// <param name="p_Entry">Song to blacklist</param>
-        internal void BlacklistSong(Data.SongEntry p_Entry)
+        /// <param name="songEntry">Song entry to allow</param>
+        internal void AddSongEntryToAllowlist(Models.SongEntry songEntry)
         {
-            if (p_Entry == null)
+            if (songEntry == null)
                 return;
 
-            lock (SongQueue) { lock (SongHistory) { lock (SongBlackList)
+            lock (SongAllowlist) { lock (SongBlocklist)
+            {
+                /// Remove from blocklist
+                SongBlocklist.RemoveAll(x => x.GetLevelHash() == songEntry.GetLevelHash());
+
+                /// Add to allowlist
+                SongAllowlist.RemoveAll(x => x.GetLevelHash() == songEntry.GetLevelHash());
+                SongAllowlist.Insert(0, songEntry);
+            } }
+
+            /// Update request manager
+            OnQueueChanged(false);
+        }
+        /// <summary>
+        /// Remove a song entry from the allowlist
+        /// </summary>
+        /// <param name="songEntry">Song entry to remove from the allowlist</param>
+        internal void RemoveSongEntryFromAllowlist(Models.SongEntry songEntry)
+        {
+            if (songEntry == null)
+                return;
+
+            lock (SongHistory) { lock (SongAllowlist)
+            {
+                /// Remove from allowlist
+                SongAllowlist.RemoveAll(x => x.GetLevelHash() == songEntry.GetLevelHash());
+                /// Move at top of history
+                SongHistory.RemoveAll(x => x.GetLevelHash() == songEntry.GetLevelHash());
+                SongHistory.Insert(0, songEntry);
+
+                /// Reduce history size
+                while (SongHistory.Count > CRConfig.Instance.HistorySize)
+                    SongHistory.RemoveAt(SongHistory.Count - 1);
+            } }
+
+            /// Update request manager
+            OnQueueChanged(false);
+        }
+        /// <summary>
+        /// Add a song entry to the blocklist
+        /// </summary>
+        /// <param name="songEntry">Song entry to block</param>
+        internal void AddSongEntryToBlocklist(Models.SongEntry songEntry)
+        {
+            if (songEntry == null)
+                return;
+
+            lock (SongQueue) { lock (SongHistory) { lock (SongBlocklist)
             {
                 /// Remove from queue
-                if (SongQueue.Contains(p_Entry))
-                    SongQueue.Remove(p_Entry);
+                SongQueue.RemoveAll(x => x.GetLevelHash() == songEntry.GetLevelHash());
 
                 /// Remove from history
-                SongHistory.RemoveAll(x => x.BeatSaver_Map.id == p_Entry.BeatSaver_Map.id);
+                SongHistory.RemoveAll(x => x.GetLevelHash() == songEntry.GetLevelHash());
 
-                /// Add to blacklist
-                SongBlackList.RemoveAll(x => x.BeatSaver_Map.id == p_Entry.BeatSaver_Map.id);
-                SongBlackList.Insert(0, p_Entry);
+                /// Add to blocklist
+                SongBlocklist.RemoveAll(x => x.GetLevelHash() == songEntry.GetLevelHash());
+                SongBlocklist.Insert(0, songEntry);
             } } }
 
             /// Update request manager
             OnQueueChanged(false);
         }
         /// <summary>
-        /// UnBlacklist song
+        /// Remove a song entry from the blocklist
         /// </summary>
-        /// <param name="p_Entry">Song to blacklist</param>
-        internal void UnBlacklistSong(Data.SongEntry p_Entry)
+        /// <param name="songEntry">Song entry to remove from the blocklist</param>
+        internal void RemoveSongEntryFromBlocklist(Models.SongEntry songEntry)
         {
-            if (p_Entry == null)
+            if (songEntry == null)
                 return;
 
-            lock (SongQueue) { lock (SongHistory) { lock (SongBlackList)
+            lock (SongQueue) { lock (SongHistory) { lock (SongBlocklist)
             {
-                /// Remove from blacklist
-                if (SongBlackList.Contains(p_Entry))
-                    SongBlackList.Remove(p_Entry);
+                /// Remove from blocklist
+                SongBlocklist.RemoveAll(x => x.GetLevelHash() == songEntry.GetLevelHash());
 
                 /// Move at top of history
-                SongHistory.RemoveAll(x => x.BeatSaver_Map.id == p_Entry.BeatSaver_Map.id);
-                SongHistory.Insert(0, p_Entry);
+                SongHistory.RemoveAll(x => x.GetLevelHash() == songEntry.GetLevelHash());
+                SongHistory.Insert(0, songEntry);
 
                 /// Reduce history size
                 while (SongHistory.Count > CRConfig.Instance.HistorySize)
@@ -367,22 +755,22 @@ namespace BeatSaberPlus_ChatRequest
             OnQueueChanged(false);
         }
         /// <summary>
-        /// Reset blacklist
+        /// Reset the song entry blocklist
         /// </summary>
-        internal void ResetBlacklist()
+        internal void ResetSongEntryBlocklist()
         {
-            lock (SongHistory) { lock (SongBlackList)
+            lock (SongHistory) { lock (SongBlocklist)
             {
-                /// Add all blacklisted songs to history
-                SongBlackList.ForEach(l_BlacklistedSong =>
+                /// Add all blocked songs to history
+                SongBlocklist.ForEach(l_BlocklistedSong =>
                 {
                     /// Move at top of history
-                    SongHistory.RemoveAll(x => x.BeatSaver_Map.id == l_BlacklistedSong.BeatSaver_Map.id);
-                    SongHistory.Insert(0, l_BlacklistedSong);
+                    SongHistory.RemoveAll(x => x.GetLevelHash() == l_BlocklistedSong.GetLevelHash());
+                    SongHistory.Insert(0, l_BlocklistedSong);
                 });
 
-                /// Remove all blacklisted songs
-                SongBlackList.Clear();
+                /// Remove all blocked songs
+                SongBlocklist.Clear();
             } }
 
             /// Update request manager
@@ -395,32 +783,32 @@ namespace BeatSaberPlus_ChatRequest
         /// <summary>
         /// Filter a beatmap
         /// </summary>
-        /// <param name="p_BeatMap">Beatmap to filter</param>
-        /// <param name="p_SenderName">Requester name</param>
-        /// <param name="p_Reply">Output reply</param>
+        /// <param name="beatMap">Beatmap to filter</param>
+        /// <param name="requesterName">Requester name</param>
+        /// <param name="filterError">Output reply</param>
         /// <returns></returns>
-        private bool FilterBeatMap(CP_SDK_BS.Game.BeatMaps.MapDetail p_BeatMap, string p_SenderName, out string p_Reply)
+        private static bool FilterBeatMap(CP_SDK_BS.Game.BeatMaps.MapDetail beatMap, string requesterName, out string filterError)
         {
-            p_Reply = "";
+            filterError = "";
 
             bool    l_FilterNPSMin  = CRConfig.Instance.Filters.NPSMin;
             bool    l_FilterNPSMax  = CRConfig.Instance.Filters.NPSMax;
             bool    l_FilterNJSMin  = CRConfig.Instance.Filters.NJSMin;
             bool    l_FilterNJSMax  = CRConfig.Instance.Filters.NJSMax;
-            float   l_Vote          = (float)Math.Round((double)p_BeatMap.stats.score * 100f, 0);
+            float   l_Vote          = (float)Math.Round((double)beatMap.stats.score * 100f, 0);
 
             /// Thanks beatsaver, fix filters for maps without votes
-            if ((p_BeatMap.stats.downvotes + p_BeatMap.stats.upvotes) == 0)
+            if ((beatMap.stats.downvotes + beatMap.stats.upvotes) == 0)
                 l_Vote = 50f;
 
-            if (CRConfig.Instance.Filters.NoBeatSage && p_BeatMap.automapper)
+            if (CRConfig.Instance.Filters.NoBeatSage && beatMap.automapper)
             {
-                p_Reply = $"@{p_SenderName} BeatSage maps are not allowed!";
+                filterError = $"@{requesterName} BeatSage maps are not allowed!";
                 return false;
             }
-            if (CRConfig.Instance.Filters.NoRanked && p_BeatMap.ranked)
+            if (CRConfig.Instance.Filters.NoRanked && beatMap.ranked)
             {
-                p_Reply = $"@{p_SenderName} Ranked maps are not allowed!";
+                filterError = $"@{requesterName} Ranked maps are not allowed!";
                 return false;
             }
             if (l_FilterNPSMin || l_FilterNPSMax)
@@ -428,21 +816,21 @@ namespace BeatSaberPlus_ChatRequest
                 int l_NPSMin = CRConfig.Instance.Filters.NPSMinV;
                 int l_NPSMax = CRConfig.Instance.Filters.NPSMaxV;
 
-                var l_Diffs = p_BeatMap.SelectMapVersion().diffs;
+                var l_Diffs = beatMap.SelectMapVersion().diffs;
 
                 if (l_FilterNPSMin && !l_FilterNPSMax && l_Diffs.Count(x => x.nps >= l_NPSMin) == 0)
                 {
-                    p_Reply = $"@{p_SenderName} this song has no difficulty with a NPS of {l_NPSMin} minimum!";
+                    filterError = $"@{requesterName} this song has no difficulty with a NPS of {l_NPSMin} minimum!";
                     return false;
                 }
                 if (!l_FilterNPSMin && l_FilterNPSMax && l_Diffs.Count(x => x.nps <= l_NPSMax) == 0)
                 {
-                    p_Reply = $"@{p_SenderName} this song has no difficulty with a NPS of {l_NPSMax} maximum!";
+                    filterError = $"@{requesterName} this song has no difficulty with a NPS of {l_NPSMax} maximum!";
                     return false;
                 }
                 if (l_FilterNPSMin && l_FilterNPSMax && l_Diffs.Count(x => x.nps >= l_NPSMin && x.nps <= l_NPSMax) == 0)
                 {
-                    p_Reply = $"@{p_SenderName} this song has no difficulty with a NPS between {l_NPSMin} and {l_NPSMax}!";
+                    filterError = $"@{requesterName} this song has no difficulty with a NPS between {l_NPSMin} and {l_NPSMax}!";
                     return false;
                 }
             }
@@ -451,66 +839,84 @@ namespace BeatSaberPlus_ChatRequest
                 int l_NJSMin = CRConfig.Instance.Filters.NJSMinV;
                 int l_NJSMax = CRConfig.Instance.Filters.NJSMaxV;
 
-                var l_Diffs = p_BeatMap.SelectMapVersion().diffs;
+                var l_Diffs = beatMap.SelectMapVersion().diffs;
 
                 if (l_FilterNJSMin && !l_FilterNJSMax && l_Diffs.Count(x => x.njs >= l_NJSMin) == 0)
                 {
-                    p_Reply = $"@{p_SenderName} this song has no difficulty with a NJS of {l_NJSMin} minimum!";
+                    filterError = $"@{requesterName} this song has no difficulty with a NJS of {l_NJSMin} minimum!";
                     return false;
                 }
                 if (!l_FilterNJSMin && l_FilterNJSMax && l_Diffs.Count(x => x.njs <= l_NJSMax) == 0)
                 {
-                    p_Reply = $"@{p_SenderName} this song has no difficulty with a NJS of {l_NJSMax} maximum!";
+                    filterError = $"@{requesterName} this song has no difficulty with a NJS of {l_NJSMax} maximum!";
                     return false;
                 }
                 if (l_FilterNJSMin && l_FilterNJSMax && l_Diffs.Count(x => x.njs >= l_NJSMin && x.njs <= l_NJSMax) == 0)
                 {
-                    p_Reply = $"@{p_SenderName} this song has no difficulty with a NJS between {l_NJSMin} and {l_NJSMax}!";
+                    filterError = $"@{requesterName} this song has no difficulty with a NJS between {l_NJSMin} and {l_NJSMax}!";
                     return false;
                 }
             }
-            if (CRConfig.Instance.Filters.DurationMin && (int)p_BeatMap.metadata.duration < (CRConfig.Instance.Filters.DurationMinV * 60))
+            if (CRConfig.Instance.Filters.DurationMin && (int)beatMap.metadata.duration < (CRConfig.Instance.Filters.DurationMinV * 60))
             {
-                p_Reply = $"@{p_SenderName} this song is too short ({CRConfig.Instance.Filters.DurationMaxV} minute(s) minimum)!";
+                filterError = $"@{requesterName} this song is too short ({CRConfig.Instance.Filters.DurationMaxV} minute(s) minimum)!";
                 return false;
             }
-            if (CRConfig.Instance.Filters.DurationMax && (int)p_BeatMap.metadata.duration > (CRConfig.Instance.Filters.DurationMaxV * 60))
+            if (CRConfig.Instance.Filters.DurationMax && (int)beatMap.metadata.duration > (CRConfig.Instance.Filters.DurationMaxV * 60))
             {
-                p_Reply = $"@{p_SenderName} this song is too long ({CRConfig.Instance.Filters.DurationMaxV} minute(s) maximum)!";
-                return false;
-            }
-            if (CRConfig.Instance.Filters.VoteMin && l_Vote < (float)Math.Round((double)CRConfig.Instance.Filters.VoteMinV * 100f, 0))
-            {
-                p_Reply = $"@{p_SenderName} this song rating is too low ({(float)Math.Round((double)CRConfig.Instance.Filters.VoteMinV * 100f, 0)}% minimum)!";
+                filterError = $"@{requesterName} this song is too long ({CRConfig.Instance.Filters.DurationMaxV} minute(s) maximum)!";
                 return false;
             }
 
-            var l_Date = p_BeatMap.GetUploadTime();
+            var l_Date = beatMap.GetUploadTime();
+
+            if (CRConfig.Instance.Filters.VoteMin && l_Vote < (float)Math.Round((double)CRConfig.Instance.Filters.VoteMinV * 100f, 0))
+            {
+                var l_AgeInDays = (DateTime.Now - l_Date).Days;
+                if (!CRConfig.Instance.Filters.IgnoreMinVoteBelow || l_AgeInDays > CRConfig.Instance.Filters.IgnoreMinVoteBelowV)
+                {
+                    filterError = $"@{requesterName} this song rating is too low ({(float)Math.Round((double)CRConfig.Instance.Filters.VoteMinV * 100f, 0)}% minimum)!";
+                    return false;
+                }
+            }
 
             DateTime l_MinUploadDate = new DateTime(2018, 1, 1).AddMonths(CRConfig.Instance.Filters.DateMinV);
             if (CRConfig.Instance.Filters.DateMin && l_Date < l_MinUploadDate)
             {
-                p_Reply = $"@{p_SenderName} this song is too old ({CP_SDK.Misc.Time.MonthNames[l_MinUploadDate.Month - 1]} {l_MinUploadDate.Year} minimum)!";
+                filterError = $"@{requesterName} this song is too old ({CP_SDK.Misc.Time.MonthNames[l_MinUploadDate.Month - 1]} {l_MinUploadDate.Year} minimum)!";
                 return false;
             }
             DateTime l_MaxUploadDate = new DateTime(2018, 1, 1).AddMonths(CRConfig.Instance.Filters.DateMaxV + 1);
             if (CRConfig.Instance.Filters.DateMax && l_Date > l_MaxUploadDate)
             {
-                p_Reply = $"@{p_SenderName} this song is too recent ({CP_SDK.Misc.Time.MonthNames[l_MinUploadDate.Month - 1]} {l_MinUploadDate.Year} maximum)!";
+                filterError = $"@{requesterName} this song is too recent ({CP_SDK.Misc.Time.MonthNames[l_MinUploadDate.Month - 1]} {l_MinUploadDate.Year} maximum)!";
                 return false;
             }
 
             return true;
         }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
         /// <summary>
-        /// Is hex only string
+        /// Get title prefix from the requester
         /// </summary>
-        /// <param name="p_Value">Value to test</param>
+        /// <param name="requester">Requester</param>
         /// <returns></returns>
-        private bool OnlyHexInString(string p_Value)
+        private static string GetTitlePrefixFromRequester(IChatUser requester)
         {
-            // For C-style hex notation (0xFF) you can use @"\A\b(0[xX])?[0-9a-fA-F]+\b\Z"
-            return System.Text.RegularExpressions.Regex.IsMatch(p_Value, @"\A\b[0-9a-fA-F]+\b\Z");
+            if (requester == null)
+                return string.Empty;
+
+            if (requester.IsModerator || requester.IsBroadcaster)
+                return "🗡";
+            else if (requester.IsVip)
+                return "💎";
+            else if (requester.IsSubscriber)
+                return "👑";
+
+            return string.Empty;
         }
     }
 }

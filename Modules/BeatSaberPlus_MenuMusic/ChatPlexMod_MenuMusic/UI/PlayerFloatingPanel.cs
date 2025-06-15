@@ -1,8 +1,10 @@
-﻿using CP_SDK.Unity.Extensions;
+﻿using BeatSaberPlus_MenuMusic;
+using CP_SDK.Unity.Extensions;
 using CP_SDK.XUI;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace ChatPlexMod_MenuMusic.UI
 {
@@ -17,6 +19,7 @@ namespace ChatPlexMod_MenuMusic.UI
         private XUIText             m_SongArtist        = null;
         private XUIIconButton       m_PlayPauseButton   = null;
         private XUISlider           m_Volume            = null;
+        private XUIPrimaryButton    m_AddToQueueButton  = null;
         private XUIPrimaryButton    m_PlayItButton      = null;
 
         private CP_SDK.Misc.FastCancellationToken   m_CancellationToken = new CP_SDK.Misc.FastCancellationToken();
@@ -134,6 +137,19 @@ namespace ChatPlexMod_MenuMusic.UI
                 .Bind(ref m_Volume)
                 .BuildUI(transform);
 
+            XUIPrimaryButton.Make("Add to queue", OnAddToQueuePressed)
+                .OnReady((x) =>
+                {
+                    x.LElement.enabled              = false;
+                    x.RTransform.pivot              = new Vector2( 1.00f, 0.00f);
+                    x.RTransform.anchorMin          = new Vector2( 1.00f, 0.00f);
+                    x.RTransform.anchorMax          = new Vector2( 1.00f, 0.00f);
+                    x.RTransform.anchoredPosition   = new Vector2(-11.00f, 1.15f);
+                    x.RTransform.localScale         = 0.7f * Vector2.one;
+                })
+                .Bind(ref m_AddToQueueButton)
+                .BuildUI(transform);
+
             XUIPrimaryButton.Make("Play it", OnPlayItPressed)
                 .OnReady((x) =>
                 {
@@ -151,6 +167,11 @@ namespace ChatPlexMod_MenuMusic.UI
 
             if (CP_SDK.ChatPlexSDK.GetModules().Any(x => x.Name == "Audio Tweaker"))
                 m_Volume.SetActive(false);
+
+            if (!ModulePresence.ChatRequest)
+                m_PlayItButton.SetActive(false);
+
+            Object.Destroy(transform.parent.GetComponent<RectMask2D>());
         }
         /// <summary>
         /// On view activation
@@ -206,6 +227,9 @@ namespace ChatPlexMod_MenuMusic.UI
 
                 if (m_PlayItButton != null)
                     m_PlayItButton.SetInteractable(p_Music.MusicProvider.SupportPlayIt);
+
+                if (m_AddToQueueButton != null)
+                    m_AddToQueueButton.SetInteractable(p_Music.MusicProvider.SupportAddToQueue);
             }
 
             m_CurrentMusic = p_Music;
@@ -268,8 +292,17 @@ namespace ChatPlexMod_MenuMusic.UI
             if (m_CurrentMusic == null || !m_CurrentMusic.MusicProvider.SupportPlayIt)
                 return;
 
-            if (!m_CurrentMusic.MusicProvider.StartGameSpecificGamePlay(m_CurrentMusic))
-                ShowMessageModal("Map not found!");
+            m_CurrentMusic.MusicProvider.StartGameSpecificGamePlay(m_CurrentMusic, this);
+        }
+        /// <summary>
+        /// On add to queue pressed
+        /// </summary>
+        private void OnAddToQueuePressed()
+        {
+            if (m_CurrentMusic == null || !m_CurrentMusic.MusicProvider.SupportAddToQueue)
+                return;
+
+            m_CurrentMusic.MusicProvider.AddToQueue(m_CurrentMusic, this);
         }
     }
 }

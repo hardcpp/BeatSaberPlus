@@ -464,11 +464,7 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Actions
             bool l_Failed = true;
             if (CP_SDK_BS.Game.Logic.ActiveScene == CP_SDK_BS.Game.Logic.ESceneType.Playing)
             {
-#if BEATSABER_1_35_0_OR_NEWER
                 var l_Level     = CP_SDK_BS.Game.Logic.LevelData?.Data?.beatmapKey.difficulty;
-#else
-                var l_Level     = CP_SDK_BS.Game.Logic.LevelData?.Data?.difficultyBeatmap?.difficulty;
-#endif
                 var l_Effects   = l_Level == BeatmapDifficulty.ExpertPlus
                     ? CP_SDK_BS.Game.Logic.LevelData?.Data?.playerSpecificSettings?.environmentEffectsFilterExpertPlusPreset
                     : CP_SDK_BS.Game.Logic.LevelData?.Data?.playerSpecificSettings?.environmentEffectsFilterDefaultPreset;
@@ -1447,11 +1443,7 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Actions
                     for (int l_I = 0; l_I < Model.Count; ++l_I)
                     {
                         l_BeatmapObjectSpawnController.HandleObstacleDataCallback(new ObstacleData(
-#if BEATSABER_1_38_0_OR_NEWER
                             l_AudioTimeSyncController.songTime + l_Time, 0.0f /* TODO */, 0.0f /* TODO */, 0, 4, NoteLineLayer.Top, 0.3f, -4, 3
-#else
-                            l_AudioTimeSyncController.songTime + l_Time, 4, NoteLineLayer.Top, 0.3f, -4, 3
-#endif
                         ));
                         l_Time += Model.Interval;
                     }

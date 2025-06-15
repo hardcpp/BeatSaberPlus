@@ -3,12 +3,12 @@
   "id": "BeatSaberPlus_MenuMusic",
   "name": "BeatSaberPlus_MenuMusic",
   "author": "HardCPP",
-  "version": "6.3.3",
+  "version": "6.4.1",
   "description": "",
   "gameVersion": "1.40.0",
   "dependsOn": {
     "BSIPA": "^4.3.0",
-    "ChatPlexSDK_BS": "^6.3.3"
+    "ChatPlexSDK_BS": "^6.4.1"
   },
   "links": {
     "project-home": "https://discord.chatplex.org",

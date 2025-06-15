@@ -93,8 +93,8 @@ namespace ChatPlexMod_ChatIntegrations.Events
         {
             p_Context.AddValue(EValueType.String,    "UserName",        p_Context.User.DisplayName);
             p_Context.AddValue(EValueType.String,    "SubPlan",         p_Context.SubscriptionEvent.SubPlan);
-            p_Context.AddValue(EValueType.String,    "RecipientName",   p_Context.SubscriptionEvent.RecipientDisplayName ?? "");
-            p_Context.AddValue(EValueType.Integer,   "MonthCount",      (Int64?)p_Context.SubscriptionEvent.PurchasedMonthCount);
+            //p_Context.AddValue(EValueType.String,    "RecipientName",   p_Context.SubscriptionEvent.RecipientDisplayName ?? "");
+            //p_Context.AddValue(EValueType.Integer,   "MonthCount",      (Int64?)p_Context.SubscriptionEvent.PurchasedMonthCount);
         }
     }
 }

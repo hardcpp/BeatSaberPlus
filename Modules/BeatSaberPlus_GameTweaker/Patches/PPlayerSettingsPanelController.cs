@@ -1,8 +1,4 @@
-﻿#if BEATSABER_1_35_0_OR_NEWER
-using BGLib.Polyglot;
-#else
-using Polyglot;
-#endif
+﻿using BGLib.Polyglot;
 using CP_SDK.Unity.Extensions;
 using HarmonyLib;
 using System;
@@ -84,8 +80,9 @@ namespace BeatSaberPlus_GameTweaker.Patches
             {
                 if (!m_CustomReactionTime)
                 {
+                    var l_StartReactTime        = m_NoteJumpFixedDurationSettingsController.values[0];
                     var l_NewReactionTimeList   = new List<float>();
-                    for (float l_Value = 0.200f; l_Value <= 1.000f; l_Value += 0.001f)
+                    for (float l_Value = l_StartReactTime; l_Value <= 1.000f; l_Value += 0.001f)
                         l_NewReactionTimeList.Add(l_Value);
 
                     if (m_NoteJumpFixedDurationSettingsController)
@@ -106,7 +103,8 @@ namespace BeatSaberPlus_GameTweaker.Patches
                         m_CustomReactionTime.SetFormatter(CP_SDK.UI.ValueFormatters.MillisecondsShort);
                         m_CustomReactionTime.OnValueChanged((x) =>
                         {
-                            m_NoteJumpFixedDurationSettingsController.SetValue(m_NoteJumpFixedDurationSettingsController.values[((int)x) - 200], true);
+                            int l_ValueIndex = (int)(x - (l_StartReactTime * 1000f));
+                            m_NoteJumpFixedDurationSettingsController.SetValue(m_NoteJumpFixedDurationSettingsController.values[l_ValueIndex], true);
                         });
                         m_CustomReactionTime.SetValue((int)(m_NoteJumpFixedDurationSettingsController.value * 1000f), false);
                     }

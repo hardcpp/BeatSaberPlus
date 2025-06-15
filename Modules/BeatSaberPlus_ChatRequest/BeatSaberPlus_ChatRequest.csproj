@@ -24,14 +24,15 @@
     <DebugSymbols>true</DebugSymbols>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;BEATSABER_1_35_0_OR_NEWER</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>BEATSABER_1_35_0_OR_NEWER</DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -113,7 +114,10 @@
     <Compile Include="ChatRequest_Database.cs" />
     <Compile Include="ChatRequest_Logic.cs" />
     <Compile Include="CRConfig.cs" />
-    <Compile Include="Data\SongEntry.cs" />
+    <Compile Include="Models\AddToQueueResult.cs" />
+    <Compile Include="Models\EAddToQueueResult.cs" />
+    <Compile Include="Models\RequesterRateLimit.cs" />
+    <Compile Include="Models\SongEntry.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

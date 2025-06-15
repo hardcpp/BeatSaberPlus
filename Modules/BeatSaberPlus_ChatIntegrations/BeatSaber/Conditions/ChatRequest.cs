@@ -47,7 +47,7 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Conditions
             BuildUIAuto(p_Parent);
 
             if (!ModulePresence.ChatRequest)
-                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: ChatRequest module is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Condition failed, ChatRequest module is missing or disabled!");
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -67,7 +67,7 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Conditions
         {
             if (!ModulePresence.ChatRequest)
             {
-                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, ChatRequest module is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Condition failed, ChatRequest module is missing or disabled!");
                 return false;
             }
 
@@ -161,7 +161,7 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Conditions
         {
             if (!ModulePresence.ChatRequest)
             {
-                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, ChatRequest module is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Condition failed, ChatRequest module is missing or disabled!");
                 return false;
             }
 
@@ -228,7 +228,7 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Conditions
             BuildUIAuto(p_Parent);
 
             if (!ModulePresence.ChatRequest)
-                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: ChatRequest module is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Condition failed, ChatRequest module is missing or disabled!");
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -247,7 +247,7 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Conditions
         {
             if (!ModulePresence.ChatRequest)
             {
-                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, ChatRequest module is missing!");
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Condition failed, ChatRequest module is missing or disabled!");
                 return false;
             }
 

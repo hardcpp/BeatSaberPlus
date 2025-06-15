@@ -4,7 +4,7 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber
 {
     internal static class ModulePresence
     {
-        private static bool? m_ChatRequest;
+        private static CP_SDK.IModuleBase m_ChatRequest;
         private static bool? m_GameTweaker;
         private static bool? m_NoteTweaker;
         private static bool? m_SongChartVisualizer;
@@ -13,10 +13,10 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber
         ////////////////////////////////////////////////////////////////////////////
 
         internal static bool ChatRequest { get {
-            if (!m_ChatRequest.HasValue)
-                m_ChatRequest = CP_SDK.ChatPlexSDK.GetModules().Any(x => x.Name == "Chat Request");
+            if (m_ChatRequest == null)
+                m_ChatRequest = CP_SDK.ChatPlexSDK.GetModules().FirstOrDefault(x => x.Name == "Chat Request");
 
-            return m_ChatRequest.Value;
+            return m_ChatRequest?.IsEnabled ?? false;
         } }
         internal static bool GameTweaker { get {
             if (!m_GameTweaker.HasValue)

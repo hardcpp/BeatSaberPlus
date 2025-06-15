@@ -1,4 +1,6 @@
-﻿using IPA;
+﻿using HarmonyLib;
+using IPA;
+using System.Reflection;
 
 namespace BeatSaberPlus_MenuMusic
 {
@@ -8,6 +10,16 @@ namespace BeatSaberPlus_MenuMusic
     [Plugin(RuntimeOptions.SingleStartInit)]
     public class BSIPA
     {
+        internal const string HarmonyID = "com.github.hardcpp.beatsaberplus_menumusic";
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        private static Harmony m_Harmony;
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
         /// <summary>
         /// Called when the plugin is first loaded by IPA (either when the game starts or when the plugin is enabled if it starts disabled).
         /// </summary>
@@ -28,7 +40,19 @@ namespace BeatSaberPlus_MenuMusic
         [OnEnable]
         public void OnEnable()
         {
+            try
+            {
+                ChatPlexMod_MenuMusic.Logger.Instance.Debug("Applying Harmony patches.");
 
+                /// Setup harmony
+                m_Harmony = new Harmony(HarmonyID);
+                m_Harmony.PatchAll(Assembly.GetExecutingAssembly());
+            }
+            catch (System.Exception p_Exception)
+            {
+                ChatPlexMod_MenuMusic.Logger.Instance.Error("[Plugin.OnEnabled] Error:");
+                ChatPlexMod_MenuMusic.Logger.Instance.Error(p_Exception);
+            }
         }
         /// <summary>
         /// On BeatSaberPlus disable

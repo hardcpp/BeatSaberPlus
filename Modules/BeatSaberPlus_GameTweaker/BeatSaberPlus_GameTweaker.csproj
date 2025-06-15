@@ -24,14 +24,15 @@
     <DebugSymbols>true</DebugSymbols>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;BEATSABER_1_35_0_OR_NEWER;BEATSABER_1_38_0_OR_NEWER</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>BEATSABER_1_35_0_OR_NEWER;BEATSABER_1_38_0_OR_NEWER</DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -167,7 +168,6 @@
     <Compile Include="Patches\Lights\PLightsPatches.cs" />
     <Compile Include="Patches\PComboUIController.cs" />
     <Compile Include="Patches\PFireworksController.cs" />
-    <Compile Include="Patches\PGameplayCoreSceneSetup.cs" />
     <Compile Include="Patches\PLevelListTableCell.cs" />
     <Compile Include="Patches\PLevelSearchViewController.cs" />
     <Compile Include="Patches\PMainMenuViewController.cs" />
@@ -178,7 +178,6 @@
     <Compile Include="Patches\PPlayerHeightSettingsController.cs" />
     <Compile Include="Patches\PPlayerSettingsPanelController.cs" />
     <Compile Include="Patches\PMusicPackPromoBanner.cs" />
-    <Compile Include="Patches\PPromoViewController.cs" />
     <Compile Include="Patches\PSaberBurnMarkArea.cs" />
     <Compile Include="Patches\PSaberBurnMarkSparkles.cs" />
     <Compile Include="Patches\PSaberClashEffect.cs" />

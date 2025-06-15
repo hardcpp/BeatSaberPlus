@@ -1,5 +1,4 @@
-﻿#if BEATSABER_1_35_0_OR_NEWER
-using HarmonyLib;
+﻿using HarmonyLib;
 using System.Collections.Generic;
 
 namespace BeatSaberPlus_GameTweaker.Patches
@@ -63,4 +62,3 @@ namespace BeatSaberPlus_GameTweaker.Patches
         }
     }
 }
-#endif
