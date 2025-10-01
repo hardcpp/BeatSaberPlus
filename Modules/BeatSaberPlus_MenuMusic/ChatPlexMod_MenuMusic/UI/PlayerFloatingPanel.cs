@@ -130,8 +130,8 @@ namespace ChatPlexMod_MenuMusic.UI
                     x.RTransform.pivot              = new Vector2(  1.00f, 0.00f);
                     x.RTransform.anchorMin          = new Vector2(  1.00f, 0.00f);
                     x.RTransform.anchorMax          = new Vector2(  1.00f, 0.00f);
-                    x.RTransform.anchoredPosition   = new Vector2(-11.00f, 1.15f);
-                    x.RTransform.sizeDelta          = new Vector2( 35.00f, 5.00f);
+                    x.RTransform.anchoredPosition   = new Vector2(-27.50f, 1.15f);
+                    x.RTransform.sizeDelta          = new Vector2( 30.00f, 5.00f);
                     x.RTransform.localScale         = 0.7f * Vector2.one;
                 })
                 .Bind(ref m_Volume)
@@ -169,7 +169,7 @@ namespace ChatPlexMod_MenuMusic.UI
                 m_Volume.SetActive(false);
 
             if (!ModulePresence.ChatRequest)
-                m_PlayItButton.SetActive(false);
+                m_AddToQueueButton.SetActive(false);
 
             Object.Destroy(transform.parent.GetComponent<RectMask2D>());
         }

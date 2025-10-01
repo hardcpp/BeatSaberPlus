@@ -123,6 +123,21 @@ namespace ChatPlexMod_ChatIntegrations.Models.Actions
     ////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////
 
+    public class OBS_ToggleSourceFilter : Action
+    {
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include), JsonConverter(typeof(StringEnumConverter))]
+        public Enums.Toggle.E ChangeType = Enums.Toggle.E.Toggle;
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
+        public string SceneName = "";
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
+        public string SourceName = "";
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
+        public string FilterName = "";
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
+
     public class OBS_Transition : Action
     {
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]

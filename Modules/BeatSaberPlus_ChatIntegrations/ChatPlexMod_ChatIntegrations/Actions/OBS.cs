@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 using OBSService = CP_SDK.OBS.Service;
@@ -29,6 +30,8 @@ namespace ChatPlexMod_ChatIntegrations.Actions
             ChatIntegrations.RegisterActionType("OBS_ToggleStudioMode",           () => new OBS_ToggleStudioMode());
             ChatIntegrations.RegisterActionType("OBS_ToggleSource",               () => new OBS_ToggleSource());
             ChatIntegrations.RegisterActionType("OBS_ToggleSourceAudio",          () => new OBS_ToggleSourceAudio());
+            ChatIntegrations.RegisterActionType("OBS_ToggleSourceFilter",         () => new OBS_ToggleSourceFilter());
+
             ChatIntegrations.RegisterActionType("OBS_Transition",                 () => new OBS_Transition());
         }
     }
@@ -1268,7 +1271,7 @@ namespace ChatPlexMod_ChatIntegrations.Actions
                 if (Model.ChangeType == Enums.Toggle.E.Toggle)
                     l_Source.ToggleMute();
                 else
-                    l_Source.SetMuted(Model.ChangeType == Enums.Toggle.E.Enable);
+                    l_Source.SetMuted(Model.ChangeType != Enums.Toggle.E.Enable);
             }
             else if (Model.SourceName != "<i>None</i>")
                 CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_ToggleSourceAudio Source:{Model.SourceName} not found!");
@@ -1302,7 +1305,7 @@ namespace ChatPlexMod_ChatIntegrations.Actions
                 if (Model.ChangeType == Enums.Toggle.E.Toggle)
                     l_Source.ToggleMute();
                 else
-                    l_Source.SetMuted(Model.ChangeType == Enums.Toggle.E.Enable);
+                    l_Source.SetMuted(Model.ChangeType != Enums.Toggle.E.Enable);
             }
             else
             {
@@ -1311,6 +1314,324 @@ namespace ChatPlexMod_ChatIntegrations.Actions
                 if (Model.SourceName != "<i>None</i>")
                     CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_ToggleSourceAudio Source:{Model.SourceName} not found!");
             }
+
+            yield return null;
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
+
+    public class OBS_ToggleSourceFilter
+        : Interfaces.IAction<OBS_ToggleSourceFilter, Models.Actions.OBS_ToggleSourceFilter>
+    {
+        private XUIDropdown m_SceneDropdown         = null;
+        private XUIDropdown m_SourceDropdown        = null;
+        private XUIDropdown m_FilterDropdown        = null;
+        private XUIDropdown m_ChangeTypeDropdown    = null;
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        private List<string>            m_SceneChoicesText = null;
+
+        private List<string>            m_SourceChoicesText = null;
+        private List<SceneItem>         m_SourceChoicesItem = null;
+
+        private List<string>            m_FilterChoicesText = null;
+        private List<SceneItemFilter>   m_FilterChoicesItem = null;
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        public override string Description => "Toggle source filter";
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        public override sealed void BuildUI(Transform p_Parent)
+        {
+            if (OBSService.Status != OBSService.EStatus.Connected)
+            {
+                XUIElements = new IXUIElement[]
+                {
+                    XUIText.Make("OBS is not connected!")
+                        .SetColor(Color.red)
+                        .SetAlign(TMPro.TextAlignmentOptions.Center)
+                };
+
+                BuildUIAuto(p_Parent);
+                return;
+            }
+
+            XUIElements = new IXUIElement[]
+            {
+                XUIVLayout.Make(
+                    XUIHLayout.Make(
+                        XUIVLayout.Make(
+                            XUIText.Make("Scene").SetColor(Color.yellow),
+                            XUIDropdown.Make()
+                                .OnValueChanged((_, __) => OnSettingChangedScene())
+                                .Bind(ref m_SceneDropdown)
+                        )
+                        .SetPadding(0),
+
+                        XUIVLayout.Make(
+                            XUIText.Make("Source").SetColor(Color.yellow),
+                            XUIDropdown.Make()
+                                .OnValueChanged((_, __) => OnSettingChangedSource())
+                                .Bind(ref m_SourceDropdown)
+                        )
+                        .SetPadding(0)
+                    )
+                    .SetPadding(0)
+                    .OnReady(x => x.CSizeFitter.enabled = false)
+                    .ForEachDirect<XUIPrimaryButton>  (y => {
+                        y.OnReady((x) => x.CSizeFitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained);
+                    })
+                )
+                .SetBackground(true)
+                .OnReady((x) =>
+                {
+                    x.CSizeFitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+                    x.HOrVLayoutGroup.childForceExpandWidth = true;
+                }),
+
+
+                XUIVLayout.Make(
+                    XUIHLayout.Make(
+                        XUIVLayout.Make(
+                            XUIText.Make("Filter").SetColor(Color.yellow),
+                            XUIDropdown.Make()
+                                .OnValueChanged((_, __) => OnSettingChangedFilter())
+                                .Bind(ref m_FilterDropdown)
+                        )
+                        .SetPadding(0),
+
+                        XUIVLayout.Make(
+                            XUIText.Make("Change type").SetColor(Color.yellow),
+                                XUIDropdown.Make()
+                                    .SetOptions(Enums.Toggle.S).SetValue(Enums.Toggle.ToStr(Model.ChangeType)).OnValueChanged((_, __) => OnSettingChangedFilter())
+                                    .Bind(ref m_ChangeTypeDropdown)
+                        )
+                        .SetPadding(0)
+                    )
+                    .SetPadding(0)
+                    .OnReady(x => x.CSizeFitter.enabled = false)
+                    .ForEachDirect<XUIPrimaryButton>  (y => {
+                        y.OnReady((x) => x.CSizeFitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained);
+                    })
+                )
+                .SetBackground(true)
+                .OnReady((x) =>
+                {
+                    x.CSizeFitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+                    x.HOrVLayoutGroup.childForceExpandWidth = true;
+                }),
+
+                XUIHLayout.Make(
+                    XUIPrimaryButton.Make("Test", OnTestButton)
+                )
+            };
+
+            BuildUIAuto(p_Parent);
+
+            RebuildLists();
+            UpdateSelections();
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        private void RebuildLists()
+        {
+            var l_SceneChoicesText = new List<string>() { "<i>None</i>" };
+
+            var l_SourceChoicesText = new List<string>() { "<i>None</i>" };
+            var l_SourceChoicesItem = new List<SceneItem>() { null };
+
+            var l_FilterChoicesText = new List<string>() { "<i>None</i>" };
+            var l_FilterChoicesItem = new List<SceneItemFilter>() { null };
+
+            if (OBSService.Status == OBSService.EStatus.Connected)
+            {
+                l_SceneChoicesText.AddRange(OBSService.Scenes.Values.Select(x => x.sceneName));
+
+                if (OBSService.TryGetSceneByName(Model.SceneName, out var l_Scene))
+                {
+                    var l_ActiveSource = null as SceneItem;
+
+                    /// Sources
+                    for (int l_I = 0; l_I < l_Scene.sceneItems.Count; ++l_I)
+                    {
+                        var l_Source = l_Scene.sceneItems[l_I];
+                        l_SourceChoicesText.Add(l_Source.sourceName);
+                        l_SourceChoicesItem.Add(l_Source);
+
+                        if (l_Source.sourceName == Model.SourceName)
+                            l_ActiveSource = l_Source;
+
+                        if (l_Source.SubItems?.Count > 0)
+                        {
+                            for (int l_Y = 0; l_Y < l_Source.SubItems.Count; ++l_Y)
+                            {
+                                var l_SubSource = l_Source.SubItems[l_Y];
+                                l_SourceChoicesText.Add($"⟼{l_SubSource.sourceName}");
+                                l_SourceChoicesItem.Add(l_SubSource);
+
+                                if (l_Source.sourceName == Model.SourceName)
+                                    l_ActiveSource = l_Source;
+                            }
+                        }
+                    }
+
+                    /// Filters
+                    if (l_ActiveSource != null)
+                    {
+                        for (int l_I = 0; l_I < l_ActiveSource.Filters?.Count; ++l_I)
+                        {
+                            var l_Filter = l_ActiveSource.Filters[l_I];
+                            l_FilterChoicesText.Add(l_Filter.filterName);
+                            l_FilterChoicesItem.Add(l_Filter);
+                        }
+                    }
+                }
+            }
+            else
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
+
+            m_SceneChoicesText = l_SceneChoicesText;
+
+            m_SourceChoicesText = l_SourceChoicesText;
+            m_SourceChoicesItem = l_SourceChoicesItem;
+
+            m_FilterChoicesText = l_FilterChoicesText;
+            m_FilterChoicesItem = l_FilterChoicesItem;
+        }
+        private void UpdateSelections()
+        {
+            m_SceneDropdown.SetOptions(m_SceneChoicesText, false);
+            var l_SceneIdx = m_SceneChoicesText.IndexOf(Model.SceneName);
+            if (l_SceneIdx != -1)
+                m_SceneDropdown.SetValue(m_SceneChoicesText[l_SceneIdx]);
+
+            m_SourceDropdown.SetOptions(m_SourceChoicesText, false);
+            var l_SourceIdx = m_SourceChoicesText.IndexOf(Model.SourceName);
+            if (l_SourceIdx != -1)
+                m_SourceDropdown.SetValue(m_SourceChoicesText[l_SourceIdx]);
+
+            m_FilterDropdown.SetOptions(m_FilterChoicesText, false);
+            var l_FilterIdx = m_FilterChoicesText.IndexOf(Model.FilterName);
+            if (l_FilterIdx != -1)
+                m_FilterDropdown.SetValue(m_FilterChoicesText[l_FilterIdx]);
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        private void OnSettingChangedScene()
+        {
+            /// Do not saved if OBS is not connected
+            if (OBSService.Status != OBSService.EStatus.Connected)
+                return;
+
+            if (Model.SceneName != m_SceneDropdown.Element.GetValue())
+            {
+                Model.SceneName = m_SceneDropdown.Element.GetValue();
+                RebuildLists();
+                UpdateSelections();
+            }
+        }
+        private void OnSettingChangedSource()
+        {
+            /// Do not saved if OBS is not connected
+            if (OBSService.Status != OBSService.EStatus.Connected)
+                return;
+
+            if (Model.SourceName != m_SourceDropdown.Element.GetValue())
+            {
+                Model.SourceName = m_SourceDropdown.Element.GetValue();
+                RebuildLists();
+                UpdateSelections();
+            }
+        }
+        private void OnSettingChangedFilter()
+        {
+            /// Do not saved if OBS is not connected
+            if (OBSService.Status != OBSService.EStatus.Connected)
+                return;
+
+            Model.FilterName = m_FilterDropdown.Element.GetValue();
+            Model.ChangeType = Enums.Toggle.ToEnum(m_ChangeTypeDropdown.Element.GetValue());
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        private SceneItemFilter FindSceneItemFilter()
+        {
+            if (OBSService.Status != OBSService.EStatus.Connected)
+            {
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, not connected to OBS!");
+                return null;
+            }
+
+            if (!OBSService.TryGetSceneByName(Model.SceneName, out var l_Scene))
+            {
+                if (Model.SceneName != "<i>None</i>")
+                    CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_ToggleSource Scene:{Model.SceneName} not found!");
+
+                return null;
+            }
+
+            var l_Source = l_Scene.GetSourceItemByName(Model.SourceName);
+            if (l_Source == null)
+            {
+                var l_Sub = l_Scene.sceneItems.Where(x => x.SubItems != null && x.SubItems.Any(y => y.sourceName == Model.SourceName));
+                l_Source = l_Sub.FirstOrDefault()?.SubItems.FirstOrDefault(x => x.sourceName == Model.SourceName) ?? null;
+            }
+
+            if (l_Source == null)
+            {
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_ToggleSource Source:{Model.SceneName} not found!");
+                return null;
+            }
+
+            var l_Filter = l_Source.Filters?.FirstOrDefault(x => x.filterName == Model.FilterName);
+            if (l_Filter == null)
+            {
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:OBS_ToggleSource Filter:{Model.FilterName} not found!");
+                return null;
+            }
+
+            return l_Filter;
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        private void OnTestButton()
+        {
+            var l_Filter = FindSceneItemFilter();
+            if (l_Filter == null)
+                return;
+
+            l_Filter.SetEnabled(Model.ChangeType == Enums.Toggle.E.Toggle ? !l_Filter.filterEnabled : (Model.ChangeType == Enums.Toggle.E.Enable));
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        public override IEnumerator Eval(Models.EventContext p_Context)
+        {
+            var l_Filter = FindSceneItemFilter();
+            if (l_Filter == null)
+            {
+                p_Context.HasActionFailed = true;
+                yield break;
+            }
+
+            l_Filter.SetEnabled(Model.ChangeType == Enums.Toggle.E.Toggle ? !l_Filter.filterEnabled : (Model.ChangeType == Enums.Toggle.E.Enable));
 
             yield return null;
         }

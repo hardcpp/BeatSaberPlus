@@ -3,12 +3,12 @@
   "id": "BeatSaberPlus_SongOverlay",
   "name": "BeatSaberPlus_SongOverlay",
   "author": "HardCPP",
-  "version": "6.4.1",
+  "version": "6.4.2",
   "description": "BeatSaberPlus song overlay module.",
   "gameVersion": "1.40.0",
   "dependsOn": {
     "BSIPA": "^4.3.0",
-    "ChatPlexSDK_BS": "^6.4.1"
+    "ChatPlexSDK_BS": "^6.4.2"
   },
   "links": {
     "project-home": "https://discord.chatplex.org",

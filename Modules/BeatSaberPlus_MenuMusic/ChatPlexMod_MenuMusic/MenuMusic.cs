@@ -324,7 +324,7 @@ namespace ChatPlexMod_MenuMusic
             try
             {
                 m_PlayerFloatingPanel = CP_SDK.UI.UISystem.FloatingPanelFactory.Create("ChatPlexMod_MenuMusic", l_ScreenContainer.transform);
-                m_PlayerFloatingPanel.SetSize(new Vector2(80.0f, 20.0f));
+                m_PlayerFloatingPanel.SetSize(new Vector2(90.0f, 20.0f));
                 m_PlayerFloatingPanel.SetRadius(140.0f);
                 m_PlayerFloatingPanel.SetTransformDirect(l_PlayerPosition, new Vector3(0.0f, 0.0f, 0.0f));
                 m_PlayerFloatingPanel.SetBackground(false);
