@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This file contains project properties used by the build. -->
+<Project>
+
+    <!-- Plugin Metadata -->
+    <PropertyGroup>
+        <PluginId>BeatSaberPlus_ChatRequest</PluginId>
+        <PluginName>BeatSaberPlus_ChatRequest</PluginName>
+        <Authors>HardCPP</Authors>
+        <Version>6.4.4</Version>
+        <GameVersion>1.42.0</GameVersion>
+        <Description>.</Description>
+        <!--<PluginIcon></PluginIcon>-->
+        <!--<ProjectSource></ProjectSource>-->
+        <ProjectHome>https://discord.chatplex.org</ProjectHome>
+        <DonateUrl>https://donate.chatplex.org</DonateUrl>
+    </PropertyGroup>
+
+    <!-- Plugin Dependencies -->
+    <ItemGroup>
+        <DependsOn Include="BSIPA" Version="^4.3.0" />
+        <DependsOn Include="ChatPlexSDK_BS" Version="^6.4.4" />
+    </ItemGroup>
+
+    <!-- Plugin Load Order & Conflicts -->
+    <ItemGroup>
+    </ItemGroup>
+
+    <PropertyGroup>
+        <BSMTProjectType>BSIPA</BSMTProjectType>
+        <GenerateManifest>true</GenerateManifest>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)' != 'Release'">
+        <DisableZipRelease>true</DisableZipRelease>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <OutputCopy Include="$(OutputPath)\$(TargetFileName)" OutputPath="Plugins\$(TargetFileName)" />
+        <OutputCopy Include="$(OutputPath)\$(TargetName).pdb" OutputPath="Plugins\$(TargetName).pdb" />
+    </ItemGroup>
+
+</Project>

@@ -155,8 +155,7 @@ namespace ChatPlexMod_ChatIntegrations.Actions
     public class Chat_InternalMessage
         : Interfaces.IAction<Chat_InternalMessage, Models.Action>
     {
-        private XUIText   m_Message         = null;
-        private XUIToggle m_AddTTSPrefix    = null;
+        private XUIText m_Message = null;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -258,7 +257,7 @@ namespace ChatPlexMod_ChatIntegrations.Actions
                 l_Message = l_Message.Replace(l_Key, l_ReplaceValue);
             }
 
-            CP_SDK.Chat.Service.Multiplexer.InternalBroadcastSystemMessage(l_Message);
+            CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage(l_Message);
 
             yield return null;
         }

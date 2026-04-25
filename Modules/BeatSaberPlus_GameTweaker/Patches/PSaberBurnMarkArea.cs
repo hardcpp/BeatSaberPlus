@@ -6,8 +6,8 @@ namespace BeatSaberPlus_GameTweaker.Patches
     /// SaberBurnMarkArea remover
     /// </summary>
     [HarmonyPatch(typeof(SaberBurnMarkArea))]
-    [HarmonyPatch(nameof(SaberBurnMarkArea.Start))]
-    public class PSaberBurnMarkArea : SaberBurnMarkArea
+    [HarmonyPatch(nameof(SaberBurnMarkArea.Initialize))]
+    public class PSaberBurnMarkArea
     {
         /// <summary>
         /// SaberBurnMarkArea instance

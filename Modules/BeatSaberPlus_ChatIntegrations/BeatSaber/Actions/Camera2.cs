@@ -1,4 +1,6 @@
-﻿using CP_SDK.XUI;
+﻿//#define NO_CAMERA2
+
+using CP_SDK.XUI;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,7 +26,9 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Actions
                 return;
             }
 
+#if !NO_CAMERA2
             Camera2.SDK.Scenes.ShowNormalScene();
+#endif
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -39,7 +43,9 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Actions
                 yield break;
             }
 
+#if !NO_CAMERA2
             Camera2.SDK.Scenes.ShowNormalScene();
+#endif
 
             yield return null;
         }
@@ -68,7 +74,9 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Actions
 
             if (ModPresence.Camera2)
             {
+#if !NO_CAMERA2
                 l_Choices = Camera2.SDK.Scenes.customScenes.Select(x => x.Key).ToList<string>();
+#endif
 
                 if (l_Choices.Count == 0)
                     l_Choices.Add("<i>None</i>");
@@ -119,10 +127,12 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Actions
                 return;
             }
 
+#if !NO_CAMERA2
             if (Camera2.SDK.Scenes.customScenes.ContainsKey(Model.SceneName))
                 Camera2.SDK.Scenes.SwitchToCustomScene(Model.SceneName);
             else
-                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:Camera2_SwitchToScene Scene:{Model.SceneName} not found!");
+#endif
+            CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:Camera2_SwitchToScene Scene:{Model.SceneName} not found!");
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -137,9 +147,11 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Actions
                 yield break;
             }
 
+#if !NO_CAMERA2
             if (Camera2.SDK.Scenes.customScenes.ContainsKey(Model.SceneName))
                 Camera2.SDK.Scenes.SwitchToCustomScene(Model.SceneName);
             else
+#endif
             {
                 p_Context.HasActionFailed = true;
                 CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:Camera2_SwitchToScene Scene:{Model.SceneName} not found!");
@@ -170,9 +182,11 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Actions
         {
             var l_Choices           = new List<string>() { "<i>None</i>" };
             var l_SelectedChoice    = "<i>None</i>";
+#if !NO_CAMERA2
             if (ModPresence.Camera2)
                 l_Choices = Camera2.SDK.Cameras.available.ToList<string>();
             else
+#endif
                 CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage("ChatIntegrations: Action failed, Camera2 mod is missing!");
 
             for (int l_I = 0; l_I < l_Choices.Count; ++l_I)
@@ -225,6 +239,7 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Actions
                 return;
             }
 
+#if !NO_CAMERA2
             if (Camera2.SDK.Cameras.available.Contains(Model.CameraName))
             {
                 switch (Model.ChangeType)
@@ -241,7 +256,10 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Actions
                 }
             }
             else
+#endif
+            {
                 CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:Camera2_ToggleCamera Camera:{Model.CameraName} not found!");
+            }
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -256,6 +274,7 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Actions
                 yield break;
             }
 
+#if !NO_CAMERA2
             if (Camera2.SDK.Cameras.available.Contains(Model.CameraName))
             {
                 switch (Model.ChangeType)
@@ -272,6 +291,7 @@ namespace BeatSaberPlus_ChatIntegrations.BeatSaber.Actions
                 }
             }
             else
+#endif
             {
                 p_Context.HasActionFailed = true;
                 CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage($"ChatIntegrations: Event:{Event.GenericModel.Name} Action:Camera2_ToggleCamera Camera:{Model.CameraName} not found!");

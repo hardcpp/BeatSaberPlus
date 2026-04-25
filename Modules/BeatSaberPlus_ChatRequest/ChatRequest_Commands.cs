@@ -150,7 +150,14 @@ namespace BeatSaberPlus_ChatRequest
                 return;
             }
 
-            if (!HandleCommandCooldown("Command_BSR", CRConfig.Instance.Commands.BSRCommandCooldownPerUser, CRConfig.Instance.Commands.BSRCommandCooldown, message.Sender))
+            if (!modAddCommand 
+                && !addToTopCommand 
+                && !HandleCommandCooldown(
+                    "Command_BSR", 
+                    CRConfig.Instance.Commands.BSRCommandCooldownPerUser, 
+                    CRConfig.Instance.Commands.BSRCommandCooldown, 
+                    message.Sender
+                ))
             {
                 SendChatMessage(CRConfig.Instance.Messages.OnCooldown, service, message);
                 return;

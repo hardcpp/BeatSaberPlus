@@ -11,7 +11,7 @@ namespace ChatPlexMod_Chat.UI
     /// </summary>
     internal sealed class HypeTrainFloatingPanelView : CP_SDK.UI.ViewController<HypeTrainFloatingPanelView>
     {
-        public static float HEIGHT = 7f;
+        public static readonly float HEIGHT = 7f;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -22,14 +22,14 @@ namespace ChatPlexMod_Chat.UI
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
-        private CP_SDK.Chat.Services.Twitch.TwitchService   m_TwitchService         = null;
-        private CP_SDK.Chat.Models.Twitch.Helix_HypeTrain   m_LastHypeTrain         = null;
-        private float                                       m_CurrentProgression    = 0f;
-        private float                                       m_CurrentExpire         = 0f;
-        private int                                         m_CurrentLevel          = 0;
-        private float                                       m_DisplayedProgression  = 0f;
-        private int                                         m_DisplayedRemaining    = 0;
-        private int                                         m_DisplayedLevel        = 0;
+        private CP_SDK.Chat.Services.Twitch.TwitchService    m_TwitchService         = null;
+        private CP_SDK.Chat.Models.Twitch.EventSub_HypeTrain m_LastHypeTrain         = null;
+        private float                                        m_CurrentProgression    = 0f;
+        private float                                        m_CurrentExpire         = 0f;
+        private int                                          m_CurrentLevel          = 0;
+        private float                                        m_DisplayedProgression  = 0f;
+        private int                                          m_DisplayedRemaining    = 0;
+        private int                                          m_DisplayedLevel        = 0;
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -39,7 +39,7 @@ namespace ChatPlexMod_Chat.UI
         /// </summary>
         protected override void OnViewCreation()
         {
-            var l_WhiteSprite = CP_SDK.Unity.SpriteU.CreateFromTexture(Texture2D.whiteTexture);
+            var whiteSprite = CP_SDK.Unity.SpriteU.CreateFromTexture(Texture2D.whiteTexture);
 
             XUIHLayout.Make(
                 XUIHLayout.Make(
@@ -50,7 +50,7 @@ namespace ChatPlexMod_Chat.UI
                 )
                 .SetPadding(0, 2, 0, 2).SetSpacing(0)
                 .SetBackground(true, new Color32(120, 44, 232, 255))
-                .SetBackgroundSprite(l_WhiteSprite, Image.Type.Filled)
+                .SetBackgroundSprite(whiteSprite, Image.Type.Filled)
                 .SetBackgroundFillMethod(Image.FillMethod.Horizontal)
                 .SetBackgroundFillAmount(0.33f)
                 .OnReady(x =>
@@ -66,7 +66,7 @@ namespace ChatPlexMod_Chat.UI
             )
             .SetPadding(0).SetSpacing(0)
             .SetBackground(true, new Color32(24, 24, 26, 255))
-            .SetBackgroundSprite(l_WhiteSprite, Image.Type.Simple)
+            .SetBackgroundSprite(whiteSprite, Image.Type.Simple)
             .OnReady(x =>
             {
                 x.HLayoutGroup.childForceExpandWidth    = true;
@@ -83,7 +83,7 @@ namespace ChatPlexMod_Chat.UI
             if (l_TwitchService != null)
             {
                 m_TwitchService = l_TwitchService as CP_SDK.Chat.Services.Twitch.TwitchService;
-                m_TwitchService.HelixAPI.OnActiveHypeTrainChanged += HelixAPI_OnActiveHypeTrainChanged;
+                m_TwitchService.EventSub.OnActiveHypeTrainChanged += HelixAPI_OnActiveHypeTrainChanged;
             }
         }
         /// <summary>
@@ -100,7 +100,7 @@ namespace ChatPlexMod_Chat.UI
         protected override void OnViewDestruction()
         {
             if (m_TwitchService != null)
-                m_TwitchService.HelixAPI.OnActiveHypeTrainChanged -= HelixAPI_OnActiveHypeTrainChanged;
+                m_TwitchService.EventSub.OnActiveHypeTrainChanged -= HelixAPI_OnActiveHypeTrainChanged;
 
             CP_SDK.Chat.Service.Release();
         }
@@ -115,12 +115,12 @@ namespace ChatPlexMod_Chat.UI
         {
             if (m_LastHypeTrain != null)
             {
-                var l_HasExpired = (m_CurrentExpire + 60) < Time.realtimeSinceStartup;
-                if (l_HasExpired)
+                var hasExpired = (m_CurrentExpire + 60) < Time.realtimeSinceStartup;
+                if (hasExpired)
                     CurrentScreen?.gameObject?.SetActive(false);
                 else
                 {
-                    m_Filler.SetBackgroundFillAmount(
+                    m_Filler.Element.SetBackgroundFillAmount(
                         Mathf.Lerp(
                             m_Filler.Element.GetBackgroundFillAmount(),
                             Mathf.Min(1f, m_CurrentProgression),
@@ -128,21 +128,21 @@ namespace ChatPlexMod_Chat.UI
                         )
                     );
 
-                    var l_NewDisplayProgression = Mathf.Lerp(m_DisplayedProgression,    m_CurrentProgression, Time.smoothDeltaTime * 2.5f);
-                    var l_RemainingSeconds      = (int)Mathf.Max(0f, m_CurrentExpire - Time.realtimeSinceStartup);
+                    var newDisplayProgression = Mathf.Lerp(m_DisplayedProgression,    m_CurrentProgression, Time.smoothDeltaTime * 2.5f);
+                    var remainingSeconds      = (int)Mathf.Max(0f, m_CurrentExpire - Time.realtimeSinceStartup);
 
-                    if (m_CurrentLevel != m_DisplayedLevel || Mathf.Abs(l_NewDisplayProgression - m_DisplayedProgression) >= 0.0001 || l_RemainingSeconds != m_DisplayedRemaining)
+                    if (m_CurrentLevel != m_DisplayedLevel || Mathf.Abs(newDisplayProgression - m_DisplayedProgression) >= 0.0001 || remainingSeconds != m_DisplayedRemaining)
                     {
                         m_DisplayedLevel        = m_CurrentLevel;
-                        m_DisplayedProgression  = l_NewDisplayProgression;
-                        m_DisplayedRemaining    = l_RemainingSeconds;
+                        m_DisplayedProgression  = newDisplayProgression;
+                        m_DisplayedRemaining    = remainingSeconds;
 
-                        var l_Minutes = l_RemainingSeconds / 60;
-                        var l_Seconds = l_RemainingSeconds - (l_Minutes * 60);
+                        var minutes = remainingSeconds / 60;
+                        var seconds = remainingSeconds - (minutes * 60);
 
                         m_Label.SetText(
                             $"<line-height=1%><align=\"left\"><b>LVL {m_DisplayedLevel}</b> - Hype Train!\n<line-height=100%><align=\"right\">" +
-                            $"{Mathf.RoundToInt(m_DisplayedProgression * 100.0f)}% {l_Minutes}:{l_Seconds.ToString().PadLeft(2, '0')}"
+                            $"{Mathf.RoundToInt(m_DisplayedProgression * 100.0f)}% {minutes}:{seconds.ToString().PadLeft(2, '0')}"
                         );
                     }
                 }
@@ -155,30 +155,32 @@ namespace ChatPlexMod_Chat.UI
         /// <summary>
         /// On active hype train changed
         /// </summary>
-        /// <param name="p_HypeTrain">Current hype train</param>
-        private void HelixAPI_OnActiveHypeTrainChanged(CP_SDK.Chat.Models.Twitch.Helix_HypeTrain p_HypeTrain)
+        /// <param name="hypeTrainData">Current hype train</param>
+        private void HelixAPI_OnActiveHypeTrainChanged(CP_SDK.Chat.Models.Twitch.EventSub_HypeTrain hypeTrainData)
         {
             CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() =>
             {
-                if (p_HypeTrain != null)
+                if (hypeTrainData != null)
                 {
-                    var l_HasExpired = p_HypeTrain.event_data.expires_at.AddSeconds(60) < DateTime.UtcNow;
-                    if (l_HasExpired && CurrentScreen && CurrentScreen.gameObject.activeSelf)
+                    var hasExpired = hypeTrainData.expires_at.AddSeconds(60) < DateTime.UtcNow;
+                    if (hasExpired && CurrentScreen && CurrentScreen.gameObject.activeSelf)
                         CurrentScreen.gameObject.SetActive(false);
-                    else if (!l_HasExpired)
+                    else if (!hasExpired)
                     {
                         if (CurrentScreen && !CurrentScreen.gameObject.activeSelf)
                             CurrentScreen.gameObject.SetActive(true);
 
-                        var l_Progress = p_HypeTrain.event_data.goal == 0 ? 0f : (float)p_HypeTrain.event_data.total / (float)p_HypeTrain.event_data.goal;
+                        var progress = 1.0f;
+                        if (hypeTrainData.goal != null)
+                            progress = (float)hypeTrainData.total / (float)hypeTrainData.goal;
 
-                        m_CurrentExpire         = Time.realtimeSinceStartup + (float)((p_HypeTrain.event_data.expires_at - DateTime.UtcNow).TotalSeconds);
-                        m_CurrentProgression    = l_Progress;
-                        m_CurrentLevel          = p_HypeTrain.event_data.level;
+                        m_CurrentExpire         = Time.realtimeSinceStartup + (float)((hypeTrainData.expires_at - DateTime.UtcNow).TotalSeconds);
+                        m_CurrentProgression    = progress;
+                        m_CurrentLevel          = hypeTrainData.level;
                     }
                 }
 
-                m_LastHypeTrain = p_HypeTrain;
+                m_LastHypeTrain = hypeTrainData;
             });
         }
     }

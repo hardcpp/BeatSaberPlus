@@ -33,34 +33,36 @@ namespace BeatSaberPlus_MenuMusic
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
-
-        /// <summary>
-        /// On BeatSaberPlus enable
-        /// </summary>
-        [OnEnable]
-        public void OnEnable()
+        
+        [OnStart]
+        public void OnApplicationStart()
         {
             try
             {
                 ChatPlexMod_MenuMusic.Logger.Instance.Debug("Applying Harmony patches.");
 
-                /// Setup harmony
+                // Setup harmony
                 m_Harmony = new Harmony(HarmonyID);
                 m_Harmony.PatchAll(Assembly.GetExecutingAssembly());
             }
-            catch (System.Exception p_Exception)
+            catch (System.Exception exception)
             {
                 ChatPlexMod_MenuMusic.Logger.Instance.Error("[Plugin.OnEnabled] Error:");
-                ChatPlexMod_MenuMusic.Logger.Instance.Error(p_Exception);
+                ChatPlexMod_MenuMusic.Logger.Instance.Error(exception);
             }
         }
-        /// <summary>
-        /// On BeatSaberPlus disable
-        /// </summary>
-        [OnDisable]
-        public void OnDisable()
+        [OnExit]
+        public void OnApplicationQuit() 
         {
-
+            try
+            {
+                m_Harmony.UnpatchSelf();
+            }
+            catch (System.Exception exception)
+            {
+                ChatPlexMod_MenuMusic.Logger.Instance.Error("[Plugin.OnApplicationQuit] Error:");
+                ChatPlexMod_MenuMusic.Logger.Instance.Error(exception);
+            }
         }
     }
 }

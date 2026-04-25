@@ -1,17 +1,17 @@
 # BeatSaberPlus (BS+)
 
-**Discord** https://discord.gg/63ebPMC (**Download, Support, Testing, Early releases** and cool new mods coming soon)  
-**Patreon** https://www.patreon.com/BeatSaberPlus **if you want to support this project development!**  
+**Discord** https://discord.gg/63ebPMC (**Download, Support, Testing, Early releases** and cool new mods coming soon)
+**Patreon** https://www.patreon.com/BeatSaberPlus **if you want to support this project development!**
 
 **[READ THE PATCH NOTES ! 🥖](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-Patchnotes)**
 
-Current version : 6.2.2
+Current version : 6.4.4
 
-BeatSaber compatibility : 1.25.0 to 1.29.1 AND 1.34.2
+BeatSaber compatibility : 1.40.0 to 1.40.8 AND 1.42.0 to 1.42.3
 
-**Important:** Most modules are disabled by default. Enable them in BeatSaberPlus -> Settings.  
+**Important:** Most modules are disabled by default. Enable them in BeatSaberPlus -> Settings.
 *   If you enable the Chat module, it will open a page in your browser for configuration.
-*   To use the Multiplayer+ module, go to BeatSaberPlus -> Multiplayer+ and set it up. Use the **Multiplayer+** button on the left panel instead of the **Online** button.  
+*   To use the Multiplayer+ module, go to BeatSaberPlus -> Multiplayer+ and set it up. Use the **Multiplayer+** button on the left panel instead of the **Online** button.
 
 ## Main features
 - **Chat:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-Chat))
@@ -38,7 +38,7 @@ BeatSaber compatibility : 1.25.0 to 1.29.1 AND 1.34.2
 	- History and Blacklist support
 	- Commands for moderation
 	- OBS overlay
-- **GameTweaker:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-Game-Tweaker))  
+- **GameTweaker:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-Game-Tweaker))
 	- Customize game visuals and effects!
 	- Precise reaction time and player height
 	- Change the light intensity of any map
@@ -48,7 +48,7 @@ BeatSaber compatibility : 1.25.0 to 1.29.1 AND 1.34.2
 	- Plays any songs from your custom levels or your own selection of music
 	- Controllable player interface with songs covers
 	- A command for viewers to get info about the current song
-- **Multiplayer+:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-Multiplayer-Plus))  
+- **Multiplayer+:** ([Documentation](https://github.com/hardcpp/BeatSaberPlus/wiki/%5BEN%5D-Multiplayer-Plus))
 	- A better multiplayer with custom songs support!
 	- BeatLeader and ScoreSaber support!
 	- Chroma, Noodle, 360, 90 maps support

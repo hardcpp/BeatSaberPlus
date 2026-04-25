@@ -220,7 +220,7 @@ namespace BeatSaberPlus_ChatRequest
                 try
                 {
                     var l_CurrentMap    = CP_SDK_BS.Game.Logic.LevelData?.Data?.beatmapLevel;
-                    var l_Mapper        = l_CurrentMap.allMappers.FirstOrDefault();
+                    var l_Mapper        = l_CurrentMap?.allMappers?.FirstOrDefault();
 
                     if (m_LastPlayingLevel != l_CurrentMap)
                     {

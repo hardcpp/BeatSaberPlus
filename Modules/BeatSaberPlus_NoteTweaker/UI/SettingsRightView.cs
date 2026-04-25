@@ -66,14 +66,12 @@ namespace BeatSaberPlus_NoteTweaker.UI
 
             GameObject.DontDestroyOnLoad(m_Parent);
 
-            var l_MenuTransitionsHelper                  = Resources.FindObjectsOfTypeAll<MenuTransitionsHelper>().FirstOrDefault();
-            var l_StandardLevelScenesTransitionSetupData = l_MenuTransitionsHelper._standardLevelScenesTransitionSetupData;
-            var l_StandardGameplaySceneInfo              = l_StandardLevelScenesTransitionSetupData._standardGameplaySceneInfo;
-            var l_GameCoreSceneInfo                      = l_StandardLevelScenesTransitionSetupData._gameCoreSceneInfo;
+            var l_StandardGameplaySceneInfo = "StandardGameplay";
+            var l_GameCoreSceneInfo         = "GameCore";
 
-            UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(l_GameCoreSceneInfo.sceneName, UnityEngine.SceneManagement.LoadSceneMode.Additive).completed += (_) =>
+            UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(l_GameCoreSceneInfo, UnityEngine.SceneManagement.LoadSceneMode.Additive).completed += (_) =>
             {
-                UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(l_StandardGameplaySceneInfo.sceneName, UnityEngine.SceneManagement.LoadSceneMode.Additive).completed += (__) =>
+                UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(l_StandardGameplaySceneInfo, UnityEngine.SceneManagement.LoadSceneMode.Additive).completed += (__) =>
                 {
                     var l_BeatmapObjectsInstaller   = Resources.FindObjectsOfTypeAll<BeatmapObjectsInstaller>().FirstOrDefault();
                     var l_OriginalNotePrefab        = l_BeatmapObjectsInstaller._normalBasicNotePrefab;
@@ -97,8 +95,8 @@ namespace BeatSaberPlus_NoteTweaker.UI
 
                     CreatePreview(m_NoteTemplate, m_BombTemplate, m_BurstSliderTemplate);
 
-                    UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(l_StandardGameplaySceneInfo.sceneName);
-                    UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(l_GameCoreSceneInfo.sceneName);
+                    UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(l_StandardGameplaySceneInfo);
+                    UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(l_GameCoreSceneInfo);
                 };
             };
         }

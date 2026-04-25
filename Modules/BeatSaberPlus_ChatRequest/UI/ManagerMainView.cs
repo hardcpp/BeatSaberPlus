@@ -323,7 +323,7 @@ namespace BeatSaberPlus_ChatRequest.UI
             /// Set selected song
             m_SelectedSong = l_SongEntry;
 
-            if (CP_SDK_BS.Game.Levels.TryGetBeatmapLevelForHash(m_SelectedSong.GetLevelHash(), out _))
+            if (CP_SDK_BS.Game.Levels.TryGetBeatmapLevelForHash(m_SelectedSong.GetLevelHash(), out _, silentFail: true))
                 m_SongInfo_Detail.SetPrimaryButtonText("Play");
             else
                 m_SongInfo_Detail.SetPrimaryButtonText("Download");
@@ -401,7 +401,7 @@ namespace BeatSaberPlus_ChatRequest.UI
 
             try
             {
-                if (CP_SDK_BS.Game.Levels.TryGetBeatmapLevelForHash(m_SelectedSong.GetLevelHash(), out var l_LocalSong))
+                if (CP_SDK_BS.Game.Levels.TryGetBeatmapLevelForHash(m_SelectedSong.GetLevelHash(), out var l_LocalSong, silentFail: true))
                 {
                     ChatRequest.Instance.DequeueSongEntry(m_SelectedSong, true);
 

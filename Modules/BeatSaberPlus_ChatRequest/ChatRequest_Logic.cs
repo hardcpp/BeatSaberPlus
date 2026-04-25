@@ -344,8 +344,8 @@ namespace BeatSaberPlus_ChatRequest
 
                     if (asModAdd && !string.IsNullOrEmpty(onBehalfOf))
                     {
-                        l_RequesterName = onBehalfOf + "\n(Added by " + l_NamePrefix + " " + l_RequesterName + ")";
-                        l_NamePrefix    = string.Empty;
+                        l_Entry.RequesterName = onBehalfOf + "\n(Added by " + l_NamePrefix + " " + l_RequesterName + ")";
+                        l_Entry.TitlePrefix   = string.Empty;
                     }
 
                     lock (SongQueue)

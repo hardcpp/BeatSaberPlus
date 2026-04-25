@@ -39,12 +39,9 @@ namespace BeatSaberPlus_NoteTweaker
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
-
-        /// <summary>
-        /// On  enable
-        /// </summary>
-        [OnEnable]
-        public void OnEnable()
+        
+        [OnStart]
+        public void OnApplicationStart()
         {
             try
             {
@@ -54,19 +51,24 @@ namespace BeatSaberPlus_NoteTweaker
                 m_Harmony = new Harmony(HarmonyID);
                 m_Harmony.PatchAll(Assembly.GetExecutingAssembly());
             }
-            catch (System.Exception p_Exception)
+            catch (System.Exception exception)
             {
                 Logger.Instance.Error("[Plugin.OnEnable] Error:");
-                Logger.Instance.Error(p_Exception);
+                Logger.Instance.Error(exception);
             }
         }
-        /// <summary>
-        /// On BeatSaberPlus disable
-        /// </summary>
-        [OnDisable]
-        public void OnDisable()
+        [OnExit]
+        public void OnApplicationQuit() 
         {
-
+            try
+            {
+                m_Harmony.UnpatchSelf();
+            }
+            catch (System.Exception exception)
+            {
+                Logger.Instance.Error("[Plugin.OnApplicationQuit] Error:");
+                Logger.Instance.Error(exception);
+            }
         }
     }
 }

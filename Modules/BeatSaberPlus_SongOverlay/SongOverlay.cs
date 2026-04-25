@@ -84,7 +84,7 @@ namespace BeatSaberPlus_SongOverlay
 
             if (l_OverlaysMods.Count > 1)
             {
-                CP_SDK.Chat.Service.Multiplexer.InternalBroadcastSystemMessage(
+                CP_SDK.Chat.Service.Multiplexer?.InternalBroadcastSystemMessage(
                     "<color=red>Warning you are running multiple song overlay mods (<color=yellow>" + string.Join(", ", l_OverlaysMods) + "</color>). "
                     + "It's recommended to only use 1 of these mods for performance reasons");
             }
