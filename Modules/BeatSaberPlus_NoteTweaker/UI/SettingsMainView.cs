@@ -1,4 +1,4 @@
-﻿using CP_SDK.UI.Data;
+using CP_SDK.UI.Data;
 using CP_SDK.Unity.Extensions;
 using CP_SDK.XUI;
 using Newtonsoft.Json;
@@ -20,6 +20,7 @@ namespace BeatSaberPlus_NoteTweaker.UI
         private XUISlider           m_NotesTab_Scale                = null;
         private XUIToggle           m_NotesTab_ShowPrecisonDots     = null;
         private XUISlider           m_NotesTab_PrecisionDotsScale   = null;
+        private XUISlider           m_NotesTab_PrecisionDotsOpacity = null;
 
         private XUISlider           m_ArrowsTab_Scale           = null;
         private XUISlider           m_ArrowsTab_Intensity       = null;
@@ -146,7 +147,13 @@ namespace BeatSaberPlus_NoteTweaker.UI
                     XUISlider.Make()
                         .SetMinValue(0.2f).SetMaxValue(1.5f).SetIncrements(0.01f).SetFormatter(CP_SDK.UI.ValueFormatters.Percentage)
                         .OnValueChanged((_) => OnSettingChanged())
-                        .Bind(ref m_NotesTab_PrecisionDotsScale)
+                        .Bind(ref m_NotesTab_PrecisionDotsScale),
+
+                    XUIText.Make("Precision dot opacity"),
+                    XUISlider.Make()
+                        .SetMinValue(0.0f).SetMaxValue(1.0f).SetIncrements(0.01f).SetFormatter(CP_SDK.UI.ValueFormatters.Percentage)
+                        .OnValueChanged((_) => OnSettingChanged())
+                        .Bind(ref m_NotesTab_PrecisionDotsOpacity)
                 )
                 .SetWidth(80.0f)
                 .SetPadding(0),
@@ -330,9 +337,10 @@ namespace BeatSaberPlus_NoteTweaker.UI
             var l_Profile = NTConfig.Instance.GetActiveProfile();
 
             #region Notes Tab
-            l_Profile.NotesScale                = m_NotesTab_Scale.Element.GetValue();
-            l_Profile.NotesShowPrecisonDots     = m_NotesTab_ShowPrecisonDots.Element.GetValue();
-            l_Profile.NotesPrecisonDotsScale    = m_NotesTab_PrecisionDotsScale.Element.GetValue();
+            l_Profile.NotesScale                 = m_NotesTab_Scale.Element.GetValue();
+            l_Profile.NotesShowPrecisonDots      = m_NotesTab_ShowPrecisonDots.Element.GetValue();
+            l_Profile.NotesPrecisonDotsScale     = m_NotesTab_PrecisionDotsScale.Element.GetValue();
+            l_Profile.NotesPrecisonDotsOpacity   = m_NotesTab_PrecisionDotsOpacity.Element.GetValue();
             #endregion
 
             #region Arrows Tab
@@ -390,6 +398,7 @@ namespace BeatSaberPlus_NoteTweaker.UI
             m_NotesTab_Scale                .SetValue(l_Profile.NotesScale);
             m_NotesTab_ShowPrecisonDots     .SetValue(l_Profile.NotesShowPrecisonDots);
             m_NotesTab_PrecisionDotsScale   .SetValue(l_Profile.NotesPrecisonDotsScale);
+            m_NotesTab_PrecisionDotsOpacity .SetValue(l_Profile.NotesPrecisonDotsOpacity);
             #endregion
 
             #region Arrows Tab

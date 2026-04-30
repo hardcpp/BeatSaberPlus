@@ -1,4 +1,4 @@
-﻿using CP_SDK.Unity.Extensions;
+using CP_SDK.Unity.Extensions;
 using HarmonyLib;
 using System.Collections.Generic;
 using UnityEngine;
@@ -29,6 +29,7 @@ namespace BeatSaberPlus_NoteTweaker.Patches
         private static Vector3  m_PrecisionCircleScale;
         private static bool     m_OverrideDotColors;
         private static float    m_DotAlpha;
+        private static float    m_PrecisionDotAlpha;
         private static Color    m_LeftCircleColor;
         private static Color    m_RightCircleColor;
         private static Color    m_LeftBlockColor;
@@ -93,14 +94,16 @@ namespace BeatSaberPlus_NoteTweaker.Patches
             if (!m_Enabled)
                 return;
 
-            var l_IsBurstNote   = (bool)__instance.GetComponent<BurstSliderGameNoteController>();
-            var l_CutDirection  = ____noteController.noteData.cutDirection;
-            var l_DotEnabled    = l_CutDirection == NoteCutDirection.Any ? m_CircleEnabled : (m_CircleEnabled && m_CircleForceEnabled);
+            var l_IsBurstNote     = (bool)__instance.GetComponent<BurstSliderGameNoteController>();
+            var l_CutDirection    = ____noteController.noteData.cutDirection;
+            var l_IsPrecisionDot  = l_CutDirection != NoteCutDirection.Any;
+            var l_DotEnabled      = l_IsPrecisionDot ? m_CircleForceEnabled : m_CircleEnabled;
 
             var l_BaseColor = ____colorManager.ColorForType(l_ColorType);
 
-            var l_ArrowColor = ColorU.WithAlpha(m_OverrideArrowColors ? (l_ColorType == ColorType.ColorB ? m_RightArrowColor  : m_LeftArrowColor)  : l_BaseColor, m_ArrowAlpha);
-            var l_DotColor   = ColorU.WithAlpha(m_OverrideDotColors   ? (l_ColorType == ColorType.ColorB ? m_RightCircleColor : m_LeftCircleColor) : l_BaseColor, m_DotAlpha);
+            var l_DotBaseColor = m_OverrideDotColors ? (l_ColorType == ColorType.ColorB ? m_RightCircleColor : m_LeftCircleColor) : l_BaseColor;
+            var l_ArrowColor   = ColorU.WithAlpha(m_OverrideArrowColors ? (l_ColorType == ColorType.ColorB ? m_RightArrowColor  : m_LeftArrowColor)  : l_BaseColor, m_ArrowAlpha);
+            var l_DotColor     = ColorU.WithAlpha(l_DotBaseColor, l_IsPrecisionDot ? m_PrecisionDotAlpha : m_DotAlpha);
 
             if (m_BlockColorsEnabled)
                 l_ArrowColor = ColorU.WithAlpha(l_ColorType == ColorType.ColorA ? m_LeftBlockColor : m_RightBlockColor, 0.6f);
@@ -194,10 +197,11 @@ namespace BeatSaberPlus_NoteTweaker.Patches
         }
         internal static void SetDotColorsFromConfig(NTConfig._Profile p_Profile)
         {
-            m_OverrideDotColors = NTConfig.Instance.Enabled ? p_Profile.DotsOverrideColors  : false;
-            m_DotAlpha          = NTConfig.Instance.Enabled ? p_Profile.DotsIntensity       : 1f;
-            m_LeftCircleColor   = NTConfig.Instance.Enabled ? p_Profile.DotsLColor          : new Color(0.659f, 0.125f, 0.125f, 1.000f);
-            m_RightCircleColor  = NTConfig.Instance.Enabled ? p_Profile.DotsRColor          : new Color(0.125f, 0.392f, 0.659f, 1.000f);
+            m_OverrideDotColors  = NTConfig.Instance.Enabled ? p_Profile.DotsOverrideColors       : false;
+            m_DotAlpha           = NTConfig.Instance.Enabled ? p_Profile.DotsIntensity            : 1f;
+            m_PrecisionDotAlpha  = NTConfig.Instance.Enabled ? p_Profile.NotesPrecisonDotsOpacity : 1f;
+            m_LeftCircleColor    = NTConfig.Instance.Enabled ? p_Profile.DotsLColor               : new Color(0.659f, 0.125f, 0.125f, 1.000f);
+            m_RightCircleColor   = NTConfig.Instance.Enabled ? p_Profile.DotsRColor               : new Color(0.125f, 0.392f, 0.659f, 1.000f);
         }
 
         ////////////////////////////////////////////////////////////////////////////
