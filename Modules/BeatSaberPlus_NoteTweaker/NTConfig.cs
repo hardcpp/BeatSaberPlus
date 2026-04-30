@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using UnityEngine;
@@ -20,8 +20,9 @@ namespace BeatSaberPlus_NoteTweaker
             [JsonProperty] internal string Name = "New profile";
 
             [JsonProperty] internal float NotesScale = 0.9f;
-            [JsonProperty] internal bool  NotesShowPrecisonDots = true;
-            [JsonProperty] internal float NotesPrecisonDotsScale = 0.40f;
+            [JsonProperty] internal bool  NotesShowPrecisonDots   = true;
+            [JsonProperty] internal float NotesPrecisonDotsScale  = 0.40f;
+            [JsonProperty] internal float NotesPrecisonDotsOpacity = 1.0f;
 
             [JsonProperty] internal float ArrowsScale = 1.0f;
             [JsonProperty] internal float ArrowsIntensity = 1.0f;

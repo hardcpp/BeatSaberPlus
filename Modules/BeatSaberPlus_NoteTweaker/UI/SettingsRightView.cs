@@ -1,4 +1,4 @@
-﻿using CP_SDK.Unity.Extensions;
+using CP_SDK.Unity.Extensions;
 using CP_SDK.XUI;
 using IPA.Utilities;
 using System.Linq;
@@ -198,10 +198,10 @@ namespace BeatSaberPlus_NoteTweaker.UI
             var l_DotLColor = l_Profile.DotsOverrideColors ? l_Profile.DotsLColor : ColorU.WithAlpha(l_LeftColor,  l_Profile.DotsLColor.a);
             var l_DotRColor = l_Profile.DotsOverrideColors ? l_Profile.DotsRColor : ColorU.WithAlpha(l_RightColor, l_Profile.DotsRColor.a);
 
-            PatchCircle(m_CustomPreviewTL, l_Profile.NotesPrecisonDotsScale,    l_DotLColor,   l_Profile.NotesShowPrecisonDots);
-            PatchCircle(m_CustomPreviewTR, l_Profile.NotesPrecisonDotsScale,    l_DotRColor,   l_Profile.NotesShowPrecisonDots);
-            PatchCircle(m_CustomPreviewDL, l_Profile.DotsScale,                 l_DotLColor,   true);
-            PatchCircle(m_CustomPreviewDR, l_Profile.DotsScale,                 l_DotRColor,   true);
+            PatchCircle(m_CustomPreviewTL, l_Profile.NotesPrecisonDotsScale,    ColorU.WithAlpha(l_DotLColor, l_Profile.NotesPrecisonDotsOpacity), l_Profile.NotesShowPrecisonDots);
+            PatchCircle(m_CustomPreviewTR, l_Profile.NotesPrecisonDotsScale,    ColorU.WithAlpha(l_DotRColor, l_Profile.NotesPrecisonDotsOpacity), l_Profile.NotesShowPrecisonDots);
+            PatchCircle(m_CustomPreviewDL, l_Profile.DotsScale,                 ColorU.WithAlpha(l_DotLColor, l_Profile.DotsIntensity),            true);
+            PatchCircle(m_CustomPreviewDR, l_Profile.DotsScale,                 ColorU.WithAlpha(l_DotRColor, l_Profile.DotsIntensity),            true);
 
             PatchBomb(m_CustomPreviewBomb, l_Profile.BombsOverrideColor ? l_Profile.BombsColor : new Color(0.251f, 0.251f, 0.251f, 1f));
 
