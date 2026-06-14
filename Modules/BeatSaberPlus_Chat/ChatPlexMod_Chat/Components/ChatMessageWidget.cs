@@ -146,10 +146,11 @@ namespace ChatPlexMod_Chat.Components
             m_Accent.gameObject.transform.SetParent(gameObject.transform, false);
 
             /// Update accent Layout UI transform
-            (m_Accent.gameObject.transform as RectTransform).anchorMin  = new Vector2(0, 0.5f);
-            (m_Accent.gameObject.transform as RectTransform).anchorMax  = new Vector2(0, 0.5f);
-            (m_Accent.gameObject.transform as RectTransform).sizeDelta  = new Vector2(1, 10);
-            (m_Accent.gameObject.transform as RectTransform).pivot      = new Vector2(0, 0.5f);
+            var rTransform = m_Accent.gameObject.transform as RectTransform;
+            rTransform.anchorMin  = new Vector2(0, 0.5f);
+            rTransform.anchorMax  = new Vector2(0, 0.5f);
+            rTransform.sizeDelta  = new Vector2(1, 10);
+            rTransform.pivot      = new Vector2(0, 0.5f);
         }
         /// <summary>
         /// When the GameObject is destroyed

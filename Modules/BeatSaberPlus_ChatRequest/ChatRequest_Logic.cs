@@ -820,17 +820,17 @@ namespace BeatSaberPlus_ChatRequest
 
                 if (l_FilterNPSMin && !l_FilterNPSMax && l_Diffs.Count(x => x.nps >= l_NPSMin) == 0)
                 {
-                    filterError = $"@{requesterName} this song has no difficulty with a NPS of {l_NPSMin} minimum!";
+                    filterError = $"@{requesterName} this map has no difficulty with a NPS of {l_NPSMin} minimum!";
                     return false;
                 }
                 if (!l_FilterNPSMin && l_FilterNPSMax && l_Diffs.Count(x => x.nps <= l_NPSMax) == 0)
                 {
-                    filterError = $"@{requesterName} this song has no difficulty with a NPS of {l_NPSMax} maximum!";
+                    filterError = $"@{requesterName} this map has no difficulty with a NPS of {l_NPSMax} maximum!";
                     return false;
                 }
                 if (l_FilterNPSMin && l_FilterNPSMax && l_Diffs.Count(x => x.nps >= l_NPSMin && x.nps <= l_NPSMax) == 0)
                 {
-                    filterError = $"@{requesterName} this song has no difficulty with a NPS between {l_NPSMin} and {l_NPSMax}!";
+                    filterError = $"@{requesterName} this map has no difficulty with a NPS between {l_NPSMin} and {l_NPSMax}!";
                     return false;
                 }
             }
@@ -843,28 +843,28 @@ namespace BeatSaberPlus_ChatRequest
 
                 if (l_FilterNJSMin && !l_FilterNJSMax && l_Diffs.Count(x => x.njs >= l_NJSMin) == 0)
                 {
-                    filterError = $"@{requesterName} this song has no difficulty with a NJS of {l_NJSMin} minimum!";
+                    filterError = $"@{requesterName} this map has no difficulty with a NJS of {l_NJSMin} minimum!";
                     return false;
                 }
                 if (!l_FilterNJSMin && l_FilterNJSMax && l_Diffs.Count(x => x.njs <= l_NJSMax) == 0)
                 {
-                    filterError = $"@{requesterName} this song has no difficulty with a NJS of {l_NJSMax} maximum!";
+                    filterError = $"@{requesterName} this map has no difficulty with a NJS of {l_NJSMax} maximum!";
                     return false;
                 }
                 if (l_FilterNJSMin && l_FilterNJSMax && l_Diffs.Count(x => x.njs >= l_NJSMin && x.njs <= l_NJSMax) == 0)
                 {
-                    filterError = $"@{requesterName} this song has no difficulty with a NJS between {l_NJSMin} and {l_NJSMax}!";
+                    filterError = $"@{requesterName} this map has no difficulty with a NJS between {l_NJSMin} and {l_NJSMax}!";
                     return false;
                 }
             }
             if (CRConfig.Instance.Filters.DurationMin && (int)beatMap.metadata.duration < (CRConfig.Instance.Filters.DurationMinV * 60))
             {
-                filterError = $"@{requesterName} this song is too short ({CRConfig.Instance.Filters.DurationMaxV} minute(s) minimum)!";
+                filterError = $"@{requesterName} this map is too short ({CRConfig.Instance.Filters.DurationMaxV} minute(s) minimum)!";
                 return false;
             }
             if (CRConfig.Instance.Filters.DurationMax && (int)beatMap.metadata.duration > (CRConfig.Instance.Filters.DurationMaxV * 60))
             {
-                filterError = $"@{requesterName} this song is too long ({CRConfig.Instance.Filters.DurationMaxV} minute(s) maximum)!";
+                filterError = $"@{requesterName} this map is too long ({CRConfig.Instance.Filters.DurationMaxV} minute(s) maximum)!";
                 return false;
             }
 
@@ -875,7 +875,7 @@ namespace BeatSaberPlus_ChatRequest
                 var l_AgeInDays = (DateTime.Now - l_Date).Days;
                 if (!CRConfig.Instance.Filters.IgnoreMinVoteBelow || l_AgeInDays > CRConfig.Instance.Filters.IgnoreMinVoteBelowV)
                 {
-                    filterError = $"@{requesterName} this song rating is too low ({(float)Math.Round((double)CRConfig.Instance.Filters.VoteMinV * 100f, 0)}% minimum)!";
+                    filterError = $"@{requesterName} this map rating is too low ({(float)Math.Round((double)CRConfig.Instance.Filters.VoteMinV * 100f, 0)}% minimum)!";
                     return false;
                 }
             }
@@ -883,13 +883,13 @@ namespace BeatSaberPlus_ChatRequest
             DateTime l_MinUploadDate = new DateTime(2018, 1, 1).AddMonths(CRConfig.Instance.Filters.DateMinV);
             if (CRConfig.Instance.Filters.DateMin && l_Date < l_MinUploadDate)
             {
-                filterError = $"@{requesterName} this song is too old ({CP_SDK.Misc.Time.MonthNames[l_MinUploadDate.Month - 1]} {l_MinUploadDate.Year} minimum)!";
+                filterError = $"@{requesterName} this map is too old ({CP_SDK.Misc.Time.MonthNames[l_MinUploadDate.Month - 1]} {l_MinUploadDate.Year} minimum)!";
                 return false;
             }
             DateTime l_MaxUploadDate = new DateTime(2018, 1, 1).AddMonths(CRConfig.Instance.Filters.DateMaxV + 1);
             if (CRConfig.Instance.Filters.DateMax && l_Date > l_MaxUploadDate)
             {
-                filterError = $"@{requesterName} this song is too recent ({CP_SDK.Misc.Time.MonthNames[l_MinUploadDate.Month - 1]} {l_MinUploadDate.Year} maximum)!";
+                filterError = $"@{requesterName} this map is too recent ({CP_SDK.Misc.Time.MonthNames[l_MinUploadDate.Month - 1]} {l_MinUploadDate.Year} maximum)!";
                 return false;
             }
 

@@ -46,7 +46,7 @@ namespace BeatSaberPlus_NoteTweaker.Patches
                 l_NoteInvScale  = Vector3.one;
             }
 
-            __instance.gameObject.transform.localScale = l_NoteScale;
+            __instance.transform.localScale = l_NoteScale;
 
             for (int l_I = 0; l_I < ____bigCuttableBySaberList.Length; ++l_I)
                 ____bigCuttableBySaberList[l_I].transform.localScale = l_NoteInvScale;

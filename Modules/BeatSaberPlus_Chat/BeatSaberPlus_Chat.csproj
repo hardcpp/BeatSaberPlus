@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <Import Project="$(MSBuildProjectFile).user" Condition="Exists('$(MSBuildProjectFile).user')"/>
+    <Import Project="$(MSBuildProjectFile).user" Condition="Exists('$(MSBuildProjectFile).user')" />
 
     <PropertyGroup>
         <ProjectGuid>{2DE1608F-407F-4B11-BE8A-D4CCDCD910A1}</ProjectGuid>
@@ -46,8 +46,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Reference Include="mscorlib"/>
-        <Reference Include="netstandard"/>
+        <Reference Include="mscorlib" />
+        <Reference Include="netstandard" />
 
         <Reference Include="BeatSaber.ViewSystem" Publicize="true">
             <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BeatSaber.ViewSystem.dll</HintPath>
@@ -61,7 +61,7 @@
             <HintPath>$(BeatSaberDir)\Libs\Newtonsoft.Json.dll</HintPath>
             <Private>False</Private>
         </Reference>
-        <Reference Include="System"/>
+        <Reference Include="System" />
         <Reference Include="Main">
             <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Main.dll</HintPath>
             <Private>False</Private>
@@ -74,7 +74,7 @@
             <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\IPA.Loader.dll</HintPath>
             <Private>False</Private>
         </Reference>
-        <Reference Include="Unity.TextMeshPro">
+        <Reference Include="Unity.TextMeshPro" Publicize="true">
             <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Unity.TextMeshPro.dll</HintPath>
             <Private>False</Private>
         </Reference>
@@ -108,7 +108,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <EmbeddedResource Include="ChatPlexMod_Chat\Resources\ViewerIcon.png"/>
+        <EmbeddedResource Include="ChatPlexMod_Chat\Resources\ViewerIcon.png" />
     </ItemGroup>
     
     <ItemGroup>

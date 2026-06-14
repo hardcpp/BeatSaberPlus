@@ -46,7 +46,7 @@ namespace BeatSaberPlus_NoteTweaker.Patches
             if (!m_Enabled && !m_TempEnabled)
                 return;
 
-            __instance.gameObject.transform.localScale                  = m_TempEnabled ? m_TempScale       : m_Scale;
+            __instance.transform.localScale                  = m_TempEnabled ? m_TempScale       : m_Scale;
             ____cuttableBySaber.GetComponent<SphereCollider>().radius   = 0.18f * (m_TempEnabled ? m_TempInvScale : m_InvScale);
         }
 

@@ -7,8 +7,8 @@
         <PluginId>BeatSaberPlus_SongOverlay</PluginId>
         <PluginName>BeatSaberPlus_SongOverlay</PluginName>
         <Authors>HardCPP</Authors>
-        <Version>6.4.4</Version>
-        <GameVersion>1.42.0</GameVersion>
+        <Version>6.4.5</Version>
+        <GameVersion>1.44.0</GameVersion>
         <Description>BeatSaberPlus song overlay module.</Description>
         <!--<PluginIcon></PluginIcon>-->
         <!--<ProjectSource></ProjectSource>-->
@@ -19,7 +19,7 @@
     <!-- Plugin Dependencies -->
     <ItemGroup>
         <DependsOn Include="BSIPA" Version="^4.3.0" />
-        <DependsOn Include="ChatPlexSDK_BS" Version="^6.4.4" />
+        <DependsOn Include="ChatPlexSDK_BS" Version="^6.4.5" />
     </ItemGroup>
 
     <!-- Plugin Load Order & Conflicts -->

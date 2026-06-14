@@ -23,8 +23,10 @@ namespace BeatSaberPlus_NoteTweaker.Patches
         /// <param name="____initColor">Start color</param>
         internal static void Postfix(ref Color ____initColor)
         {
-            if (m_Enabled)
-                ____initColor = ColorU.WithAlpha(____initColor, m_Opacity);
+            if (!m_Enabled)
+                return;
+
+            ____initColor = ColorU.WithAlpha(____initColor, m_Opacity);
         }
 
         ////////////////////////////////////////////////////////////////////////////
